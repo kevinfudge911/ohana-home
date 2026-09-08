@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>Ohana Home</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="theme-color" content="#0E3B47">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ocean:#0E3B47;--deep:#0A2C36;--shallow:#17505F;--sand:#F6E7C8;--sand2:#EED9AF;--coral:#FF8C69;--coral2:#E6704E;--sun:#FFD166;--leaf:#4FB286;--ink:#1B2A30;--mist:rgba(246,231,200,.72);--tile:#F8E3B3;--tile-edge:#C9A465;
+--dl:#BFE3F0;--tl:#5BA9CC;--dw:#F7B7C5;--tw:#F0766A}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--ocean);color:var(--sand);font-family:Nunito,system-ui,sans-serif;font-size:16px;line-height:1.45}
+body{display:flex;flex-direction:column;min-height:100dvh;overscroll-behavior:none}
+h1,h2,h3,.disp{font-family:Fredoka,Nunito,sans-serif;font-weight:600;letter-spacing:.01em;margin:0}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:12px 18px;background:var(--coral);color:var(--ink);font-weight:800;font-family:Fredoka,sans-serif;font-size:17px;letter-spacing:.02em}
+button:active{transform:translateY(1px)}
+button.ghost{background:transparent;color:var(--sand);border:2px solid var(--mist);font-weight:600}
+button.soft{background:var(--shallow);color:var(--sand)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+input,textarea{font:inherit;width:100%;padding:13px 14px;border-radius:14px;border:2px solid var(--shallow);background:var(--deep);color:var(--sand);font-size:17px}
+input::placeholder{color:rgba(246,231,200,.45)}
+.hidden{display:none!important}
+#app{flex:1;display:flex;flex-direction:column;max-width:720px;width:100%;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;padding:14px 18px 8px}
+header .logo{width:40px;height:40px}
+header h1{font-size:26px;color:var(--sand)}
+header small{display:block;font-family:Caveat,cursive;font-size:18px;color:var(--sun);line-height:1;margin-top:-2px}
+main{flex:1;overflow-y:auto;padding:8px 16px 100px;-webkit-overflow-scrolling:touch}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;background:var(--deep);border-top:1px solid rgba(246,231,200,.12);padding:6px 0 max(8px,env(safe-area-inset-bottom))}
+nav.tabs .in{display:flex;width:100%;max-width:720px}
+nav.tabs button{flex:1;background:transparent;color:rgba(246,231,200,.55);border-radius:12px;padding:8px 4px;font-size:14px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+nav.tabs button .ic{font-size:22px;line-height:1}
+nav.tabs button.on{color:var(--sun)}
+.badge{position:absolute;top:2px;right:calc(50% - 26px);background:var(--coral);color:var(--ink);font-size:11px;font-weight:800;border-radius:10px;padding:1px 6px;font-family:Nunito}
+
+/* join */
+.join{flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px 22px;gap:14px;max-width:440px;margin:0 auto;width:100%}
+.join h1{font-size:44px;color:var(--sand);line-height:1}
+.join .tag{font-family:Caveat,cursive;font-size:26px;color:var(--sun);margin:-6px 0 12px}
+.join label{font-weight:700;font-size:14px;color:rgba(246,231,200,.75);margin-top:6px;display:block}
+.avs{display:flex;flex-wrap:wrap;gap:6px}
+.avs button{width:44px;height:44px;padding:0;border-radius:12px;background:var(--deep);font-size:24px;border:2px solid transparent}
+.avs button.sel{border-color:var(--sun);background:var(--shallow)}
+.err{background:#5a2323;color:#ffd9d2;padding:10px 14px;border-radius:12px;font-weight:600}
+
+/* games list */
+.shelf{margin:16px 0 6px;font-size:20px;color:var(--sand)}
+.shelf small{font-family:Nunito;font-weight:600;font-size:13px;color:rgba(246,231,200,.6);margin-left:8px}
+.gcard{display:flex;align-items:center;gap:12px;background:var(--deep);border-radius:18px;padding:12px 14px;margin-bottom:8px;border:1px solid rgba(246,231,200,.08)}
+.gcard .em{font-size:34px;width:48px;text-align:center}
+.gcard .t{flex:1;min-width:0}
+.gcard .t b{display:block;font-family:Fredoka;font-size:19px;font-weight:600}
+.gcard .t span{font-size:13px;color:rgba(246,231,200,.7)}
+.gcard button{padding:10px 14px;font-size:15px;white-space:nowrap}
+.gcard.turn{border-color:var(--sun);box-shadow:0 0 0 1px var(--sun) inset}
+.gcard .who{display:flex;gap:3px;font-size:18px}
+.empty{color:rgba(246,231,200,.6);padding:14px 4px;font-style:italic}
+
+/* game screen */
+#game{position:fixed;inset:0;background:var(--ocean);display:flex;flex-direction:column;z-index:20;max-width:720px;margin:0 auto}
+#game .top{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--deep)}
+#game .top h2{flex:1;font-size:20px}
+#game .top button{padding:8px 12px;font-size:14px}
+#game .body{flex:1;overflow:auto;padding:10px 10px 20px;position:relative}
+.scores{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sc{flex:1;min-width:120px;background:var(--deep);border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:2px solid transparent}
+.sc.turn{border-color:var(--sun)}
+.sc .n{flex:1;font-weight:700;font-size:14px;line-height:1.1}
+.sc .n small{display:block;font-weight:600;color:rgba(246,231,200,.6)}
+.sc .p{font-family:Fredoka;font-size:24px;font-weight:600;color:var(--sun)}
+.status{font-family:Caveat,cursive;font-size:24px;color:var(--sun);text-align:center;margin:6px 0 10px;line-height:1.1}
+.status.me{color:var(--coral)}
+.scrawl{position:absolute;left:0;right:0;text-align:center;font-family:Caveat,cursive;font-size:clamp(22px,5.5vw,34px);color:rgba(246,231,200,.22);pointer-events:none;transform:rotate(-6deg);z-index:0;line-height:1.1}
+.winbox{background:var(--sun);color:var(--ink);border-radius:18px;padding:14px;text-align:center;font-family:Fredoka;font-size:22px;font-weight:600;margin:10px 0}
+.winbox small{display:block;font-family:Nunito;font-weight:700;font-size:14px;margin-top:4px}
+
+/* words board */
+.wb{--cs:calc((min(100vw,720px) - 20px)/15);display:grid;grid-template-columns:repeat(15,var(--cs));grid-auto-rows:var(--cs);gap:1px;background:var(--tile-edge);padding:1px;border-radius:6px;margin:0 auto;width:max-content;position:relative;z-index:1}
+.wbwrap{position:relative}.wbwrap .scrawl{z-index:2;color:rgba(27,42,48,.2);font-size:clamp(18px,4.6vw,30px);font-weight:700}
+.c{background:var(--sand);display:flex;align-items:center;justify-content:center;position:relative;font-family:Fredoka;font-size:calc(var(--cs)*.5);color:rgba(27,42,48,.55);font-weight:600}
+.c.DL{background:var(--dl)}.c.TL{background:var(--tl);color:#fff}.c.DW{background:var(--dw)}.c.TW{background:var(--tw);color:#fff}
+.c.ctr{background:var(--sun)}.c.star{background:var(--sun)}
+.c .bl{font-size:calc(var(--cs)*.34);letter-spacing:-.02em}
+.c .t{position:absolute;inset:1px;border-radius:3px;background:var(--tile);border:1px solid var(--tile-edge);box-shadow:0 1px 0 var(--tile-edge);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);font-weight:600}
+.c .t.new{background:#FFE9A8;border-color:var(--coral2)}
+.c .t.last{background:#D8F1E4}
+.c .t.blank{color:#7a6a3a;font-style:italic}
+.c .t i{position:absolute;right:2px;bottom:0;font-style:normal;font-size:calc(var(--cs)*.26);font-weight:700}
+.rack{display:flex;justify-content:center;gap:6px;margin:12px 0 8px;min-height:52px}
+.rack .rt{width:46px;height:52px;border-radius:8px;background:var(--tile);border:2px solid var(--tile-edge);color:var(--ink);font-family:Fredoka;font-size:26px;font-weight:600;display:flex;align-items:center;justify-content:center;position:relative;padding:0}
+.rack .rt.sel{border-color:var(--coral2);background:#FFE9A8;transform:translateY(-6px)}
+.rack .rt.swp{border-color:var(--tl);background:#dbeef6}
+.rack .rt i{position:absolute;right:3px;bottom:1px;font-style:normal;font-size:12px;font-weight:700}
+.rack .rt.used{opacity:.25}
+.acts{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.acts button{padding:10px 14px;font-size:15px}
+.hist{font-size:14px;color:rgba(246,231,200,.75);margin-top:10px}
+.hist div{padding:3px 0;border-top:1px solid rgba(246,231,200,.08)}
+.hist b{color:var(--sand)}
+.bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
+
+/* tictac */
+.ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:10px auto;position:relative;z-index:1}
+.ttt button{aspect-ratio:1;font-size:56px;background:var(--sand);color:var(--ink);border-radius:18px;font-family:Fredoka;padding:0}
+.ttt button.X{color:var(--coral2)}.ttt button.O{color:var(--tl)}.ttt button.win{background:var(--sun)}
+
+/* memory */
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:360px;margin:10px auto;position:relative;z-index:1}
+.mem button{aspect-ratio:1;font-size:40px;background:var(--shallow);border-radius:16px;padding:0;color:var(--ink)}
+.mem button.up{background:var(--sand)}.mem button.done{background:var(--leaf);opacity:.8}
+.mem button.back{background:var(--shallow) radial-gradient(circle at 50% 50%,rgba(255,209,102,.35) 0 8px,transparent 9px)}
+
+/* checkers */
+.chk{display:grid;grid-template-columns:repeat(8,1fr);max-width:420px;margin:10px auto;border:4px solid var(--tile-edge);border-radius:6px;overflow:hidden;position:relative;z-index:1}
+.chk div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--sand)}
+.chk div.d{background:#7C5A3A}
+.chk div.from{box-shadow:inset 0 0 0 4px var(--sun)}
+.chk div.can{box-shadow:inset 0 0 0 4px var(--leaf)}
+.chk .pc{width:78%;height:78%;border-radius:50%;box-shadow:inset 0 -4px 0 rgba(0,0,0,.3),0 2px 3px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:20px}
+.chk .pc.r{background:#E85A4F}.chk .pc.b{background:#2B2F36}
+.chk .pc.k::after{content:'♛';color:var(--sun);font-size:22px}
+
+/* chat */
+.msgs{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding-bottom:8px;min-height:calc(100dvh - 250px)}
+.m{display:flex;gap:8px;align-items:flex-end;max-width:88%}
+.m.me{align-self:flex-end;flex-direction:row-reverse}
+.m .av{font-size:26px;line-height:1}
+.m .bub{background:var(--deep);border-radius:16px;padding:8px 12px;border-bottom-left-radius:4px}
+.m.me .bub{background:var(--shallow);border-bottom-left-radius:16px;border-bottom-right-radius:4px}
+.m .bub b{display:block;font-size:12px;color:var(--sun);margin-bottom:2px}
+.m .bub img{max-width:100%;border-radius:10px;display:block;margin-top:4px;max-height:320px}
+.m .bub time{display:block;font-size:11px;color:rgba(246,231,200,.5);margin-top:3px}
+.compose{position:fixed;bottom:64px;left:0;right:0;padding:8px 12px calc(6px + env(safe-area-inset-bottom));background:var(--ocean)}
+.compose .in{display:flex;gap:8px;max-width:720px;margin:0 auto;align-items:flex-end}
+.compose textarea{resize:none;height:48px;max-height:120px;padding:11px 14px}
+.compose button{padding:0;width:48px;height:48px;font-size:22px;flex:none}
+.compose button.pic{background:var(--shallow);color:var(--sand)}
+
+/* family */
+.fam{display:flex;align-items:center;gap:12px;background:var(--deep);border-radius:16px;padding:10px 14px;margin-bottom:8px}
+.fam .av{font-size:30px;position:relative}
+.fam .av i{position:absolute;right:-3px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#556;border:2px solid var(--deep)}
+.fam .av i.on{background:var(--leaf)}
+.fam b{font-family:Fredoka;font-size:18px;font-weight:600}
+.fam small{display:block;color:rgba(246,231,200,.6);font-size:13px}
+.admin{background:var(--deep);border-radius:18px;padding:14px;margin-top:18px}
+.admin h3{font-size:18px;margin-bottom:8px}
+.admin .row{display:flex;gap:8px;margin-bottom:8px}
+.admin .row input{flex:1}
+.toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:var(--sun);color:var(--ink);padding:10px 16px;border-radius:14px;font-weight:800;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.35);max-width:90vw;text-align:center}
+
+/* notification toggle */
+.notif-row{display:flex;align-items:center;gap:10px;background:var(--deep);border-radius:16px;padding:12px 14px;margin:12px 0}
+.notif-row .ntxt{flex:1}
+.notif-row .ntxt b{font-family:Fredoka;font-size:16px;display:block}
+.notif-row .ntxt small{color:rgba(246,231,200,.6);font-size:13px}
+.sw-toggle{position:relative;width:52px;height:30px;background:var(--shallow);border-radius:15px;cursor:pointer;border:0;padding:0;transition:background .2s}
+.sw-toggle.on{background:var(--leaf)}
+.sw-toggle::after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;background:var(--sand);border-radius:50%;transition:transform .2s}
+.sw-toggle.on::after{transform:translateX(22px)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const AV = ['🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄','🐢','🦋','🌺','⭐','🍕','🚀','🦖','🐬','🎸','🏈'];
+const EM = { words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
+const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
+const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
+let S = { token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '🙂', pushSub: null };
+const app = $('#app');
+
+async function api(path, body, method) {
+  const r = await fetch(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'content-type': 'application/json', ...(S.token ? { authorization: 'Bearer ' + S.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json().catch(() => ({ error: 'Connection hiccup' }));
+  if (r.status === 401) { S.token = null; localStorage.removeItem('ohana_token'); render(); throw new Error('Please sign in again.'); }
+  if (!r.ok) throw new Error(d.error || 'Something went wrong');
+  return d;
+}
+function toast(t, ms = 2600) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), ms); }
+function fmtTime(ts) { const d = new Date(ts); return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+function nameOf(id) { const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.name : (S.gstate?.names?.[id]?.name || 'Someone'); }
+function avOf(id) { const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.avatar : (S.gstate?.names?.[id]?.avatar || '🙂'); }
+
+// ---------- PUSH NOTIFICATIONS ----------
+async function setupPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    S.pushSub = sub;
+    if (sub && S.token) {
+      // Make sure server knows about this subscription
+      const keys = sub.toJSON().keys;
+      await api('/api/push/subscribe', { endpoint: sub.endpoint, p256dh: keys.p256dh, auth: keys.auth }).catch(() => {});
+    }
+  } catch(e) { /* quiet */ }
+}
+
+async function subscribePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { toast('Notifications not supported on this device'); return false; }
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { toast('Notifications were blocked. Check your browser settings.'); return false; }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+    });
+    S.pushSub = sub;
+    const keys = sub.toJSON().keys;
+    await api('/api/push/subscribe', { endpoint: sub.endpoint, p256dh: keys.p256dh, auth: keys.auth });
+    toast('Notifications are on!');
+    return true;
+  } catch(e) { toast(e.message || 'Could not turn on notifications'); return false; }
+}
+
+async function unsubscribePush() {
+  try {
+    if (S.pushSub) {
+      const endpoint = S.pushSub.endpoint;
+      await S.pushSub.unsubscribe();
+      S.pushSub = null;
+      await api('/api/push/unsubscribe', { endpoint }).catch(() => {});
+    }
+    toast('Notifications are off');
+  } catch(e) { toast('Could not turn off notifications'); }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+// ---------- JOIN ----------
+function renderJoin(errMsg) {
+  app.innerHTML = `<div class="join">
+    <img src="/icon.svg" width="72" height="72" alt="">
+    <h1>Ohana Home</h1>
+    <div class="tag">Come on in. There's always room for you.</div>
+    ${errMsg ? `<div class="err">${esc(errMsg)}</div>` : ''}
+    <label>Family code</label><input id="jcode" placeholder="The family's secret word" autocapitalize="characters" autocomplete="off">
+    <label>Your name</label><input id="jname" placeholder="What everybody calls you" autocomplete="off" maxlength="24">
+    <label>Your PIN (4 numbers, just for you)</label><input id="jpin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
+    <label>Pick your face</label><div class="avs">${AV.map(a => `<button class="${a === S.av ? 'sel' : ''}" data-av="${a}">${a}</button>`).join('')}</div>
+    <button id="jgo" style="margin-top:10px">Come on in</button>
+    <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">First time? Just make up a name and PIN. Coming back? Use the same ones.</p>
+  </div>`;
+  const code = localStorage.getItem('ohana_code'); if (code) $('#jcode').value = code;
+  const nm = localStorage.getItem('ohana_name'); if (nm) $('#jname').value = nm;
+  app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; localStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
+  $('#jgo').onclick = async () => {
+    try {
+      $('#jgo').disabled = true;
+      const d = await api('/api/join', { code: $('#jcode').value, name: $('#jname').value, pin: $('#jpin').value, avatar: S.av });
+      S.token = d.token; S.me = d.me; localStorage.setItem('ohana_token', d.token); localStorage.setItem('ohana_code', $('#jcode').value); localStorage.setItem('ohana_name', d.me.name);
+      await sync(); render();
+      // After joining, try to set up push
+      setupPush();
+    } catch (e) { renderJoin(e.message); }
+  };
+}
+
+// ---------- SHELL ----------
+function render() {
+  if (!S.token) return renderJoin();
+  if (S.game) return renderGame();
+  const myTurn = (S.sync?.games || []).filter(g => g.my_turn).length;
+  app.innerHTML = `<header><img class="logo" src="/icon.svg" alt=""><div><h1>Ohana Home</h1><small>${esc(S.sync?.familyName || '')}</small></div></header>
+    <main id="main"></main>
+    <nav class="tabs"><div class="in">
+      <button data-tab="games" class="${S.tab === 'games' ? 'on' : ''}"><span class="ic">🎲</span>Games${myTurn ? `<span class="badge">${myTurn}</span>` : ''}</button>
+      <button data-tab="chat" class="${S.tab === 'chat' ? 'on' : ''}"><span class="ic">💬</span>Chat${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button>
+      <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>Family</button>
+    </div></nav>`;
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if (S.tab === 'chat') S.unread = 0; render(); });
+  document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
+  if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else renderFamily();
+}
+
+// ---------- GAMES LIST ----------
+function renderGames() {
+  const m = $('#main'); const sy = S.sync; if (!sy) { m.innerHTML = '<div class="empty">Loading…</div>'; return; }
+  const mine = sy.games.filter(g => g.in_game && g.status !== 'finished').sort((a, b) => (b.my_turn - a.my_turn) || (b.updated_at - a.updated_at));
+  const open = sy.games.filter(g => !g.in_game && g.status === 'waiting');
+  const done = sy.games.filter(g => g.status === 'finished').slice(0, 6);
+  const who = g => `<div class="who">${g.players.map(p => avOf(p)).join('')}</div>`;
+  const line = g => g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${nameOf(+g.winner)} won`) : g.my_turn ? 'Your turn!' : `${nameOf(g.players[g.turn])}'s turn`;
+  const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${EM[g.type]}</div><div class="t"><b>${esc(g.name)}</b><span>${line(g)}</span>${who(g)}</div>${btn}</div>`;
+  const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
+  m.innerHTML = `${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
+    ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
+    <div style="position:relative;height:44px;margin-top:14px"><div class="scrawl" style="top:6px">Ohana means family, and nobody gets left behind</div></div>
+    <h2 class="shelf" style="margin-top:0">Start a game</h2>
+    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${EM[id]}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div>${gt.max > 2 ? `<div style="display:flex;gap:8px;width:100%;justify-content:flex-end;align-items:center"><select id="np_${id}" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select><button data-new="${id}">New</button></div>` : `<button data-new="${id}">New</button>`}</div>`; }).join('')).join('')}
+    ${done.length ? `<h2 class="shelf">Finished lately</h2>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}">See</button>`)).join('') : ''}`;
+  m.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openGame(+b.dataset.open));
+  m.querySelectorAll('[data-join]').forEach(b => b.onclick = async () => { try { await api(`/api/game/${b.dataset.join}/join`, {}); await sync(); openGame(+b.dataset.join); } catch (e) { toast(e.message); } });
+  m.querySelectorAll('[data-new]').forEach(b => b.onclick = async () => { try { const sel = $(`#np_${b.dataset.new}`); const d = await api('/api/game/create', { type: b.dataset.new, max_players: sel ? +sel.value : 2 }); await sync(); openGame(d.id); } catch (e) { toast(e.message); } });
+}
+
+// ---------- GAME SCREEN ----------
+async function openGame(id) { S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; render(); await loadGame(); }
+async function loadGame() { if (!S.game) return; try { const d = await api(`/api/game/${S.game}`); const changed = JSON.stringify(d.state) !== JSON.stringify(S.gstate?.state) || d.status !== S.gstate?.status || d.players.length !== S.gstate?.players?.length; S.gstate = d; if (changed) { if (d.status !== 'playing') { S.placed = []; } renderGame(); } } catch (e) { toast(e.message); } }
+function closeGame() { S.game = null; S.gstate = null; sync().then(render); render(); }
+
+function renderGame() {
+  const g = S.gstate;
+  if (!g) { app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>Loading…</h2></div></div>`; $('#back').onclick = closeGame; return; }
+  const meId = S.me.id;
+  app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>${EM[g.type]} ${esc(g.name)}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="leave">${g.status === 'waiting' ? (g.created_by === meId ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div><div class="body" id="gb"></div></div>`;
+  $('#back').onclick = closeGame;
+  const lv = $('#leave'); if (lv) lv.onclick = async () => { if (!confirm(g.status === 'waiting' ? 'Close this game?' : 'Give up this game?')) return; try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } };
+  const b = $('#gb');
+  if (g.status === 'waiting') {
+    b.innerHTML = `<div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
+      <p style="text-align:center;color:rgba(246,231,200,.75)">Everyone in the family can see this game on their Games tab and tap Join. It starts by itself when the seats are full.</p>
+      ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
+      ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb">Start now with ${g.players.length}</button></div>` : ''}`;
+    const jb = $('#joinb'); if (jb) jb.onclick = async () => { try { await api(`/api/game/${g.id}/join`, {}); await loadGame(); } catch (e) { toast(e.message); } };
+    const sb = $('#startb'); if (sb) sb.onclick = async () => { try { await api(`/api/game/${g.id}/start`, {}); await loadGame(); } catch (e) { toast(e.message); } };
+    return;
+  }
+  const st = g.state; const turnId = g.players[g.turn];
+  let head = '';
+  if (g.status === 'finished') head = `<div class="winbox">${g.winner === 'tie' ? "It's a tie!" : g.winner === 'resigned' ? 'Game ended' : (+g.winner === meId ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`)}${st.scores ? `<small>${g.players.map(p => `${esc(nameOf(p))} ${st.scores[p]}`).join(' · ')}</small>` : ''}</div>`;
+  else head = `<div class="status ${turnId === meId ? 'me' : ''}">${turnId === meId ? 'Your turn!' : `Waiting on ${esc(nameOf(turnId))}…`}</div>`;
+  const scores = st.scores ? `<div class="scores">${g.players.map(p => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${g.type === 'words' ? `<small>${typeof st.racks[p] === 'number' ? st.racks[p] : st.racks[p].length} tiles</small>` : ''}</div><div class="p">${st.scores[p]}</div></div>`).join('')}</div>` : `<div class="scores">${g.players.map((p, i) => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}<small>${g.type === 'tictac' ? (i === 0 ? 'X' : 'O') : g.type === 'checkers' ? (i === 0 ? 'Red' : 'Black') : ''}</small></div></div>`).join('')}</div>`;
+  b.innerHTML = head + scores + `<div id="board"></div>`;
+  const myTurn = g.status === 'playing' && turnId === meId;
+  ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
+}
+
+// ----- Words -----
+function renderWords(st, g, myTurn) {
+  const bd = $('#board'); const meId = S.me.id; const rack = Array.isArray(st.racks[meId]) ? st.racks[meId] : [];
+  const usedIdx = new Set(S.placed.map(p => p.rackIdx));
+  const cells = [];
+  for (let i = 0; i < 225; i++) {
+    const t = st.board[i]; const pl = S.placed.find(p => p.i === i); const bn = st.bonus[i];
+    let cls = 'c ' + (bn || '') + (i === 112 ? ' ctr' : '') + (st.star === i ? ' star' : '');
+    let inner = t ? `<span class="t ${st.lastMove.includes(i) ? 'last' : ''} ${t.blank ? 'blank' : ''}">${t.l}<i>${t.v}</i></span>` : pl ? `<span class="t new ${pl.blank ? 'blank' : ''}">${pl.l}<i>${pl.blank ? 0 : LV[pl.l]}</i></span>` : (i === 112 ? '★' : st.star === i ? '🌺' : bn ? `<span class="bl">${bn}</span>` : '');
+    cells.push(`<div class="${cls}" data-i="${i}">${inner}</div>`);
+  }
+  bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
+    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden somewhere (+20)'}</div>
+    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
+      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
+    <div class="hist">${[...st.history].reverse().slice(0, 8).map(h => `<div><b>${esc(nameOf(h.p))}</b> ${h.words.length ? h.words.map(w => `${w.word} (${w.score})`).join(', ') + ` — <b>+${h.score}</b>` : h.note}${h.words.length && h.note ? ` · ${h.note}` : ''}</div>`).join('')}</div>`;
+  const rerender = () => renderWords(st, g, myTurn);
+  bd.querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
+    const k = +btn.dataset.r; if (usedIdx.has(k)) return;
+    if (S.swapMode) { S.swapSel = S.swapSel.includes(k) ? S.swapSel.filter(x => x !== k) : [...S.swapSel, k]; return rerender(); }
+    S.sel = S.sel === k ? null : k; rerender();
+  });
+  bd.querySelectorAll('.c').forEach(c => c.onclick = () => {
+    const i = +c.dataset.i; if (st.board[i]) return;
+    const pk = S.placed.findIndex(p => p.i === i);
+    if (pk >= 0) { S.placed.splice(pk, 1); return rerender(); }
+    if (S.sel === null || !myTurn) return;
+    let l = rack[S.sel], blank = false;
+    if (l === '?') { const a = prompt('Blank tile! What letter do you want it to be?'); if (!a || !/^[a-z]$/i.test(a.trim())) return; l = a.trim().toUpperCase(); blank = true; }
+    S.placed.push({ i, l, blank, rackIdx: S.sel }); S.sel = null; rerender();
+  });
+  const on = (id, fn) => { const e = $('#' + id); if (e) e.onclick = fn; };
+  on('recall', () => { S.placed = []; S.sel = null; rerender(); });
+  on('shuf', () => { if (S.placed.length) return; for (let i = rack.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rack[i], rack[j]] = [rack[j], rack[i]]; } rerender(); });
+  on('swap', () => { S.swapMode = true; S.swapSel = []; S.placed = []; S.sel = null; rerender(); });
+  on('swapx', () => { S.swapMode = false; S.swapSel = []; rerender(); });
+  on('swapgo', () => move({ action: 'swap', letters: S.swapSel.map(k => rack[k]) }, () => { S.swapMode = false; S.swapSel = []; }));
+  on('pass', () => { if (confirm('Pass your turn?')) move({ action: 'pass' }); });
+  on('play', () => move({ action: 'play', placements: S.placed.map(p => ({ i: p.i, l: p.l, blank: p.blank })) }, () => { S.placed = []; S.sel = null; }));
+}
+async function move(m, after) {
+  try { const d = await api(`/api/game/${S.game}/move`, m); if (after) after(); if (d.last && d.last.score) toast(`+${d.last.score}${d.last.note ? ' · ' + d.last.note : ''}`); else if (d.over) toast(d.winner === S.me.id ? 'You won! 🎉' : d.winner === 'tie' ? 'Tie game!' : 'Game over'); await loadGame(); }
+  catch (e) { toast(e.message, 3500); }
+}
+
+// ----- Tic-tac-toe -----
+function renderTTT(st, g, myTurn) {
+  $('#board').innerHTML = `<div class="scrawl" style="top:45%">Ohana means family</div><div class="ttt">${st.board.map((v, i) => `<button class="${v || ''} ${st.line?.includes(i) ? 'win' : ''}" data-i="${i}" ${v || !myTurn ? 'disabled' : ''}>${v || ''}</button>`).join('')}</div>`;
+  $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
+}
+// ----- Memory -----
+function renderMem(st, g, myTurn) {
+  const up = i => st.matched[i] || st.open.includes(i) || st.pending.includes(i);
+  $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn ? 'disabled' : ''}>${up(i) ? c : ''}</button>`).join('')}</div><p style="text-align:center;font-size:14px;color:rgba(246,231,200,.7)">Find a pair and you go again.</p>`;
+  $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
+}
+// ----- Checkers -----
+function renderChk(st, g, myTurn) {
+  const meIdx = g.players.indexOf(S.me.id); const mine = meIdx === 0 ? 'r' : 'b';
+  const flip = meIdx === 1; // black sees board from their side
+  const order = [...Array(64).keys()]; if (flip) order.reverse();
+  const cans = S.chkFrom !== null ? chkTargets(st.board, S.chkFrom) : [];
+  $('#board').innerHTML = `<div class="chk">${order.map(i => { const r = Math.floor(i / 8), c = i % 8; const pc = st.board[i]; const dark = (r + c) % 2 === 1;
+    return `<div class="${dark ? 'd' : ''} ${S.chkFrom === i ? 'from' : ''} ${cans.includes(i) ? 'can' : ''}" data-i="${i}">${pc ? `<div class="pc ${pc.toLowerCase()} ${pc === pc.toUpperCase() ? 'k' : ''}"></div>` : ''}</div>`; }).join('')}</div>
+    <p style="text-align:center;font-size:14px;color:rgba(246,231,200,.7)">${myTurn ? (st.mustContinue !== null ? 'Keep jumping with that piece!' : 'Tap your piece, then tap where it goes.') : ''} ${st.last ? '' : ''}</p>`;
+  if (!myTurn) return;
+  $('#board').querySelectorAll('.chk > div').forEach(d => d.onclick = () => {
+    const i = +d.dataset.i; const pc = st.board[i];
+    if (pc && pc.toLowerCase() === mine) { if (st.mustContinue !== null && st.mustContinue !== i) return toast('Keep jumping with the same piece'); S.chkFrom = S.chkFrom === i ? null : i; return renderChk(st, g, myTurn); }
+    if (S.chkFrom !== null && cans.includes(i)) { const from = S.chkFrom; S.chkFrom = null; move({ from, to: i }); }
+  });
+}
+function chkTargets(b, i) {
+  const pc = b[i]; if (!pc) return []; const own = pc.toLowerCase(); const r = Math.floor(i / 8), c = i % 8; const out = [];
+  const dirs = pc === 'R' || pc === 'B' ? [[-1,-1],[-1,1],[1,-1],[1,1]] : (own === 'r' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]]);
+  for (const [dr, dc] of dirs) { const tr = r + dr, tc = c + dc; if (tr < 0 || tr > 7 || tc < 0 || tc > 7) continue; if (!b[tr * 8 + tc]) out.push(tr * 8 + tc); const jr = r + 2 * dr, jc = c + 2 * dc; if (jr < 0 || jr > 7 || jc < 0 || jc > 7) continue; const mid = b[tr * 8 + tc]; if (mid && mid.toLowerCase() !== own && !b[jr * 8 + jc]) out.push(jr * 8 + jc); }
+  return out;
+}
+
+// ---------- CHAT ----------
+function renderChat() {
+  const m = $('#main');
+  m.innerHTML = `<div class="msgs" id="msgs"></div><div class="compose"><div class="in"><button class="pic" id="pic" title="Send a picture">📷</button><input type="file" id="file" accept="image/*" class="hidden"><textarea id="txt" placeholder="Say something to the family…" rows="1"></textarea><button id="send">➤</button></div></div>`;
+  paintMsgs(true);
+  $('#pic').onclick = () => $('#file').click();
+  $('#file').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const data = await shrink(f); await api('/api/message', { image: data, text: $('#txt').value.trim() }); $('#txt').value = ''; await sync(); paintMsgs(true); } catch (er) { toast(er.message); } e.target.value = ''; };
+  const send = async () => { const t = $('#txt').value.trim(); if (!t) return; $('#txt').value = ''; try { await api('/api/message', { text: t }); await sync(); paintMsgs(true); } catch (e) { toast(e.message); } };
+  $('#send').onclick = send;
+  $('#txt').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+}
+function paintMsgs(scroll) {
+  const box = $('#msgs'); if (!box) return;
+  box.innerHTML = S.msgs.length ? S.msgs.map(x => `<div class="m ${x.member_id === S.me.id ? 'me' : ''}"><div class="av">${avOf(x.member_id)}</div><div class="bub"><b>${esc(nameOf(x.member_id))}</b>${x.text ? esc(x.text).replace(/\n/g, '<br>') : ''}${x.image ? `<img src="${x.image}" alt="">` : ''}<time>${fmtTime(x.created_at)}</time></div></div>`).join('') : '<div class="empty">Nothing here yet. Say hi!</div>';
+  if (scroll) requestAnimationFrame(() => { const mn = $('#main'); mn.scrollTop = mn.scrollHeight; });
+}
+function shrink(file) {
+  return new Promise((res, rej) => { const img = new Image(); const u = URL.createObjectURL(file); img.onload = () => { const max = 1000; let w = img.width, h = img.height; const s = Math.min(1, max / Math.max(w, h)); w = Math.round(w * s); h = Math.round(h * s); const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); let q = .8, out; do { out = c.toDataURL('image/jpeg', q); q -= .1; } while (out.length > 850000 && q > .3); URL.revokeObjectURL(u); res(out); }; img.onerror = rej; img.src = u; });
+}
+
+// ---------- FAMILY ----------
+async function renderFamily() {
+  const m = $('#main'); const sy = S.sync;
+  const pushSupported = 'PushManager' in window;
+  const pushOn = !!S.pushSub;
+  m.innerHTML = `<h2 class="shelf">Who's here</h2>${sy.members.map(x => `<div class="fam"><div class="av">${x.avatar}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div></div>`).join('')}
+    ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
+    <p style="font-size:13px;color:rgba(246,231,200,.55)">To put Ohana Home on your phone like an app: on iPhone tap Share, then "Add to Home Screen". On Android tap the menu, then "Add to Home screen" or "Install".</p>
+    ${S.me.is_admin ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
+  $('#rename').onclick = async () => { const n = prompt('What do you want to be called?', S.me.name); if (!n || n.trim() === S.me.name) return; try { await api('/api/rename', { name: n.trim() }); S.me.name = n.trim(); toast('Name changed!'); await sync(); render(); } catch (e) { toast(e.message); } };
+  $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null; render(); };
+  $('#install').onclick = () => { if (S.installPrompt) S.installPrompt.prompt(); else toast('Use your browser menu: Add to Home Screen'); };
+  const ntog = $('#ntoggle');
+  if (ntog) ntog.onclick = async () => {
+    if (S.pushSub) { await unsubscribePush(); } else { await subscribePush(); }
+    renderFamily();
+  };
+  if (S.me.is_admin) {
+    try { const info = await api('/api/admin/info');
+      $('#adm').innerHTML = `<h3>Family settings (only you see this)</h3>
+        <label style="font-size:13px">Family code — what everybody types to get in</label><div class="row"><input id="fc" value="${esc(info.family_code)}"><button id="fcs">Save</button></div>
+        <label style="font-size:13px">Family name — shows under the title</label><div class="row"><input id="fn" value="${esc(info.family_name)}"><button id="fns">Save</button></div>
+        <h3 style="margin-top:14px">Members</h3>${sy.members.filter(x => !x.is_admin).map(x => `<div class="row" style="align-items:center"><span style="flex:1">${x.avatar} ${esc(x.name)}</span><button class="soft" data-pin="${x.id}" style="padding:8px 10px;font-size:14px">Reset PIN</button><button class="ghost" data-rm="${x.id}" style="padding:8px 10px;font-size:14px">Remove</button></div>`).join('') || '<div class="empty">Just you so far.</div>'}
+        <button class="ghost" id="clr" style="margin-top:8px;font-size:14px">Clear all chat messages</button>`;
+      $('#fcs').onclick = async () => { try { await api('/api/admin/settings', { family_code: $('#fc').value }); localStorage.setItem('ohana_code', $('#fc').value); toast('Family code saved'); } catch (e) { toast(e.message); } };
+      $('#fns').onclick = async () => { try { await api('/api/admin/settings', { family_name: $('#fn').value }); toast('Saved'); await sync(); render(); } catch (e) { toast(e.message); } };
+      $('#adm').querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm('Remove this person? They can rejoin with the family code.')) return; await api('/api/admin/remove', { id: +b.dataset.rm }); await sync(); render(); });
+      $('#adm').querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => { const p = prompt('New 4-number PIN for them:'); if (!p || !/^\d{4}$/.test(p)) return; await api('/api/admin/reset_pin', { id: +b.dataset.pin, pin: p }); toast('PIN reset'); });
+      $('#clr').onclick = async () => { if (!confirm('Delete every chat message for everybody?')) return; await api('/api/admin/clear_chat', {}); S.msgs = []; S.lastMsg = 0; toast('Chat cleared'); };
+    } catch (e) { $('#adm').textContent = e.message; }
+  }
+}
+
+// ---------- SYNC LOOP ----------
+async function sync() {
+  if (!S.token) return;
+  try {
+    const d = await api('/api/sync?msgSince=' + S.lastMsg);
+    S.me = d.me; const hadSync = !!S.sync; S.sync = d;
+    if (d.messages.length) { const fresh = d.messages.filter(x => x.id > S.lastMsg); S.msgs = [...S.msgs, ...fresh].slice(-200); S.lastMsg = S.msgs[S.msgs.length - 1].id; if (hadSync && S.tab !== 'chat') S.unread = (S.unread || 0) + fresh.filter(x => x.member_id !== S.me.id).length; if (S.tab === 'chat' && !S.game) paintMsgs(true); }
+    const turns = d.games.filter(g => g.my_turn).map(g => g.id);
+    if (hadSync) for (const id of turns) if (!S.seenTurns.has(id) && id !== S.game) { toast('🎲 Your turn in ' + d.games.find(g => g.id === id).name); }
+    S.seenTurns = new Set(turns);
+    const sig = JSON.stringify([d.games, d.members.map(x => [x.id, x.online, x.avatar]), S.unread, d.familyName]);
+    if (!S.game && sig !== S.sig && S.tab !== 'chat') render();
+    S.sig = sig;
+  } catch (e) { /* quiet */ }
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installPrompt = e; });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+setInterval(() => { if (S.game) loadGame(); else sync(); }, 3500);
+(async () => { render(); if (S.token) { await sync(); render(); setupPush(); } })();
+</script>
+</body>
+</html>
