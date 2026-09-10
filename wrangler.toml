@@ -1,0 +1,16 @@
+name = "ohana-home"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ohana-home"
+database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
+
+[assets]
+directory = "./public"
+
+[[routes]]
+pattern = "ohanahome.app/*"
+custom_domain = true
