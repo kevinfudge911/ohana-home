@@ -298,6 +298,19 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .wb-plane>.c.drop-target{background:#b3efd866!important}
 .wb-plane>.c .t{inset:2px}
 .fam{flex-wrap:wrap}.fam .ohana-invite{margin-left:auto;font-size:13px;padding:9px 12px}.ohana-invite-dialog{background:#123c40;color:var(--sand);border:1px solid #b6a776;border-radius:24px;padding:24px;width:min(440px,calc(100vw - 32px));box-sizing:border-box;box-shadow:0 24px 90px #0009}.ohana-invite-dialog::backdrop{background:#001d29bb}.ohana-invite-dialog h2{font:26px Georgia;margin:0 0 10px}.ohana-invite-dialog p{color:#c1d5ce}.ohana-invite-dialog select{display:block;width:100%;margin-top:10px;padding:12px;background:#092e34;color:#ffe8b5;border:1px solid #688d86;border-radius:12px;font:inherit}.ohana-invite-dialog button{font-size:14px;padding:11px 14px}.ohana-invitation{flex-wrap:wrap}.ohana-invitation button{font-size:14px;padding:10px 14px}
+
+/* Compact personal tables: enough information to choose, a small action to open. */
+.nook-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
+.game-nook .nook-card{margin:0;padding:10px;gap:8px;border-radius:12px;min-width:0;align-items:center}
+.game-nook .nook-card .em{display:none}
+.game-nook .nook-card .t>b{font:16px Georgia,serif;line-height:1.2}
+.game-nook .nook-card .t>span{display:block;font-size:12px;line-height:1.35}
+.game-nook .nook-card .nook-room{font-size:10px!important;margin:3px 0;line-height:1.3}
+.game-nook .nook-card .who{margin:3px 0 0;display:block;line-height:1.2}
+.game-nook .nook-card .who>span{display:none}
+.game-nook .nook-card .who small{font-size:11px;overflow-wrap:anywhere}
+.game-nook .nook-card button{font-size:12px;padding:8px;min-height:36px;max-width:70px;flex:none;border-radius:10px;box-shadow:0 2px 0 #966642;white-space:normal}
+.game-nook{padding:12px}.nook-heading img{width:43px;height:55px}.nook-heading h2{font-size:23px;margin:0}.nook-count{margin:6px 0 8px;padding:5px 8px}.nook-foot{margin-top:9px;font-size:11px}
 </style>
 </head>
 <body>
@@ -513,9 +526,9 @@ function renderGames() {
   const roomName=g=>(sy.rooms||[]).find(r=>r.id===(g.room_id||sy.roomId))?.name||g.room_name||sy.familyName;
 
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${esc(person(g,+g.winner))} won`) : g.my_turn ? 'Your turn!' : `${esc(person(g,g.players[g.turn]))}'s turn`) + modeBit; };
-  const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${g.room_id===1?"🏡":"🔒"} ${esc(roomName(g))}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
+  const card = (g, btn) => `<div class="gcard nook-card ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${g.room_id===1?"🏡":"🔒"} ${esc(roomName(g))}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers', 'mahjong']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
-  m.innerHTML = `<ohana-scene></ohana-scene>${invitationCards()}${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>YOUR SEAT IS ALWAYS SAVED</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit table'}</button>`)).join(''):'<p class="nook-empty">Pull up a chair. Start a game below and it will be waiting here.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
+  m.innerHTML = `<ohana-scene></ohana-scene>${invitationCards()}${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>YOUR SEAT IS ALWAYS SAVED</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?'<div class="nook-grid">'+mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':'<p class="nook-empty">Pull up a chair. Start a game below and it will be waiting here.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
     <div class="room-conversation"><div><small>YOU ARE IN</small><b>${esc(sy.familyName)}</b><span>Only this room’s Ohana share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
     ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
     <div class="family-note">Family is at the heart of every game.</div>
