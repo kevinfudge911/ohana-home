@@ -22,3 +22,10 @@ assert(w.reviewBoth.includes('Everyone saw it'));
 assert.equal(w.reviewOutsider,'');
 console.log('PASS: separate player acknowledgment, persistent pending notice, shared seen status, outsider exclusion and escaped copy.');
 } finally {w.close();}
+// A review or acknowledgment alone must refresh the game, without waiting for a move.
+const changedExpression=html.match(/const changed = (.*);/)[1];
+const hasChanged=new Function('d','oldState','return '+changedExpression);
+const sameGame={state:{scores:{5:187}},status:'playing',players:[5,6]};
+assert(hasChanged({...sameGame,score_review:{id:'review-1',acknowledged:{}}},sameGame));
+assert(hasChanged({...sameGame,score_review:{id:'review-1',acknowledged:{5:100}}},{...sameGame,score_review:{id:'review-1',acknowledged:{}}}));
+console.log('PASS: new reviews and acknowledgments refresh without another game move.');

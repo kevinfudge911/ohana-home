@@ -461,7 +461,7 @@ async function loadGame() {
   try {
     const d = await api(`/api/game/${S.game}`);
     const oldState = S.gstate;
-    const changed = JSON.stringify(d.state) !== JSON.stringify(oldState?.state) || d.status !== oldState?.status || d.players.length !== oldState?.players?.length;
+    const changed = JSON.stringify(d.score_review) !== JSON.stringify(oldState?.score_review) || JSON.stringify(d.state) !== JSON.stringify(oldState?.state) || d.status !== oldState?.status || d.players.length !== oldState?.players?.length;
     S.gstate = d;
     if (changed) {
       if (d.status !== 'playing') { S.placed = []; }
