@@ -1021,7 +1021,7 @@ async function api2(req, env, url) {
 
   const roomInvite=p.match(/^\/api\/room-invite\/([a-f0-9]{32})(?:\/(join))?$/);
   if(roomInvite){
-    const room=await db.prepare("SELECT id,name FROM rooms WHERE invite_code=? AND id!=1").bind(roomInvite[1]).first();
+    const room=await db.prepare("SELECT id,name FROM rooms WHERE invite_code=?").bind(roomInvite[1]).first();
     if(!room)return err("This room invitation is no longer available.",404);
     if(req.method==='GET'&&!roomInvite[2])return json({name:room.name});
     if(req.method==='POST'&&roomInvite[2]==='join'){
@@ -1065,8 +1065,15 @@ async function api2(req, env, url) {
   const activeRoom=roomList.find(r=>r.id===requestedRoom)||(!requestedRoom?roomList[0]:null);
   if(!activeRoom)return err("You do not belong to this room. Open Rooms or use a room invitation.",403);
   const roomId=activeRoom.id;
+  if(p==='/api/rooms/invite'&&req.method==='POST'){
+    // Only members of the selected room reach this point. A single stable
+    // invitation is shared by the room; concurrent first requests cannot rotate it.
+    await db.prepare("UPDATE rooms SET invite_code=? WHERE id=? AND invite_code IS NULL").bind(rid(16),roomId).run();
+    const invitation=await db.prepare("SELECT id,name,invite_code FROM rooms WHERE id=?").bind(roomId).first();
+    return json(invitation);
+  }
   if(p==='/api/rooms/rotate-invite'&&req.method==='POST'){
-    if(roomId===1||activeRoom.owner_id!==me.id)return err("Only the room host can replace its invitation.",403);
+    if(roomId===1?!me.is_admin:activeRoom.owner_id!==me.id)return err("Only the room host can replace its invitation.",403);
     await db.prepare("UPDATE rooms SET invite_code=? WHERE id=?").bind(rid(16),roomId).run();
     return json({ok:true});
   }

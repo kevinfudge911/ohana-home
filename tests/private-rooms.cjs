@@ -42,5 +42,17 @@ const inviteInfo=sql.prepare('SELECT invite_code FROM games WHERE id=?').get(pg.
 const secondGuest=await api('/api/invite/'+inviteInfo.invite_code+'/join','',0,{name:'Second Guest',pin:'2345',avatar:'@hon'});assert.equal(secondGuest.status,200,JSON.stringify(secondGuest));assert.equal(sql.prepare('SELECT COUNT(*) n FROM room_members WHERE member_id=? AND room_id=1').get(secondGuest.data.me.id).n,0);
 const chat=await api('/api/game/'+pg.data.id+'/chat',token,room.id,{text:'At our private table'});assert.equal(chat.status,200,JSON.stringify(chat));
 for(const type of ['tictac','memory','checkers','mahjong','words']){const r=await api('/api/game/create','host',room.id,{type,opponent:'bot',difficulty:'hard'});assert.equal(r.status,200);const row=sql.prepare('SELECT * FROM games WHERE id=?').get(r.data.id);assert.equal(row.room_id,room.id);assert.equal(JSON.parse(row.state).bot.difficulty,'hard');assert.deepEqual(JSON.parse(row.players),[1,-1]);}
+// Family invitations are available to ordinary family members, scoped to room 1.
+assert.equal((await api('/api/rooms/invite',token,1,{})).status,403,'private-only guest cannot create family link');
+const homeInvite=await api('/api/rooms/invite','family',1,{});assert.equal(homeInvite.status,200);assert.match(homeInvite.data.invite_code,/^[a-f0-9]{32}$/);
+assert.equal((await api('/api/rooms/invite','host',1,{})).data.invite_code,homeInvite.data.invite_code,'repeated invite keeps same link');
+assert.equal((await api('/api/room-invite/'+homeInvite.data.invite_code,'',0)).status,200);
+const newcomer=await api('/api/room-invite/'+homeInvite.data.invite_code+'/join','',0,{name:'New cousin',pin:'4321',avatar:'@hon'});assert.equal(newcomer.status,200);assert.equal(newcomer.data.room_id,1);assert.equal(newcomer.data.me.is_admin,0);
+assert.deepEqual(sql.prepare('SELECT room_id FROM room_members WHERE member_id=?').all(newcomer.data.me.id).map(x=>x.room_id),[1]);
+const existingJoin=await api('/api/room-invite/'+homeInvite.data.invite_code+'/join','family',1,{});assert.equal(existingJoin.data.token,'family','existing session preserved');
+assert.equal((await api('/api/rooms/rotate-invite','family',1,{})).status,403);
+assert.equal((await api('/api/rooms/rotate-invite','host',1,{})).status,200);
+assert.equal((await api('/api/room-invite/'+homeInvite.data.invite_code,'',0)).status,404);
+assert.equal((await api('/api/sync',newcomer.data.token,1)).status,200,'rotation does not sign out existing members');
 console.log('PASS: migration preserves family; private signup, room/game/chat/member isolation, guessed-ID rejection on every game action, scoped notifications, all-room overview, guest-created rooms, invitation rotation, signed-in joins and private game chat.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>sql.close());

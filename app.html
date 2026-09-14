@@ -549,7 +549,7 @@ function renderRooms(){
   const sy=S.sync;if(!sy){$('#main').innerHTML='<p>Opening your doorways…</p>';return;}
   $('#main').innerHTML=`<section class="room-welcome"><span class="room-host"><img src="/honu.webp" alt="Honu welcomes you"></span><div><h2>A little place of your own.</h2><p>Different doors. Same Ohana welcome.</p></div></section>
   <p class="room-help">Each room has its own Ohana, games, and conversation. Only members who join can see inside.</p>
-  <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card room-theme-${roomTheme(r.name,r.id)} ${r.id===sy.roomId?'current':''}"><div><h3>${roomTitle(r.name,r.id)}</h3><small>${r.id===sy.roomId?'You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.invite_code?`<button class="soft" data-room-share="${r.id}">Invite friends</button>`:''}${r.owner_id===S.me.id?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
+  <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card room-theme-${roomTheme(r.name,r.id)} ${r.id===sy.roomId?'current':''}"><div><h3>${roomTitle(r.name,r.id)}</h3><small>${r.id===sy.roomId?'You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.id===1||r.invite_code?`<button class="soft" data-room-share="${r.id}">${r.id===1?'Invite to Ohana':'Invite friends'}</button>`:''}${(r.id===1?S.me.is_admin:r.owner_id===S.me.id)?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
   <form id="new-room" class="room-create"><h3>Open another doorway</h3><label for="room-name">What shall we call your room?</label><input id="room-name" maxlength="48" placeholder="Pe-paw’s friends, Friday game night…" required><button type="submit">✦ Create my private room</button><small>Your friends can create their own private rooms here too.</small></form>
   <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
   $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>enterRoom(b.dataset.room));
@@ -559,10 +559,12 @@ function renderRooms(){
   $('#new-room').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const r=await api('/api/rooms/create',{name:$('#room-name').value});await enterRoom(r.id,'rooms');toast('Your room is ready. Tap Invite friends.');}catch(e){b.disabled=false;toast(e.message);}};
 }
 async function shareRoom(room){
+  if(!room)return;
+  if(!room.invite_code){try{const invitation=await api('/api/rooms/invite',{},'POST',room.id);room.invite_code=invitation.invite_code;}catch(e){toast(e.message);return;}}
   const url=location.origin+'/room/'+room.invite_code;
-  const text='There’s a place for you in '+room.name+' on Ohana Home. Join our private games and chat: '+url;
+  const text='There’s a place for you in '+room.name+' on Ohana Home. Join our '+(room.id===1?'family':'room')+' games and chat: '+url;
   if(navigator.share){try{await navigator.share({title:room.name,text});return;}catch(e){if(e.name==='AbortError')return;}}
-  try{await navigator.clipboard.writeText(url);toast('Private room invitation copied!');}catch(e){toast('Copy the invitation below.');const a=document.createElement('input');a.value=url;a.readOnly=true;$('#main').prepend(a);a.select();}
+  try{await navigator.clipboard.writeText(url);toast((room.id===1?'Ohana Home':'Room')+' invitation copied!');}catch(e){toast('Copy the invitation below.');const a=document.createElement('input');a.value=url;a.readOnly=true;$('#main').prepend(a);a.select();}
 }
 async function renderRoomInvite(code,error=''){
   const response=await fetch('/api/room-invite/'+code);const info=await response.json();
@@ -1349,7 +1351,7 @@ async function renderFamily() {
   const pushSupported = 'PushManager' in window;
   const pushOn = !!S.pushReady;
   if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>There’s room for one more.</b><span>Invite someone into ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite to Ohana':'Invite friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
     <details class="character-settings" id="character-settings" ${S.avatarEditing?'open':''}><summary>Choose my Ohana character</summary>${buddyPicker()}<button id="save-character">Save my character</button><small>Your character follows you through every game and conversation.</small></details>
     ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
@@ -1358,6 +1360,7 @@ async function renderFamily() {
   m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
   $('#character-settings').ontoggle=e=>{S.avatarEditing=e.target.open;};
   m.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
+  $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
   $('#save-character').onclick=async()=>{const b=$('#save-character');b.disabled=true;try{await api('/api/avatar',{avatar:S.av});localStorage.setItem('ohana_av',S.av);S.me.avatar=S.av;S.avatarEditing=false;toast(buddyName(S.av)+' is your new game buddy!');await sync();renderFamily();}catch(e){b.disabled=false;toast(e.message);}};
   $('#rename').onclick = async () => { const n = prompt('What do you want to be called?', S.me.name); if (!n || n.trim() === S.me.name) return; try { await api('/api/rename', { name: n.trim() }); S.me.name = n.trim(); toast('Name changed!'); await sync(); render(); } catch (e) { toast(e.message); } };
   $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;localStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
