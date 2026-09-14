@@ -2,6 +2,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert'),{DatabaseSync}=
 const sql=new DatabaseSync(':memory:');
 sql.exec(`CREATE TABLE members(id INTEGER PRIMARY KEY,name TEXT UNIQUE,pin TEXT,avatar TEXT,token TEXT,is_admin INTEGER,created_at INTEGER,last_seen INTEGER);CREATE TABLE settings(key TEXT PRIMARY KEY,value TEXT);INSERT INTO settings VALUES('family_code','FAMILY'),('family_name','Our Ohana');CREATE TABLE games(id INTEGER PRIMARY KEY,type TEXT,players TEXT,max_players INTEGER,status TEXT,turn INTEGER,created_by INTEGER,created_at INTEGER,updated_at INTEGER,mode TEXT,invite_code TEXT,state TEXT,winner TEXT);CREATE TABLE messages(id INTEGER PRIMARY KEY,member_id INTEGER,text TEXT,image TEXT,created_at INTEGER);CREATE TABLE push_subscriptions(member_id INTEGER,endpoint TEXT,p256dh TEXT,auth TEXT,created_at INTEGER);INSERT INTO members VALUES(1,'Host','','@hon','host',1,0,0),(2,'Family','','@hon','family',0,0,0);`);
 sql.exec(fs.readFileSync('migrations/0002_score_reviews.sql','utf8'));sql.exec(fs.readFileSync('migrations/0003_private_rooms.sql','utf8'));
+sql.exec(fs.readFileSync('migrations/0004_game_invitations.sql','utf8'));
 function prepare(q){let args=[];return {bind(...a){args=a;return this},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){const r=sql.prepare(q).run(...args);return {meta:{last_row_id:Number(r.lastInsertRowid),changes:Number(r.changes)}}}}};
 const DB={prepare,async batch(stmts){sql.exec('BEGIN');try{const out=[];for(const s of stmts)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
 let source=fs.readFileSync('worker.js','utf8').replace(/^import (\w+) from .*;$/gm,'const $1=null;').replace(/^import .*;$/gm,'').replace(/export\s*\{[\s\S]*?\};\s*$/,'');
@@ -16,6 +17,17 @@ const guest=await api('/api/room-invite/'+room.invite_code+'/join','',0,{name:'G
 assert.equal(sql.prepare('SELECT COUNT(*) n FROM room_members WHERE room_id=1 AND member_id=?').get(id).n,0,'guest never joins family');
 await api('/api/message','host',1,{text:'Family secret'});await api('/api/message',token,room.id,{text:'Friend secret'});
 const fg=await api('/api/game/create','host',1,{type:'tictac'}),pg=await api('/api/game/create',token,room.id,{type:'tictac'});assert.equal(pg.status,200,JSON.stringify(pg));
+assert.equal((await api('/api/game/'+fg.data.id+'/invite','host',1,{member_id:id})).status,400,'cannot invite private guest to family');
+assert.equal((await api('/api/game/'+fg.data.id+'/invite','family',1,{member_id:1})).status,403,'only seated player invites');
+assert.equal((await api('/api/game/'+fg.data.id+'/invite','host',1,{member_id:2})).status,200);
+assert.equal((await api('/api/sync','family',1)).data.invitations.length,1);
+assert.equal((await api('/api/sync',token,room.id)).data.invitations.length,0);
+await api('/api/game/'+fg.data.id+'/decline','family',1,{});
+assert.equal((await api('/api/sync','family',1)).data.invitations.length,0);
+await api('/api/game/'+fg.data.id+'/invite','host',1,{member_id:2});
+assert.equal((await api('/api/game/'+fg.data.id+'/join','family',1,{})).status,200);
+assert.equal((await api('/api/sync','family',1)).data.invitations.length,0);
+assert.equal(sql.prepare('SELECT status FROM game_invitations WHERE game_id=? AND member_id=2').get(fg.data.id).status,'accepted');
 const fam=await api('/api/sync','family',1),friends=await api('/api/sync',token,room.id),host=await api('/api/sync','host',1);
 assert(!fam.data.members.some(m=>m.id===id));assert.deepEqual(fam.data.messages.map(m=>m.text),['Family secret']);assert.deepEqual(friends.data.messages.map(m=>m.text),['Friend secret']);assert(!friends.data.members.some(m=>m.id===2));assert.equal(fam.data.allGames.length,1);assert.equal(host.data.allGames.length,2);assert.equal(friends.data.games.length,1);
 for(const action of ['', '/join','/start','/leave','/move','/chat','/reviewack']){const r=await api('/api/game/'+pg.data.id+action,'family',1,action?{text:'no',i:0}:undefined);assert.equal(r.status,403,action)}

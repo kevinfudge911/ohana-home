@@ -297,6 +297,7 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .wb-plane>.c>.bl{visibility:hidden}
 .wb-plane>.c.drop-target{background:#b3efd866!important}
 .wb-plane>.c .t{inset:2px}
+.fam{flex-wrap:wrap}.fam .ohana-invite{margin-left:auto;font-size:13px;padding:9px 12px}.ohana-invite-dialog{background:#123c40;color:var(--sand);border:1px solid #b6a776;border-radius:24px;padding:24px;width:min(440px,calc(100vw - 32px));box-sizing:border-box;box-shadow:0 24px 90px #0009}.ohana-invite-dialog::backdrop{background:#001d29bb}.ohana-invite-dialog h2{font:26px Georgia;margin:0 0 10px}.ohana-invite-dialog p{color:#c1d5ce}.ohana-invite-dialog select{display:block;width:100%;margin-top:10px;padding:12px;background:#092e34;color:#ffe8b5;border:1px solid #688d86;border-radius:12px;font:inherit}.ohana-invite-dialog button{font-size:14px;padding:11px 14px}.ohana-invitation{flex-wrap:wrap}.ohana-invitation button{font-size:14px;padding:10px 14px}
 </style>
 </head>
 <body>
@@ -442,7 +443,7 @@ function render() {
     <nav class="tabs"><div class="in">
       <button data-tab="games" class="${S.tab === 'games' ? 'on' : ''}"><span class="ic">🎲</span>Games${myTurn ? `<span class="badge">${myTurn}</span>` : ''}</button>
       <button data-tab="chat" class="${S.tab === 'chat' ? 'on' : ''}"><span class="ic">💬</span>Chat${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button>
-      <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>People</button>
+      <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>Ohana</button>
       <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
     </div></nav>`;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if (S.tab === 'chat') S.unread = 0; render(); });
@@ -514,12 +515,12 @@ function renderGames() {
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${esc(person(g,+g.winner))} won`) : g.my_turn ? 'Your turn!' : `${esc(person(g,g.players[g.turn]))}'s turn`) + modeBit; };
   const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${g.room_id===1?"🏡":"🔒"} ${esc(roomName(g))}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers', 'mahjong']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
-  m.innerHTML = `<ohana-scene></ohana-scene>${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>YOUR SEAT IS ALWAYS SAVED</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit table'}</button>`)).join(''):'<p class="nook-empty">Pull up a chair. Start a game below and it will be waiting here.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
-    <div class="room-conversation"><div><small>YOU ARE IN</small><b>${esc(sy.familyName)}</b><span>Only this room’s people share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
+  m.innerHTML = `<ohana-scene></ohana-scene>${invitationCards()}${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>YOUR SEAT IS ALWAYS SAVED</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit table'}</button>`)).join(''):'<p class="nook-empty">Pull up a chair. Start a game below and it will be waiting here.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
+    <div class="room-conversation"><div><small>YOU ARE IN</small><b>${esc(sy.familyName)}</b><span>Only this room’s Ohana share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
     ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
     <div class="family-note">Family is at the heart of every game.</div>
     <h2 class="shelf" style="margin-top:0">Start a game<small>In ${esc(sy.familyName)}</small></h2>
-    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.filter(id=>sy.types[id]).map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${gameArt(id)}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div><div class="bot-options"><label>Play with <select id="opponent_${id}"><option value="family">People in this room</option><option value="bot">Honu · friendly computer</option></select></label><label>Computer level <select id="level_${id}"><option value="easy">Easy · relaxed</option><option value="medium">Medium · a little challenge</option></select></label></div>${id === 'mahjong' ? `<select id="np_mahjong" aria-label="Mahjong players"><option value="1">Solo escape</option><option value="2">Play together</option></select><button data-new="mahjong">New</button>` : id === 'words' ? `<div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px">
+    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.filter(id=>sy.types[id]).map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${gameArt(id)}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div><div class="bot-options"><label>Play with <select id="opponent_${id}"><option value="family">Ohana in this room</option><option value="bot">Honu · friendly computer</option></select></label><label>Computer level <select id="level_${id}"><option value="easy">Easy · relaxed</option><option value="medium">Medium · a little challenge</option></select></label></div>${id === 'mahjong' ? `<select id="np_mahjong" aria-label="Mahjong players"><option value="1">Solo escape</option><option value="2">Play together</option></select><button data-new="mahjong">New</button>` : id === 'words' ? `<div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px">
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
         <select id="np_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select>
         <select id="mode_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow);flex:1"><option value="classic">🎯 Classic</option><option value="random">🎲 Random Random</option></select>
@@ -528,6 +529,7 @@ function renderGames() {
       <div style="text-align:right"><button data-new="words">New Game</button></div>
     </div>` : gt.max > 2 ? `<div style="display:flex;gap:8px;width:100%;justify-content:flex-end;align-items:center"><select id="np_${id}" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select><button data-new="${id}">New</button></div>` : `<button data-new="${id}">New</button>`}</div>`; }).join('')).join('')}
     ${done.length ? `<h2 class="shelf">Finished lately</h2>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">See</button>`)).join('') : ''}`;
+  bindInvitations(m);
   bindScoreReviews(m);
   m.querySelectorAll('[data-open]').forEach(b => b.onclick = async () => {try{if(+b.dataset.openRoom!==S.room)await enterRoom(+b.dataset.openRoom);await openGame(+b.dataset.open);}catch(e){toast(e.message);}});
   $('#nook-chat').onclick=()=>{S.tab='chat';render();};
@@ -1167,18 +1169,40 @@ function shrink(file) {
   return new Promise((res, rej) => { const img = new Image(); const u = URL.createObjectURL(file); img.onload = () => { const max = 1000; let w = img.width, h = img.height; const s = Math.min(1, max / Math.max(w, h)); w = Math.round(w * s); h = Math.round(h * s); const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); let q = .8, out; do { out = c.toDataURL('image/jpeg', q); q -= .1; } while (out.length > 850000 && q > .3); URL.revokeObjectURL(u); res(out); }; img.onerror = rej; img.src = u; });
 }
 
+function openOhanaInvite(memberId) {
+  const sy=S.sync,roomId=sy.roomId,member=sy.members.find(x=>x.id===memberId);if(!member)return;
+  const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog';
+  const tables=sy.games.filter(g=>g.in_game&&g.status==='waiting'&&g.players.length<g.max_players&&!g.players.includes(memberId));
+  dialog.innerHTML=`<h2>Save ${esc(member.name)} a seat</h2><p>Just our Ohana in ${esc(sy.familyName)}.</p><label>Choose a table<select id="invite-table">${tables.length?`<optgroup label="Your open tables">${tables.map(g=>`<option value="${g.id}">${esc(g.name)} · Table ${g.id}</option>`).join('')}</optgroup>`:''}<optgroup label="Start a new game">${Object.entries(sy.types).map(([id,g])=>`<option value="new:${id}">${esc(g.name)}</option>`).join('')}</optgroup></select></label><p class="invite-error" role="status"></p><div><button id="send-ohana-invite">Send invitation</button> <button class="ghost" id="cancel-ohana-invite">Cancel</button></div>`;
+  document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
+  dialog.querySelector('#cancel-ohana-invite').onclick=()=>dialog.close();
+  dialog.querySelector('#send-ohana-invite').onclick=async()=>{const b=dialog.querySelector('#send-ohana-invite');b.disabled=true;try{
+    if(S.room!==roomId)throw new Error('Your room changed. Open Ohana and try again.');
+    const choice=dialog.querySelector('select').value;
+    const id=choice.startsWith('new:')?(await api('/api/game/create',{type:choice.slice(4),max_players:2})).id:Number(choice);
+    await api(`/api/game/${id}/invite`,{member_id:memberId});dialog.close();toast('A seat is saved! Invitation sent to '+member.name+'.');await sync();
+  }catch(e){dialog.querySelector('.invite-error').textContent=e.message;b.disabled=false;}};
+}
+function invitationCards() {
+ return (S.sync.invitations||[]).map(i=>`<article class="gcard ohana-invitation"><div class="em">💌</div><div class="t"><b>${esc(i.sender_name)} saved you a seat</b><span>${esc(S.sync.types[i.type]?.name||i.type)} · ${esc(i.room_name)}</span></div><button data-accept-invite="${i.game_id}" data-invite-room="${i.room_id}">Accept</button><button class="ghost" data-decline-invite="${i.game_id}">Not now</button></article>`).join('');
+}
+function bindInvitations(root) {
+ root.querySelectorAll('[data-accept-invite]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await enterRoom(+b.dataset.inviteRoom);await api(`/api/game/${b.dataset.acceptInvite}/join`,{});await sync();await openGame(+b.dataset.acceptInvite);}catch(e){toast(e.message);await sync();}});
+ root.querySelectorAll('[data-decline-invite]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await api(`/api/game/${b.dataset.declineInvite}/decline`,{});await sync();render();}catch(e){toast(e.message);b.disabled=false;}});
+}
 // ---------- FAMILY ----------
 async function renderFamily() {
   const m = $('#main'); const sy = S.sync;
   const pushSupported = 'PushManager' in window;
   const pushOn = !!S.pushReady;
   if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Who's here</h2>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div></div>`).join('')}
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
     <details class="character-settings" id="character-settings" ${S.avatarEditing?'open':''}><summary>Choose my Ohana character</summary>${buddyPicker()}<button id="save-character">Save my character</button><small>Your character follows you through every game and conversation.</small></details>
     ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
     <p style="font-size:13px;color:rgba(246,231,200,.55)">To put Ohana Home on your phone like an app: on iPhone tap Share, then "Add to Home Screen". On Android tap the menu, then "Add to Home screen" or "Install".</p>
     ${S.me.is_admin && sy.roomId===1 ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
+  m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
   $('#character-settings').ontoggle=e=>{S.avatarEditing=e.target.open;};
   m.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
   $('#save-character').onclick=async()=>{const b=$('#save-character');b.disabled=true;try{await api('/api/avatar',{avatar:S.av});localStorage.setItem('ohana_av',S.av);S.me.avatar=S.av;S.avatarEditing=false;toast(buddyName(S.av)+' is your new game buddy!');await sync();renderFamily();}catch(e){b.disabled=false;toast(e.message);}};
@@ -1220,7 +1244,7 @@ async function sync() {
     const turns = allTurnGames.filter(g => g.my_turn).map(g => g.id);
     if (hadSync) for (const id of turns) if (!S.seenTurns.has(id) && id !== S.game) { toast('🎲 Your turn in ' + allTurnGames.find(g => g.id === id).name); }
     S.seenTurns = new Set(turns);
-    const sig = JSON.stringify([d.games, d.allGames, d.members.map(x => [x.id, x.online, x.avatar]), S.unread, d.familyName]);
+    const sig = JSON.stringify([d.games, d.allGames, d.invitations, d.members.map(x => [x.id, x.online, x.avatar]), S.unread, d.familyName]);
     if (!S.game && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms') render();
     S.sig = sig;
   } catch (e) { /* quiet */ }

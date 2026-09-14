@@ -1,3 +1,4 @@
+import OHANA_PREVIEW_HTML from "./ohana-preview.html";
 import NOOK_PREVIEW_HTML from "./nook-preview.html";
 import ROOMS_PREVIEW_HTML from "./rooms-preview.html";
 import MORE_OTTO_PORTRAIT from "./buddy-otto.webp";
@@ -863,6 +864,7 @@ var worker_default = {
     const buddyAssets={"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/ohana-preview")return new Response(OHANA_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/nook-preview")return new Response(NOOK_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/rooms-preview")return new Response(ROOMS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -1105,7 +1107,8 @@ async function api2(req, env, url) {
     const peopleById=Object.fromEntries(visiblePeople.map(m=>[m.id,m]));
     for(const game of allGames)game.names=Object.fromEntries(game.players.filter(id=>peopleById[id]).map(id=>[id,peopleById[id]]));
     const familyName=await getSetting(db,'family_name');
-    return json({me,familyName:roomId===1?familyName:activeRoom.name,roomId,rooms:roomList.map(r=>({...r,name:r.id===1?familyName:r.name})),members,messages:msgs,games,allGames,types:GAME_TYPES});
+    const invitations=(await db.prepare("SELECT i.game_id,i.sender_id,m.name AS sender_name,g.type,g.room_id,r.name AS room_name FROM game_invitations i JOIN games g ON g.id=i.game_id JOIN members m ON m.id=i.sender_id JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id AND rm.member_id=i.member_id WHERE i.member_id=? AND i.status='pending' AND g.status='waiting' AND NOT EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=i.member_id)").bind(me.id).all()).results;
+    return json({invitations,me,familyName:roomId===1?familyName:activeRoom.name,roomId,rooms:roomList.map(r=>({...r,name:r.id===1?familyName:r.name})),members,messages:msgs,games,allGames,types:GAME_TYPES});
   }
   if (p === "/api/message" && req.method === "POST") {
     const text = String(body.text || "").trim().slice(0, 2e3);
@@ -1161,6 +1164,19 @@ async function api2(req, env, url) {
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       return json({ ...gameRow(g, me.id), state: st, names });
     }
+    if(action==='invite' && req.method==='POST') {
+      if(!players.includes(me.id))return err("Only a player at this table can invite Ohana.",403);
+      if(g.status!=='waiting'||players.length>=g.max_players)throw new Error("Choose a table that is waiting for players.");
+      const recipient=Number(body.member_id);
+      if(!names[recipient]||recipient===me.id||players.includes(recipient))throw new Error("Choose another member of this room’s Ohana.");
+      const sent=await db.prepare("INSERT INTO game_invitations(game_id,member_id,sender_id,status,created_at) VALUES(?,?,?,'pending',?) ON CONFLICT(game_id,member_id) DO UPDATE SET sender_id=excluded.sender_id,status='pending',created_at=excluded.created_at WHERE game_invitations.status!='pending'").bind(id,recipient,me.id,now()).run();
+      if(sent.meta.changes)env.ctx?.waitUntil?.(notifyMembers(db,[recipient],{type:'invite',title:me.name+' saved you a seat',body:'Join '+(GAME_TYPES[g.type]?.name||g.type)+' — open your Game Nook to accept.',tag:'ohana-invite-'+id}).catch(()=>{}));
+      return json({ok:true});
+    }
+    if(action==='decline' && req.method==='POST') {
+      await db.prepare("UPDATE game_invitations SET status='declined' WHERE game_id=? AND member_id=?").bind(id,me.id).run();
+      return json({ok:true});
+    }
     if (action === "reviewack" && req.method === "POST") {
       if (!players.includes(me.id)) throw new Error("Only players in this game can acknowledge its score review.");
       const review = g.score_review ? JSON.parse(g.score_review) : null;
@@ -1181,7 +1197,9 @@ async function api2(req, env, url) {
         status = "playing";
         state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       }
-      await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=?").bind(JSON.stringify(players), status, state, now(), id).run();
+      const joined=await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(players), status, state, now(), id,g.players).run();
+      if(!joined.meta.changes)throw new Error("This table just changed. Please open it again.");
+      await db.prepare("UPDATE game_invitations SET status='accepted' WHERE game_id=? AND member_id=?").bind(id,me.id).run();
 
       // If game just started, notify the first player it's their turn
       if (status === "playing") {
