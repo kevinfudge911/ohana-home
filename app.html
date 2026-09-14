@@ -87,6 +87,9 @@ nav.tabs button.on{color:var(--sun)}
 .c{background:var(--sand);display:flex;align-items:center;justify-content:center;position:relative;font-family:Fredoka;font-size:calc(var(--cs)*.5);color:rgba(27,42,48,.55);font-weight:600}
 .c.DL{background:var(--dl)}.c.TL{background:var(--tl);color:#fff}.c.DW{background:var(--dw)}.c.TW{background:var(--tw);color:#fff}
 .c.ctr{background:var(--sun)}.c.star{background:var(--sun)}
+.c.surp{background:linear-gradient(135deg,#E8D5F5,#F5D5E8);animation:shimmer 2s ease-in-out infinite}
+.c.surp-found{background:linear-gradient(135deg,#D5F5E3,#F5EED5)}
+@keyframes shimmer{0%,100%{opacity:1}50%{opacity:.7}}
 .c .bl{font-size:calc(var(--cs)*.34);letter-spacing:-.02em}
 .c .t{position:absolute;inset:1px;border-radius:3px;background:var(--tile);border:1px solid var(--tile-edge);box-shadow:0 1px 0 var(--tile-edge);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);font-weight:600}
 .c .t.new{background:#FFE9A8;border-color:var(--coral2)}
@@ -351,14 +354,18 @@ function renderWords(st, g, myTurn) {
   const bd = $('#board'); const meId = S.me.id; const rack = Array.isArray(st.racks[meId]) ? st.racks[meId] : [];
   const usedIdx = new Set(S.placed.map(p => p.rackIdx));
   const cells = [];
+  const surpriseSet = new Set(st.surprises || []);
+  const found = st.foundSurprises || {};
   for (let i = 0; i < 225; i++) {
     const t = st.board[i]; const pl = S.placed.find(p => p.i === i); const bn = st.bonus[i];
-    let cls = 'c ' + (bn || '') + (i === 112 ? ' ctr' : '') + (st.star === i ? ' star' : '');
-    let inner = t ? `<span class="t ${st.lastMove.includes(i) ? 'last' : ''} ${t.blank ? 'blank' : ''}">${t.l}<i>${t.v}</i></span>` : pl ? `<span class="t new ${pl.blank ? 'blank' : ''}">${pl.l}<i>${pl.blank ? 0 : LV[pl.l]}</i></span>` : (i === 112 ? '★' : st.star === i ? '🌺' : bn ? `<span class="bl">${bn}</span>` : '');
+    const isSurp = surpriseSet.has(i) && !found[i] && !t && !pl;
+    const wasSurp = !!found[i];
+    let cls = 'c ' + (bn || '') + (i === 112 ? ' ctr' : '') + (st.star === i ? ' star' : '') + (isSurp ? ' surp' : '') + (wasSurp ? ' surp-found' : '');
+    let inner = t ? `<span class="t ${st.lastMove.includes(i) ? 'last' : ''} ${t.blank ? 'blank' : ''}">${t.l}<i>${t.v}</i></span>` : pl ? `<span class="t new ${pl.blank ? 'blank' : ''}">${pl.l}<i>${pl.blank ? 0 : LV[pl.l]}</i></span>` : (i === 112 ? '★' : st.star === i ? '🌺' : isSurp ? '❓' : bn ? `<span class="bl">${bn}</span>` : '');
     cells.push(`<div class="${cls}" data-i="${i}">${inner}</div>`);
   }
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
-    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden somewhere (+20)'}</div>
+    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left</div>
     ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
       `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}

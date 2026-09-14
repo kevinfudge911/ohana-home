@@ -25,13 +25,25 @@ function shuffle(arr, r) {
 }
 __name(shuffle, "shuffle");
 var GAME_TYPES = {
-  words: { name: "Ohana Words", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Our own Wordfeud. Bonus squares move every game, plus a hidden Ohana Star worth 20." },
+  words: { name: "Ohana Words", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Our own Wordfeud. Random boards, hidden surprise squares (good & bad!), plus the Ohana Star." },
   tictac: { name: "Tic-Tac-Toe", min: 2, max: 2, tag: "Little ones", desc: "Three in a row wins. Quick and easy." },
   memory: { name: "Memory Match", min: 2, max: 2, tag: "Little ones", desc: "Flip two cards. Find the pairs. Most pairs wins." },
   checkers: { name: "Checkers", min: 2, max: 2, tag: "Everybody", desc: "Jump your way across the board. Kings move both ways." }
 };
 var DIST = { A: [9, 1], B: [2, 3], C: [2, 3], D: [4, 2], E: [12, 1], F: [2, 4], G: [3, 2], H: [2, 4], I: [9, 1], J: [1, 8], K: [1, 5], L: [4, 1], M: [2, 3], N: [6, 1], O: [8, 1], P: [2, 3], Q: [1, 10], R: [6, 1], S: [4, 1], T: [6, 1], U: [4, 1], V: [2, 4], W: [2, 4], X: [1, 8], Y: [2, 4], Z: [1, 10], "?": [2, 0] };
 var LETTER_VALUES = Object.fromEntries(Object.entries(DIST).map(([k, v]) => [k, v[1]]));
+var SURPRISE_POOL = [
+  { type: "gift", emoji: "\u{1F381}", label: "Gift! +20" },
+  { type: "gift", emoji: "\u{1F381}", label: "Gift! +20" },
+  { type: "jackpot", emoji: "\u{1F48E}", label: "Jackpot! Word doubled!" },
+  { type: "jackpot", emoji: "\u{1F48E}", label: "Jackpot! Word doubled!" },
+  { type: "extra", emoji: "\u{1F504}", label: "Extra Turn!" },
+  { type: "oops", emoji: "\u{1F480}", label: "Oops! –15" },
+  { type: "oops", emoji: "\u{1F480}", label: "Oops! –15" },
+  { type: "robin", emoji: "\u{1F3AF}", label: "Robin Hood! Others +10 each" },
+  { type: "robin", emoji: "\u{1F3AF}", label: "Robin Hood! Others +10 each" },
+  { type: "freeze", emoji: "\u{1F9CA}", label: "Freeze! Lose a tile" }
+];
 var N = 15;
 var CENTER = 112;
 function wordsInit(players, seed) {
@@ -43,6 +55,11 @@ function wordsInit(players, seed) {
   let k = 0;
   for (const [b, n] of plan) for (let j = 0; j < n; j++) bonus[open[k++]] = b;
   const star = open[k++];
+  const surpriseList = shuffle([...SURPRISE_POOL], r);
+  const surprises = {};
+  for (let s = 0; s < surpriseList.length && k < open.length; s++) {
+    surprises[open[k++]] = { ...surpriseList[s] };
+  }
   let bag = [];
   for (const [l, [n]] of Object.entries(DIST)) for (let j = 0; j < n; j++) bag.push(l);
   shuffle(bag, r);
@@ -51,7 +68,7 @@ function wordsInit(players, seed) {
     racks[p] = bag.splice(0, 7);
     scores[p] = 0;
   }
-  return { board: new Array(225).fill(null), bonus, star, starFound: false, bag, racks, scores, passes: 0, history: [], lastMove: [] };
+  return { board: new Array(225).fill(null), bonus, star, starFound: false, surprises, foundSurprises: {}, bag, racks, scores, passes: 0, history: [], lastMove: [] };
 }
 __name(wordsInit, "wordsInit");
 function wordsRefill(st, p) {
@@ -192,6 +209,35 @@ async function wordsMove(st, players, turnIdx, move, db) {
     total += 20;
     note += (note ? " \xB7 " : "") + "Found the Ohana Star! +20";
   }
+  let extraTurn = false;
+  for (const t of pl) {
+    const surp = st.surprises[t.i];
+    if (surp && !st.foundSurprises[t.i]) {
+      st.foundSurprises[t.i] = surp;
+      switch (surp.type) {
+        case "gift": total += 20; note += (note ? " \xB7 " : "") + "\u{1F381} Gift! +20"; break;
+        case "jackpot": total *= 2; note += (note ? " \xB7 " : "") + "\u{1F48E} Jackpot! Word doubled!"; break;
+        case "extra": extraTurn = true; note += (note ? " \xB7 " : "") + "\u{1F504} Extra Turn!"; break;
+        case "oops": total = Math.max(0, total - 15); note += (note ? " \xB7 " : "") + "\u{1F480} Oops! –15"; break;
+        case "robin":
+          for (const q of players) if (q !== p) st.scores[q] += 10;
+          note += (note ? " \xB7 " : "") + "\u{1F3AF} Robin Hood! Others +10 each";
+          break;
+        case "freeze":
+          if (rack.length > 0) {
+            let maxV = -1, maxIdx = 0;
+            for (let ri = 0; ri < rack.length; ri++) {
+              const v = LETTER_VALUES[rack[ri]] || 0;
+              if (v > maxV) { maxV = v; maxIdx = ri; }
+            }
+            const lost = rack.splice(maxIdx, 1)[0];
+            st.bag.push(lost);
+            note += (note ? " \xB7 " : "") + "\u{1F9CA} Freeze! Lost " + (lost === "?" ? "blank" : lost);
+          }
+          break;
+      }
+    }
+  }
   st.board = board;
   st.racks[p] = rack;
   wordsRefill(st, p);
@@ -199,7 +245,9 @@ async function wordsMove(st, players, turnIdx, move, db) {
   st.passes = 0;
   st.lastMove = [...placedSet];
   st.history.push({ p, words: detail, score: total, note });
-  return endCheck(st, players, turnIdx);
+  const result = endCheck(st, players, turnIdx);
+  if (extraTurn && !result.over) result.next = turnIdx;
+  return result;
 }
 __name(wordsMove, "wordsMove");
 function endCheck(st, players, turnIdx) {
@@ -230,7 +278,8 @@ __name(endCheck, "endCheck");
 function wordsView(st, viewer) {
   const racks = {};
   for (const p in st.racks) racks[p] = String(p) === String(viewer) ? st.racks[p] : st.racks[p].length;
-  return { ...st, racks, bag: st.bag.length, star: st.starFound ? st.star : null };
+  const surpriseSquares = Object.keys(st.surprises).map(Number);
+  return { ...st, racks, bag: st.bag.length, star: st.starFound ? st.star : null, surprises: surpriseSquares, foundSurprises: st.foundSurprises };
 }
 __name(wordsView, "wordsView");
 function tttInit() {
