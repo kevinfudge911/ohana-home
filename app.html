@@ -122,6 +122,23 @@ nav.tabs button.on{color:var(--sun)}
 .hist b{color:var(--sand)}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
+/* game chat bubbles */
+.gchat{margin-top:10px;border-top:1px solid rgba(246,231,200,.1);padding-top:8px}
+.gchat-msgs{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;margin-bottom:6px;scroll-behavior:smooth}
+.gchat-msg{display:flex;align-items:flex-start;gap:6px;animation:bubbleIn .3s ease}
+.gchat-msg.me{flex-direction:row-reverse}
+.gchat-msg .av{font-size:20px;line-height:1;flex:none}
+.gchat-msg .bub{background:var(--deep);border-radius:12px;padding:5px 10px;font-size:14px;max-width:75%;border-bottom-left-radius:3px}
+.gchat-msg.me .bub{background:var(--shallow);border-bottom-left-radius:12px;border-bottom-right-radius:3px}
+.gchat-msg .bub b{font-size:11px;color:var(--sun);display:block;line-height:1}
+.gchat-msg.emoji-only .bub{font-size:28px;background:transparent;padding:2px 4px}
+@keyframes bubbleIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+.gchat-bar{display:flex;gap:4px;align-items:center}
+.gchat-bar input{flex:1;padding:8px 10px;font-size:14px;border-radius:10px}
+.gchat-bar button{padding:6px 10px;font-size:14px;min-width:36px}
+.gchat-reacts{display:flex;gap:3px;margin-bottom:4px;flex-wrap:wrap}
+.gchat-reacts button{background:var(--deep);padding:4px 8px;border-radius:10px;font-size:18px;min-width:0}
+
 /* tictac */
 .ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:10px auto;position:relative;z-index:1}
 .ttt button{aspect-ratio:1;font-size:56px;background:var(--sand);color:var(--ink);border-radius:18px;font-family:Fredoka;padding:0}
@@ -388,9 +405,10 @@ function renderGame() {
   const isOnline = p => (S.sync?.members || []).find(m => m.id === p)?.online;
   const onlineDot = p => `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${isOnline(p) ? 'var(--leaf)' : '#556'};margin-left:4px;vertical-align:middle" title="${isOnline(p) ? 'Online now' : 'Offline'}"></span>`;
   const scores = st.scores ? `<div class="scores">${g.players.map(p => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}${g.type === 'words' ? `<small>${typeof st.racks[p] === 'number' ? st.racks[p] : st.racks[p].length} tiles</small>` : ''}</div><div class="p">${st.scores[p]}</div></div>`).join('')}</div>` : `<div class="scores">${g.players.map((p, i) => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}<small>${g.type === 'tictac' ? (i === 0 ? 'X' : 'O') : g.type === 'checkers' ? (i === 0 ? 'Red' : 'Black') : ''}</small></div></div>`).join('')}</div>`;
-  b.innerHTML = head + scores + `<div id="board"></div>`;
+  b.innerHTML = head + scores + `<div id="board"></div><div id="gchat"></div>`;
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
+  renderGameChat(st, g);
 }
 
 // ----- Audio & Celebration System -----
@@ -715,6 +733,52 @@ async function move(m, after) {
     await loadGame();
   }
   catch (e) { toast(e.message, 3500); }
+}
+
+// ----- Game Chat -----
+function renderGameChat(st, g) {
+  const el = $('#gchat'); if (!el) return;
+  const chat = st.chat || [];
+  const meId = S.me.id;
+  const reacts = ['👏','😂','🔥','😱','💀','🎉','😎','🤔'];
+  const isEmoji = t => /^\p{Emoji}+$/u.test(t) && t.length <= 4;
+
+  el.innerHTML = `<div class="gchat">
+    <div class="gchat-msgs" id="gchat-msgs">${chat.slice(-20).map(m => {
+      const mine = m.p === meId;
+      const emojiOnly = isEmoji(m.text);
+      return `<div class="gchat-msg ${mine ? 'me' : ''} ${emojiOnly ? 'emoji-only' : ''}"><span class="av">${avOf(m.p)}</span><div class="bub">${!mine ? `<b>${esc(nameOf(m.p))}</b>` : ''}${esc(m.text)}</div></div>`;
+    }).join('')}</div>
+    <div class="gchat-reacts">${reacts.map(r => `<button data-react="${r}">${r}</button>`).join('')}</div>
+    <div class="gchat-bar"><input id="gchat-in" placeholder="Talk smack…" maxlength="200" autocomplete="off"><button id="gchat-send">➤</button></div>
+  </div>`;
+
+  // Scroll to bottom
+  const msgsBox = $('#gchat-msgs');
+  if (msgsBox) msgsBox.scrollTop = msgsBox.scrollHeight;
+
+  // Quick reactions
+  el.querySelectorAll('[data-react]').forEach(btn => btn.onclick = () => sendGameChat(g.id, btn.dataset.react));
+
+  // Text send
+  const sendText = () => {
+    const inp = $('#gchat-in');
+    const t = inp?.value?.trim();
+    if (!t) return;
+    inp.value = '';
+    sendGameChat(g.id, t);
+  };
+  const sendBtn = $('#gchat-send'); if (sendBtn) sendBtn.onclick = sendText;
+  const inp = $('#gchat-in');
+  if (inp) inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); sendText(); } };
+}
+
+async function sendGameChat(gameId, text) {
+  try {
+    await api(`/api/game/${gameId}/chat`, { text });
+    AudioSys.beep(440, .06, .15);
+    await loadGame();
+  } catch(e) { toast(e.message); }
 }
 
 // ----- Tic-tac-toe -----

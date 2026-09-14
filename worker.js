@@ -917,6 +917,19 @@ async function api2(req, env, url) {
 
       return json({ ok: true, over: res.over, winner: res.winner, last: st.history ? st.history[st.history.length - 1] : null });
     }
+    if (action === "chat" && req.method === "POST") {
+      if (!g.in_game) throw new Error("You're not in this game.");
+      const text = String(body.text || "").trim().slice(0, 200);
+      if (!text) throw new Error("Say something!");
+      const st = JSON.parse(g.state);
+      if (!st.chat) st.chat = [];
+      const msg = { p: me.id, text, t: now() };
+      st.chat.push(msg);
+      // Keep last 50 messages
+      if (st.chat.length > 50) st.chat = st.chat.slice(-50);
+      await db.prepare("UPDATE games SET state=? WHERE id=?").bind(JSON.stringify(st), id).run();
+      return json({ ok: true, msg });
+    }
   }
   if (p.startsWith("/api/admin/")) {
     if (!me.is_admin) return err("Admins only.", 403);
