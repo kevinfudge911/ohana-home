@@ -5,4 +5,9 @@
 .npm-global/
 .npm/
 .ssh/
+.wget-hsts
 node_modules/
+app-original.html
+worker-original.js
+ohana-home-worker.js
+ohana-home-repo/
