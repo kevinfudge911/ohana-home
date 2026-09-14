@@ -191,6 +191,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
   const detail = [];
   for (const w of uniq) {
     let sum = 0, mult = 1;
+    const letters = [];
     for (const i of w) {
       let v = board[i].v;
       if (placedSet.has(i)) {
@@ -200,26 +201,31 @@ async function wordsMove(st, players, turnIdx, move, db) {
         if (b === "DW") mult *= 2;
         if (b === "TW") mult *= 3;
       }
+      letters.push({letter:board[i].l,base:board[i].v,points:v,bonus:placedSet.has(i)?(st.bonus[i]||""):""});
       sum += v;
     }
     const sc = sum * mult;
     total += sc;
-    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc });
+    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc, letters, letterTotal:sum, wordMultiplier:mult });
   }
   let note = "";
+  const adjustments = [];
   if (pl.length === 7) {
     total += 50;
     note = "All 7 tiles! +50";
+    adjustments.push({label:note,delta:50,total});
   }
   if (!st.starFound && placedSet.has(st.star)) {
     st.starFound = true;
     total += 20;
+    adjustments.push({label:"Found the Ohana Star!",delta:20,total});
     note += (note ? " \xB7 " : "") + "Found the Ohana Star! +20";
   }
   let extraTurn = false;
   for (const t of pl) {
     const surp = st.surprises[t.i];
     if (surp && !st.foundSurprises[t.i]) {
+      const before=total, oldNote=note;
       st.foundSurprises[t.i] = surp;
       switch (surp.type) {
         case "gift": total += 20; note += (note ? " \xB7 " : "") + "\u{1F381} Gift! +20"; break;
@@ -243,6 +249,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
           }
           break;
       }
+      adjustments.push({type:surp.type,square:t.i,label:note.slice(oldNote.length).replace(/^ · /,""),delta:total-before,total});
     }
   }
   st.board = board;
@@ -251,7 +258,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
   st.scores[p] += total;
   st.passes = 0;
   st.lastMove = [...placedSet];
-  st.history.push({ p, words: detail, score: total, note });
+  st.history.push({ p, words: detail, score: total, note, adjustments });
 
   // Random Random mode: shuffle unplayed bonus squares to new empty spots
   if (st.mode === 'random') {

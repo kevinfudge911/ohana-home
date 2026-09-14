@@ -39,3 +39,8 @@ Login and invitation pages now use the same living porch with compact readable c
 
 ## Inside the game — warm family table
 Game header uses a subdued porch sky; a compact character turn greeting replaces the old plain status. Wood frame, cream tiles, rack, compact score badges and illustrated action labels match the welcome palette. Around the table chat has readable cream/sage bubbles and a small 1 Corinthians 16:14 line. Existing board cells, actions, scoring rules and chat draft preservation remain intact. /game-preview is a read-only appearance sample rendered with fictional Alex/Jamie data, contains no credentials or game API calls, and must never be confused with a playable game.
+
+## Movable draft tiles, light and scoring
+Unsubmitted word tiles now use pointer drag from rack OR board. Drop on an empty square to move, on the rack to return; invalid/cancelled drops keep the draft intact. Tap a placed tile then an empty square also repositions it. Submitted tiles remain fixed. Tests cover blank identity/value preservation, invalid drops, cancellation and tap movement.
+
+Turquoise/gold perimeter glow stays outside letter faces and respects reduced motion. Existing speech and scoring celebrations are retained; a Voice toggle controls voice/sounds. Last-play panel persists with per-word points and mystery notes for existing history. New history records letter scoring, word multipliers and ordered bonus/mystery adjustments without changing scoring rules. Tested DL/DW plus gift then jackpot: 18 word points +20 gift +38 jackpot =76. Voice celebrations include mystery notes.
