@@ -531,6 +531,7 @@ function gameRow(g, me) {
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
     mode: g.mode || 'classic',
+    score_review: players.includes(me) && g.score_review ? JSON.parse(g.score_review) : null,
     invite_code: g.invite_code || null
   };
 }
@@ -909,7 +910,7 @@ async function api2(req, env, url) {
     const since = +url.searchParams.get("msgSince") || 0;
     const members = (await db.prepare("SELECT id,name,avatar,last_seen,is_admin FROM members ORDER BY name").all()).results.map((m) => ({ ...m, online: now() - m.last_seen < ONLINE_MS }));
     const msgs = (await db.prepare("SELECT m.id,m.member_id,m.text,m.image,m.created_at FROM messages m WHERE m.id>? ORDER BY m.id DESC LIMIT 60").bind(since).all()).results.reverse();
-    const games = (await db.prepare("SELECT * FROM games WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
+    const games = (await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
     return json({ me, familyName: await getSetting(db, "family_name"), members, messages: msgs, games, types: GAME_TYPES });
   }
   if (p === "/api/message" && req.method === "POST") {
@@ -945,7 +946,7 @@ async function api2(req, env, url) {
   if (gm) {
     const id = +gm[1];
     const action = gm[2];
-    const g = await db.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
+    const g = await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.id=?").bind(id).first();
     if (!g) throw new Error("Game not found.");
     const players = JSON.parse(g.players);
     const names = {};
@@ -953,6 +954,15 @@ async function api2(req, env, url) {
     if (!action) {
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       return json({ ...gameRow(g, me.id), state: st, names });
+    }
+    if (action === "reviewack" && req.method === "POST") {
+      if (!players.includes(me.id)) throw new Error("Only players in this game can acknowledge its score review.");
+      const review = g.score_review ? JSON.parse(g.score_review) : null;
+      if (!review || body.reviewId !== review.id) throw new Error("This score review changed. Please refresh and read it again.");
+      const result = await db.prepare("UPDATE score_reviews SET payload=json_set(payload,?,COALESCE(json_extract(payload,?),?)) WHERE game_id=? AND json_extract(payload,'$.id')=?")
+        .bind('$.acknowledged."'+me.id+'"','$.acknowledged."'+me.id+'"',now(),id,review.id).run();
+      if (!result.meta.changes) throw new Error("This score review changed. Please refresh and read it again.");
+      return json({ok:true});
     }
     if (action === "join" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("This game already started.");
