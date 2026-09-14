@@ -31,3 +31,5 @@ Production scene lives in ohana-scene.js; copy to ohana-scene.js.txt after editi
 Clock follows America/Chicago, with decorative dawn/day/dusk/night transitions (not local weather or astronomical sunrise). Water distortion is clipped to water. Clouds vary with timestamp/date; base paintings recur, so this is not an infinite library of unique photographic skies. The second furnished state currently transitions around dawn/dusk, when its lighting matches. Motion pauses offscreen and with reduced-motion preference; a pause button is available. /porch provides a public, data-free scene view.
 
 Validation: inline scripts parse; DOM check verified 225 board cells, two compact player scores, one chat panel and preserved chat draft; Wrangler bundle check passed. Authenticated multiplayer visual verification still requires a signed-in family session.
+
+Login and invitation pages now use the same living porch with compact readable controls. Live login visually inspected September 14: both chairs, pillow, small title and verse, fields, avatar selection and submit button visible without overlays. This did not submit credentials or create a test family member.
