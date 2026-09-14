@@ -46,7 +46,7 @@ var SURPRISE_POOL = [
 ];
 var N = 15;
 var CENTER = 112;
-function wordsInit(players, seed) {
+function wordsInit(players, seed, mode) {
   const r = rng(seed);
   const bonus = new Array(225).fill("");
   const open = [...Array(225).keys()].filter((i) => i !== CENTER);
@@ -68,7 +68,7 @@ function wordsInit(players, seed) {
     racks[p] = bag.splice(0, 7);
     scores[p] = 0;
   }
-  return { board: new Array(225).fill(null), bonus, star, starFound: false, surprises, foundSurprises: {}, bag, racks, scores, passes: 0, history: [], lastMove: [] };
+  return { board: new Array(225).fill(null), bonus, star, starFound: false, surprises, foundSurprises: {}, bag, racks, scores, passes: 0, history: [], lastMove: [], mode: mode || 'classic' };
 }
 __name(wordsInit, "wordsInit");
 function wordsRefill(st, p) {
@@ -245,6 +245,28 @@ async function wordsMove(st, players, turnIdx, move, db) {
   st.passes = 0;
   st.lastMove = [...placedSet];
   st.history.push({ p, words: detail, score: total, note });
+
+  // Random Random mode: shuffle unplayed bonus squares to new empty spots
+  if (st.mode === 'random') {
+    const empties = [];
+    const bonusPool = [];
+    for (let i = 0; i < 225; i++) {
+      if (!st.board[i]) {
+        if (st.bonus[i]) bonusPool.push(st.bonus[i]);
+        empties.push(i);
+      }
+    }
+    // Clear all bonuses on empty squares
+    for (let i = 0; i < 225; i++) {
+      if (!st.board[i]) st.bonus[i] = '';
+    }
+    // Redistribute bonuses randomly among empty squares
+    shuffle(empties, Math.random);
+    for (let b = 0; b < bonusPool.length && b < empties.length; b++) {
+      st.bonus[empties[b]] = bonusPool[b];
+    }
+  }
+
   const result = endCheck(st, players, turnIdx);
   if (extraTurn && !result.over) result.next = turnIdx;
   return result;
@@ -279,7 +301,7 @@ function wordsView(st, viewer) {
   const racks = {};
   for (const p in st.racks) racks[p] = String(p) === String(viewer) ? st.racks[p] : st.racks[p].length;
   const surpriseSquares = Object.keys(st.surprises).map(Number);
-  return { ...st, racks, bag: st.bag.length, star: st.starFound ? st.star : null, surprises: surpriseSquares, foundSurprises: st.foundSurprises };
+  return { ...st, racks, bag: st.bag.length, star: st.starFound ? st.star : null, surprises: surpriseSquares, foundSurprises: st.foundSurprises, mode: st.mode || 'classic' };
 }
 __name(wordsView, "wordsView");
 function tttInit() {
@@ -427,8 +449,8 @@ function chkMove(st, players, turnIdx, move) {
   return { over: false, next: 1 - turnIdx };
 }
 __name(chkMove, "chkMove");
-function initState(type, players, seed) {
-  if (type === "words") return wordsInit(players, seed);
+function initState(type, players, seed, mode) {
+  if (type === "words") return wordsInit(players, seed, mode);
   if (type === "tictac") return tttInit();
   if (type === "memory") return memInit(players, seed);
   if (type === "checkers") return chkInit();
@@ -492,7 +514,8 @@ function gameRow(g, me) {
     created_by: g.created_by,
     updated_at: g.updated_at,
     my_turn: g.status === "playing" && players[g.turn] === me,
-    in_game: players.includes(me)
+    in_game: players.includes(me),
+    mode: g.mode || 'classic'
   };
 }
 __name(gameRow, "gameRow");
@@ -810,7 +833,8 @@ async function api2(req, env, url) {
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
     const max = Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
-    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now()).run();
+    const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
+    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode) VALUES(?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode).run();
     return json({ id: r.meta.last_row_id });
   }
   const gm = p.match(/^\/api\/game\/(\d+)(?:\/(\w+))?$/);
@@ -835,7 +859,7 @@ async function api2(req, env, url) {
       let status = "waiting", state = null;
       if (players.length >= g.max_players) {
         status = "playing";
-        state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5));
+        state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       }
       await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=?").bind(JSON.stringify(players), status, state, now(), id).run();
 
@@ -859,7 +883,7 @@ async function api2(req, env, url) {
       if (g.status !== "waiting") throw new Error("Already started.");
       if (g.created_by !== me.id && !me.is_admin) throw new Error("Only the person who made the game can start it.");
       if (players.length < GAME_TYPES[g.type].min) throw new Error("Need more players first.");
-      const state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5));
+      const state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       await db.prepare("UPDATE games SET status='playing',state=?,max_players=?,updated_at=? WHERE id=?").bind(state, players.length, now(), id).run();
 
       // Notify first player

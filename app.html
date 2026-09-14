@@ -333,18 +333,27 @@ function renderGames() {
   const open = sy.games.filter(g => !g.in_game && g.status === 'waiting');
   const done = sy.games.filter(g => g.status === 'finished').slice(0, 6);
   const who = g => `<div class="who">${g.players.map(p => avOf(p)).join('')}</div>`;
-  const line = g => g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${nameOf(+g.winner)} won`) : g.my_turn ? 'Your turn!' : `${nameOf(g.players[g.turn])}'s turn`;
+  const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${nameOf(+g.winner)} won`) : g.my_turn ? 'Your turn!' : `${nameOf(g.players[g.turn])}'s turn`) + modeBit; };
   const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${EM[g.type]}</div><div class="t"><b>${esc(g.name)}</b><span>${line(g)}</span>${who(g)}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
   m.innerHTML = `${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
     ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
     <div style="position:relative;height:44px;margin-top:14px"><div class="scrawl" style="top:6px">Ohana means family, and nobody gets left behind</div></div>
     <h2 class="shelf" style="margin-top:0">Start a game</h2>
-    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${EM[id]}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div>${gt.max > 2 ? `<div style="display:flex;gap:8px;width:100%;justify-content:flex-end;align-items:center"><select id="np_${id}" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select><button data-new="${id}">New</button></div>` : `<button data-new="${id}">New</button>`}</div>`; }).join('')).join('')}
+    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${EM[id]}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div>${id === 'words' ? `<div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <select id="np_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select>
+        <select id="mode_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow);flex:1"><option value="classic">🎯 Classic</option><option value="random">🎲 Random Random</option></select>
+      </div>
+      <div id="mode_desc" style="font-size:13px;color:rgba(246,231,200,.6);padding:0 2px">Bonuses stay where they land</div>
+      <div style="text-align:right"><button data-new="words">New Game</button></div>
+    </div>` : gt.max > 2 ? `<div style="display:flex;gap:8px;width:100%;justify-content:flex-end;align-items:center"><select id="np_${id}" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select><button data-new="${id}">New</button></div>` : `<button data-new="${id}">New</button>`}</div>`; }).join('')).join('')}
     ${done.length ? `<h2 class="shelf">Finished lately</h2>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}">See</button>`)).join('') : ''}`;
   m.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openGame(+b.dataset.open));
   m.querySelectorAll('[data-join]').forEach(b => b.onclick = async () => { try { await api(`/api/game/${b.dataset.join}/join`, {}); await sync(); openGame(+b.dataset.join); } catch (e) { toast(e.message); } });
-  m.querySelectorAll('[data-new]').forEach(b => b.onclick = async () => { try { const sel = $(`#np_${b.dataset.new}`); const d = await api('/api/game/create', { type: b.dataset.new, max_players: sel ? +sel.value : 2 }); await sync(); openGame(d.id); } catch (e) { toast(e.message); } });
+  m.querySelectorAll('[data-new]').forEach(b => b.onclick = async () => { try { const sel = $(`#np_${b.dataset.new}`); const modeSel = $('#mode_words'); const mode = b.dataset.new === 'words' && modeSel ? modeSel.value : 'classic'; const d = await api('/api/game/create', { type: b.dataset.new, max_players: sel ? +sel.value : 2, mode }); await sync(); openGame(d.id); } catch (e) { toast(e.message); } });
+  const modeSel = $('#mode_words'); const modeDesc = $('#mode_desc');
+  if (modeSel && modeDesc) modeSel.onchange = () => { modeDesc.textContent = modeSel.value === 'random' ? 'Bonus squares shuffle to new spots after every turn!' : 'Bonuses stay where they land'; };
 }
 
 // ---------- GAME SCREEN ----------
@@ -385,7 +394,8 @@ function renderGame() {
   const g = S.gstate;
   if (!g) { app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>Loading…</h2></div></div>`; $('#back').onclick = closeGame; return; }
   const meId = S.me.id;
-  app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>${EM[g.type]} ${esc(g.name)}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="leave">${g.status === 'waiting' ? (g.created_by === meId ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div><div class="body" id="gb"></div></div>`;
+  const modeLabel = g.mode === 'random' ? ' 🎲' : '';
+  app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>${EM[g.type]} ${esc(g.name)}${modeLabel}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="leave">${g.status === 'waiting' ? (g.created_by === meId ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div><div class="body" id="gb"></div></div>`;
   $('#back').onclick = closeGame;
   const lv = $('#leave'); if (lv) lv.onclick = async () => { if (!confirm(g.status === 'waiting' ? 'Close this game?' : 'Give up this game?')) return; try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } };
   const b = $('#gb');
@@ -678,7 +688,7 @@ function renderWords(st, g, myTurn) {
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
-    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left</div>
+    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :

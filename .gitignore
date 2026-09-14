@@ -1,0 +1,8 @@
+.cache/
+.claude/
+.config/
+.gitconfig
+.npm-global/
+.npm/
+.ssh/
+node_modules/
