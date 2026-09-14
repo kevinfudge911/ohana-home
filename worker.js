@@ -1,3 +1,5 @@
+import MAHJONG_PREVIEW_HTML from "./mahjong-preview.html";
+import { mahjongInit, mahjongMove } from "./mahjong.js";
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -33,6 +35,7 @@ function shuffle(arr, r) {
 }
 __name(shuffle, "shuffle");
 var GAME_TYPES = {
+  mahjong: { name: "Ohana Mahjong", min: 1, max: 2, tag: "Everybody", desc: "Match sea turtles, flowers and island treasures. Relax solo or take turns together. 10 points per pair." },
   words: { name: "Ohana Words", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Our own Wordfeud. Random boards, hidden surprise squares (good & bad!), plus the Ohana Star." },
   tictac: { name: "Tic-Tac-Toe", min: 2, max: 2, tag: "Little ones", desc: "Three in a row wins. Quick and easy." },
   memory: { name: "Memory Match", min: 2, max: 2, tag: "Little ones", desc: "Flip two cards. Find the pairs. Most pairs wins." },
@@ -465,6 +468,7 @@ function chkMove(st, players, turnIdx, move) {
 }
 __name(chkMove, "chkMove");
 function initState(type, players, seed, mode) {
+  if (type === "mahjong") return mahjongInit(players, rng(seed));
   if (type === "words") return wordsInit(players, seed, mode);
   if (type === "tictac") return tttInit();
   if (type === "memory") return memInit(players, seed);
@@ -473,6 +477,7 @@ function initState(type, players, seed, mode) {
 }
 __name(initState, "initState");
 async function applyMove(type, st, players, turnIdx, move, db) {
+  if (type === "mahjong") return mahjongMove(st, players, turnIdx, move);
   if (type === "words") return wordsMove(st, players, turnIdx, move, db);
   if (type === "tictac") return tttMove(st, players, turnIdx, move);
   if (type === "memory") return memMove(st, players, turnIdx, move);
@@ -747,6 +752,7 @@ var worker_default = {
     const url = new URL(req.url);
     const p = url.pathname;
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if (req.method === "GET" && p === "/mahjong-preview") return new Response(MAHJONG_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/porch") return new Response(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Home · Living Porch</title><style>body{margin:0;min-height:100vh;background:#0b2e36;color:#f5e8cc;display:grid;place-content:center;font-family:Georgia,serif}main{width:min(96vw,620px)}a{display:block;text-align:center;color:#f5e8cc;margin:20px;text-decoration:none}</style></head><body><main><ohana-scene></ohana-scene><a href="/">Come on in · Ohana Home</a></main><script src="/ohana-scene.js"></script></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/ohana-scene.js") return new Response(SCENE_JS, {headers:{"content-type":"application/javascript; charset=utf-8","cache-control":"no-cache"}});
@@ -940,6 +946,10 @@ async function api2(req, env, url) {
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode).run();
+    if (max === 1) {
+      const state=JSON.stringify(initState(type,[me.id],now(),'classic'));
+      await db.prepare("UPDATE games SET state=?,status='playing' WHERE id=?").bind(state,r.meta.last_row_id).run();
+    }
     return json({ id: r.meta.last_row_id, invite_code: inviteCode });
   }
   const gm = p.match(/^\/api\/game\/(\d+)(?:\/(\w+))?$/);
@@ -1029,7 +1039,12 @@ async function api2(req, env, url) {
       const st = JSON.parse(g.state);
       const res = await applyMove(g.type, st, players, g.turn, body, db);
       const status = res.over ? "finished" : "playing";
+      if(g.type==='mahjong') {
+        const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state).run();
+        if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
+      } else {
       await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=?").bind(JSON.stringify(st), res.next, status, res.over ? String(res.winner) : null, now(), id).run();
+      }
 
       // Send push notification to the next player (if game is still playing)
       if (!res.over && players[res.next] !== me.id) {
