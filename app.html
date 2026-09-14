@@ -904,12 +904,25 @@ function runLastReveal(withVoice=true,scroll=false) {
   const total=Number(stage.dataset.points)||0, label=stage.querySelector('.moment-points'),start=performance.now();
   const count=now=>{if(!stage.isConnected)return;const t=reduced?1:Math.min(1,(now-start)/1500);label.textContent='+'+Math.round(total*(1-Math.pow(1-t,3)));if(t<1)momentFrame=requestAnimationFrame(count);};momentFrame=requestAnimationFrame(count);
   if(scroll)stage.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
-  if(withVoice&&last){AudioSys.playChime(last.score);showCharacterMoment((last.p===S.me?.id?characterDialogue('score',last.score):nameOf(last.p)+' earned '+last.score+' points. '+characterDialogue('hello'))+(last.note?' '+last.note+'.':''),last.score);}
+  if(withVoice&&last){AudioSys.playChime(last.score);showCharacterMoment((last.p===S.me?.id?characterDialogue('score',last.score):nameOf(last.p)+' earned '+last.score+' points. '+characterDialogue('hello'))+(last.note?' '+mysteryVoiceNote(last)+'.':''),last.score);}
+}
+function mysteryAwardText(a,last) {
+  if(a.type==='robin') {
+    const awards=a.awards||((S.gstate?.players)||Object.keys(S.gstate?.state?.scores||{}).map(Number)).filter(p=>p!==last.p).map(player=>({player,points:10}));
+    const who=p=>S.gstate?.names?.[p]?.name||nameOf(p);
+    return (awards.length?awards.map(x=>who(x.player)+' +'+x.points+' points').join('; '):'Each other player +10 points')+'. '+who(last.p)+' keeps the '+last.score+' points earned on this play. Robin Hood gives the bonus to the other players.';
+  }
+  if(a.delta===0)return a.type==='extra'?'Another turn awarded':a.type==='freeze'?'Rack changed; no point bonus':'No point change';
+  return (a.delta>0?'+':'')+a.delta+' points';
+}
+function mysteryVoiceNote(last) {
+  if(!last.adjustments?.some(a=>a.type==='robin'))return last.note||'';
+  return last.adjustments.map(a=>a.type==='robin'?'Robin Hood. '+mysteryAwardText(a,last):(a.label||'Bonus')+'. '+mysteryAwardText(a,last)).join(' ');
 }
 function renderPlayBreakdown(st) {
   const last=[...(st.history||[])].reverse().find(h=>h.words?.length);
   if(!last)return '';
-  return `<section class="play-receipt" aria-label="Last play scoring"><div class="moment-stage revealed" data-points="${last.score}"><div class="moment-art" aria-hidden="true"><span class="treasure-rays"></span><span class="treasure-chest"><i></i><b>✦</b></span><span class="reward-symbol">${last.note ? (/freeze/i.test(last.note)?'❄':/star/i.test(last.note)?'★':'✦'):'★'}</span></div><div class="moment-copy"><small>${last.note?'MYSTERY & BONUS REVEAL':'OHANA WORD MAGIC'}</small><b>${esc(nameOf(last.p))}’s play</b><strong class="moment-points">+${last.score}</strong><span>points earned</span></div><button class="replay-moment" type="button">↻ Replay the magic</button></div>${last.words.map(w=>`<div class="word-earned"><b>${esc(w.word)}</b><span>${w.score} points</span></div>${w.letters?`<details class="word-math"><summary>Letter values & bonuses</summary><div>${w.letters.map(l=>esc(l.letter)+' '+l.base+(l.points!==l.base?' → '+l.points:'')+(l.bonus?' ('+esc(l.bonus)+')':'')).join(' + ')} = ${w.letterTotal}${w.wordMultiplier>1?' × '+w.wordMultiplier+' word bonus':''} = ${w.score}</div></details>`:''}`).join('')}${last.adjustments?.length?`<div class="mystery-reveal">${last.adjustments.map(a=>`<div><b>${esc(a.label||a.type||'Bonus')}</b><span>${a.delta>0?'+':''}${a.delta} points${a.type?' · mystery revealed':''}</span></div>`).join('')}</div>`:last.note?`<div class="mystery-reveal">${esc(last.note)}</div>`:''}<small>Points for this play. Your running total is above.</small></section>`;
+  return `<section class="play-receipt" aria-label="Last play scoring"><div class="moment-stage revealed" data-points="${last.score}"><div class="moment-art" aria-hidden="true"><span class="treasure-rays"></span><span class="treasure-chest"><i></i><b>✦</b></span><span class="reward-symbol">${last.note ? (/freeze/i.test(last.note)?'❄':/star/i.test(last.note)?'★':'✦'):'★'}</span></div><div class="moment-copy"><small>${last.note?'MYSTERY & BONUS REVEAL':'OHANA WORD MAGIC'}</small><b>${esc(nameOf(last.p))}’s play</b><strong class="moment-points">+${last.score}</strong><span>points earned</span></div><button class="replay-moment" type="button">↻ Replay the magic</button></div>${last.words.map(w=>`<div class="word-earned"><b>${esc(w.word)}</b><span>${w.score} points</span></div>${w.letters?`<details class="word-math"><summary>Letter values & bonuses</summary><div>${w.letters.map(l=>esc(l.letter)+' '+l.base+(l.points!==l.base?' → '+l.points:'')+(l.bonus?' ('+esc(l.bonus)+')':'')).join(' + ')} = ${w.letterTotal}${w.wordMultiplier>1?' × '+w.wordMultiplier+' word bonus':''} = ${w.score}</div></details>`:''}`).join('')}${last.adjustments?.length?`<div class="mystery-reveal">${last.adjustments.map(a=>`<div><b>${esc(a.type==='robin'?'🎯 Robin Hood · sharing with Ohana':a.label||a.type||'Bonus')}</b><span>${esc(mysteryAwardText(a,last))}</span></div>`).join('')}</div>`:last.note?`<div class="mystery-reveal">${esc(last.note)}</div>`:''}<small>Points for this play. Your running total is above.</small></section>`;
 }
 // Paint the whole board in one SVG surface, independent of empty CSS-grid rows.
 function wordBoardSurface(st,placed){

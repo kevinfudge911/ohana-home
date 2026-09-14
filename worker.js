@@ -298,7 +298,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
           }
           break;
       }
-      adjustments.push({type:surp.type,square:t.i,label:note.slice(oldNote.length).replace(/^ · /,""),delta:total-before,total});
+      adjustments.push({type:surp.type,square:t.i,label:note.slice(oldNote.length).replace(/^ · /,""),delta:total-before,total,...(surp.type==="robin"?{awards:players.filter(q=>q!==p).map(q=>({player:q,points:10}))}:{})});
     }
   }
   st.board = board;
