@@ -277,6 +277,7 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 
 .character-avatar{display:inline-block;width:1.35em;height:1.35em;object-fit:cover;border-radius:50%;vertical-align:middle;background:#123d42;box-shadow:0 0 0 1px #e1c28180}.ohana-buddy .character-avatar{width:1.5em;height:1.5em}.character-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.character-grid .buddy-choice{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0;padding:0 0 10px;border:1px solid #72988d88;border-radius:18px;background:linear-gradient(140deg,#28585a,#102e39);box-shadow:0 4px 0 #062934;color:#f7e3ba;overflow:hidden}.character-grid .buddy-face{width:100%;aspect-ratio:1;display:block;line-height:1}.character-grid .character-avatar{width:100%;height:100%;object-fit:contain;border-radius:0;box-shadow:none}.character-grid small{font:500 18px Fredoka;margin-top:5px}.character-grid .sel{border:2px solid #ffdc91;box-shadow:0 0 16px #f8d78c55,0 4px 0 #715631}.choice-check{display:none;position:absolute;top:7px;right:7px;background:#ffe1a2;color:#164945;border-radius:50%;width:23px;height:23px;font:bold 16px Nunito}.sel .choice-check{display:grid;place-items:center}#buddy-preview{width:70px;height:70px;flex:none;display:grid;place-items:center}#buddy-preview .character-avatar{width:70px;height:70px}.character-settings{border:1px solid #92bbac77;border-radius:18px;padding:14px;margin:12px 0;background:#143c43}.character-settings summary{cursor:pointer;font:500 20px Fredoka;color:#ffe0a0;padding:4px}.character-settings>small{display:block;margin-top:10px;color:#c3d8cf;font-size:12px}.character-settings .avs{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.character-settings .buddy-choice:not(.illustrated){padding:5px;font-size:23px;display:flex;flex-direction:column;align-items:center}.character-settings .buddy-choice:not(.illustrated) small{font-size:9px}.character-settings .buddy-welcome{margin-top:12px}.fam .av .character-avatar{width:44px;height:44px}.compact-player .character-avatar,.turn-leaf .character-avatar{width:30px;height:30px}.gchat-msg .character-avatar{width:27px;height:27px}.buddy-welcome small{line-height:1.4}
 .bot-options{width:100%;display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;font-size:12px;color:#d9e6d8}.bot-options label{display:flex;flex:1;min-width:130px;flex-direction:column;gap:4px}.bot-options select{font:inherit;color:#ffe5b1;background:#173f46;padding:9px;border-radius:10px;border:1px solid #80ad9b88;max-width:100%}.character-pop{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(540px,calc(100vw - 20px));display:flex;align-items:flex-end;gap:8px;z-index:500;pointer-events:none;filter:drop-shadow(0 6px 15px #00152380)}.character-performer{flex:none;width:120px;height:160px;background-size:400% 100%;background-position:0 0;border-radius:20px;background-color:#123d42;animation:characterArrive .35s ease-out}.character-pop.talking .character-performer{animation:characterTalk .85s steps(4) infinite}.character-pop.cheering .character-performer{animation:characterTalk 1.2s steps(4) 2}.character-bubble{background:linear-gradient(135deg,#fff7df,#f0d5a5);color:#234341;border:1px solid #ffebc4;border-radius:20px 20px 20px 3px;padding:13px 28px 13px 14px;flex:1;min-width:0}.character-bubble>b{font:500 18px Fredoka}.character-bubble p{color:#234341;font-size:13px;line-height:1.45;margin:5px 0 0}.character-points{float:right;color:#246f5c;font:600 24px Fredoka}.character-dismiss{position:absolute;right:2px;top:2px;pointer-events:auto;padding:4px 9px;min-height:30px;color:#2a504b;background:#fff0d0;border:1px solid #eed5a1;border-radius:50%;box-shadow:0 2px 6px #0003;font-size:22px}.voice-toggle{min-width:84px;min-height:40px}@keyframes characterTalk{to{background-position:133.333% 0}}@keyframes characterArrive{from{opacity:0;transform:translateY(25px) scale(.9)}to{opacity:1;transform:none}}@media(max-width:430px){.character-performer{width:90px;height:120px}.character-bubble p{font-size:12px}.character-bubble{padding:10px 25px 10px 10px}.character-bubble>b{font-size:16px}.character-points{font-size:20px}.character-pop{gap:4px}}@media(prefers-reduced-motion:reduce){.character-performer,.character-pop.talking .character-performer,.character-pop.cheering .character-performer{animation:none}}
+.more-character-roster{margin:16px 0;border:1px solid #8ab7a866;border-radius:16px;padding:12px;background:#17414a}.more-character-roster>summary{cursor:pointer;list-style:none;font:500 17px Fredoka;color:#ffe1a2;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:32px}.more-character-roster>summary::-webkit-details-marker{display:none}.more-character-roster[open]>summary span{transform:rotate(45deg)}.more-character-roster>p{font-size:12px;color:#ccdfd4;margin:8px 0}.more-character-roster .character-grid{margin-bottom:2px}.character-grid .buddy-choice:focus-visible,.more-character-roster>summary:focus-visible{outline:3px solid #7effdf;outline-offset:3px}
 </style>
 </head>
 <body>
@@ -290,7 +291,22 @@ const CHARACTERS = {
   '@kik': {name:'Kiko',file:'/buddy-kiko.webp',line:'Curious toes. Clever little moves.'},
   '@peb': {name:'Pebble',file:'/buddy-pebble.webp',line:'A gentle seal who cheers for everyone.'},
   '@man': {name:'Mango',file:'/buddy-mango.webp',line:'A bright parrot with plenty to say.'},
-  '@sun': {name:'Sunny',file:'/buddy-sunny.webp',line:'A little crab with a sunny outlook.'}
+  '@sun': {name:'Sunny',file:'/buddy-sunny.webp',line:'A little crab with a sunny outlook.'},
+  "@ott": {name:"Otto",file:"/buddy-otto.webp",line:"A little mischief, a lot of heart."},
+  "@pip": {name:"Pippa",file:"/buddy-pippa.webp",line:"Small wings. Big adventures."},
+  "@lul": {name:"Lulu",file:"/buddy-lulu.webp",line:"Gentle smiles and happy little hops."},
+  "@hoo": {name:"Hoot",file:"/buddy-hoot.webp",line:"A thoughtful friend with a playful side."},
+  "@flu": {name:"Flutter",file:"/buddy-flutter.webp",line:"A little sparkle in every game."},
+  "@ros": {name:"Rosie",file:"/buddy-rosie.webp",line:"Happy snorts and sunny thoughts."},
+  "@koa": {name:"Koa",file:"/buddy-koa.webp",line:"Your loyal little cheering section."},
+  "@mil": {name:"Milo",file:"/buddy-milo.webp",line:"Curious paws and clever little moves."},
+  "@bam": {name:"Bamboo",file:"/buddy-bamboo.webp",line:"A cozy friend for a quiet game."},
+  "@coc": {name:"Coco",file:"/buddy-coco.webp",line:"Cozy cuddles and patient company."},
+  "@fin": {name:"Finn",file:"/buddy-finn.webp",line:"Big fins. A soft heart."},
+  "@ink": {name:"Inky",file:"/buddy-inky.webp",line:"Eight arms for extra encouragement."},
+  "@kai": {name:"Kai",file:"/buddy-kai.webp",line:"A tiny explorer with a brave heart."},
+  "@flo": {name:"Flora",file:"/buddy-flora.webp",line:"A little flair for family game night."},
+  "@ree": {name:"Reef",file:"/buddy-reef.webp",line:"A little wonder from the ocean."}
 };
 function avatarMarkup(a){const c=CHARACTERS[a];return c?`<img class="character-avatar" src="${c.file}" alt="${c.name}" loading="lazy">`:esc(a||'🙂');}
 const AV = [...Object.keys(CHARACTERS),'🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄','🐢','🦋','🌺','⭐','🍕','🚀','🦖','🐬','🎸','🏈','🦉','🐼','🐨','🦁','🐯','🐵','🐧','🦜','🦩','🦦','🦥','🐙','🐳','🦈','🐝','🐞','🦎','🐲','🤖','👽','🦕','🦔','🐰','🐹','🐻','🦝','🐴','🦚'];
@@ -299,7 +315,7 @@ function buddyName(a) { return CHARACTERS[a]?.name || BUDDY_NAMES[AV.indexOf(a)-
 function buddyPicker() {
   const chosen=AV.includes(S.av)?S.av:'@hon';
   const cards=arr=>arr.map(a=>`<button type="button" class="buddy-choice ${CHARACTERS[a]?'illustrated':''} ${a===chosen?'sel':''}" data-av="${a}" aria-label="Choose ${buddyName(a)}" aria-pressed="${a===chosen}"><span class="buddy-face">${avatarMarkup(a)}</span><small>${buddyName(a)}</small>${CHARACTERS[a]?'<span class="choice-check" aria-hidden="true">✓</span>':''}</button>`).join('');
-  return `<div class="buddy-welcome"><span id="buddy-preview" aria-hidden="true">${avatarMarkup(chosen)}</span><div><b id="buddy-name">${buddyName(chosen)}</b><small id="buddy-line">${CHARACTERS[chosen]?.line||'Ready for a little friendly competition?'}</small></div></div><div class="character-grid">${cards(Object.keys(CHARACTERS))}</div><details class="buddy-more"><summary>Classic emoji buddies <span>＋</span></summary><div class="avs">${cards(AV.filter(a=>!CHARACTERS[a]))}</div></details>`;
+  return `<div class="buddy-welcome"><span id="buddy-preview" aria-hidden="true">${avatarMarkup(chosen)}</span><div><b id="buddy-name">${buddyName(chosen)}</b><small id="buddy-line">${CHARACTERS[chosen]?.line||'Ready for a little friendly competition?'}</small></div></div><div class="character-grid">${cards(Object.keys(CHARACTERS).slice(0,6))}</div><details class="more-character-roster" ${Object.keys(CHARACTERS).indexOf(chosen)>=6?'open':''}><summary>Meet ${Object.keys(CHARACTERS).length-6} more Ohana friends <span aria-hidden="true">＋</span></summary><p>Pick the little personality that feels like you.</p><div class="character-grid">${cards(Object.keys(CHARACTERS).slice(6))}</div></details><details class="buddy-more"><summary>Classic emoji buddies <span>＋</span></summary><div class="avs">${cards(AV.filter(a=>!CHARACTERS[a]))}</div></details>`;
 }
 const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"></div>`;
 const EM = { mahjong:"🌺", words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
@@ -605,7 +621,22 @@ const CHARACTER_VOICES={
   '@kik':{rate:1.08,pitch:1.09,prefer:['Guy','Daniel','Google UK English Male']},
   '@peb':{rate:.9,pitch:.95,prefer:['Moira','Susan','Google US English']},
   '@man':{rate:1.05,pitch:1.22,prefer:['Sonia','Tessa','Google UK English Female']},
-  '@sun':{rate:.98,pitch:.85,prefer:['Ryan','Alex','Google UK English Male']}
+  '@sun':{rate:.98,pitch:.85,prefer:['Ryan','Alex','Google UK English Male']},
+  "@ott":{"rate": 0.97, "pitch": 1.0, "prefer": ["Alex", "Guy", "Google US English"]},
+  "@pip":{"rate": 1.04, "pitch": 1.14, "prefer": ["Jenny", "Karen", "Google UK English Female"]},
+  "@lul":{"rate": 0.94, "pitch": 1.17, "prefer": ["Samantha", "Aria", "Google US English"]},
+  "@hoo":{"rate": 0.91, "pitch": 0.87, "prefer": ["Daniel", "Ryan", "Google UK English Male"]},
+  "@flu":{"rate": 1.02, "pitch": 1.24, "prefer": ["Sonia", "Tessa", "Google UK English Female"]},
+  "@ros":{"rate": 0.99, "pitch": 1.11, "prefer": ["Alex", "Guy", "Google US English"]},
+  "@koa":{"rate": 1.03, "pitch": 0.99, "prefer": ["Jenny", "Karen", "Google UK English Female"]},
+  "@mil":{"rate": 1.07, "pitch": 1.08, "prefer": ["Samantha", "Aria", "Google US English"]},
+  "@bam":{"rate": 0.89, "pitch": 0.92, "prefer": ["Daniel", "Ryan", "Google UK English Male"]},
+  "@coc":{"rate": 0.92, "pitch": 1.02, "prefer": ["Sonia", "Tessa", "Google UK English Female"]},
+  "@fin":{"rate": 0.96, "pitch": 0.82, "prefer": ["Alex", "Guy", "Google US English"]},
+  "@ink":{"rate": 1.01, "pitch": 1.13, "prefer": ["Jenny", "Karen", "Google UK English Female"]},
+  "@kai":{"rate": 0.98, "pitch": 1.19, "prefer": ["Samantha", "Aria", "Google US English"]},
+  "@flo":{"rate": 1.0, "pitch": 1.07, "prefer": ["Daniel", "Ryan", "Google UK English Male"]},
+  "@ree":{"rate": 0.95, "pitch": 0.96, "prefer": ["Sonia", "Tessa", "Google UK English Female"]}
 };
 function speakingCharacter(){return CHARACTERS[S.me?.avatar]?S.me.avatar:'@hon';}
 let characterSpeechTimer=null,characterCounterFrame=null;

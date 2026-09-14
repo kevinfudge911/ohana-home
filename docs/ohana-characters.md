@@ -9,3 +9,9 @@ Talking uses illustrated sprite frames while device speech plays. It is not phon
 All five games support Honu as an Easy or Medium computer opponent. Moves use existing game validation and atomic compare-and-update persistence. Memory uses only revealed card observations (Easy remembers at most four). Words uses a small everyday-word vocabulary, no score maximization and no surprise-square optimization. Mahjong matches available visible tiles. No model API or paid voice service is required.
 
 Checks: tests/bots.cjs; tests/characters.cjs; tests/dialogue-mute.cjs; tests/mahjong.mjs. DOM tests require jsdom via NODE_PATH. /buddies and /mahjong-preview are local-progress public demos, with no family account mutations.
+
+## Expanded roster
+
+15 more illustrated characters: Otto (otter), Pippa (puffin), Lulu (bunny), Hoot (owl), Flutter (butterfly), Rosie (piglet), Koa (puppy), Milo (kitten), Bamboo (panda), Coco (koala), Finn (shark), Inky (octopus), Kai (seahorse), Flora (flamingo), Reef (sea dragon). Total: 21. Each has a four-pose talking/waving/blinking strip and its own device voice profile. The original six remain visible first; the expanded group opens automatically for a selected new buddy.
+
+Generated with the built-in image tool using Honu as style reference. Prompt set specified one new animal identity per strip, matching warm detailed 3D family-animation style, exactly four equally spaced full-body resting/talking/waving/blinking poses on a plain teal background. Each character’s resting frame supplies its portrait. Original masters remain in generated-image storage; production WebP assets are in this repository. All 15 strips were visually inspected before packaging.

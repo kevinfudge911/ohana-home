@@ -1,3 +1,33 @@
+import MORE_OTTO_PORTRAIT from "./buddy-otto.webp";
+import MORE_OTTO_TALK from "./talk-otto.webp";
+import MORE_PIPPA_PORTRAIT from "./buddy-pippa.webp";
+import MORE_PIPPA_TALK from "./talk-pippa.webp";
+import MORE_LULU_PORTRAIT from "./buddy-lulu.webp";
+import MORE_LULU_TALK from "./talk-lulu.webp";
+import MORE_HOOT_PORTRAIT from "./buddy-hoot.webp";
+import MORE_HOOT_TALK from "./talk-hoot.webp";
+import MORE_FLUTTER_PORTRAIT from "./buddy-flutter.webp";
+import MORE_FLUTTER_TALK from "./talk-flutter.webp";
+import MORE_ROSIE_PORTRAIT from "./buddy-rosie.webp";
+import MORE_ROSIE_TALK from "./talk-rosie.webp";
+import MORE_KOA_PORTRAIT from "./buddy-koa.webp";
+import MORE_KOA_TALK from "./talk-koa.webp";
+import MORE_MILO_PORTRAIT from "./buddy-milo.webp";
+import MORE_MILO_TALK from "./talk-milo.webp";
+import MORE_BAMBOO_PORTRAIT from "./buddy-bamboo.webp";
+import MORE_BAMBOO_TALK from "./talk-bamboo.webp";
+import MORE_COCO_PORTRAIT from "./buddy-coco.webp";
+import MORE_COCO_TALK from "./talk-coco.webp";
+import MORE_FINN_PORTRAIT from "./buddy-finn.webp";
+import MORE_FINN_TALK from "./talk-finn.webp";
+import MORE_INKY_PORTRAIT from "./buddy-inky.webp";
+import MORE_INKY_TALK from "./talk-inky.webp";
+import MORE_KAI_PORTRAIT from "./buddy-kai.webp";
+import MORE_KAI_TALK from "./talk-kai.webp";
+import MORE_FLORA_PORTRAIT from "./buddy-flora.webp";
+import MORE_FLORA_TALK from "./talk-flora.webp";
+import MORE_REEF_PORTRAIT from "./buddy-reef.webp";
+import MORE_REEF_TALK from "./talk-reef.webp";
 import BUDDIES_PREVIEW_HTML from "./buddies-preview.html";
 import TALK_HONU from "./talk-honu.webp";
 import TALK_SPLASH from "./talk-splash.webp";
@@ -846,7 +876,7 @@ var worker_default = {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
-    const buddyAssets={"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
+    const buddyAssets={"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -984,7 +1014,7 @@ async function api2(req, env, url) {
   // ---------- PUSH SUBSCRIPTION ENDPOINTS ----------
   if (p === "/api/avatar" && req.method === "POST") {
     const avatar=String(body.avatar||'');
-    const characters=['@hon','@spl','@kik','@peb','@man','@sun'];
+    const characters=['@hon','@spl','@kik','@peb','@man','@sun',"@ott","@pip","@lul","@hoo","@flu","@ros","@koa","@mil","@bam","@coc","@fin","@ink","@kai","@flo","@ree"];
     if(!characters.includes(avatar) && !(avatar.length<=4 && /\p{Extended_Pictographic}/u.test(avatar) && !/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");
     await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar,me.id).run();
     return json({ok:true,avatar});
