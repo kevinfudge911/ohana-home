@@ -36,3 +36,6 @@ Login and invitation pages now use the same living porch with compact readable c
 
 ## Playful buddies and interactions
 48 named emoji buddies use the existing avatar storage format. Twelve choices show initially; the rest expand under Meet all game buddies. Selecting a buddy updates its introduction and gives a brief bounce. Chat avatars, current-turn avatars, tabs, tiles and game-card art gain restrained interaction feedback, respecting reduced motion. No database or game-rule change. DOM checks cover all 48 unique choices, selected-state and preview updates, and the existing board/chat checks.
+
+## Inside the game — warm family table
+Game header uses a subdued porch sky; a compact character turn greeting replaces the old plain status. Wood frame, cream tiles, rack, compact score badges and illustrated action labels match the welcome palette. Around the table chat has readable cream/sage bubbles and a small 1 Corinthians 16:14 line. Existing board cells, actions, scoring rules and chat draft preservation remain intact. /game-preview is a read-only appearance sample rendered with fictional Alex/Jamie data, contains no credentials or game API calls, and must never be confused with a playable game.
