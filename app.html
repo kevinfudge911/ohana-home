@@ -382,6 +382,14 @@ async function loadGame() {
     S.gstate = d;
     if (changed) {
       if (d.status !== 'playing') { S.placed = []; }
+      // Detect turn change — alert player it's their turn now
+      const wasMyTurn = oldState && oldState.players?.[oldState.turn] === S.me.id;
+      const isMyTurn = d.status === 'playing' && d.players[d.turn] === S.me.id;
+      if (!wasMyTurn && isMyTurn && oldState) {
+        toast('🎲 Your turn!');
+        AudioSys.beep(660, .1, .4);
+        setTimeout(() => AudioSys.beep(880, .15, .4), 120);
+      }
       renderGame();
       // Celebrate opponent's new move when we load/refresh
       if (d.state?.history?.length && d.type === 'words') {
@@ -952,11 +960,21 @@ let pollTimer = null;
 function schedulePoll() {
   if (pollTimer) clearTimeout(pollTimer);
   pollTimer = setTimeout(async () => {
-    if (S.game) await loadGame(); else await sync();
+    try {
+      if (S.game) await loadGame(); else await sync();
+    } catch(e) { /* never let polling die */ }
     schedulePoll();
   }, getPollInterval());
 }
 schedulePoll();
+// Also re-poll when app comes back to foreground (phone unlock, tab switch)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    schedulePoll(); // restart fast
+    if (S.game) loadGame().catch(() => {});
+    else if (S.token) sync().then(() => { if (!S.game) render(); }).catch(() => {});
+  }
+});
 
 // ---------- INVITE SYSTEM ----------
 function getInviteCode() {
