@@ -1,16 +1,9 @@
 # Ohana Home — Family Game Hub
-- **Worker**: `ohana-home`
-- **Domain**: ohanahome.app
-- **D1 Database**: `ohana-home` (73a51ea8-7a23-4dea-a2ce-d2be23831a76)
-- **Type**: Family game hub with multiplayer games
 
-## Deploy
-```bash
-npx wrangler deploy
-```
+Existing Cloudflare Worker for ohanahome.app. Root `worker.js` imports `app.html` and `ohana-welcome.png`. `wrangler.toml` retains the existing Ohana D1 binding.
 
-## Notes
-- Fudge family game hub
-- D1 database for game state and user data
-- Full app HTML/CSS/JS embedded in worker bundle
-- Source is bundled — pull from Cloudflare via MCP if editing
+Build check: `npx wrangler deploy --dry-run`
+
+Deploy after review: `npx wrangler deploy`
+
+See `DESIGN-REVIEW.md` for changes, verification limits, and local preview instructions.

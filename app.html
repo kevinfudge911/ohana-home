@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ohana Home</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg">
@@ -116,7 +116,7 @@ nav.tabs button.on{color:var(--sun)}
 .acts button{padding:10px 14px;font-size:15px}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
-/* fixed top game chat + score panel */
+/* Game chat and score panel; final theme rules below. */
 .game-bottom{background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:35vh;border-bottom:2px solid rgba(246,231,200,.15);flex-shrink:0}
 .game-bottom .gb-inner{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:35vh}
 .gb-scores{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0}
@@ -215,6 +215,42 @@ body.in-game main{padding-bottom:20px}
 .invite-btn{display:inline-flex;align-items:center;gap:6px;background:var(--leaf);color:var(--ink);padding:12px 18px;border-radius:14px;font-weight:800;font-family:Fredoka;font-size:16px}
 .invite-link-box{background:var(--ocean);border:2px solid var(--shallow);border-radius:12px;padding:10px;margin:8px 0;font-size:13px;word-break:break-all;color:var(--sand);user-select:all}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Ohana Home: a welcoming place at the family table. */
+:root{--ocean:#123e43;--deep:#0d2d31;--shallow:#24575a;--sand:#fff3db;--sand2:#ebd4aa;--coral:#efac77;--coral2:#b9653e;--sun:#f5ce87;--leaf:#89ccac;--ink:#243d3a;--tile:#ffedc6;--tile-edge:#a47a43;--dl:#a9d5df;--tl:#397f99;--dw:#e7b0a7;--tw:#af594e}
+body{background:radial-gradient(ellipse at 15% 0%,#37615b 0,transparent 55%),#102e32}
+#app{max-width:1000px}
+header{padding:22px 26px 16px;gap:14px}header h1{font-family:Georgia,serif;font-size:30px;letter-spacing:-.8px}header small{font-family:Nunito,sans-serif;font-size:14px;margin-top:4px;color:#dfca9e}
+header .logo{width:48px;height:48px}.home-mark{display:grid;place-items:center;width:50px;height:50px;color:var(--sun);border:1px solid #d6b47770;border-radius:16px;background:linear-gradient(135deg,#37635b,#173d3e);box-shadow:inset 0 1px #ffffff20,0 5px 15px #0002;flex:none}.home-mark svg{width:32px;height:32px}
+main{padding:8px 24px 110px}
+button{border-radius:12px;background:linear-gradient(#f5c393,#e7a372);box-shadow:inset 0 1px #ffffff65,0 3px 0 #925839,0 5px 10px #0002;min-height:44px;font-family:Nunito,sans-serif;font-weight:800;letter-spacing:0}
+button.soft{background:linear-gradient(#366865,#24504f);border:1px solid #94bbb34a;box-shadow:inset 0 1px #ffffff18,0 2px 0 #071f22}
+button.ghost{border:1px solid #c8d7cd65;box-shadow:none}button:disabled{box-shadow:none}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+input,textarea{background:#0c292dc9;border:1px solid #8cac9d66;box-shadow:inset 0 2px 5px #0002;border-radius:12px}input::placeholder,textarea::placeholder{color:#bbc7bd}select{min-height:44px}
+.welcome{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;border:1px solid #e9c48766;min-height:256px;padding:34px;margin:0 0 26px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 34px #00191c55;background:#163b40 url('/ohana-welcome.png') center/cover}
+.welcome:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#082c32ee,#092c3280 55%,#092c3210)}
+.welcome .eyebrow{font-size:11px;letter-spacing:2.5px;font-weight:800;text-transform:uppercase;color:#f6d49d;margin-bottom:12px}.welcome h2{font-family:Georgia,serif;font-size:clamp(30px,5vw,44px);line-height:1.1;font-weight:400;letter-spacing:-1px;max-width:420px}.welcome p{max-width:315px;font-size:16px;color:#eee5d4;margin:12px 0 0}.welcome .signature{font-family:Caveat,cursive;color:#f5ce87;font-size:25px;margin-top:16px}
+.shelf{font-family:Georgia,serif;font-weight:400;font-size:25px;margin:22px 0 12px}.shelf small{font-size:14px;color:#c6d4c9;font-family:Nunito,sans-serif}
+.gcard{background:linear-gradient(110deg,#244b48,#173b3e);border:1px solid #e2c59230;border-radius:18px;padding:18px;gap:16px;margin-bottom:12px;box-shadow:0 5px 14px #021b2425,inset 0 1px #ffffff08}.gcard .t b{font-family:Georgia,serif;font-size:23px;font-weight:400;color:#fff1d8}.gcard .t span{color:#d1dcd0;font-size:15px}.gcard .who{margin-top:6px}.gcard.turn{border-color:#edc482;box-shadow:inset 4px 0 #edc482,0 4px 16px #001e222f}.gcard .em{width:66px;flex:none}
+.game-art{width:62px;height:62px;display:grid;place-items:center;border-radius:14px;background:repeating-linear-gradient(6deg,#9b663a22 0 2px,transparent 3px 8px),linear-gradient(140deg,#dcb780,#835830);box-shadow:inset 0 0 0 2px #f5dca270,0 5px 7px #0004;position:relative;transform:rotate(-5deg)}
+.game-art.words:before{content:'A';width:39px;height:43px;background:linear-gradient(#fff0ca,#e7c18a);border-radius:5px;box-shadow:0 3px #855f31,0 6px 8px #0004;color:#34423c;font:700 30px/43px Georgia;text-align:center}.game-art.words:after{content:'1';position:absolute;bottom:11px;right:16px;color:#34423c;font:700 10px Nunito}
+.game-art.tictac:before{content:'× ○';font:bold 28px Georgia;color:#fff0d1;white-space:pre;text-shadow:0 2px #764927}.game-art.checkers:before{content:'';width:36px;height:36px;border-radius:50%;background:#b95140;border:4px double #e8916e;box-shadow:0 5px #763728,10px -8px 0 -1px #243e3d}.game-art.memory:before{content:'✦';display:grid;place-items:center;width:30px;height:40px;border-radius:4px;color:#f6d7a0;background:#245e5d;border:2px solid #e2bf7e;box-shadow:7px 4px #123f42,-5px -3px #eed2a1;font-size:26px}
+.family-note{text-align:center;border-top:1px solid #e4c58c33;padding:16px 8px 0;margin:22px 0;color:#dfc79e;font-family:Caveat,cursive;font-size:24px}
+nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1px solid #e2c59255}nav.tabs .in{max-width:1000px}nav.tabs button{border-radius:0;box-shadow:none;color:#c8d6cc;font-size:15px;min-height:62px}nav.tabs button.on{background:linear-gradient(#d3ad6425,transparent);color:#ffdaa0;border-top:2px solid #eac18a}.tabs .ic svg{width:23px;height:23px}
+.join{max-width:520px;margin:24px auto;padding:30px;gap:10px;border:1px solid #d7b67955;border-radius:24px;background:linear-gradient(#143d40d9,#0c2c30f2);box-shadow:0 20px 60px #0003}.join:before{content:'';position:fixed;inset:0;background:linear-gradient(#082d3277,#082d32b0),url('/ohana-welcome.png') center/cover;z-index:-1;pointer-events:none}.join h1{font-family:Georgia,serif;font-size:44px;letter-spacing:-1px}.join .tag{font-size:24px;margin:4px 0 12px}.join label{font-size:15px;color:#ece4d4}.join .avs{gap:8px}.join .avs button{box-shadow:none}.join>p{color:#c4d0c7!important}.avs button.sel{box-shadow:0 0 0 2px #f5ce8740}
+#game{max-width:1000px;background:radial-gradient(ellipse at top,#305b53,transparent 70%),#123b3e;overflow-y:auto;overscroll-behavior:contain}
+#game .body{flex:0 0 auto;overflow:visible;padding:8px 16px 16px;min-width:0}.game-head{flex:none;display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #e2c59230}.game-head h2{flex:1;font-family:Georgia,serif;font-weight:400;font-size:22px;margin:0}.game-head button{font-size:14px;padding:8px 12px}.game-head .home-mark{width:38px;height:38px;border-radius:12px}.game-head .home-mark svg{width:25px;height:25px}
+.status{font:800 17px Nunito,sans-serif;color:#e8d4ac;margin:8px 0 14px}.status.me{color:#ffdc9a}.status.me:before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#a8dfb2;margin-right:8px;box-shadow:0 0 10px #a8dfb255}
+.wb{--cs:calc((min(100vw - 32px,600px) - 30px)/15);grid-template-columns:repeat(15,var(--cs));grid-auto-rows:var(--cs);gap:1px;padding:8px;border-radius:12px;background:repeating-linear-gradient(8deg,#cda27333 0 2px,transparent 3px 9px),linear-gradient(110deg,#b28a55,#80582f);box-shadow:0 4px 0 #573e29,0 12px 24px #00171966,inset 0 0 0 1px #f4d29b88}
+.c{background:#e6ddc5;color:#34473e}.c.TW,.c.TL{color:#fff}.c .t{background:linear-gradient(145deg,#fff4d5,#eac78b);box-shadow:inset 0 1px #fff9,0 2px 1px #785c38;border-color:#b28f55;border-radius:3px}.c .t.last{background:linear-gradient(#e8f5d4,#bbd4a3)}.c .t.new{background:linear-gradient(#ffeec0,#ffc978);outline:1px solid #b36632}
+.wbwrap .scrawl{display:none}.bagn{font-size:13px;color:#d0d9c7;max-width:590px;margin:12px auto 0}.preview-score{font-size:17px;min-height:0;margin:6px 0}.preview-score:empty{display:none}
+.rack{width:max-content;max-width:100%;margin:16px auto 12px;gap:6px;padding:6px 10px 9px;background:repeating-linear-gradient(3deg,#c3945022 0 1px,transparent 2px 6px),linear-gradient(#79552f,#b98b51);border-radius:10px;border-bottom:5px solid #624424;box-shadow:0 6px 12px #001b244d}
+.rack .rt{width:clamp(30px,9vw,46px);height:49px;flex-shrink:0;background:linear-gradient(135deg,#fff3d5,#e8c185);border:1px solid #aa824b;border-bottom:3px solid #a78046;border-radius:6px;font-family:Georgia,serif;box-shadow:0 3px 3px #523a2855}.rack .rt.sel{outline:2px solid #ffca76;outline-offset:2px}.acts{gap:8px;margin:10px auto 2px}.acts button{font-size:15px;padding:10px 14px}.acts #play{min-width:145px}
+.game-bottom{position:relative;z-index:1;flex:none;max-height:none;margin:0 16px 16px;border:1px solid #d2b27766;border-radius:18px;background:linear-gradient(110deg,#153638,#0d2a2e);box-shadow:0 8px 25px #001d2244;overflow:hidden}.game-bottom .gb-inner{max-width:none;max-height:none}.gb-scores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}.gb-scores .gbs{padding:9px 10px;border:1px solid #88a39944;border-radius:10px;background:#284b46;gap:8px}.gb-scores .gbs.turn{margin:0;padding:9px 10px;border:1px solid #eac68c;background:#3a5549}.gb-scores .gbs .nm{font-size:15px}.gb-scores .gbs .pt{font-size:26px}.gb-scores .gbs .dot{margin-left:6px}.gchat-msgs{min-height:0;max-height:120px;padding:2px 12px 10px}.gchat-empty{color:#c0d0c4;padding:8px 0;font-size:14px}.gchat-input-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:8px;padding:4px 12px 12px}.gchat-input-row .reacts{grid-column:1/-1;gap:8px}.gchat-input-row .reacts button{box-shadow:none;flex:1;min-height:36px;font-size:20px;padding:2px;background:#31504a}.gchat-input-row input{width:100%;min-height:44px}.gchat-input-row .send-btn{min-height:44px}.gb-safe{height:env(safe-area-inset-bottom,0px)}.gchat-msg .bub{background:#2c524c}.gchat-msg.me .bub{background:#3c6355}
+.ttt button{background:linear-gradient(135deg,#fff0cd,#dcbb86);box-shadow:0 4px #98713f,0 8px 14px #001c2344}.mem button{border:1px solid #e2c59266;box-shadow:0 4px #082b2d}.mem button.back{background:radial-gradient(circle,#e9c98e 0 6px,transparent 7px),repeating-linear-gradient(45deg,#e2c59211 0 1px,transparent 1px 7px),#295b58}.chk{box-shadow:0 5px #694827,0 12px 25px #001c2355;border-width:8px;border-radius:12px}.fam,.admin,.notif-row,.invite-card{border:1px solid #e2c59233;background:linear-gradient(110deg,#214945,#123537)}.fam b{font-family:Georgia,serif;font-weight:400;font-size:21px}.fam small,.empty{color:#c7d5c9}.compose{background:#123638}.toast{z-index:100}
+@media(min-width:760px){.join{margin:40px auto}.welcome{min-height:290px}.gb-scores{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.game-bottom{width:600px;max-width:calc(100% - 32px);margin:0 auto 24px}.gchat-input-row{grid-template-columns:auto minmax(0,1fr) 46px}.gchat-input-row .reacts{grid-column:auto}.gchat-input-row .reacts button{min-width:32px}.game-head{padding:14px 24px}.gcard{padding:20px}}
+@media(max-width:480px){header{padding:16px}header h1{font-size:26px}main{padding:6px 14px 100px}.welcome{padding:24px 20px;min-height:240px;margin-bottom:22px;background-position:58% center}.welcome:before{background:linear-gradient(90deg,#082c32ed,#092c3260)}.welcome h2{max-width:265px;font-size:34px}.welcome p{max-width:245px;font-size:15px}.gcard{padding:14px;gap:12px}.gcard .em{width:54px}.game-art{width:50px;height:54px}.gcard .t b{font-size:21px}.gcard .t span{font-size:14px}.gcard button{padding:9px 12px}.shelf small{display:block;margin:3px 0 0}.join{width:calc(100% - 24px);padding:24px 20px;margin:12px auto}.game-head h2{font-size:20px}.game-head .home-mark{display:none}.acts button{padding:10px 12px}.acts #play{min-width:130px}}
+
 </style>
 </head>
 <body>
@@ -223,6 +259,7 @@ body.in-game main{padding-bottom:20px}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const AV = ['🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄','🐢','🦋','🌺','⭐','🍕','🚀','🦖','🐬','🎸','🏈'];
+const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"></div>`;
 const EM = { words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
 const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
@@ -298,13 +335,13 @@ function urlBase64ToUint8Array(base64String) {
 // ---------- JOIN ----------
 function renderJoin(errMsg) {
   app.innerHTML = `<div class="join">
-    <img src="/icon.svg" width="72" height="72" alt="">
+    <span class="home-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 16 5l12 10M8 13v14h16V13"/><path d="M16 23s-6-3.5-6-7c0-3 4-4 6-1 2-3 6-2 6 1 0 3.5-6 7-6 7Z"/></svg></span>
     <h1>Ohana Home</h1>
     <div class="tag">Come on in. There's always room for you.</div>
     ${errMsg ? `<div class="err">${esc(errMsg)}</div>` : ''}
-    <label>Family code</label><input id="jcode" placeholder="The family's secret word" autocapitalize="characters" autocomplete="off">
-    <label>Your name</label><input id="jname" placeholder="What everybody calls you" autocomplete="off" maxlength="24">
-    <label>Your PIN (4 numbers, just for you)</label><input id="jpin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
+    <label for="jcode">Family code</label><input id="jcode" placeholder="The family's secret word" autocapitalize="characters" autocomplete="off">
+    <label for="jname">Your name</label><input id="jname" placeholder="What everybody calls you" autocomplete="off" maxlength="24">
+    <label for="jpin">Your PIN (4 numbers, just for you)</label><input id="jpin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
     <label>Pick your face</label><div class="avs">${AV.map(a => `<button class="${a === S.av ? 'sel' : ''}" data-av="${a}">${a}</button>`).join('')}</div>
     <button id="jgo" style="margin-top:10px">Come on in</button>
     <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">First time? Just make up a name and PIN. Coming back? Use the same ones.</p>
@@ -329,7 +366,7 @@ function render() {
   if (!S.token) return renderJoin();
   if (S.game) return renderGame();
   const myTurn = (S.sync?.games || []).filter(g => g.my_turn).length;
-  app.innerHTML = `<header><img class="logo" src="/icon.svg" alt=""><div><h1>Ohana Home</h1><small>${esc(S.sync?.familyName || '')}</small></div></header>
+  app.innerHTML = `<header><span class="home-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 16 5l12 10M8 13v14h16V13"/><path d="M16 23s-6-3.5-6-7c0-3 4-4 6-1 2-3 6-2 6 1 0 3.5-6 7-6 7Z"/></svg></span><div><h1>Ohana Home</h1><small>${esc(S.sync?.familyName || '')}</small></div></header>
     <main id="main"></main>
     <nav class="tabs"><div class="in">
       <button data-tab="games" class="${S.tab === 'games' ? 'on' : ''}"><span class="ic">🎲</span>Games${myTurn ? `<span class="badge">${myTurn}</span>` : ''}</button>
@@ -349,13 +386,13 @@ function renderGames() {
   const done = sy.games.filter(g => g.status === 'finished').slice(0, 6);
   const who = g => `<div class="who">${g.players.map(p => avOf(p)).join('')}</div>`;
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${nameOf(+g.winner)} won`) : g.my_turn ? 'Your turn!' : `${nameOf(g.players[g.turn])}'s turn`) + modeBit; };
-  const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${EM[g.type]}</div><div class="t"><b>${esc(g.name)}</b><span>${line(g)}</span>${who(g)}</div>${btn}</div>`;
+  const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><span>${line(g)}</span>${who(g)}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
-  m.innerHTML = `${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
+  m.innerHTML = `<section class="welcome"><div class="eyebrow">A little closer, wherever we are</div><h2>There's always<br>a place for you.</h2><p>A favorite game. A familiar voice.<br>A little more time together.</p><div class="signature">Welcome to our Ohana.</div></section>${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
     ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
-    <div style="position:relative;height:44px;margin-top:14px"><div class="scrawl" style="top:6px">Ohana means family, and nobody gets left behind</div></div>
+    <div class="family-note">Family is at the heart of every game.</div>
     <h2 class="shelf" style="margin-top:0">Start a game</h2>
-    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${EM[id]}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div>${id === 'words' ? `<div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px">
+    ${shelves.map(([t, sub, ids]) => `<h3 class="shelf" style="font-size:17px;margin:12px 0 6px">${t}<small>${sub}</small></h3>` + ids.map(id => { const gt = sy.types[id]; return `<div class="gcard" style="flex-wrap:wrap"><div class="em">${gameArt(id)}</div><div class="t"><b>${gt.name}</b><span>${gt.desc}</span></div>${id === 'words' ? `<div style="width:100%;display:flex;flex-direction:column;gap:6px;margin-top:4px">
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
         <select id="np_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow)">${[2,3,4].map(n => `<option value="${n}">${n} players</option>`).join('')}</select>
         <select id="mode_words" style="font:inherit;border-radius:10px;padding:9px;background:var(--ocean);color:var(--sand);border:1px solid var(--shallow);flex:1"><option value="classic">🎯 Classic</option><option value="random">🎲 Random Random</option></select>
@@ -416,6 +453,9 @@ function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; documen
 function renderGame() {
   const g = S.gstate;
   if (!g) { app.innerHTML = `<div id="game"><div class="body" style="display:flex;align-items:center;justify-content:center;color:rgba(246,231,200,.6)">Loading…</div></div>`; return; }
+  const draft = $('#gchat-in')?.value || '';
+  const hadChatFocus = document.activeElement?.id === 'gchat-in';
+  const gameScroll = $('#game')?.scrollTop || 0;
   const meId = S.me.id;
   app.innerHTML = `<div id="game"><div class="body" id="gb"></div></div>`;
   const b = $('#gb');
@@ -443,10 +483,12 @@ function renderGame() {
   let oldBp = document.querySelector('.game-bottom'); if (oldBp) oldBp.remove();
   const bp = document.createElement('div'); bp.className = 'game-bottom'; bp.id = 'game-bottom';
   const gameEl = document.getElementById('game');
-  gameEl.insertBefore(bp, gameEl.firstChild);
+  gameEl.appendChild(bp);
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
   renderGameChat(st, g);
+  if ($('#gchat-in')) { $('#gchat-in').value = draft; if (hadChatFocus) $('#gchat-in').focus({preventScroll:true}); }
+  gameEl.scrollTop = gameScroll;
   // Auto-prompt for push notifications (once per session)
   if (!S.pushSub && !S._pushAsked && 'PushManager' in window && Notification.permission === 'default') {
     S._pushAsked = true;
@@ -806,10 +848,12 @@ function renderGameChat(st, g) {
   // Nav row with Back + game title + Give up
   const modeLabel = g.mode === 'random' ? ' 🎲' : '';
   const meId2 = S.me.id;
-  const navHtml = `<div style="display:flex;align-items:center;gap:8px;padding:max(6px,env(safe-area-inset-top)) 12px 2px;flex-shrink:0"><button class="soft" id="gb-back" style="padding:6px 10px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:17px;font-family:Fredoka;font-weight:600;margin:0">${esc(g.name)}${modeLabel}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="gb-leave" style="padding:6px 10px;font-size:13px">${g.status === 'waiting' ? (g.created_by === meId2 ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div>`;
+  const navHtml = `<button class="soft" id="gb-back" style="padding:6px 10px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:21px;font-family:Georgia,serif;font-weight:400;margin:0">${esc(g.name)}${modeLabel}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="gb-leave" style="padding:6px 10px;font-size:13px">${g.status === 'waiting' ? (g.created_by === meId2 ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}`;
 
+  let gameHead = $('#game-head');
+  if (!gameHead) { gameHead = document.createElement('div'); gameHead.id = 'game-head'; gameHead.className = 'game-head'; $('#game').prepend(gameHead); }
+  gameHead.innerHTML = navHtml;
   bp.innerHTML = `<div class="gb-inner">
-    ${navHtml}
     <div class="gb-scores">${scoresHtml}</div>
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
@@ -818,8 +862,8 @@ function renderGameChat(st, g) {
     }).join('') : '<div class="gchat-empty">Send a message or tap a reaction!</div>'}</div>
     <div class="gchat-input-row">
       <div class="reacts">${reacts.map(r => `<button data-react="${r}">${r}</button>`).join('')}</div>
-      <input id="gchat-in" placeholder="Talk smack…" maxlength="200" autocomplete="off" value="${esc(savedVal)}">
-      <button class="send-btn" id="gchat-send">➤</button>
+      <input id="gchat-in" aria-label="Message your family" placeholder="A little friendly banter…" maxlength="200" autocomplete="off" value="${esc(savedVal)}">
+      <button class="send-btn" id="gchat-send" aria-label="Send message">➤</button>
     </div>
     <div class="gb-safe"></div>
   </div>`;
@@ -1002,7 +1046,7 @@ async function renderInvite(code, errMsg) {
     if (info.status !== 'waiting') { app.innerHTML = `<div class="join"><h1>Ohana Home</h1><div class="err">This game already started. Ask for a new invite!</div><button onclick="location.href='/'">Go to Ohana Home</button></div>`; return; }
     const modeLabel = info.mode === 'random' ? ' 🎲 Random Random' : '';
     app.innerHTML = `<div class="join">
-      <img src="/icon.svg" width="72" height="72" alt="">
+      <span class="home-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 16 5l12 10M8 13v14h16V13"/><path d="M16 23s-6-3.5-6-7c0-3 4-4 6-1 2-3 6-2 6 1 0 3.5-6 7-6 7Z"/></svg></span>
       <h1>Ohana Home</h1>
       <div class="tag">You've been invited to play!</div>
       <div class="invite-card">

@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // src/worker.js
 import APP_HTML from "./app.html";
+import WELCOME_IMAGE from "./ohana-welcome.png";
 
 // src/games.js
 function rng(seed) {
@@ -730,6 +731,7 @@ var worker_default = {
   async fetch(req, env) {
     const url = new URL(req.url);
     const p = url.pathname;
+    if (req.method === "GET" && p === "/ohana-welcome.png") return new Response(WELCOME_IMAGE, { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
     if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
     // Invite links: /invite/{code} serves the app (it reads the code from URL)
     if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
