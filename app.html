@@ -194,7 +194,7 @@ const AV = ['🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄
 const EM = { words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
 const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
-let S = { token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '🙂', pushSub: null };
+let S = { token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '🙂', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
 const app = $('#app');
 
 async function api(path, body, method) {
@@ -332,7 +332,36 @@ function renderGames() {
 
 // ---------- GAME SCREEN ----------
 async function openGame(id) { S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; render(); await loadGame(); }
-async function loadGame() { if (!S.game) return; try { const d = await api(`/api/game/${S.game}`); const changed = JSON.stringify(d.state) !== JSON.stringify(S.gstate?.state) || d.status !== S.gstate?.status || d.players.length !== S.gstate?.players?.length; S.gstate = d; if (changed) { if (d.status !== 'playing') { S.placed = []; } renderGame(); } } catch (e) { toast(e.message); } }
+async function loadGame() {
+  if (!S.game) return;
+  // Also sync member online status in background
+  sync().catch(() => {});
+  try {
+    const d = await api(`/api/game/${S.game}`);
+    const oldState = S.gstate;
+    const changed = JSON.stringify(d.state) !== JSON.stringify(oldState?.state) || d.status !== oldState?.status || d.players.length !== oldState?.players?.length;
+    S.gstate = d;
+    if (changed) {
+      if (d.status !== 'playing') { S.placed = []; }
+      renderGame();
+      // Celebrate opponent's new move when we load/refresh
+      if (d.state?.history?.length && d.type === 'words') {
+        const hist = d.state.history;
+        const lastMove = hist[hist.length - 1];
+        const moveKey = S.game + ':' + hist.length;
+        if (lastMove.p !== S.me.id && lastMove.score > 0 && moveKey !== S.lastCelebratedMove) {
+          S.lastCelebratedMove = moveKey;
+          const scores = d.state.scores || {};
+          const theirScore = scores[lastMove.p] || 0;
+          const myScore = scores[S.me.id] || 0;
+          const taunt = getTaunt(myScore, theirScore, lastMove.score, false);
+          // Delay slightly so the board renders first
+          setTimeout(() => celebrate(lastMove.score, taunt), 600);
+        }
+      }
+    }
+  } catch (e) { toast(e.message); }
+}
 function closeGame() { S.game = null; S.gstate = null; sync().then(render); render(); }
 
 function renderGame() {
@@ -356,7 +385,9 @@ function renderGame() {
   let head = '';
   if (g.status === 'finished') head = `<div class="winbox">${g.winner === 'tie' ? "It's a tie!" : g.winner === 'resigned' ? 'Game ended' : (+g.winner === meId ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`)}${st.scores ? `<small>${g.players.map(p => `${esc(nameOf(p))} ${st.scores[p]}`).join(' · ')}</small>` : ''}</div>`;
   else head = `<div class="status ${turnId === meId ? 'me' : ''}">${turnId === meId ? 'Your turn!' : `Waiting on ${esc(nameOf(turnId))}…`}</div>`;
-  const scores = st.scores ? `<div class="scores">${g.players.map(p => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${g.type === 'words' ? `<small>${typeof st.racks[p] === 'number' ? st.racks[p] : st.racks[p].length} tiles</small>` : ''}</div><div class="p">${st.scores[p]}</div></div>`).join('')}</div>` : `<div class="scores">${g.players.map((p, i) => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}<small>${g.type === 'tictac' ? (i === 0 ? 'X' : 'O') : g.type === 'checkers' ? (i === 0 ? 'Red' : 'Black') : ''}</small></div></div>`).join('')}</div>`;
+  const isOnline = p => (S.sync?.members || []).find(m => m.id === p)?.online;
+  const onlineDot = p => `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${isOnline(p) ? 'var(--leaf)' : '#556'};margin-left:4px;vertical-align:middle" title="${isOnline(p) ? 'Online now' : 'Offline'}"></span>`;
+  const scores = st.scores ? `<div class="scores">${g.players.map(p => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}${g.type === 'words' ? `<small>${typeof st.racks[p] === 'number' ? st.racks[p] : st.racks[p].length} tiles</small>` : ''}</div><div class="p">${st.scores[p]}</div></div>`).join('')}</div>` : `<div class="scores">${g.players.map((p, i) => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}<small>${g.type === 'tictac' ? (i === 0 ? 'X' : 'O') : g.type === 'checkers' ? (i === 0 ? 'Red' : 'Black') : ''}</small></div></div>`).join('')}</div>`;
   b.innerHTML = head + scores + `<div id="board"></div>`;
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
@@ -391,28 +422,41 @@ const AudioSys = {
   }
 };
 
-function getTaunt(myScore, theirBest, pts, myTurn) {
+function getTaunt(myScore, theirBest, pts, isMine) {
   const diff = myScore - theirBest;
-  const taunts = {
-    bigPlay: ["Boom!", "Monster word!", "That's how it's done!", "On fire!"],
-    nicePlay: ["Nice one!", "Solid!", "Well played!", "Ohana power!"],
-    smallPlay: ["Every point counts!", "Building up!", "Steady!"],
-    takingLead: ["Taking the lead!", "Watch out!", "Top of the board!"],
-    catchingUp: ["Catching up!", "Here I come!", "Getting closer!"],
-    fallingBehind: ["Uh oh!", "They're pulling ahead!", "Time to rally!"],
-    wayBehind: ["Big hole to dig out of!", "Never give up!", "Comeback time!"]
-  };
-  let pool;
-  if (pts >= 35) pool = taunts.bigPlay;
-  else if (pts >= 20) pool = taunts.nicePlay;
-  else pool = taunts.smallPlay;
-
-  if (diff > 30) pool = [...pool, ...taunts.takingLead];
-  else if (diff > 0 && diff <= 10) pool = [...pool, ...taunts.catchingUp];
-  else if (diff < -20) pool = [...pool, ...taunts.wayBehind];
-  else if (diff < 0) pool = [...pool, ...taunts.fallingBehind];
-
-  return pool[Math.floor(Math.random() * pool.length)];
+  if (isMine) {
+    // I just played
+    const taunts = {
+      bigPlay: ["Boom!", "Monster word!", "That's how it's done!", "On fire!"],
+      nicePlay: ["Nice one!", "Solid!", "Well played!", "Ohana power!"],
+      smallPlay: ["Every point counts!", "Building up!", "Steady!"],
+      takingLead: ["Taking the lead!", "Watch out!", "Top of the board!"],
+      catchingUp: ["Catching up!", "Here I come!", "Getting closer!"],
+      fallingBehind: ["Uh oh!", "They're pulling ahead!", "Time to rally!"],
+      wayBehind: ["Big hole to dig out of!", "Never give up!", "Comeback time!"]
+    };
+    let pool = pts >= 35 ? taunts.bigPlay : pts >= 20 ? taunts.nicePlay : taunts.smallPlay;
+    if (diff > 30) pool = [...pool, ...taunts.takingLead];
+    else if (diff > 0 && diff <= 10) pool = [...pool, ...taunts.catchingUp];
+    else if (diff < -20) pool = [...pool, ...taunts.wayBehind];
+    else if (diff < 0) pool = [...pool, ...taunts.fallingBehind];
+    return pool[Math.floor(Math.random() * pool.length)];
+  } else {
+    // Opponent just played — react to THEIR move
+    const taunts = {
+      bigPlay: ["Whoa!", "Big play!", "They went off!", "Watch out!"],
+      nicePlay: ["Not bad!", "Good one!", "They're warming up!"],
+      smallPlay: ["Okay, okay", "They played it safe", "Your turn now!"],
+      theyLead: ["They're ahead!", "Time to answer!", "Don't let them run away!"],
+      iLead: ["Still in the lead!", "They're trying!", "Hold your ground!"],
+      closing: ["They're closing in!", "Getting tight!", "Neck and neck!"]
+    };
+    let pool = pts >= 35 ? taunts.bigPlay : pts >= 20 ? taunts.nicePlay : taunts.smallPlay;
+    if (diff < -20) pool = [...pool, ...taunts.theyLead];
+    else if (diff > 20) pool = [...pool, ...taunts.iLead];
+    else if (Math.abs(diff) <= 10) pool = [...pool, ...taunts.closing];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
 }
 
 function celebrate(pts, taunt) {
@@ -778,7 +822,23 @@ async function sync() {
 }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installPrompt = e; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-setInterval(() => { if (S.game) loadGame(); else sync(); }, 3500);
+// Adaptive polling: fast when both players online in a game, normal otherwise
+function getPollInterval() {
+  if (S.game && S.gstate?.players && S.sync?.members) {
+    const allOnline = S.gstate.players.every(p => (S.sync.members || []).find(m => m.id === p)?.online);
+    if (allOnline && S.gstate.status === 'playing') return 1500; // fast when both online
+  }
+  return 3500;
+}
+let pollTimer = null;
+function schedulePoll() {
+  if (pollTimer) clearTimeout(pollTimer);
+  pollTimer = setTimeout(async () => {
+    if (S.game) await loadGame(); else await sync();
+    schedulePoll();
+  }, getPollInterval());
+}
+schedulePoll();
 (async () => { render(); if (S.token) { await sync(); render(); setupPush(); } })();
 </script>
 </body>

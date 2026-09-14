@@ -678,6 +678,31 @@ __name(notifyMembers, "notifyMembers");
 // ========== END WEB PUSH ==========
 
 var worker_default = {
+  async scheduled(event, env, ctx) {
+    // Daily turn reminder: nudge players who haven't moved in 24h+
+    const db = env.DB;
+    try {
+      const games = (await db.prepare("SELECT * FROM games WHERE status='playing'").all()).results;
+      const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+      const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
+      for (const g of games) {
+        // Skip if last update was less than 24h ago or more than 5 days ago
+        if (g.updated_at > oneDayAgo) continue;
+        if (g.updated_at < fiveDaysAgo) continue;
+        const players = JSON.parse(g.players);
+        const currentPlayer = players[g.turn];
+        const st = JSON.parse(g.state);
+        const gameName = GAME_TYPES[g.type]?.name || g.type;
+        // Send one reminder per day
+        ctx.waitUntil(notifyMembers(db, [currentPlayer], {
+          type: 'reminder',
+          title: "It's still your turn!",
+          body: `Don't forget your ${gameName} game! Your family is waiting.`,
+          tag: `ohana-reminder-${g.id}`,
+        }).catch(() => {}));
+      }
+    } catch (e) { /* quiet */ }
+  },
   async fetch(req, env) {
     const url = new URL(req.url);
     const p = url.pathname;
