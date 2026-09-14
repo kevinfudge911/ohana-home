@@ -33,3 +33,6 @@ Clock follows America/Chicago, with decorative dawn/day/dusk/night transitions (
 Validation: inline scripts parse; DOM check verified 225 board cells, two compact player scores, one chat panel and preserved chat draft; Wrangler bundle check passed. Authenticated multiplayer visual verification still requires a signed-in family session.
 
 Login and invitation pages now use the same living porch with compact readable controls. Live login visually inspected September 14: both chairs, pillow, small title and verse, fields, avatar selection and submit button visible without overlays. This did not submit credentials or create a test family member.
+
+## Playful buddies and interactions
+48 named emoji buddies use the existing avatar storage format. Twelve choices show initially; the rest expand under Meet all game buddies. Selecting a buddy updates its introduction and gives a brief bounce. Chat avatars, current-turn avatars, tabs, tiles and game-card art gain restrained interaction feedback, respecting reduced motion. No database or game-rule change. DOM checks cover all 48 unique choices, selected-state and preview updates, and the existing board/chat checks.

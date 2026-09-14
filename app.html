@@ -257,6 +257,10 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 
 /* The same living porch welcomes family before and after sign-in. */
 .join{width:calc(100% - 24px);max-width:560px;margin:16px auto;padding:20px;gap:7px;overflow:hidden;border-radius:20px}.join:before{background:radial-gradient(ellipse at top,#27575a,#092b32 75%)}.join>ohana-scene{width:calc(100% + 40px);margin:-20px -20px 10px;flex:none}.join>.home-mark{display:none}.join h1{font-family:Georgia,serif;font-size:25px;letter-spacing:0;font-weight:400;line-height:1.2}.join .tag{font-size:17px;margin:0 0 10px;color:#dccbaa}.join label{font-size:15px;margin-top:4px}.join input{font-size:16px;min-height:44px;padding:10px 12px;border-radius:10px;background:#092f36;color:#fff0d8;border:1px solid #7b9a9277}.join input:focus{outline:2px solid #edc47c;outline-offset:1px}.join .avs{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px}.join .avs button{font-size:22px;padding:4px 0;min-height:36px;width:100%;border-radius:9px}.join #jgo{font-size:18px;min-height:44px;padding:10px 16px;margin-top:8px!important}.join>p{line-height:1.5}.join .err{font-size:15px}@media(max-width:380px){.join .avs{grid-template-columns:repeat(7,minmax(0,1fr))}}
+
+/* Small moments of personality; no moving targets on the game board. */
+.join{background:radial-gradient(ellipse at 0 40%,#32615855,transparent 65%),linear-gradient(135deg,#17494b,#0d2f37)}.join h1{color:#ffdfa1}.join>label{color:#e9d6b0}.join input{background:linear-gradient(120deg,#143e42,#0b2c33);box-shadow:inset 0 2px 5px #001a2033}.buddy-welcome{display:flex;align-items:center;gap:12px;padding:9px 12px;margin:3px 0 7px;border:1px solid #dcb77566;border-radius:15px;background:linear-gradient(115deg,#e8c18120,#437b7233)}#buddy-preview{font-size:39px;line-height:1.2;display:inline-block;transform-origin:50% 90%}.buddy-welcome b{font:500 19px Fredoka,sans-serif;color:#ffe4af}.buddy-welcome small{display:block;color:#d4e2d9;font-size:12px}.join .avs{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}.join .avs .buddy-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:61px;padding:5px 1px;border:1px solid #7f9f9144;background:linear-gradient(155deg,#325f58,#143b40);box-shadow:0 3px 0 #082b31;color:#f4e4c7;transition:background .2s,border-color .2s}.buddy-face{font-size:29px;line-height:1.2;display:inline-block}.buddy-choice small{font:600 10px Nunito,sans-serif;white-space:nowrap}.join .avs .buddy-choice.sel{border:2px solid #ffdb91;background:linear-gradient(145deg,#776541,#3b5f4e);box-shadow:0 0 10px #ffd16624,0 3px 0 #082b31}.buddy-more{width:100%;margin:8px 0 1px}.buddy-more summary{list-style:none;cursor:pointer;font-size:13px;color:#f6d994;padding:9px 12px;border-radius:10px;background:#254d49;border:1px solid #9bac7e55}.buddy-more summary span{float:right}.buddy-more[open] summary{margin-bottom:8px}.buddy-more[open] summary span{transform:rotate(45deg)}.join #jgo{background:linear-gradient(#fbd695,#e9ad64);border:1px solid #ffe1a0;box-shadow:0 4px 0 #92603f,0 6px 20px #0002}.gcard{position:relative;overflow:hidden;border-color:#bb9d6666;background:radial-gradient(ellipse at top right,#78996333,transparent 65%),linear-gradient(125deg,#234e49,#123840)}.gcard.turn{border-color:#e8bc77;box-shadow:0 0 16px #ffd16615}.gcard .game-art{transition:transform .25s}.gcard:hover .game-art{transform:rotate(-7deg) scale(1.08)}.ohana-buddy{display:inline-block;transform-origin:50% 85%;line-height:1.15}.who .ohana-buddy{margin-right:4px}.buddy-pop{animation:buddyPop .65s ease-out}.gchat-msg .ohana-buddy:hover,.m .ohana-buddy:hover{animation:buddyWave .7s ease-in-out}.compact-player.current .ohana-buddy{animation:buddyWave 8s ease-in-out infinite}.tabs button.on .ic{animation:buddyPop .5s ease-out}.rt.sel{animation:tileHello .25s ease-out}.fun-twinkle{position:fixed;pointer-events:none;z-index:200;animation:funTwinkle .65s ease-out forwards;font-size:15px;color:#ffdc83}.status.me:before{content:'✦ ';color:#ffda87}.gchat-empty:before{content:'🌺 ';}.gcard .t span{color:#cbdace}
+@keyframes buddyPop{0%{transform:scale(.85) rotate(-9deg)}45%{transform:scale(1.18) rotate(7deg)}75%{transform:scale(.98) rotate(-3deg)}100%{transform:none}}@keyframes buddyWave{0%,8%,100%{transform:none}2%,6%{transform:rotate(-12deg)}4%{transform:rotate(12deg)}}@keyframes tileHello{50%{transform:translateY(-5px)}}@keyframes funTwinkle{to{transform:translate(var(--dx),-32px) scale(.3);opacity:0}}@media(max-width:380px){.join .avs{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(prefers-reduced-motion:reduce){.buddy-pop,.compact-player.current .ohana-buddy,.tabs button.on .ic,.rt.sel,.gchat-msg .ohana-buddy:hover,.m .ohana-buddy:hover{animation:none!important}.fun-twinkle{display:none}.gcard .game-art{transition:none}.gcard:hover .game-art{transform:none}.confetti{display:none}}
 </style>
 </head>
 <body>
@@ -264,7 +268,15 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const AV = ['🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄','🐢','🦋','🌺','⭐','🍕','🚀','🦖','🐬','🎸','🏈'];
+const AV = ['🙂','😎','🥰','🤠','🧢','🐶','🐱','🦊','🐸','🦄','🐢','🦋','🌺','⭐','🍕','🚀','🦖','🐬','🎸','🏈','🦉','🐼','🐨','🦁','🐯','🐵','🐧','🦜','🦩','🦦','🦥','🐙','🐳','🦈','🐝','🐞','🦎','🐲','🤖','👽','🦕','🦔','🐰','🐹','🐻','🦝','🐴','🦚'];
+const BUDDY_NAMES = ['Sunny','Cool Bean','Big Heart','Trail Boss','Cap','Biscuit','Pounce','Clever Fox','Hopper','Sparkle','Honu','Flutter','Aloha','Twinkle','Pizza Pal','Zoom','Chomper','Splash','Rockstar','Touchdown','Hoot','Bamboo','Cuddles','Roary','Stripes','Bananas','Waddles','Chatter','Flamingo','Otto','Easy Breezy','Inky','Big Blue','Fin','Buzz','Lucky','Gecko','Ember','Beep','Cosmo','Stomper','Prickles','Bunny Hop','Nibbles','Honey','Bandit','Sundance','Peacock'];
+function buddyName(a) { return BUDDY_NAMES[AV.indexOf(a)] || 'Your buddy'; }
+function buddyPicker() {
+  const chosen=AV.includes(S.av)?S.av:AV[0];
+  const favorites=[chosen,...AV.filter(a=>a!==chosen)].slice(0,12);
+  const cards=arr=>arr.map(a=>`<button type="button" class="buddy-choice ${a===chosen?'sel':''}" data-av="${a}" aria-label="${buddyName(a)}" aria-pressed="${a===chosen}"><span class="buddy-face">${a}</span><small>${buddyName(a)}</small></button>`).join('');
+  return `<div class="buddy-welcome"><span id="buddy-preview" aria-hidden="true">${chosen}</span><div><b id="buddy-name">${buddyName(chosen)}</b><small id="buddy-line">Ready for a little friendly competition?</small></div></div><div class="avs">${cards(favorites)}</div><details class="buddy-more"><summary>Meet all ${AV.length} game buddies <span>＋</span></summary><div class="avs">${cards(AV.filter(a=>!favorites.includes(a)))}</div></details>`;
+}
 const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"></div>`;
 const EM = { words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
@@ -282,7 +294,7 @@ async function api(path, body, method) {
 function toast(t, ms = 2600) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), ms); }
 function fmtTime(ts) { const d = new Date(ts); return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
 function nameOf(id) { const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.name : (S.gstate?.names?.[id]?.name || 'Someone'); }
-function avOf(id) { const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.avatar : (S.gstate?.names?.[id]?.avatar || '🙂'); }
+function avOf(id) { const m = (S.sync?.members || []).find(x => x.id === id); return `<span class="ohana-buddy" title="${esc(buddyName(m ? m.avatar : S.gstate?.names?.[id]?.avatar))}">${esc(m ? m.avatar : (S.gstate?.names?.[id]?.avatar || '🙂'))}</span>`; }
 
 // ---------- PUSH NOTIFICATIONS ----------
 async function setupPush() {
@@ -348,7 +360,7 @@ function renderJoin(errMsg) {
     <label for="jcode">Family code</label><input id="jcode" placeholder="The family's secret word" autocapitalize="characters" autocomplete="off">
     <label for="jname">Your name</label><input id="jname" placeholder="What everybody calls you" autocomplete="off" maxlength="24">
     <label for="jpin">Your PIN (4 numbers, just for you)</label><input id="jpin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
-    <label>Pick your face</label><div class="avs">${AV.map(a => `<button class="${a === S.av ? 'sel' : ''}" data-av="${a}">${a}</button>`).join('')}</div>
+    <label>Choose your game buddy</label>${buddyPicker()}
     <button id="jgo" style="margin-top:10px">Come on in</button>
     <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">First time? Just make up a name and PIN. Coming back? Use the same ones.</p>
   </div>`;
@@ -1064,7 +1076,7 @@ async function renderInvite(code, errMsg) {
       ${errMsg ? `<div class="err">${esc(errMsg)}</div>` : ''}
       <label>What should we call you?</label><input id="iname" placeholder="Your name" autocomplete="off" maxlength="24">
       <label>Pick a 4-number PIN (so only you can be you)</label><input id="ipin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
-      <label>Pick your face</label><div class="avs">${AV.map(a => `<button class="${a === S.av ? 'sel' : ''}" data-av="${a}">${a}</button>`).join('')}</div>
+      <label>Choose your game buddy</label>${buddyPicker()}
       <button id="igo" style="margin-top:10px">Join the game!</button>
       <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">Been here before? Use the same name and PIN.</p>
     </div>`;
@@ -1124,6 +1136,21 @@ async function shareInvite(inviteCode, gameName) {
     render(); if (S.token) { await sync(); render(); setupPush(); }
   }
 })();
+</script>
+<script>
+// One delegated listener survives screen changes without adding duplicate handlers.
+document.addEventListener('click',e=>{
+ const choice=e.target.closest('[data-av]');
+ if(choice){
+   document.querySelectorAll('[data-av]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.av===choice.dataset.av)));
+   const face=document.getElementById('buddy-preview');
+   if(face){face.textContent=choice.dataset.av;document.getElementById('buddy-name').textContent=buddyName(choice.dataset.av);document.getElementById('buddy-line').textContent=['Your seat is saved. Let’s play!','A little mischief. A lot of Ohana.','Good games are better together.'][AV.indexOf(choice.dataset.av)%3];face.classList.remove('buddy-pop');void face.offsetWidth;face.classList.add('buddy-pop');}
+ }
+ const button=e.target.closest('.buddy-choice,[data-react],.tabs button');
+ if(!button||button.disabled||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const r=button.getBoundingClientRect();
+ for(let i=0;i<3;i++){const star=document.createElement('span');star.className='fun-twinkle';star.textContent='✦';star.style.left=(r.left+r.width/2)+'px';star.style.top=(r.top+6)+'px';star.style.setProperty('--dx',((i-1)*24)+'px');document.body.append(star);setTimeout(()=>star.remove(),700);}
+});
 </script>
 <script src="/ohana-scene.js"></script>
 </body>
