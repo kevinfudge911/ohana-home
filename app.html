@@ -65,7 +65,7 @@ nav.tabs button.on{color:var(--sun)}
 
 /* game screen */
 #game{position:fixed;inset:0;background:var(--ocean);display:flex;flex-direction:column;z-index:20;max-width:720px;margin:0 auto}
-#game .body{flex:1;overflow:auto;padding:10px 10px 100px;position:relative}
+#game .body{flex:1;overflow:auto;padding:6px 10px 10px;position:relative}
 .scores{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .sc{flex:1;min-width:120px;background:var(--deep);border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:2px solid transparent}
 .sc.turn{border-color:var(--sun)}
@@ -117,8 +117,8 @@ nav.tabs button.on{color:var(--sun)}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
 /* fixed top game chat + score panel */
-.game-bottom{position:fixed;top:0;left:0;right:0;background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:45vh;border-bottom:2px solid rgba(246,231,200,.15)}
-.game-bottom .gb-inner{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:45vh}
+.game-bottom{background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:35vh;border-bottom:2px solid rgba(246,231,200,.15);flex-shrink:0}
+.game-bottom .gb-inner{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:35vh}
 .gb-scores{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0}
 .gb-scores .gbs{display:flex;align-items:center;gap:5px;flex:1;min-width:0}
 .gb-scores .gbs.turn{background:rgba(255,209,102,.12);border-radius:10px;padding:2px 6px;margin:-2px -6px}
@@ -439,8 +439,11 @@ function renderGame() {
   b.innerHTML = head + `<div id="board"></div>`;
   // Fixed bottom panel with scores + chat
   document.body.classList.add('in-game');
-  let bp = document.querySelector('.game-bottom');
-  if (!bp) { bp = document.createElement('div'); bp.className = 'game-bottom'; bp.id = 'game-bottom'; document.body.appendChild(bp); }
+  // Remove any old panel from body (legacy) or previous render
+  let oldBp = document.querySelector('.game-bottom'); if (oldBp) oldBp.remove();
+  const bp = document.createElement('div'); bp.className = 'game-bottom'; bp.id = 'game-bottom';
+  const gameEl = document.getElementById('game');
+  gameEl.insertBefore(bp, gameEl.firstChild);
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
   renderGameChat(st, g);
