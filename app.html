@@ -721,12 +721,12 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
-    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
-    ${previewHtml}
-    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+  bd.innerHTML = `${g.status === 'playing' && rack.length ? `${previewHtml}
+    <div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
       `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
+    <div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
+    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
     `;
   const rerender = () => renderWords(st, g, myTurn);
 
