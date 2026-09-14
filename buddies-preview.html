@@ -365,6 +365,10 @@ const CHARACTER_VOICES={
   "@flo":{"rate": 1.0, "pitch": 1.07, "prefer": ["Daniel", "Ryan", "Google UK English Male"]},
   "@ree":{"rate": 0.95, "pitch": 0.96, "prefer": ["Sonia", "Tessa", "Google UK English Female"]}
 };
+// Keep family names unchanged on screen; give every character the same pronunciation.
+function spokenFamilyNames(text){
+  return String(text).replace(/\bmee?[\s-]*maw\b/gi,'Mee maw').replace(/\bpee?[\s-]*paw\b/gi,'Pee paw');
+}
 function speakingCharacter(){return CHARACTERS[S.me?.avatar]?S.me.avatar:'@hon';}
 let characterSpeechTimer=null,characterCounterFrame=null;
 function stopCharacterSpeech(cancelCounter=true){clearTimeout(characterSpeechTimer);if(cancelCounter)cancelAnimationFrame(characterCounterFrame);window.speechSynthesis?.cancel();document.querySelector('.character-pop')?.classList.remove('talking');}
@@ -377,7 +381,7 @@ function showCharacterMoment(text,points=null,a=speakingCharacter()){
   if(points!==null){const start=performance.now();const tick=t=>{const progress=Math.min(1,(t-start)/700);const el=box.querySelector('.character-points');if(el)el.textContent=(points>=0?'+':'')+Math.round(points*progress);if(progress<1)characterCounterFrame=requestAnimationFrame(tick);};characterCounterFrame=requestAnimationFrame(tick);}
   const finish=()=>{if(!box.isConnected||document.querySelector('.character-pop')!==box)return;if(AudioSys.muted){box.classList.remove('talking');return;}box.classList.remove('talking');box.classList.add('cheering');clearTimeout(characterSpeechTimer);characterSpeechTimer=setTimeout(()=>box.remove(),2200);};
   if(AudioSys.muted||!('speechSynthesis' in window)){box.classList.add('cheering');characterSpeechTimer=setTimeout(()=>box.remove(),7000);return;}
-  const u=new SpeechSynthesisUtterance(text),profile=CHARACTER_VOICES[a]||CHARACTER_VOICES['@hon'];
+  const u=new SpeechSynthesisUtterance(spokenFamilyNames(text)),profile=CHARACTER_VOICES[a]||CHARACTER_VOICES['@hon'];
   const voices=speechSynthesis.getVoices().filter(v=>/^en(?:-|_)/i.test(v.lang));
   u.voice=profile.prefer.map(name=>voices.find(v=>v.name.includes(name))).find(Boolean)||voices.find(v=>/Natural|Neural|Enhanced|Premium|Google/i.test(v.name))||voices.find(v=>v.default)||voices[0]||null;
   u.lang=u.voice?.lang||'en-US';u.rate=profile.rate;u.pitch=profile.pitch;u.volume=.85;
