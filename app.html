@@ -122,28 +122,35 @@ nav.tabs button.on{color:var(--sun)}
 .hist b{color:var(--sand)}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
-/* floating game chat */
-.chat-fab{position:fixed;bottom:72px;right:14px;width:52px;height:52px;border-radius:50%;background:var(--coral);color:var(--ink);font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.35);z-index:90;padding:0;border:0;cursor:pointer}
-.chat-fab .chat-badge{position:absolute;top:-2px;right:-2px;background:var(--sun);color:var(--ink);font-size:11px;font-weight:800;border-radius:10px;padding:1px 6px;font-family:Nunito;min-width:18px;text-align:center}
-.chat-panel{position:fixed;bottom:68px;right:10px;left:10px;max-width:400px;margin-left:auto;background:var(--deep);border-radius:18px;box-shadow:0 6px 28px rgba(0,0,0,.5);z-index:91;display:flex;flex-direction:column;max-height:55vh;overflow:hidden;border:1px solid rgba(246,231,200,.12)}
-.chat-panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(246,231,200,.1)}
-.chat-panel-head h3{font-size:16px;margin:0;color:var(--sand)}
-.chat-panel-head button{background:transparent;color:var(--sand);font-size:20px;padding:4px 8px;min-width:0}
-.gchat-msgs{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;padding:8px 12px;scroll-behavior:smooth}
-.gchat-msg{display:flex;align-items:flex-start;gap:6px;animation:bubbleIn .3s ease}
+/* fixed bottom game chat + score panel */
+.game-bottom{position:fixed;bottom:0;left:0;right:0;background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:45vh;border-top:2px solid rgba(246,231,200,.15)}
+.game-bottom .gb-inner{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:45vh}
+.gb-scores{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0}
+.gb-scores .gbs{display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+.gb-scores .gbs.turn{background:rgba(255,209,102,.12);border-radius:10px;padding:2px 6px;margin:-2px -6px}
+.gb-scores .gbs .av{font-size:20px;flex:none}
+.gb-scores .gbs .nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.gb-scores .gbs .pt{font-family:Fredoka;font-size:20px;font-weight:600;color:var(--sun);flex:none}
+.gb-scores .gbs .dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;margin-left:2px}
+.gchat-msgs{display:flex;flex-direction:column;gap:3px;overflow-y:auto;padding:4px 12px;scroll-behavior:smooth;flex:1;min-height:48px;max-height:120px}
+.gchat-msg{display:flex;align-items:flex-start;gap:5px;animation:bubbleIn .25s ease}
 .gchat-msg.me{flex-direction:row-reverse}
-.gchat-msg .av{font-size:20px;line-height:1;flex:none}
-.gchat-msg .bub{background:var(--ocean);border-radius:12px;padding:5px 10px;font-size:14px;max-width:75%;border-bottom-left-radius:3px}
-.gchat-msg.me .bub{background:var(--shallow);border-bottom-left-radius:12px;border-bottom-right-radius:3px}
+.gchat-msg .av{font-size:16px;line-height:1;flex:none}
+.gchat-msg .bub{background:var(--ocean);border-radius:10px;padding:4px 9px;font-size:14px;max-width:78%;border-bottom-left-radius:2px}
+.gchat-msg.me .bub{background:var(--shallow);border-bottom-left-radius:10px;border-bottom-right-radius:2px}
 .gchat-msg .bub b{font-size:11px;color:var(--sun);display:block;line-height:1}
-.gchat-msg.emoji-only .bub{font-size:28px;background:transparent;padding:2px 4px}
-@keyframes bubbleIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
-.gchat-bottom{padding:6px 10px 10px;border-top:1px solid rgba(246,231,200,.1)}
-.gchat-reacts{display:flex;gap:3px;margin-bottom:5px;flex-wrap:wrap}
-.gchat-reacts button{background:var(--ocean);padding:4px 8px;border-radius:10px;font-size:18px;min-width:0}
-.gchat-bar{display:flex;gap:4px;align-items:center}
-.gchat-bar input{flex:1;padding:8px 10px;font-size:14px;border-radius:10px}
-.gchat-bar button{padding:6px 10px;font-size:14px;min-width:36px}
+.gchat-msg.emoji-only .bub{font-size:26px;background:transparent;padding:1px 3px}
+@keyframes bubbleIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:translateY(0)}}
+.gchat-input-row{display:flex;gap:4px;align-items:center;padding:4px 12px 6px;flex-shrink:0}
+.gchat-input-row .reacts{display:flex;gap:2px;flex-shrink:0}
+.gchat-input-row .reacts button{background:var(--ocean);padding:3px 6px;border-radius:8px;font-size:16px;min-width:0}
+.gchat-input-row input{flex:1;padding:7px 10px;font-size:14px;border-radius:10px;min-width:0}
+.gchat-input-row .send-btn{padding:6px 10px;font-size:14px;min-width:32px}
+/* safe area for phones */
+.gb-safe{height:max(4px,env(safe-area-inset-bottom));flex-shrink:0}
+/* hide tab bar when in game */
+body.in-game nav.tabs{display:none}
+body.in-game main{padding-bottom:200px}
 
 /* tictac */
 .ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:10px auto;position:relative;z-index:1}
@@ -409,7 +416,7 @@ async function loadGame() {
     }
   } catch (e) { toast(e.message); }
 }
-function closeGame() { S.game = null; S.gstate = null; _chatOpen = false; _lastChatLen = 0; const f = document.querySelector('.chat-fab'); if (f) f.remove(); const p = document.querySelector('.chat-panel'); if (p) p.remove(); sync().then(render); render(); }
+function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); sync().then(render); render(); }
 
 function renderGame() {
   const g = S.gstate;
@@ -435,16 +442,11 @@ function renderGame() {
   let head = '';
   if (g.status === 'finished') head = `<div class="winbox">${g.winner === 'tie' ? "It's a tie!" : g.winner === 'resigned' ? 'Game ended' : (+g.winner === meId ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`)}${st.scores ? `<small>${g.players.map(p => `${esc(nameOf(p))} ${st.scores[p]}`).join(' · ')}</small>` : ''}</div>`;
   else head = `<div class="status ${turnId === meId ? 'me' : ''}">${turnId === meId ? 'Your turn!' : `Waiting on ${esc(nameOf(turnId))}…`}</div>`;
-  const isOnline = p => (S.sync?.members || []).find(m => m.id === p)?.online;
-  const onlineDot = p => `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${isOnline(p) ? 'var(--leaf)' : '#556'};margin-left:4px;vertical-align:middle" title="${isOnline(p) ? 'Online now' : 'Offline'}"></span>`;
-  const scores = st.scores ? `<div class="scores">${g.players.map(p => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}${g.type === 'words' ? `<small>${typeof st.racks[p] === 'number' ? st.racks[p] : st.racks[p].length} tiles</small>` : ''}</div><div class="p">${st.scores[p]}</div></div>`).join('')}</div>` : `<div class="scores">${g.players.map((p, i) => `<div class="sc ${turnId === p && g.status === 'playing' ? 'turn' : ''}"><span style="font-size:24px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}${onlineDot(p)}<small>${g.type === 'tictac' ? (i === 0 ? 'X' : 'O') : g.type === 'checkers' ? (i === 0 ? 'Red' : 'Black') : ''}</small></div></div>`).join('')}</div>`;
-  b.innerHTML = head + scores + `<div id="board"></div>`;
-  // Floating chat button + panel (appended to #game, outside scrolling body)
-  const existingFab = document.querySelector('.chat-fab'); if (existingFab) existingFab.remove();
-  const existingPanel = document.querySelector('.chat-panel'); if (existingPanel) existingPanel.remove();
-  const fab = document.createElement('button'); fab.className = 'chat-fab'; fab.id = 'chat-fab'; fab.innerHTML = '💬';
-  const panel = document.createElement('div'); panel.className = 'chat-panel hidden'; panel.id = 'chat-panel';
-  document.body.appendChild(fab); document.body.appendChild(panel);
+  b.innerHTML = head + `<div id="board"></div>`;
+  // Fixed bottom panel with scores + chat
+  document.body.classList.add('in-game');
+  let bp = document.querySelector('.game-bottom');
+  if (!bp) { bp = document.createElement('div'); bp.className = 'game-bottom'; bp.id = 'game-bottom'; document.body.appendChild(bp); }
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk })[g.type](st, g, myTurn);
   renderGameChat(st, g);
@@ -779,48 +781,52 @@ async function move(m, after) {
   catch (e) { toast(e.message, 3500); }
 }
 
-// ----- Game Chat (floating panel) -----
-let _chatOpen = false;
+// ----- Game Chat (fixed bottom panel with scores) -----
 let _lastChatLen = 0;
 
 function renderGameChat(st, g) {
-  const panel = $('#chat-panel'); const fab = $('#chat-fab');
-  if (!panel || !fab) return;
+  const bp = $('#game-bottom');
+  if (!bp) return;
   const chat = st.chat || [];
   const meId = S.me.id;
-  const reacts = ['👏','😂','🔥','😱','💀','🎉','😎','🤔'];
+  const turnId = g.players[g.turn];
+  const reacts = ['👏','😂','🔥','💀','🎉','😎'];
   const isEmoji = t => /^\p{Emoji}+$/u.test(t) && t.length <= 4;
+  const isOnline = p => (S.sync?.members || []).find(m => m.id === p)?.online;
 
-  // Badge for new messages
-  const newCount = chat.length - _lastChatLen;
-  if (_chatOpen) _lastChatLen = chat.length;
-  const badgeHtml = (!_chatOpen && newCount > 0) ? `<span class="chat-badge">${newCount}</span>` : '';
-  fab.innerHTML = '💬' + badgeHtml;
+  // Scores row
+  const scoresHtml = g.players.map(p => {
+    const isTurn = g.status === 'playing' && turnId === p;
+    const pts = st.scores ? st.scores[p] : '';
+    const dot = `<span class="dot" style="background:${isOnline(p) ? 'var(--leaf)' : '#556'}"></span>`;
+    return `<div class="gbs ${isTurn ? 'turn' : ''}"><span class="av">${avOf(p)}</span><span class="nm">${esc(nameOf(p))}${dot}</span>${pts !== '' ? `<span class="pt">${pts}</span>` : ''}</div>`;
+  }).join('');
 
-  panel.innerHTML = `
-    <div class="chat-panel-head"><h3>Game Chat</h3><button id="chat-close">✕</button></div>
-    <div class="gchat-msgs" id="gchat-msgs">${chat.slice(-30).map(m => {
+  // Save input value before re-render
+  const oldInput = bp.querySelector('#gchat-in');
+  const savedVal = oldInput ? oldInput.value : '';
+
+  bp.innerHTML = `<div class="gb-inner">
+    <div class="gb-scores">${scoresHtml}</div>
+    <div class="gchat-msgs" id="gchat-msgs">${chat.slice(-25).map(m => {
       const mine = m.p === meId;
       const emojiOnly = isEmoji(m.text);
       return `<div class="gchat-msg ${mine ? 'me' : ''} ${emojiOnly ? 'emoji-only' : ''}"><span class="av">${avOf(m.p)}</span><div class="bub">${!mine ? `<b>${esc(nameOf(m.p))}</b>` : ''}${esc(m.text)}</div></div>`;
     }).join('')}</div>
-    <div class="gchat-bottom">
-      <div class="gchat-reacts">${reacts.map(r => `<button data-react="${r}">${r}</button>`).join('')}</div>
-      <div class="gchat-bar"><input id="gchat-in" placeholder="Talk smack…" maxlength="200" autocomplete="off"><button id="gchat-send">➤</button></div>
-    </div>`;
+    <div class="gchat-input-row">
+      <div class="reacts">${reacts.map(r => `<button data-react="${r}">${r}</button>`).join('')}</div>
+      <input id="gchat-in" placeholder="Talk smack…" maxlength="200" autocomplete="off" value="${esc(savedVal)}">
+      <button class="send-btn" id="gchat-send">➤</button>
+    </div>
+    <div class="gb-safe"></div>
+  </div>`;
 
-  if (_chatOpen) { panel.classList.remove('hidden'); _lastChatLen = chat.length; }
-  else panel.classList.add('hidden');
-
+  _lastChatLen = chat.length;
   const msgsBox = $('#gchat-msgs');
   if (msgsBox) msgsBox.scrollTop = msgsBox.scrollHeight;
 
-  // Toggle open/close
-  fab.onclick = () => { _chatOpen = true; _lastChatLen = chat.length; panel.classList.remove('hidden'); fab.innerHTML = '💬'; const mb = $('#gchat-msgs'); if (mb) mb.scrollTop = mb.scrollHeight; const ci = $('#gchat-in'); if (ci) ci.focus(); };
-  const closeBtn = $('#chat-close'); if (closeBtn) closeBtn.onclick = () => { _chatOpen = false; panel.classList.add('hidden'); };
-
   // Quick reactions
-  panel.querySelectorAll('[data-react]').forEach(btn => btn.onclick = () => sendGameChat(g.id, btn.dataset.react));
+  bp.querySelectorAll('[data-react]').forEach(btn => btn.onclick = () => sendGameChat(g.id, btn.dataset.react));
 
   // Text send
   const sendText = () => {
