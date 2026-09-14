@@ -1,0 +1,13 @@
+const fs=require('fs'),{JSDOM}=require('jsdom'),assert=require('assert');
+const html=fs.readFileSync('app.html','utf8'),scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
+const dom=new JSDOM(html,{url:'https://test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,d=w.document;
+w.matchMedia=()=>({matches:true});w.fetch=async()=>({ok:true,json:async()=>({})});w.scrollTo=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','')};w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');this.onclose?.();};
+w.eval(scripts.join('\n')+'\n'+fs.readFileSync('tests/fixtures/words-ui.js','utf8')+'\nwindow.emojiEval=code=>eval(code);S.room=1;S.game=previewGame.id;S.gstate=previewGame;renderGame();');
+assert(w.emojiEval("new Set(Object.values(EMOJI_GROUPS).flatMap(s=>s.split(' '))).size")>=350);
+const input=d.querySelector('#gchat-in');input.value='Hi family';input.setSelectionRange(3,9);d.querySelector('#gchat-emojis').click();assert(d.querySelector('.emoji-picker'));
+d.querySelector('.emoji-grid button').click();assert.equal(input.value,'Hi 😀');assert(!d.querySelector('.emoji-picker'));assert(w.localStorage.getItem('ohana_recent_emojis').includes('😀'));
+d.querySelector('#gchat-emojis').click();assert(d.querySelector('.emoji-categories').textContent.includes('Recent'));w.emojiEval('S.room=2');d.querySelector('.emoji-grid button').click();assert.equal(input.value,'Hi 😀','must not insert after room change');
+w.emojiEval("S.room=1;S.game=null;S.tab='chat';S.msgs=[];document.querySelector('#app').innerHTML='<main id=main></main>';renderChat();");d.querySelector('#txt').value='Aloha ';d.querySelector('#txt').setSelectionRange(6,6);d.querySelector('#chat-emojis').click();const island=[...d.querySelectorAll('.emoji-categories button')].find(b=>b.textContent==='Island life');island.click();d.querySelector('.emoji-grid button').click();assert.equal(d.querySelector('#txt').value,'Aloha 🌺');
+console.log('PASS: 350+ emojis, categories, remembered recents, cursor replacement, room-switch protection, game and room chat insertion without sending.');
+if(process.argv.includes('--preview')){const helpers=html.slice(html.indexOf('const EMOJI_GROUPS='),html.indexOf('function renderGameChat('));let p=fs.readFileSync('game-preview.html','utf8');p=p.replace('</body>',`<script>const S={game:1,room:1,tab:'games'};const toast=()=>{};${helpers}document.querySelector('#gchat-emojis').onclick=()=>openEmojiPicker('gchat-in');</script></body>`);fs.writeFileSync('game-preview.html',p);}
+dom.window.close();

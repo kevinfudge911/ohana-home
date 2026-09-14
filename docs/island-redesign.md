@@ -1,0 +1,17 @@
+# Island design and expanded chat
+
+The September 14 redesign coordinates the welcome form, Game Nook, rooms, game setup, Words and Mahjong tables, game chat, score receipts, and navigation. Ocean blue, mint, coral, lavender and warm sand replace dark enamel and heavy gold edges. Text uses dark ink on light controls. Original character portraits lead game setup and the signed-in header. Reduced-motion support remains, including a static alternative to the turn diamond glint.
+
+No authentication, membership, scoring, game-state, or notification backend changes. Existing sign-ins and room privacy remain intact. Board SVG still paints 225 squares with 225 independent hit areas.
+
+Game chat's + button and room chat's smile button open the same 350+ emoji picker. Eight categories and 24 locally remembered recent choices. Picking inserts into the draft at the cursor; it does not send. Input length limits and room/game context are checked before insertion.
+
+Validation: game-setup, game-nook, private-rooms-ui, ohana-invitations, board-surface, emoji-picker, session-preservation, dialogue-mute, and drag-score checks passed. Browser visual inspection covered the welcome screen, phone-width Game Nook, game setup, Words board/receipt/chat, and Mahjong.
+
+## Artwork awaiting corrected pillow wording
+
+`assets/island-illustration-draft.png` was generated with the built-in image generation tool. It is NOT referenced by the live app. Kevin said the pillow wording is wrong; ask for exact text before editing or integrating. Existing living porch remains active in the meantime.
+
+Final generation prompt:
+
+> Use case: illustration-story. Create a production background illustration for Ohana Home, a joyful Hawaiian island family game app. Wide landscape panorama, 1536x1024. Closely capture the hand-drawn 2D animated Hawaiian island atmosphere of Lilo & Stitch: curved expressive shapes, ink outlines, lush gouache tropical backgrounds, bright turquoise curling surf, warm coral pink hibiscus, teal palms, lavender distant Kauai mountains, fluffy stylized clouds and golden sunlight. A welcoming beachfront lanai game table in lower foreground with TWO wicker chairs, a cozy bench with a small cream pillow reading exactly 'Good Games Brighter People', wooden letter tiles and mahjong pieces, two soda glasses, tiny plumeria blossoms. Keep the central sky and upper middle ocean open, uncluttered to place live UI headings above it. A cute small hand-drawn smiling sea turtle peeking beside the lower left chair and a playful gecko near the hibiscus on right. Whimsical animation background, unmistakably CARTOON not photo, no 3D render, no photoreal textures. Polished illustrated game world, inviting family warmth and playful mischief. Do not draw interface buttons, no app title, no watermark. Landscape composition with all chairs and table visible. This is new artwork inspired by island animation, using original animal characters.
