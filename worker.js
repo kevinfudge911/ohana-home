@@ -1,3 +1,4 @@
+import NOOK_PREVIEW_HTML from "./nook-preview.html";
 import ROOMS_PREVIEW_HTML from "./rooms-preview.html";
 import MORE_OTTO_PORTRAIT from "./buddy-otto.webp";
 import MORE_OTTO_TALK from "./talk-otto.webp";
@@ -862,6 +863,7 @@ var worker_default = {
     const buddyAssets={"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/nook-preview")return new Response(NOOK_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/rooms-preview")return new Response(ROOMS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/mahjong-preview") return new Response(MAHJONG_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -1098,7 +1100,10 @@ async function api2(req, env, url) {
     const members=(await db.prepare("SELECT m.id,m.name,m.avatar,m.last_seen,m.is_admin FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=? ORDER BY m.name").bind(roomId).all()).results.map(m=>({...m,online:now()-m.last_seen<ONLINE_MS}));
     const msgs=(await db.prepare("SELECT id,member_id,text,image,created_at FROM messages WHERE room_id=? AND id>? ORDER BY id DESC LIMIT 60").bind(roomId,since).all()).results.reverse();
     const games=(await db.prepare("SELECT games.*,score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.room_id=? AND (status!='finished' OR updated_at>?) ORDER BY updated_at DESC LIMIT 80").bind(roomId,now()-3*864e5).all()).results.map(g=>gameRow(g,me.id));
-    const allGames=(await db.prepare("SELECT g.*,r.name AS room_name FROM games g JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id WHERE rm.member_id=? AND g.status!='finished' ORDER BY g.updated_at DESC LIMIT 120").bind(me.id).all()).results.map(g=>gameRow(g,me.id));
+    const allGames=(await db.prepare("SELECT g.*,r.name AS room_name FROM games g JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id WHERE rm.member_id=? AND (g.status!='finished' OR g.updated_at>?) ORDER BY g.updated_at DESC LIMIT 120").bind(me.id,now()-3*864e5).all()).results.map(g=>gameRow(g,me.id));
+    const visiblePeople=(await db.prepare("SELECT DISTINCT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id IN (SELECT room_id FROM room_members WHERE member_id=?)").bind(me.id).all()).results;
+    const peopleById=Object.fromEntries(visiblePeople.map(m=>[m.id,m]));
+    for(const game of allGames)game.names=Object.fromEntries(game.players.filter(id=>peopleById[id]).map(id=>[id,peopleById[id]]));
     const familyName=await getSetting(db,'family_name');
     return json({me,familyName:roomId===1?familyName:activeRoom.name,roomId,rooms:roomList.map(r=>({...r,name:r.id===1?familyName:r.name})),members,messages:msgs,games,allGames,types:GAME_TYPES});
   }

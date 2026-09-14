@@ -18,7 +18,7 @@ assert(!w.reviewAfter.includes('<button'));
 assert(w.reviewAfter.includes('Waiting for the other'));
 assert(w.reviewOther.includes('<button'));
 assert(w.reviewOther.includes('Pe-paw: ✓ Saw it'));
-assert(w.reviewBoth.includes('Everyone saw it'));
+assert.equal(w.reviewBoth,'','Review disappears after all players acknowledge');
 assert.equal(w.reviewOutsider,'');
 console.log('PASS: separate player acknowledgment, persistent pending notice, shared seen status, outsider exclusion and escaped copy.');
 } finally {w.close();}
