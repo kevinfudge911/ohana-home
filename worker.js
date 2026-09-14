@@ -742,7 +742,7 @@ var worker_default = {
       }
     } catch (e) { /* quiet */ }
   },
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
@@ -760,7 +760,7 @@ var worker_default = {
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
     if (!p.startsWith("/api/")) return new Response("Not found", { status: 404 });
     try {
-      return await api2(req, env, url);
+      return await api2(req, { ...env, ctx }, url);
     } catch (e) {
       return err(e.message || "Something went wrong", 400);
     }
