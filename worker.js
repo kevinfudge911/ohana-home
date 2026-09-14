@@ -1,3 +1,4 @@
+import ROOMS_PREVIEW_HTML from "./rooms-preview.html";
 import MORE_OTTO_PORTRAIT from "./buddy-otto.webp";
 import MORE_OTTO_TALK from "./talk-otto.webp";
 import MORE_PIPPA_PORTRAIT from "./buddy-pippa.webp";
@@ -648,6 +649,8 @@ function gameRow(g, me) {
   const players = JSON.parse(g.players);
   return {
     id: g.id,
+    room_id: g.room_id || 1,
+    room_name: g.room_name || null,
     type: g.type,
     name: GAME_TYPES[g.type]?.name || g.type,
     players,
@@ -879,6 +882,7 @@ var worker_default = {
     const buddyAssets={"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/rooms-preview")return new Response(ROOMS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/mahjong-preview") return new Response(MAHJONG_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -889,7 +893,7 @@ var worker_default = {
     if (req.method === "GET" && p === "/ohana-welcome.png") return new Response(WELCOME_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public, max-age=3600" } });
     if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
     // Invite links: /invite/{code} serves the app (it reads the code from URL)
-    if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
+    if (req.method === "GET" && p.match(/^\/(?:invite|room)\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
     if (p === "/manifest.json") return json({ name: "Ohana Home", short_name: "Ohana", start_url: "/", display: "standalone", background_color: "#0E3B47", theme_color: "#0E3B47", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] });
     if (p === "/icon.svg") return new Response(ICON, { headers: { "content-type": "image/svg+xml", "cache-control": "public,max-age=86400" } });
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
@@ -927,7 +931,8 @@ async function api2(req, env, url) {
       await db.prepare("UPDATE members SET token=? WHERE id=?").bind(m.token, m.id).run();
     }
     if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
-    return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin || ((env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase() ? 1 : 0) } });
+    await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(1,?)").bind(m.id).run();
+    return json({ token: m.token, room_id:1, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin || ((env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase() ? 1 : 0) } });
   }
   // ---------- INVITE ENDPOINTS (no auth needed) ----------
   const invMatch = p.match(/^\/api\/invite\/([a-f0-9]+)(?:\/(\w+))?$/);
@@ -968,9 +973,10 @@ async function api2(req, env, url) {
       const ph = await hash(pin);
 
       // Find or create member
-      let m = await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
+      const signedIn=await auth(req,env);
+      let m = signedIn ? await db.prepare("SELECT * FROM members WHERE id=?").bind(signedIn.id).first() : await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
       if (m) {
-        if (m.pin !== ph) throw new Error("That name is taken. Use the same PIN, or pick a different name.");
+        if (!signedIn && m.pin !== ph) throw new Error("That name is taken. Use the same PIN, or pick a different name.");
       } else {
         const count = (await db.prepare("SELECT COUNT(*) c FROM members").first()).c;
         const r2 = await db.prepare("INSERT INTO members(name,pin,avatar,token,is_admin,created_at,last_seen) VALUES(?,?,?,?,?,?,?)").bind(name, ph, avatar, rid(), 0, now(), now()).run();
@@ -979,6 +985,7 @@ async function api2(req, env, url) {
       if (!m.token) { m.token = rid(); await db.prepare("UPDATE members SET token=? WHERE id=?").bind(m.token, m.id).run(); }
       if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
 
+      await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(?,?)").bind(g.room_id,m.id).run();
       // Join the game
       if (!players.includes(m.id)) {
         if (players.length >= g.max_players) throw new Error("This game is full.");
@@ -1004,13 +1011,61 @@ async function api2(req, env, url) {
         }
       }
 
-      return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin }, game_id: g.id, status });
+      return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin }, game_id: g.id, room_id:g.room_id, status });
     }
   }
 
+  const roomInvite=p.match(/^\/api\/room-invite\/([a-f0-9]{32})(?:\/(join))?$/);
+  if(roomInvite){
+    const room=await db.prepare("SELECT id,name FROM rooms WHERE invite_code=? AND id!=1").bind(roomInvite[1]).first();
+    if(!room)return err("This room invitation is no longer available.",404);
+    if(req.method==='GET'&&!roomInvite[2])return json({name:room.name});
+    if(req.method==='POST'&&roomInvite[2]==='join'){
+      let member=await auth(req,env);
+      if(!member){
+        const name=String(body.name||'').trim().slice(0,24),pin=String(body.pin||'');
+        if(!name||!/^\d{4}$/.test(pin))throw new Error("Enter your name and a four-number PIN.");
+        const ph=await hash(pin);
+        member=await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
+        if(member&&member.pin!==ph)throw new Error("That name and PIN do not match. Try again or choose a different name.");
+        if(!member){
+          const result=await db.prepare("INSERT INTO members(name,pin,avatar,token,is_admin,created_at,last_seen) VALUES(?,?,?,?,0,?,?)").bind(name,ph,String(body.avatar||'@hon').slice(0,4),rid(),now(),now()).run();
+          member=await db.prepare("SELECT * FROM members WHERE id=?").bind(result.meta.last_row_id).first();
+        }
+      }
+      const identity=await db.prepare("SELECT token FROM members WHERE id=?").bind(member.id).first();
+      const token=identity.token||rid();
+      if(!identity.token)await db.prepare("UPDATE members SET token=? WHERE id=?").bind(token,member.id).run();
+      await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(?,?)").bind(room.id,member.id).run();
+      return json({token,room_id:room.id,me:{id:member.id,name:member.name,avatar:member.avatar,is_admin:member.is_admin}});
+    }
+    return err("Not found",404);
+  }
   const me = await auth(req, env);
   if (!me) return err("Please sign in.", 401);
 
+  if(p==='/api/rooms/create'&&req.method==='POST'){
+    const name=String(body.name||'').trim().slice(0,48);
+    if(!name)throw new Error("Give your room a name.");
+    const invite=rid(16);
+    // A batch makes the room and owner membership visible together.
+    await db.batch([
+      db.prepare("INSERT INTO rooms(name,owner_id,invite_code,created_at) VALUES(?,?,?,?)").bind(name,me.id,invite,now()),
+      db.prepare("INSERT INTO room_members(room_id,member_id) SELECT id,? FROM rooms WHERE invite_code=?").bind(me.id,invite)
+    ]);
+    const room=await db.prepare("SELECT id,name,invite_code FROM rooms WHERE invite_code=?").bind(invite).first();
+    return json(room);
+  }
+  const roomList=(await db.prepare("SELECT r.id,r.name,r.owner_id,r.invite_code FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE rm.member_id=? ORDER BY r.id").bind(me.id).all()).results;
+  const requestedRoom=Number(req.headers.get('x-ohana-room'));
+  const activeRoom=roomList.find(r=>r.id===requestedRoom)||(!requestedRoom?roomList[0]:null);
+  if(!activeRoom)return err("You do not belong to this room. Open Rooms or use a room invitation.",403);
+  const roomId=activeRoom.id;
+  if(p==='/api/rooms/rotate-invite'&&req.method==='POST'){
+    if(roomId===1||activeRoom.owner_id!==me.id)return err("Only the room host can replace its invitation.",403);
+    await db.prepare("UPDATE rooms SET invite_code=? WHERE id=?").bind(rid(16),roomId).run();
+    return json({ok:true});
+  }
   // ---------- PUSH SUBSCRIPTION ENDPOINTS ----------
   if (p === "/api/avatar" && req.method === "POST") {
     const avatar=String(body.avatar||'');
@@ -1050,26 +1105,28 @@ async function api2(req, env, url) {
 
   if (p === "/api/sync") {
     const since = +url.searchParams.get("msgSince") || 0;
-    const members = (await db.prepare("SELECT id,name,avatar,last_seen,is_admin FROM members ORDER BY name").all()).results.map((m) => ({ ...m, online: now() - m.last_seen < ONLINE_MS }));
-    const msgs = (await db.prepare("SELECT m.id,m.member_id,m.text,m.image,m.created_at FROM messages m WHERE m.id>? ORDER BY m.id DESC LIMIT 60").bind(since).all()).results.reverse();
-    const games = (await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
-    return json({ me, familyName: await getSetting(db, "family_name"), members, messages: msgs, games, types: GAME_TYPES });
+    const members=(await db.prepare("SELECT m.id,m.name,m.avatar,m.last_seen,m.is_admin FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=? ORDER BY m.name").bind(roomId).all()).results.map(m=>({...m,online:now()-m.last_seen<ONLINE_MS}));
+    const msgs=(await db.prepare("SELECT id,member_id,text,image,created_at FROM messages WHERE room_id=? AND id>? ORDER BY id DESC LIMIT 60").bind(roomId,since).all()).results.reverse();
+    const games=(await db.prepare("SELECT games.*,score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.room_id=? AND (status!='finished' OR updated_at>?) ORDER BY updated_at DESC LIMIT 80").bind(roomId,now()-3*864e5).all()).results.map(g=>gameRow(g,me.id));
+    const allGames=(await db.prepare("SELECT g.*,r.name AS room_name FROM games g JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id WHERE rm.member_id=? AND g.status!='finished' ORDER BY g.updated_at DESC LIMIT 120").bind(me.id).all()).results.map(g=>gameRow(g,me.id));
+    const familyName=await getSetting(db,'family_name');
+    return json({me,familyName:roomId===1?familyName:activeRoom.name,roomId,rooms:roomList.map(r=>({...r,name:r.id===1?familyName:r.name})),members,messages:msgs,games,allGames,types:GAME_TYPES});
   }
   if (p === "/api/message" && req.method === "POST") {
     const text = String(body.text || "").trim().slice(0, 2e3);
     const image = body.image ? String(body.image) : null;
     if (!text && !image) throw new Error("Nothing to send.");
     if (image && image.length > 9e5) throw new Error("That picture is too big.");
-    await db.prepare("INSERT INTO messages(member_id,text,image,created_at) VALUES(?,?,?,?)").bind(me.id, text, image, now()).run();
+    await db.prepare("INSERT INTO messages(member_id,text,image,created_at,room_id) VALUES(?,?,?,?,?)").bind(me.id, text, image, now(),roomId).run();
 
     // Notify all OTHER members about new chat message
-    const allMembers = (await db.prepare("SELECT id FROM members WHERE id!=?").bind(me.id).all()).results;
+    const allMembers = (await db.prepare("SELECT member_id AS id FROM room_members WHERE member_id!=? AND room_id=?").bind(me.id,roomId).all()).results;
     const otherIds = allMembers.map(m => m.id);
     env.ctx?.waitUntil?.(notifyMembers(db, otherIds, {
       type: 'chat',
-      title: `${me.name} in Ohana Home`,
+      title: `${me.name} in ${roomId===1?"Ohana Family":activeRoom.name}`,
       body: text ? (text.length > 80 ? text.slice(0, 77) + '…' : text) : '📷 Sent a picture',
-      tag: 'ohana-chat',
+      tag: 'ohana-room-'+roomId,
     }).catch(() => {}));
 
     return json({ ok: true });
@@ -1082,7 +1139,7 @@ async function api2(req, env, url) {
     const max = withBot?2:Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
     const inviteCode = rid(6);
-    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode).run();
+    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode,roomId).run();
     if (max === 1 || withBot) {
       const players=withBot?[me.id,BOT_ID]:[me.id];
       const st=initState(type,players,now(),mode);
@@ -1099,9 +1156,10 @@ async function api2(req, env, url) {
     const action = gm[2];
     const g = await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.id=?").bind(id).first();
     if (!g) throw new Error("Game not found.");
+    if(!roomList.some(r=>r.id===g.room_id))return err("This game belongs to a private room.",403);
     const players = JSON.parse(g.players);
     const names = {};
-    for (const m of (await db.prepare("SELECT id,name,avatar FROM members").all()).results) names[m.id] = m;
+    for (const m of (await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=?").bind(g.room_id).all()).results) names[m.id] = m;
     if(players.includes(BOT_ID))names[BOT_ID]={id:BOT_ID,name:'Honu · computer',avatar:'@hon'};
     if (!action) {
       if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
@@ -1148,7 +1206,7 @@ async function api2(req, env, url) {
     }
     if (action === "start" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("Already started.");
-      if (g.created_by !== me.id && !me.is_admin) throw new Error("Only the person who made the game can start it.");
+      if (g.created_by !== me.id && !(me.is_admin&&g.room_id===1)) throw new Error("Only the person who made the game can start it.");
       if (players.length < GAME_TYPES[g.type].min) throw new Error("Need more players first.");
       const state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       await db.prepare("UPDATE games SET status='playing',state=?,max_players=?,updated_at=? WHERE id=?").bind(state, players.length, now(), id).run();
@@ -1169,7 +1227,7 @@ async function api2(req, env, url) {
     }
     if (action === "leave" && req.method === "POST") {
       if (g.status === "waiting") {
-        if (g.created_by === me.id || me.is_admin) await db.prepare("DELETE FROM games WHERE id=?").bind(id).run();
+        if (g.created_by === me.id || (me.is_admin&&g.room_id===1)) await db.prepare("DELETE FROM games WHERE id=?").bind(id).run();
         else await db.prepare("UPDATE games SET players=? WHERE id=?").bind(JSON.stringify(players.filter((x) => x !== me.id)), id).run();
       } else if (g.status === "playing" && players.includes(me.id)) {
         await db.prepare("UPDATE games SET status='finished',winner=?,updated_at=? WHERE id=?").bind(players.length === 2 ? String(players.find((x) => x !== me.id)) : "resigned", now(), id).run();
@@ -1216,7 +1274,7 @@ async function api2(req, env, url) {
       return json({ ok: true, over: res.over, winner: res.winner, last: st.history ? st.history[st.history.length - 1] : null });
     }
     if (action === "chat" && req.method === "POST") {
-      if (!g.in_game) throw new Error("You're not in this game.");
+      if (!players.includes(me.id)) throw new Error("You're not in this game.");
       const text = String(body.text || "").trim().slice(0, 200);
       if (!text) throw new Error("Say something!");
       const st = JSON.parse(g.state);
@@ -1230,7 +1288,7 @@ async function api2(req, env, url) {
     }
   }
   if (p.startsWith("/api/admin/")) {
-    if (!me.is_admin) return err("Admins only.", 403);
+    if (!me.is_admin || roomId!==1) return err("Family admins only.", 403);
     if (p === "/api/admin/settings" && req.method === "POST") {
       if (body.family_code) await db.prepare("UPDATE settings SET value=? WHERE key='family_code'").bind(String(body.family_code).trim().toUpperCase()).run();
       if (body.family_name) await db.prepare("UPDATE settings SET value=? WHERE key='family_name'").bind(String(body.family_name).trim()).run();
@@ -1238,15 +1296,15 @@ async function api2(req, env, url) {
     }
     if (p === "/api/admin/info") return json({ family_code: await getSetting(db, "family_code"), family_name: await getSetting(db, "family_name") });
     if (p === "/api/admin/remove" && req.method === "POST") {
-      await db.prepare("DELETE FROM members WHERE id=? AND is_admin=0").bind(+body.id).run();
+      await db.prepare("DELETE FROM room_members WHERE member_id=? AND room_id=1 AND member_id IN (SELECT id FROM members WHERE is_admin=0)").bind(+body.id).run();
       return json({ ok: true });
     }
     if (p === "/api/admin/reset_pin" && req.method === "POST") {
-      await db.prepare("UPDATE members SET pin=?,token=NULL WHERE id=?").bind(await hash(String(body.pin)), +body.id).run();
+      await db.prepare("UPDATE members SET pin=?,token=NULL WHERE id=? AND id IN (SELECT member_id FROM room_members WHERE room_id=1)").bind(await hash(String(body.pin)), +body.id).run();
       return json({ ok: true });
     }
     if (p === "/api/admin/clear_chat" && req.method === "POST") {
-      await db.prepare("DELETE FROM messages").run();
+      await db.prepare("DELETE FROM messages WHERE room_id=1").run();
       return json({ ok: true });
     }
   }

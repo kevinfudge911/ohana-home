@@ -286,6 +286,8 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .wb>.c{min-width:0;min-height:0;width:100%;height:100%;overflow:visible}
 #game .body{width:100%;min-width:0}
 .game-head{min-width:0;flex-wrap:wrap}.game-head h2{min-width:0}
+
+.room-current{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 10px;color:#f9dca2;font-size:13px}.room-current button{font-size:13px;padding:7px 12px}.room-welcome{display:flex;align-items:center;gap:15px;padding:20px 0}.room-welcome>span{font-size:48px}.room-welcome h2{font:26px Georgia;color:#ffe5ac}.room-welcome p{margin:5px 0;color:#baded2}.room-help{font-size:14px;color:#d3e5d9}.room-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}.room-card{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:18px;border:1px solid #76acac80;border-radius:22px;background:radial-gradient(ellipse at top,#36746b88,transparent 75%),linear-gradient(135deg,#173d49,#192c48);box-shadow:inset 0 1px #fff2,0 5px 0 #071f2a}.room-card.current{border-color:#f0ce86}.room-symbol{font-size:36px}.room-card h3{font:22px Georgia;color:#ffe2a2}.room-card small,.room-create small,.room-game small{display:block;font-size:12px;color:#c8dcd5}.room-card button{grid-column:1/-1;font-size:15px;padding:10px}.room-card details{grid-column:1/-1;font-size:12px}.room-card details button{font-size:12px;margin-top:8px}.room-create{display:grid;gap:10px;padding:20px;margin:25px 0;border:1px solid #d6b97866;border-radius:20px;background:#183b43}.room-create h3{color:#ffe1a2}.room-create label{font-size:14px}.room-create button{font-size:16px;background:linear-gradient(#ffe6b1,#e7b174)}.room-game{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px;border-bottom:1px solid #ffffff20}.room-game button{font-size:13px;padding:8px 13px}
 </style>
 </head>
 <body>
@@ -329,11 +331,11 @@ const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"><
 const EM = { mahjong:"🌺", words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
 const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
-let S = { token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
+let S = { room: Number(localStorage.getItem('ohana_room'))||0, roomEpoch:0, token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
 const app = $('#app');
 
-async function api(path, body, method) {
-  const r = await fetch(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'content-type': 'application/json', ...(S.token ? { authorization: 'Bearer ' + S.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+async function api(path, body, method, room=S.room) {
+  const r = await fetch(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'content-type': 'application/json', 'x-ohana-room':String(room||0), ...(S.token ? { authorization: 'Bearer ' + S.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
   const d = await r.json().catch(() => ({ error: 'Connection hiccup' }));
   if (r.status === 401) { S.token = null; localStorage.removeItem('ohana_token'); render(); throw new Error('Please sign in again.'); }
   if (!r.ok) throw new Error(d.error || 'Something went wrong');
@@ -419,7 +421,7 @@ function renderJoin(errMsg) {
     try {
       $('#jgo').disabled = true;
       const d = await api('/api/join', { code: $('#jcode').value, name: $('#jname').value, pin: $('#jpin').value, avatar: S.av });
-      S.token = d.token; S.me = d.me; localStorage.setItem('ohana_token', d.token); localStorage.setItem('ohana_code', $('#jcode').value); localStorage.setItem('ohana_name', d.me.name);
+      S.token = d.token; S.me = d.me; S.room=d.room_id||0;localStorage.setItem('ohana_room',S.room); localStorage.setItem('ohana_token', d.token); localStorage.setItem('ohana_code', $('#jcode').value); localStorage.setItem('ohana_name', d.me.name);
       await sync(); render();
       // After joining, try to set up push
       setupPush();
@@ -433,15 +435,51 @@ function render() {
   if (S.game) return renderGame();
   const myTurn = (S.sync?.games || []).filter(g => g.my_turn).length;
   app.innerHTML = `<header><span class="home-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 16 5l12 10M8 13v14h16V13"/><path d="M16 23s-6-3.5-6-7c0-3 4-4 6-1 2-3 6-2 6 1 0 3.5-6 7-6 7Z"/></svg></span><div><h1>Ohana Home</h1><small>${esc(S.sync?.familyName || '')}</small></div></header>
-    <main id="main"></main>
+    <div class="room-current"><span>${S.sync?.roomId===1?"🏡":"🔒"} ${esc(S.sync?.familyName||"Your room")}</span><button class="soft" id="room-door">Doorways ▸</button></div><main id="main"></main>
     <nav class="tabs"><div class="in">
       <button data-tab="games" class="${S.tab === 'games' ? 'on' : ''}"><span class="ic">🎲</span>Games${myTurn ? `<span class="badge">${myTurn}</span>` : ''}</button>
       <button data-tab="chat" class="${S.tab === 'chat' ? 'on' : ''}"><span class="ic">💬</span>Chat${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button>
-      <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>Family</button>
+      <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>People</button>
+      <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
     </div></nav>`;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if (S.tab === 'chat') S.unread = 0; render(); });
+  $('#room-door').onclick=()=>{S.tab='rooms';render();};
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
-  if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else renderFamily();
+  if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else if(S.tab==='rooms')renderRooms(); else renderFamily();
+}
+
+
+async function enterRoom(id,tab='games'){
+  S.roomEpoch++;S.room=Number(id);localStorage.setItem('ohana_room',S.room);
+  S.game=null;S.gstate=null;S.msgs=[];S.lastMsg=0;S.unread=0;S.sig=null;S.sync=null;S.tab=tab;
+  app.innerHTML='<div class="join"><h2>Opening your room…</h2></div>';
+  await sync();render();
+}
+function renderRooms(){
+  const sy=S.sync;if(!sy){$('#main').innerHTML='<p>Opening your doorways…</p>';return;}
+  $('#main').innerHTML=`<section class="room-welcome"><span>🚪</span><div><h2>A little place of your own.</h2><p>Different doors. Same Ohana welcome.</p></div></section>
+  <p class="room-help">Each room has its own people, games, and conversation. Only people who join can see inside.</p>
+  <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card ${r.id===sy.roomId?'current':''}"><div class="room-symbol">${r.id===1?'🏡':'🌙'}</div><div><h3>${esc(r.name)}</h3><small>${r.id===1?'Your family gathering place':'Private · invite only'}${r.id===sy.roomId?' · You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.invite_code?`<button class="soft" data-room-share="${r.id}">Invite friends</button>`:''}${r.owner_id===S.me.id?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
+  <form id="new-room" class="room-create"><h3>Open another doorway</h3><label for="room-name">What shall we call your room?</label><input id="room-name" maxlength="48" placeholder="Pe-paw’s friends, Friday game night…" required><button type="submit">✦ Create my private room</button><small>Your friends can create their own private rooms here too.</small></form>
+  <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
+  $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>enterRoom(b.dataset.room));
+  $('#main').querySelectorAll('[data-room-share]').forEach(b=>b.onclick=()=>shareRoom(sy.rooms.find(r=>r.id===+b.dataset.roomShare)));
+  $('#main').querySelectorAll('[data-room-game]').forEach(b=>b.onclick=async()=>{await enterRoom(b.dataset.gameRoom);await openGame(+b.dataset.roomGame);});
+  $('#main').querySelectorAll('[data-room-rotate]').forEach(b=>b.onclick=async()=>{try{await api('/api/rooms/rotate-invite',{},'POST',+b.dataset.roomRotate);await sync();renderRooms();toast('New invitation ready.');}catch(e){toast(e.message);}});
+  $('#new-room').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const r=await api('/api/rooms/create',{name:$('#room-name').value});await enterRoom(r.id,'rooms');toast('Your room is ready. Tap Invite friends.');}catch(e){b.disabled=false;toast(e.message);}};
+}
+async function shareRoom(room){
+  const url=location.origin+'/room/'+room.invite_code;
+  const text='There’s a place for you in '+room.name+' on Ohana Home. Join our private games and chat: '+url;
+  if(navigator.share){try{await navigator.share({title:room.name,text});return;}catch(e){if(e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(url);toast('Private room invitation copied!');}catch(e){toast('Copy the invitation below.');const a=document.createElement('input');a.value=url;a.readOnly=true;$('#main').prepend(a);a.select();}
+}
+async function renderRoomInvite(code,error=''){
+  const response=await fetch('/api/room-invite/'+code);const info=await response.json();
+  if(!response.ok){app.innerHTML='<div class="join"><h1>Ohana Home</h1><p>This invitation is no longer available.</p><a href="/">Go home</a></div>';return;}
+  app.innerHTML=`<div class="join"><ohana-scene></ohana-scene><h1>${esc(info.name)}</h1><div class="tag">Your own little corner of Ohana.</div><p>Private games. Familiar faces. A conversation just for this room.</p>${error?`<div class="err">${esc(error)}</div>`:''}${!S.token?`<label>Your name</label><input id="room-guest-name" maxlength="24" autocomplete="username"><label>Your four-number PIN</label><input id="room-guest-pin" inputmode="numeric" type="password" maxlength="4" autocomplete="current-password"><p>Returning? Use your same name and PIN. New here? Pick your own.</p><label>Choose your buddy</label>${buddyPicker()}`:'<p>Join with your current Ohana profile.</p>'}<button id="room-join">Come on in</button><a href="/">Back to Ohana Home</a></div>`;
+  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;app.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
+  $('#room-join').onclick=async()=>{try{$('#room-join').disabled=true;const d=await api('/api/room-invite/'+code+'/join',{name:$('#room-guest-name')?.value,pin:$('#room-guest-pin')?.value,avatar:S.av});S.token=d.token;S.me=d.me;localStorage.setItem('ohana_token',d.token);localStorage.setItem('ohana_name',d.me.name);history.replaceState(null,'','/');await enterRoom(d.room_id);setupPush();}catch(e){await renderRoomInvite(code,e.message);}};
 }
 
 // ---------- GAMES LIST ----------
@@ -1119,19 +1157,19 @@ async function renderFamily() {
     ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
     <p style="font-size:13px;color:rgba(246,231,200,.55)">To put Ohana Home on your phone like an app: on iPhone tap Share, then "Add to Home Screen". On Android tap the menu, then "Add to Home screen" or "Install".</p>
-    ${S.me.is_admin ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
+    ${S.me.is_admin && sy.roomId===1 ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
   $('#character-settings').ontoggle=e=>{S.avatarEditing=e.target.open;};
   m.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
   $('#save-character').onclick=async()=>{const b=$('#save-character');b.disabled=true;try{await api('/api/avatar',{avatar:S.av});localStorage.setItem('ohana_av',S.av);S.me.avatar=S.av;S.avatarEditing=false;toast(buddyName(S.av)+' is your new game buddy!');await sync();renderFamily();}catch(e){b.disabled=false;toast(e.message);}};
   $('#rename').onclick = async () => { const n = prompt('What do you want to be called?', S.me.name); if (!n || n.trim() === S.me.name) return; try { await api('/api/rename', { name: n.trim() }); S.me.name = n.trim(); toast('Name changed!'); await sync(); render(); } catch (e) { toast(e.message); } };
-  $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null; render(); };
+  $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;localStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
   $('#install').onclick = () => { if (S.installPrompt) S.installPrompt.prompt(); else toast('Use your browser menu: Add to Home Screen'); };
   const ntog = $('#ntoggle');
   if (ntog) ntog.onclick = async () => {
     if (S.pushSub) { await unsubscribePush(); } else { await subscribePush(); }
     renderFamily();
   };
-  if (S.me.is_admin) {
+  if (S.me.is_admin && sy.roomId===1) {
     try { const info = await api('/api/admin/info');
       $('#adm').innerHTML = `<h3>Family settings (only you see this)</h3>
         <label style="font-size:13px">Family code — what everybody types to get in</label><div class="row"><input id="fc" value="${esc(info.family_code)}"><button id="fcs">Save</button></div>
@@ -1151,14 +1189,17 @@ async function renderFamily() {
 async function sync() {
   if (!S.token) return;
   try {
+    const epoch=S.roomEpoch;
     const d = await api('/api/sync?msgSince=' + S.lastMsg);
+    if(epoch!==S.roomEpoch)return;
+    S.room=d.roomId;localStorage.setItem('ohana_room',S.room);
     S.me = d.me; const hadSync = !!S.sync; S.sync = d;
     if (d.messages.length) { const fresh = d.messages.filter(x => x.id > S.lastMsg); S.msgs = [...S.msgs, ...fresh].slice(-200); S.lastMsg = S.msgs[S.msgs.length - 1].id; if (hadSync && S.tab !== 'chat') S.unread = (S.unread || 0) + fresh.filter(x => x.member_id !== S.me.id).length; if (S.tab === 'chat' && !S.game) paintMsgs(true); }
     const turns = d.games.filter(g => g.my_turn).map(g => g.id);
     if (hadSync) for (const id of turns) if (!S.seenTurns.has(id) && id !== S.game) { toast('🎲 Your turn in ' + d.games.find(g => g.id === id).name); }
     S.seenTurns = new Set(turns);
     const sig = JSON.stringify([d.games, d.members.map(x => [x.id, x.online, x.avatar]), S.unread, d.familyName]);
-    if (!S.game && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing) render();
+    if (!S.game && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms') render();
     S.sig = sig;
   } catch (e) { /* quiet */ }
 }
@@ -1177,7 +1218,7 @@ function schedulePoll() {
   if (pollTimer) clearTimeout(pollTimer);
   pollTimer = setTimeout(async () => {
     try {
-      if (S.game) await loadGame(); else await sync();
+      if(!/^\/(?:room|invite)\//.test(location.pathname)){if (S.game) await loadGame(); else await sync();}
     } catch(e) { /* never let polling die */ }
     schedulePoll();
   }, getPollInterval());
@@ -1185,7 +1226,7 @@ function schedulePoll() {
 schedulePoll();
 // Also re-poll when app comes back to foreground (phone unlock, tab switch)
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
+  if (!document.hidden && !/^\/(?:room|invite)\//.test(location.pathname)) {
     schedulePoll(); // restart fast
     if (S.game) loadGame().catch(() => {});
     else if (S.token) sync().then(() => { if (!S.game) render(); }).catch(() => {});
@@ -1227,7 +1268,7 @@ async function renderInvite(code, errMsg) {
       try {
         $('#igo').disabled = true;
         const d = await api(`/api/invite/${code}/join`, { name: $('#iname').value, pin: $('#ipin').value, avatar: S.av });
-        S.token = d.token; S.me = d.me;
+        S.token = d.token; S.me = d.me; S.room=d.room_id||0;localStorage.setItem('ohana_room',S.room);
         localStorage.setItem('ohana_token', d.token);
         localStorage.setItem('ohana_name', d.me.name);
         // Clear invite URL, go to main app
@@ -1256,6 +1297,8 @@ async function shareInvite(inviteCode, gameName) {
 
 // On load: check for invite URL
 (async () => {
+  const doorway=location.pathname.match(/^\/room\/([a-f0-9]{32})$/);
+  if(doorway){await renderRoomInvite(doorway[1]);return;}
   const invCode = getInviteCode();
   if (invCode) {
     // If already logged in, try to join directly
@@ -1267,7 +1310,7 @@ async function shareInvite(inviteCode, gameName) {
           try {
             const d = await api(`/api/invite/${invCode}/join`, { name: localStorage.getItem('ohana_name') || 'Friend', pin: '0000', avatar: S.av });
             history.replaceState(null, '', '/');
-            await sync(); openGame(d.game_id); return;
+            await enterRoom(d.room_id); openGame(d.game_id); return;
           } catch(e) { /* PIN mismatch or full — show invite screen */ }
         }
       } catch(e) {}
