@@ -8,9 +8,11 @@ Game chat's + button and room chat's smile button open the same 350+ emoji picke
 
 Validation: game-setup, game-nook, private-rooms-ui, ohana-invitations, board-surface, emoji-picker, session-preservation, dialogue-mute, and drag-score checks passed. Browser visual inspection covered the welcome screen, phone-width Game Nook, game setup, Words board/receipt/chat, and Mahjong.
 
-## Artwork awaiting corrected pillow wording
+## Artwork applied after Kevin’s instruction
 
-`assets/island-illustration-draft.png` was generated with the built-in image generation tool. It is NOT referenced by the live app. Kevin said the pillow wording is wrong; ask for exact text before editing or integrating. Existing living porch remains active in the meantime.
+Kevin subsequently supplied the same illustration and explicitly asked to apply it. `assets/ohana-island.webp` is an encoding conversion of `assets/island-illustration-draft.png`; no composition or wording edits. The live porch, page backgrounds and game header now use it. The canvas uses Central Time tints, date-seeded clouds and stars, and ocean refraction. Photographic lighting frames no longer overlay the cartoon. Both chairs and the supplied pillow are retained.
+
+`island-icons.js` supplies original SVG illustrations for navigation, room symbols, invitation, sound, notification, camera and game action controls. It preserves text labels and uses mutation observation to handle existing dynamic renders. Board/rack tiles, player avatars and chat emoji are excluded. The 350+ emoji picker stays intact. Preview pages load the same icon module. `tests/island-icons.cjs` verifies label preservation, repeated voice updates and exclusions. Browser checks covered the applied illustrated porch, compact Game Nook, game actions and chat. Session and board-surface checks passed.
 
 Final generation prompt:
 
