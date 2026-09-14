@@ -117,9 +117,6 @@ nav.tabs button.on{color:var(--sun)}
 @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 .acts{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
 .acts button{padding:10px 14px;font-size:15px}
-.hist{font-size:14px;color:rgba(246,231,200,.75);margin-top:10px}
-.hist div{padding:3px 0;border-top:1px solid rgba(246,231,200,.08)}
-.hist b{color:var(--sand)}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
 /* fixed bottom game chat + score panel */
@@ -730,7 +727,7 @@ function renderWords(st, g, myTurn) {
     ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
       `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
-    <div class="hist">${[...st.history].reverse().slice(0, 8).map(h => `<div><b>${esc(nameOf(h.p))}</b> ${h.words.length ? h.words.map(w => `${w.word} (${w.score})`).join(', ') + ` — <b>+${h.score}</b>` : h.note}${h.words.length && h.note ? ` · ${h.note}` : ''}</div>`).join('')}</div>`;
+    `;
   const rerender = () => renderWords(st, g, myTurn);
 
   // Tap-to-select (still works alongside drag)
