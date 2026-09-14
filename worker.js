@@ -3,6 +3,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // src/worker.js
 import APP_HTML from "./app.html";
+import HONU_IMAGE from "./honu.webp";
 import GAME_PREVIEW_HTML from "./game-preview.html";
 import SCENE_JS from "./ohana-scene.js.txt";
 import PORCH_DAWN from "./porch-dawn.webp";
@@ -744,6 +745,7 @@ var worker_default = {
   async fetch(req, env) {
     const url = new URL(req.url);
     const p = url.pathname;
+    if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/porch") return new Response(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Home · Living Porch</title><style>body{margin:0;min-height:100vh;background:#0b2e36;color:#f5e8cc;display:grid;place-content:center;font-family:Georgia,serif}main{width:min(96vw,620px)}a{display:block;text-align:center;color:#f5e8cc;margin:20px;text-decoration:none}</style></head><body><main><ohana-scene></ohana-scene><a href="/">Come on in · Ohana Home</a></main><script src="/ohana-scene.js"></script></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/ohana-scene.js") return new Response(SCENE_JS, {headers:{"content-type":"application/javascript; charset=utf-8","cache-control":"no-cache"}});
