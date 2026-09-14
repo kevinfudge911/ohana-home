@@ -251,6 +251,9 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 @media(min-width:760px){.join{margin:40px auto}.welcome{min-height:290px}.gb-scores{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.game-bottom{width:600px;max-width:calc(100% - 32px);margin:0 auto 24px}.gchat-input-row{grid-template-columns:auto minmax(0,1fr) 46px}.gchat-input-row .reacts{grid-column:auto}.gchat-input-row .reacts button{min-width:32px}.game-head{padding:14px 24px}.gcard{padding:20px}}
 @media(max-width:480px){header{padding:16px}header h1{font-size:26px}main{padding:6px 14px 100px}.welcome{padding:24px 20px;min-height:240px;margin-bottom:22px;background-position:58% center}.welcome:before{background:linear-gradient(90deg,#082c32ed,#092c3260)}.welcome h2{max-width:265px;font-size:34px}.welcome p{max-width:245px;font-size:15px}.gcard{padding:14px;gap:12px}.gcard .em{width:54px}.game-art{width:50px;height:54px}.gcard .t b{font-size:21px}.gcard .t span{font-size:14px}.gcard button{padding:9px 12px}.shelf small{display:block;margin:3px 0 0}.join{width:calc(100% - 24px);padding:24px 20px;margin:12px auto}.game-head h2{font-size:20px}.game-head .home-mark{display:none}.acts button{padding:10px 12px}.acts #play{min-width:130px}}
 
+
+/* Ohana Home: compact controls keep the porch and conversation in view. */
+.word-status{display:flex;align-items:center;gap:10px;font-size:12px;padding:8px 2px;max-width:100%;color:#f5e9d3}.word-status>span{flex:none}.compact-scores{display:flex;gap:10px;flex:1;min-width:0}.compact-player{display:flex;gap:4px;align-items:center;min-width:0;flex:1}.compact-player>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.compact-player b{color:#ffda96}.compact-player.current{color:#ffda96}.gchat-msgs{max-height:240px}.gcard{padding:12px;gap:10px}.gcard .em{width:46px}.gcard .game-art{width:44px;height:46px}.gcard .t b{font-size:19px}.gcard button{padding:8px 12px;font-size:15px}body:has(ohana-scene) header h1{font-size:19px}ohana-scene{display:block;margin:0 0 18px}
 </style>
 </head>
 <body>
@@ -388,7 +391,7 @@ function renderGames() {
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${nameOf(+g.winner)} won`) : g.my_turn ? 'Your turn!' : `${nameOf(g.players[g.turn])}'s turn`) + modeBit; };
   const card = (g, btn) => `<div class="gcard ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><span>${line(g)}</span>${who(g)}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
-  m.innerHTML = `<section class="welcome"><div class="eyebrow">A little closer, wherever we are</div><h2>There's always<br>a place for you.</h2><p>A favorite game. A familiar voice.<br>A little more time together.</p><div class="signature">Welcome to our Ohana.</div></section>${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
+  m.innerHTML = `<ohana-scene></ohana-scene>${mine.length ? `<h2 class="shelf">Your games</h2>` + mine.map(g => card(g, `<button data-open="${g.id}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Play' : 'Look'}</button>`)).join('') : ''}
     ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
     <div class="family-note">Family is at the heart of every game.</div>
     <h2 class="shelf" style="margin-top:0">Start a game</h2>
@@ -763,7 +766,7 @@ function renderWords(st, g, myTurn) {
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
-    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
+    <div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div>
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
@@ -854,7 +857,7 @@ function renderGameChat(st, g) {
   if (!gameHead) { gameHead = document.createElement('div'); gameHead.id = 'game-head'; gameHead.className = 'game-head'; $('#game').prepend(gameHead); }
   gameHead.innerHTML = navHtml;
   bp.innerHTML = `<div class="gb-inner">
-    <div class="gb-scores">${scoresHtml}</div>
+    ${g.type !== 'words' ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
       const emojiOnly = isEmoji(m.text);
@@ -1119,5 +1122,6 @@ async function shareInvite(inviteCode, gameName) {
   }
 })();
 </script>
+<script src="/ohana-scene.js"></script>
 </body>
 </html>

@@ -10,12 +10,12 @@ database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
 
 [[rules]]
 type = "Text"
-globs = ["**/*.html"]
+globs = ["**/*.html", "**/*.js.txt"]
 fallthrough = true
 
 [[rules]]
 type = "Data"
-globs = ["**/*.png"]
+globs = ["**/*.png", "**/*.webp"]
 fallthrough = true
 
 [[routes]]
