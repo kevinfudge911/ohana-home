@@ -1,5 +1,17 @@
+import BUDDIES_PREVIEW_HTML from "./buddies-preview.html";
+import TALK_HONU from "./talk-honu.webp";
+import TALK_SPLASH from "./talk-splash.webp";
+import TALK_KIKO from "./talk-kiko.webp";
+import TALK_PEBBLE from "./talk-pebble.webp";
+import TALK_MANGO from "./talk-mango.webp";
+import TALK_SUNNY from "./talk-sunny.webp";
+import BUDDY_KIKO from "./buddy-kiko.webp";
+import BUDDY_PEBBLE from "./buddy-pebble.webp";
+import BUDDY_MANGO from "./buddy-mango.webp";
+import BUDDY_SUNNY from "./buddy-sunny.webp";
+import BUDDY_SPLASH from "./buddy-splash.webp";
 import MAHJONG_PREVIEW_HTML from "./mahjong-preview.html";
-import { mahjongInit, mahjongMove } from "./mahjong.js";
+import { mahjongInit, mahjongMove, mahjongFree } from "./mahjong.js";
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -467,6 +479,88 @@ function chkMove(st, players, turnIdx, move) {
   return { over: false, next: 1 - turnIdx };
 }
 __name(chkMove, "chkMove");
+const BOT_ID=-1;
+function rememberBotCards(st){
+  if(!st.bot||!st.cards)return;
+  const seen=[...new Set([...(st.open||[]),...(st.pending||[])])];
+  st.bot.memory=st.bot.memory||{};
+  for(const i of seen)st.bot.memory[i]=st.cards[i];
+  for(const i of Object.keys(st.bot.memory))if(st.matched[i])delete st.bot.memory[i];
+  const keys=Object.keys(st.bot.memory),limit=st.bot.difficulty==='medium'?10:4;
+  while(keys.length>limit)delete st.bot.memory[keys.shift()];
+}
+const BOT_WORDS='AT TO IN IT IS AS AN ON NO SO GO DO UP US WE HE ME BE BY OR IF OF AM MY HI OH OX AX EX CAT DOG SUN SEA SKY BAY DAY WAY SAY MAY PAY RAY HAY JOY TOY BOY KEY TRY DRY FLY CRY SHY WHY YES YET SET GET LET MET NET PET WET BET SIT SAT RAT HAT BAT MAT FAT EAT ATE TEA EAR ARE ART TAR CAR FAR BAR WAR RED BED FED LED HEN PEN TEN DEN MEN MAN CAN FAN PAN RAN TAN VAN WIN WON ONE TWO SIX TEN TOP HOP POP POT HOT NOT COT DOT GOT LOT LOG LEG EGG BIG DIG PIG FIG JIG RIG BAG BUG HUG MUG RUG TUG NAP LAP MAP CAP TAP GAP ZIP ZAP ZOO BOX FOX FIX MIX TAX WAX HOME LOVE KIND PLAY GAME GOOD NICE WAVE SAND PALM FISH BIRD DUCK SEAL BOAT COAT GOAT STAR MOON BLUE PINK GOLD WARM COOL RAIN WIND SNOW SNUG SOFT HELP HOPE HUGS FUNNY HAPPY SMILE WATER SHELL BEACH HEART HOUSE CHAIR TABLE FAMILY FLOWER FRIEND TURTLE'.split(' ');
+async function chooseBotMove(type,st,players,turn,db,random=Math.random){
+  const pick=a=>a[Math.floor(random()*a.length)],medium=st.bot.difficulty==='medium';
+  if(type==='tictac'){
+    const empty=st.board.flatMap((v,i)=>v?[]:[i]);
+    if(medium&&random()<.75){for(const mark of ['O','X'])for(const i of empty){const b=[...st.board];b[i]=mark;if([[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(l=>l.every(j=>b[j]===mark)))return {i};}}
+    return {i:pick(empty)};
+  }
+  if(type==='memory'){
+    const available=st.cards.flatMap((_,i)=>st.matched[i]||st.open.includes(i)?[]:[i]);
+    const memory=st.bot.memory||{},useMemory=random()<(medium?.85:.5);
+    if(useMemory&&st.open.length){const known=available.filter(i=>memory[i]===memory[st.open[0]]);if(known.length)return {i:pick(known)};}
+    if(useMemory&&!st.open.length){const known=available.filter(i=>memory[i]&&available.some(j=>j!==i&&memory[j]===memory[i]));if(known.length)return {i:pick(known)};}
+    return {i:pick(available)};
+  }
+  if(type==='checkers'){
+    const own=turn===0?'r':'b',jumps=[],steps=[];
+    st.board.forEach((p,i)=>{if(p&&chkOwner(p)===own&&(st.mustContinue===null||st.mustContinue===i)){for(const m of chkJumps(st.board,i))jumps.push({from:i,to:m.to});if(st.mustContinue===null)for(const m of chkSteps(st.board,i))steps.push({from:i,to:m.to});}});
+    return pick(st.mustContinue!==null||!steps.length||(medium&&jumps.length&&random()<.7)?jumps:[...steps,...jumps]);
+  }
+  if(type==='mahjong'){
+    const free=st.tiles.filter(t=>mahjongFree(st.tiles,t)),pairs=[];
+    free.forEach((a,i)=>free.slice(i+1).forEach(b=>{if(a.face===b.face)pairs.push([a.id,b.id]);}));
+    return pairs.length?{action:'match',ids:pick(pairs),revision:st.revision}:{action:'shuffle',revision:st.revision};
+  }
+  if(type==='words'){
+    const rack=st.racks[BOT_ID],board=st.board,empty=!board.some(Boolean),known=new Set(BOT_WORDS),candidates=[];
+    const words=shuffle(BOT_WORDS.filter(w=>w.length<=(medium?6:4)),random);
+    for(const word of words)for(const dir of [1,15])for(let start=0;start<225;start++){
+      const end=start+(word.length-1)*dir;
+      if(end>=225||(dir===1&&start%15+word.length>15))continue;
+      if(start-dir>=0&&(dir===15||start%15>0)&&board[start-dir])continue;
+      if(end+dir<225&&(dir===15||end%15<14)&&board[end+dir])continue;
+      const remaining=[...rack],placements=[];let okay=true,connected=empty&&start<=112&&end>=112&&(dir===15?start%15===7:Math.floor(start/15)===7);
+      for(let k=0;k<word.length;k++){
+        const i=start+k*dir,l=word[k];if(board[i]){if(board[i].l!==l){okay=false;break;}connected=true;continue;}
+        let ri=remaining.indexOf(l),blank=false;if(ri<0){ri=remaining.indexOf('?');blank=true;}if(ri<0){okay=false;break;}remaining.splice(ri,1);placements.push({i,l,blank});
+        if([i-15,i+15,...(i%15>0?[i-1]:[]),...(i%15<14?[i+1]:[])].some(j=>board[j]))connected=true;
+      }
+      if(!okay||!connected||!placements.length)continue;
+      const test=[...board];for(const p of placements)test[p.i]={l:p.l,v:0};
+      for(const p of placements){const cross=collect(test,p.i,dir===1?15:1);if(cross.length>1&&!known.has(cross.map(i=>test[i].l).join(''))){okay=false;break;}}
+      if(okay)candidates.push({action:'play',placements});
+      if(candidates.length>=30)break;
+    }
+    // Use ordinary words and stop at the first valid move, without optimizing bonuses or peeking at surprises.
+    for(const move of shuffle(candidates,random).slice(0,8)){
+      try{const trial=structuredClone(st);await wordsMove(trial,players,turn,move,db);return move;}catch(e){if(!/dictionary|tile|word|connect|line|center|gap/i.test(e.message))throw e;}
+    }
+    return {action:'pass'};
+  }
+  throw new Error('No computer player for this game.');
+}
+async function advanceBot(env,id){
+  const db=env.DB;
+  for(let step=0;step<50;step++){
+    const g=await db.prepare('SELECT * FROM games WHERE id=?').bind(id).first();
+    if(!g||g.status!=='playing')return;
+    const players=JSON.parse(g.players);if(players[g.turn]!==BOT_ID)return;
+    const st=JSON.parse(g.state);if(!st.bot)return;
+    const move=await chooseBotMove(g.type,st,players,g.turn,db);
+    if(!move)throw new Error('Computer player has no legal move.');
+    const res=await applyMove(g.type,st,players,g.turn,move,db);rememberBotCards(st);
+    st.bot.moves=(st.bot.moves||0)+1;
+    const saved=await db.prepare('UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?').bind(JSON.stringify(st),res.next,res.over?'finished':'playing',res.over?String(res.winner):null,now(),id,g.state).run();
+    if(!saved.meta.changes)return;
+    if(res.over||players[res.next]!==BOT_ID){
+      await notifyMembers(db,players.filter(p=>p>0),{type:'turn',title:res.over?'Game complete!':'Your turn!',body:res.over?'Your game with Honu is finished.':'Honu has played. Your move!',tag:'ohana-game-'+id}).catch(()=>{});return;
+    }
+  }
+}
+
 function initState(type, players, seed, mode) {
   if (type === "mahjong") return mahjongInit(players, rng(seed));
   if (type === "words") return wordsInit(players, seed, mode);
@@ -535,6 +629,7 @@ function gameRow(g, me) {
     updated_at: g.updated_at,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
+    bot: g.state ? JSON.parse(g.state).bot || null : null,
     mode: g.mode || 'classic',
     score_review: players.includes(me) && g.score_review ? JSON.parse(g.score_review) : null,
     invite_code: g.invite_code || null
@@ -751,7 +846,10 @@ var worker_default = {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    const buddyAssets={"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
+    if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/mahjong-preview") return new Response(MAHJONG_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if (req.method === "GET" && p === "/porch") return new Response(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Home · Living Porch</title><style>body{margin:0;min-height:100vh;background:#0b2e36;color:#f5e8cc;display:grid;place-content:center;font-family:Georgia,serif}main{width:min(96vw,620px)}a{display:block;text-align:center;color:#f5e8cc;margin:20px;text-decoration:none}</style></head><body><main><ohana-scene></ohana-scene><a href="/">Come on in · Ohana Home</a></main><script src="/ohana-scene.js"></script></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -818,7 +916,8 @@ async function api2(req, env, url) {
         game_id: g.id,
         type: g.type,
         game_name: gt?.name || g.type,
-        mode: g.mode || 'classic',
+        bot: g.state ? JSON.parse(g.state).bot || null : null,
+    mode: g.mode || 'classic',
         status: g.status,
         player_count: players.length,
         max_players: g.max_players,
@@ -883,6 +982,13 @@ async function api2(req, env, url) {
   if (!me) return err("Please sign in.", 401);
 
   // ---------- PUSH SUBSCRIPTION ENDPOINTS ----------
+  if (p === "/api/avatar" && req.method === "POST") {
+    const avatar=String(body.avatar||'');
+    const characters=['@hon','@spl','@kik','@peb','@man','@sun'];
+    if(!characters.includes(avatar) && !(avatar.length<=4 && /\p{Extended_Pictographic}/u.test(avatar) && !/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");
+    await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar,me.id).run();
+    return json({ok:true,avatar});
+  }
   if (p === "/api/push/subscribe" && req.method === "POST") {
     const endpoint = String(body.endpoint || "");
     const p256dh = String(body.p256dh || "");
@@ -942,12 +1048,17 @@ async function api2(req, env, url) {
     const type = body.type;
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
-    const max = Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const withBot=body.opponent==='bot';
+    const max = withBot?2:Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode).run();
-    if (max === 1) {
-      const state=JSON.stringify(initState(type,[me.id],now(),'classic'));
+    if (max === 1 || withBot) {
+      const players=withBot?[me.id,BOT_ID]:[me.id];
+      const st=initState(type,players,now(),mode);
+      if(withBot)st.bot={id:BOT_ID,name:'Honu',avatar:'@hon',difficulty:body.difficulty==='medium'?'medium':'easy',memory:{},moves:0};
+      if(withBot)await db.prepare('UPDATE games SET players=? WHERE id=?').bind(JSON.stringify(players),r.meta.last_row_id).run();
+      const state=JSON.stringify(st);
       await db.prepare("UPDATE games SET state=?,status='playing' WHERE id=?").bind(state,r.meta.last_row_id).run();
     }
     return json({ id: r.meta.last_row_id, invite_code: inviteCode });
@@ -961,7 +1072,9 @@ async function api2(req, env, url) {
     const players = JSON.parse(g.players);
     const names = {};
     for (const m of (await db.prepare("SELECT id,name,avatar FROM members").all()).results) names[m.id] = m;
+    if(players.includes(BOT_ID))names[BOT_ID]={id:BOT_ID,name:'Honu · computer',avatar:'@hon'};
     if (!action) {
+      if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       return json({ ...gameRow(g, me.id), state: st, names });
     }
@@ -1038,16 +1151,18 @@ async function api2(req, env, url) {
       if (players[g.turn] !== me.id) throw new Error("It's not your turn yet.");
       const st = JSON.parse(g.state);
       const res = await applyMove(g.type, st, players, g.turn, body, db);
+      rememberBotCards(st);
       const status = res.over ? "finished" : "playing";
-      if(g.type==='mahjong') {
+      if(g.type==='mahjong'||st.bot) {
         const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state).run();
         if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
       } else {
       await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=?").bind(JSON.stringify(st), res.next, status, res.over ? String(res.winner) : null, now(), id).run();
       }
 
+      if(!res.over&&players[res.next]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       // Send push notification to the next player (if game is still playing)
-      if (!res.over && players[res.next] !== me.id) {
+      if (!res.over && players[res.next] > 0 && players[res.next] !== me.id) {
         const nextPlayerId = players[res.next];
         const gameName = GAME_TYPES[g.type]?.name || g.type;
         env.ctx?.waitUntil?.(notifyMembers(db, [nextPlayerId], {
@@ -1058,7 +1173,7 @@ async function api2(req, env, url) {
         }).catch(() => {}));
       }
       // If game is over, notify the winner
-      if (res.over && res.winner && res.winner !== 'tie' && res.winner !== 'resigned' && +res.winner !== me.id) {
+      if (res.over && res.winner && res.winner !== 'tie' && res.winner !== 'resigned' && +res.winner > 0 && +res.winner !== me.id) {
         const gameName = GAME_TYPES[g.type]?.name || g.type;
         env.ctx?.waitUntil?.(notifyMembers(db, [+res.winner], {
           type: 'win',
