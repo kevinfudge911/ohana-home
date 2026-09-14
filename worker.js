@@ -3,14 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // src/worker.js
 import APP_HTML from "./app.html";
-import HONU_IMAGE from "./honu.webp";
-import GAME_PREVIEW_HTML from "./game-preview.html";
-import SCENE_JS from "./ohana-scene.js.txt";
-import PORCH_DAWN from "./porch-dawn.webp";
-import PORCH_DAY from "./porch-day.webp";
-import PORCH_NIGHT from "./porch-night.webp";
-import PORCH_PLAYED from "./porch-played.webp";
-const WELCOME_IMAGE = PORCH_DAWN;
 
 // src/games.js
 function rng(seed) {
@@ -192,7 +184,6 @@ async function wordsMove(st, players, turnIdx, move, db) {
   const detail = [];
   for (const w of uniq) {
     let sum = 0, mult = 1;
-    const letters = [];
     for (const i of w) {
       let v = board[i].v;
       if (placedSet.has(i)) {
@@ -202,31 +193,26 @@ async function wordsMove(st, players, turnIdx, move, db) {
         if (b === "DW") mult *= 2;
         if (b === "TW") mult *= 3;
       }
-      letters.push({letter:board[i].l,base:board[i].v,points:v,bonus:placedSet.has(i)?(st.bonus[i]||""):""});
       sum += v;
     }
     const sc = sum * mult;
     total += sc;
-    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc, letters, letterTotal:sum, wordMultiplier:mult });
+    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc });
   }
   let note = "";
-  const adjustments = [];
   if (pl.length === 7) {
     total += 50;
     note = "All 7 tiles! +50";
-    adjustments.push({label:note,delta:50,total});
   }
   if (!st.starFound && placedSet.has(st.star)) {
     st.starFound = true;
     total += 20;
-    adjustments.push({label:"Found the Ohana Star!",delta:20,total});
     note += (note ? " \xB7 " : "") + "Found the Ohana Star! +20";
   }
   let extraTurn = false;
   for (const t of pl) {
     const surp = st.surprises[t.i];
     if (surp && !st.foundSurprises[t.i]) {
-      const before=total, oldNote=note;
       st.foundSurprises[t.i] = surp;
       switch (surp.type) {
         case "gift": total += 20; note += (note ? " \xB7 " : "") + "\u{1F381} Gift! +20"; break;
@@ -250,7 +236,6 @@ async function wordsMove(st, players, turnIdx, move, db) {
           }
           break;
       }
-      adjustments.push({type:surp.type,square:t.i,label:note.slice(oldNote.length).replace(/^ · /,""),delta:total-before,total});
     }
   }
   st.board = board;
@@ -259,7 +244,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
   st.scores[p] += total;
   st.passes = 0;
   st.lastMove = [...placedSet];
-  st.history.push({ p, words: detail, score: total, note, adjustments });
+  st.history.push({ p, words: detail, score: total, note });
 
   // Random Random mode: shuffle unplayed bonus squares to new empty spots
   if (st.mode === 'random') {
@@ -531,7 +516,6 @@ function gameRow(g, me) {
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
     mode: g.mode || 'classic',
-    score_review: players.includes(me) && g.score_review ? JSON.parse(g.score_review) : null,
     invite_code: g.invite_code || null
   };
 }
@@ -743,16 +727,9 @@ var worker_default = {
       }
     } catch (e) { /* quiet */ }
   },
-  async fetch(req, env, ctx) {
+  async fetch(req, env) {
     const url = new URL(req.url);
     const p = url.pathname;
-    if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
-    if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
-    if (req.method === "GET" && p === "/porch") return new Response(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Home · Living Porch</title><style>body{margin:0;min-height:100vh;background:#0b2e36;color:#f5e8cc;display:grid;place-content:center;font-family:Georgia,serif}main{width:min(96vw,620px)}a{display:block;text-align:center;color:#f5e8cc;margin:20px;text-decoration:none}</style></head><body><main><ohana-scene></ohana-scene><a href="/">Come on in · Ohana Home</a></main><script src="/ohana-scene.js"></script></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
-    if (req.method === "GET" && p === "/ohana-scene.js") return new Response(SCENE_JS, {headers:{"content-type":"application/javascript; charset=utf-8","cache-control":"no-cache"}});
-    const porchAssets = {"/porch-dawn.webp":PORCH_DAWN,"/porch-day.webp":PORCH_DAY,"/porch-night.webp":PORCH_NIGHT,"/porch-played.webp":PORCH_PLAYED};
-    if (req.method === "GET" && porchAssets[p]) return new Response(porchAssets[p], {headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
-    if (req.method === "GET" && p === "/ohana-welcome.png") return new Response(WELCOME_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public, max-age=3600" } });
     if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
     // Invite links: /invite/{code} serves the app (it reads the code from URL)
     if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
@@ -761,7 +738,7 @@ var worker_default = {
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
     if (!p.startsWith("/api/")) return new Response("Not found", { status: 404 });
     try {
-      return await api2(req, { ...env, ctx }, url);
+      return await api2(req, env, url);
     } catch (e) {
       return err(e.message || "Something went wrong", 400);
     }
@@ -910,7 +887,7 @@ async function api2(req, env, url) {
     const since = +url.searchParams.get("msgSince") || 0;
     const members = (await db.prepare("SELECT id,name,avatar,last_seen,is_admin FROM members ORDER BY name").all()).results.map((m) => ({ ...m, online: now() - m.last_seen < ONLINE_MS }));
     const msgs = (await db.prepare("SELECT m.id,m.member_id,m.text,m.image,m.created_at FROM messages m WHERE m.id>? ORDER BY m.id DESC LIMIT 60").bind(since).all()).results.reverse();
-    const games = (await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
+    const games = (await db.prepare("SELECT * FROM games WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
     return json({ me, familyName: await getSetting(db, "family_name"), members, messages: msgs, games, types: GAME_TYPES });
   }
   if (p === "/api/message" && req.method === "POST") {
@@ -946,7 +923,7 @@ async function api2(req, env, url) {
   if (gm) {
     const id = +gm[1];
     const action = gm[2];
-    const g = await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.id=?").bind(id).first();
+    const g = await db.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
     if (!g) throw new Error("Game not found.");
     const players = JSON.parse(g.players);
     const names = {};
@@ -954,15 +931,6 @@ async function api2(req, env, url) {
     if (!action) {
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       return json({ ...gameRow(g, me.id), state: st, names });
-    }
-    if (action === "reviewack" && req.method === "POST") {
-      if (!players.includes(me.id)) throw new Error("Only players in this game can acknowledge its score review.");
-      const review = g.score_review ? JSON.parse(g.score_review) : null;
-      if (!review || body.reviewId !== review.id) throw new Error("This score review changed. Please refresh and read it again.");
-      const result = await db.prepare("UPDATE score_reviews SET payload=json_set(payload,?,COALESCE(json_extract(payload,?),?)) WHERE game_id=? AND json_extract(payload,'$.id')=?")
-        .bind('$.acknowledged."'+me.id+'"','$.acknowledged."'+me.id+'"',now(),id,review.id).run();
-      if (!result.meta.changes) throw new Error("This score review changed. Please refresh and read it again.");
-      return json({ok:true});
     }
     if (action === "join" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("This game already started.");
