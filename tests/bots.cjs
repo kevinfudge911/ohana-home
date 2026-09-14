@@ -4,12 +4,15 @@ const engine=fs.readFileSync('mahjong.js','utf8').replaceAll('export function','
 const c=vm.createContext({console,structuredClone,URL,Response});vm.runInContext(engine+'\n'+src,c);
 const players=[5,-1],db={prepare:()=>({bind:(word)=>({first:async()=>c.BOT_WORDS?.includes(word)?{}:{}})})};
 (async()=>{
-for(const type of ['tictac','memory','checkers','mahjong','words']){
- const st=c.initState(type,players,42,'classic');st.bot={difficulty:'easy',memory:{}};
+for(const difficulty of ['easy','medium','hard'])for(const type of ['tictac','memory','checkers','mahjong','words']){
+ const st=c.initState(type,players,42,'classic');st.bot={difficulty,memory:{}};
  const move=await c.chooseBotMove(type,st,players,1,db,()=>.2);
  const res=await c.applyMove(type,st,players,1,move,db);assert.equal(typeof res.over,'boolean',type);
- console.log('PASS: legal friendly computer move in '+type);
+ console.log('PASS: legal '+difficulty+' computer move in '+type);
 }
+const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function humanPaths(board){assert(!lines.some(l=>l.every(i=>board[i]==='X')),'Hard must prevent every human win');if(lines.some(l=>l.every(i=>board[i]==='O'))||board.every(Boolean))return;for(let i=0;i<9;i++)if(!board[i]){const b=[...board];b[i]='X';assert(!lines.some(l=>l.every(j=>b[j]==='X')));if(b.some(v=>!v))b[c.hardTicTac(b,'O')]='O';humanPaths(b);}}
+humanPaths(Array(9).fill(null));console.log('PASS: Hard tic-tac-toe never loses across every human continuation.');
 let st=c.memInit(players,42);st.bot={difficulty:'easy',memory:{}};
 const a=await c.chooseBotMove('memory',st,players,1,{},()=>.3);st.cards.reverse();const b=await c.chooseBotMove('memory',st,players,1,{},()=>.3);assert.equal(a.i,b.i,'hidden card identities must not affect choices');
 st.open=[4];c.rememberBotCards(st);assert.deepEqual(Object.keys(st.bot.memory),['4']);

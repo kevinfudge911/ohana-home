@@ -1,3 +1,4 @@
+import SETUP_PREVIEW_HTML from "./setup-preview.html";
 import OHANA_PREVIEW_HTML from "./ohana-preview.html";
 import NOOK_PREVIEW_HTML from "./nook-preview.html";
 import ROOMS_PREVIEW_HTML from "./rooms-preview.html";
@@ -519,38 +520,55 @@ function rememberBotCards(st){
   st.bot.memory=st.bot.memory||{};
   for(const i of seen)st.bot.memory[i]=st.cards[i];
   for(const i of Object.keys(st.bot.memory))if(st.matched[i])delete st.bot.memory[i];
-  const keys=Object.keys(st.bot.memory),limit=st.bot.difficulty==='medium'?10:4;
+  const keys=Object.keys(st.bot.memory),limit=st.bot.difficulty==='hard'?48:st.bot.difficulty==='medium'?10:4;
   while(keys.length>limit)delete st.bot.memory[keys.shift()];
 }
 const BOT_WORDS='AT TO IN IT IS AS AN ON NO SO GO DO UP US WE HE ME BE BY OR IF OF AM MY HI OH OX AX EX CAT DOG SUN SEA SKY BAY DAY WAY SAY MAY PAY RAY HAY JOY TOY BOY KEY TRY DRY FLY CRY SHY WHY YES YET SET GET LET MET NET PET WET BET SIT SAT RAT HAT BAT MAT FAT EAT ATE TEA EAR ARE ART TAR CAR FAR BAR WAR RED BED FED LED HEN PEN TEN DEN MEN MAN CAN FAN PAN RAN TAN VAN WIN WON ONE TWO SIX TEN TOP HOP POP POT HOT NOT COT DOT GOT LOT LOG LEG EGG BIG DIG PIG FIG JIG RIG BAG BUG HUG MUG RUG TUG NAP LAP MAP CAP TAP GAP ZIP ZAP ZOO BOX FOX FIX MIX TAX WAX HOME LOVE KIND PLAY GAME GOOD NICE WAVE SAND PALM FISH BIRD DUCK SEAL BOAT COAT GOAT STAR MOON BLUE PINK GOLD WARM COOL RAIN WIND SNOW SNUG SOFT HELP HOPE HUGS FUNNY HAPPY SMILE WATER SHELL BEACH HEART HOUSE CHAIR TABLE FAMILY FLOWER FRIEND TURTLE'.split(' ');
+function hardTicTac(board,mark){
+ const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],other=m=>m==='X'?'O':'X';
+ function search(b,m,depth){for(const l of lines)if(b[l[0]]&&l.every(i=>b[i]===b[l[0]]))return b[l[0]]===mark?10-depth:depth-10;
+ const empty=b.flatMap((v,i)=>v?[]:[i]);if(!empty.length)return 0;
+ const scores=empty.map(i=>{const next=[...b];next[i]=m;return search(next,other(m),depth+1)});return m===mark?Math.max(...scores):Math.min(...scores);}
+ return [4,0,2,6,8,1,3,5,7].filter(i=>!board[i]).map(i=>{const b=[...board];b[i]=mark;return {i,score:search(b,other(mark),0)}}).sort((a,b)=>b.score-a.score)[0].i;
+}
+function hardCheckers(st,players,turn,moves){
+ const own=turn===0?'r':'b';
+ function legal(s,t){const out=[];s.board.forEach((p,i)=>{if(p&&chkOwner(p)===(t===0?'r':'b')&&(s.mustContinue===null||s.mustContinue===i)){out.push(...chkJumps(s.board,i).map(m=>({from:i,to:m.to})));if(s.mustContinue===null)out.push(...chkSteps(s.board,i).map(m=>({from:i,to:m.to})));}});return out;}
+ function evaluate(s){return s.board.reduce((v,p,i)=>!p?v:v+(chkOwner(p)===own?1:-1)*((p===p.toUpperCase()?175:100)+(chkOwner(p)==='r'?7-Math.floor(i/8):Math.floor(i/8))*3),0);}
+ function search(s,t,depth){if(!depth)return evaluate(s);const options=legal(s,t);if(!options.length)return t===turn?-10000:10000;const values=options.map(m=>{const next=structuredClone(s),r=chkMove(next,players,t,m);return r.over?(r.winner===players[turn]?10000:-10000):search(next,r.next,depth-1)});return t===turn?Math.max(...values):Math.min(...values);}
+ return moves.map(move=>{const next=structuredClone(st),r=chkMove(next,players,turn,move);return {move,score:r.over?10000:search(next,r.next,2)}}).sort((a,b)=>b.score-a.score)[0].move;
+}
 async function chooseBotMove(type,st,players,turn,db,random=Math.random){
-  const pick=a=>a[Math.floor(random()*a.length)],medium=st.bot.difficulty==='medium';
+  const pick=a=>a[Math.floor(random()*a.length)],hard=st.bot.difficulty==='hard',medium=st.bot.difficulty==='medium';
   if(type==='tictac'){
     const empty=st.board.flatMap((v,i)=>v?[]:[i]);
+    if(hard)return {i:hardTicTac(st.board,turn===0?'X':'O')};
     if(medium&&random()<.75){for(const mark of ['O','X'])for(const i of empty){const b=[...st.board];b[i]=mark;if([[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(l=>l.every(j=>b[j]===mark)))return {i};}}
     return {i:pick(empty)};
   }
   if(type==='memory'){
     const available=st.cards.flatMap((_,i)=>st.matched[i]||st.open.includes(i)?[]:[i]);
-    const memory=st.bot.memory||{},useMemory=random()<(medium?.85:.5);
+    const memory=st.bot.memory||{},useMemory=hard||random()<(medium?.85:.5);
     if(useMemory&&st.open.length){const known=available.filter(i=>memory[i]===memory[st.open[0]]);if(known.length)return {i:pick(known)};}
-    if(useMemory&&!st.open.length){const known=available.filter(i=>memory[i]&&available.some(j=>j!==i&&memory[j]===memory[i]));if(known.length)return {i:pick(known)};}
+    if(useMemory&&!st.open.length){const known=available.filter(i=>Object.hasOwn(memory,i)&&available.some(j=>j!==i&&memory[j]===memory[i]));if(known.length)return {i:pick(known)};}
     return {i:pick(available)};
   }
   if(type==='checkers'){
     const own=turn===0?'r':'b',jumps=[],steps=[];
     st.board.forEach((p,i)=>{if(p&&chkOwner(p)===own&&(st.mustContinue===null||st.mustContinue===i)){for(const m of chkJumps(st.board,i))jumps.push({from:i,to:m.to});if(st.mustContinue===null)for(const m of chkSteps(st.board,i))steps.push({from:i,to:m.to});}});
+    if(hard)return hardCheckers(st,players,turn,[...steps,...jumps]);
     return pick(st.mustContinue!==null||!steps.length||(medium&&jumps.length&&random()<.7)?jumps:[...steps,...jumps]);
   }
   if(type==='mahjong'){
     const free=st.tiles.filter(t=>mahjongFree(st.tiles,t)),pairs=[];
     free.forEach((a,i)=>free.slice(i+1).forEach(b=>{if(a.face===b.face)pairs.push([a.id,b.id]);}));
+    if((hard||medium)&&pairs.length){const scored=pairs.map(ids=>{const tiles=st.tiles.map(t=>ids.includes(t.id)?{...t,removed:true}:t);return {ids,score:tiles.filter(t=>mahjongFree(tiles,t)).length};}).sort((a,b)=>b.score-a.score);if(hard||random()<.7)return {action:'match',ids:scored[0].ids,revision:st.revision};}
     return pairs.length?{action:'match',ids:pick(pairs),revision:st.revision}:{action:'shuffle',revision:st.revision};
   }
   if(type==='words'){
     const rack=st.racks[BOT_ID],board=st.board,empty=!board.some(Boolean),known=new Set(BOT_WORDS),candidates=[];
-    const words=shuffle(BOT_WORDS.filter(w=>w.length<=(medium?6:4)),random);
-    for(const word of words)for(const dir of [1,15])for(let start=0;start<225;start++){
+    const words=shuffle(BOT_WORDS.filter(w=>w.length<=(hard?7:medium?6:4)),random);
+    wordSearch: for(const word of words)for(const dir of [1,15])for(let start=0;start<225;start++){
       const end=start+(word.length-1)*dir;
       if(end>=225||(dir===1&&start%15+word.length>15))continue;
       if(start-dir>=0&&(dir===15||start%15>0)&&board[start-dir])continue;
@@ -565,13 +583,14 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
       const test=[...board];for(const p of placements)test[p.i]={l:p.l,v:0};
       for(const p of placements){const cross=collect(test,p.i,dir===1?15:1);if(cross.length>1&&!known.has(cross.map(i=>test[i].l).join(''))){okay=false;break;}}
       if(okay)candidates.push({action:'play',placements});
-      if(candidates.length>=30)break;
+      if(candidates.length>=(hard?160:60))break wordSearch;
     }
     // Use ordinary words and stop at the first valid move, without optimizing bonuses or peeking at surprises.
-    for(const move of shuffle(candidates,random).slice(0,8)){
-      try{const trial=structuredClone(st);await wordsMove(trial,players,turn,move,db);return move;}catch(e){if(!/dictionary|tile|word|connect|line|center|gap/i.test(e.message))throw e;}
+    let best=null,bestScore=-1;
+    for(const move of shuffle(candidates,random).slice(0,hard?80:8)){
+      try{const trial=structuredClone(st);if(hard){trial.surprises={};trial.starFound=true;}await wordsMove(trial,players,turn,move,db);if(!hard)return move;const score=trial.history.at(-1).score;if(score>bestScore){bestScore=score;best=move;}}catch(e){if(!/dictionary|tile|word|connect|line|center|gap/i.test(e.message))throw e;}
     }
-    return {action:'pass'};
+    return best||{action:'pass'};
   }
   throw new Error('No computer player for this game.');
 }
@@ -865,6 +884,7 @@ var worker_default = {
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if(req.method==="GET" && p==="/ohana-preview")return new Response(OHANA_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/setup-preview")return new Response(SETUP_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/nook-preview")return new Response(NOOK_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/rooms-preview")return new Response(ROOMS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -1141,7 +1161,7 @@ async function api2(req, env, url) {
     if (max === 1 || withBot) {
       const players=withBot?[me.id,BOT_ID]:[me.id];
       const st=initState(type,players,now(),mode);
-      if(withBot)st.bot={id:BOT_ID,name:'Honu',avatar:'@hon',difficulty:body.difficulty==='medium'?'medium':'easy',memory:{},moves:0};
+      if(withBot)st.bot={id:BOT_ID,name:'Honu',avatar:'@hon',difficulty:['easy','medium','hard'].includes(body.difficulty)?body.difficulty:'easy',memory:{},moves:0};
       if(withBot)await db.prepare('UPDATE games SET players=? WHERE id=?').bind(JSON.stringify(players),r.meta.last_row_id).run();
       const state=JSON.stringify(st);
       await db.prepare("UPDATE games SET state=?,status='playing' WHERE id=?").bind(state,r.meta.last_row_id).run();
