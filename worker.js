@@ -515,7 +515,8 @@ function gameRow(g, me) {
     updated_at: g.updated_at,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
-    mode: g.mode || 'classic'
+    mode: g.mode || 'classic',
+    invite_code: g.invite_code || null
   };
 }
 __name(gameRow, "gameRow");
@@ -730,6 +731,8 @@ var worker_default = {
     const url = new URL(req.url);
     const p = url.pathname;
     if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
+    // Invite links: /invite/{code} serves the app (it reads the code from URL)
+    if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
     if (p === "/manifest.json") return json({ name: "Ohana Home", short_name: "Ohana", start_url: "/", display: "standalone", background_color: "#0E3B47", theme_color: "#0E3B47", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] });
     if (p === "/icon.svg") return new Response(ICON, { headers: { "content-type": "image/svg+xml", "cache-control": "public,max-age=86400" } });
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
@@ -769,6 +772,84 @@ async function api2(req, env, url) {
     if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
     return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin || ((env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase() ? 1 : 0) } });
   }
+  // ---------- INVITE ENDPOINTS (no auth needed) ----------
+  const invMatch = p.match(/^\/api\/invite\/([a-f0-9]+)(?:\/(\w+))?$/);
+  if (invMatch) {
+    const invCode = invMatch[1];
+    const invAction = invMatch[2];
+    const g = await db.prepare("SELECT * FROM games WHERE invite_code=?").bind(invCode).first();
+    if (!g) throw new Error("This invite link isn't valid anymore.");
+    const players = JSON.parse(g.players);
+    const gt = GAME_TYPES[g.type];
+    const creatorRow = await db.prepare("SELECT name,avatar FROM members WHERE id=?").bind(g.created_by).first();
+
+    // GET /api/invite/{code} — get game info for the invite screen
+    if (!invAction && req.method === "GET") {
+      return json({
+        game_id: g.id,
+        type: g.type,
+        game_name: gt?.name || g.type,
+        mode: g.mode || 'classic',
+        status: g.status,
+        player_count: players.length,
+        max_players: g.max_players,
+        created_by: creatorRow ? creatorRow.name : 'Someone',
+        created_by_avatar: creatorRow ? creatorRow.avatar : '🙂'
+      });
+    }
+
+    // POST /api/invite/{code}/join — join via invite (creates member if needed, no family code)
+    if (invAction === "join" && req.method === "POST") {
+      if (g.status !== "waiting") throw new Error("This game already started. Ask for a new invite!");
+      if (players.length >= g.max_players) throw new Error("This game is full.");
+      const name = String(body.name || "").trim().slice(0, 24);
+      const pin = String(body.pin || "").trim();
+      const avatar = String(body.avatar || "🙂").slice(0, 4);
+      if (!name) throw new Error("Tell us your name.");
+      if (!/^\d{4}$/.test(pin)) throw new Error("PIN needs to be 4 numbers.");
+      const ph = await hash(pin);
+
+      // Find or create member
+      let m = await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
+      if (m) {
+        if (m.pin !== ph) throw new Error("That name is taken. Use the same PIN, or pick a different name.");
+      } else {
+        const count = (await db.prepare("SELECT COUNT(*) c FROM members").first()).c;
+        const r2 = await db.prepare("INSERT INTO members(name,pin,avatar,token,is_admin,created_at,last_seen) VALUES(?,?,?,?,?,?,?)").bind(name, ph, avatar, rid(), 0, now(), now()).run();
+        m = await db.prepare("SELECT * FROM members WHERE id=?").bind(r2.meta.last_row_id).first();
+      }
+      if (!m.token) { m.token = rid(); await db.prepare("UPDATE members SET token=? WHERE id=?").bind(m.token, m.id).run(); }
+      if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
+
+      // Join the game
+      if (!players.includes(m.id)) {
+        if (players.length >= g.max_players) throw new Error("This game is full.");
+        players.push(m.id);
+      }
+      let status = "waiting", state = null;
+      if (players.length >= g.max_players) {
+        status = "playing";
+        state = JSON.stringify(initState(g.type, players, g.id * 7919 + now() % 1e5, g.mode || 'classic'));
+      }
+      await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=?").bind(JSON.stringify(players), status, state, now(), g.id).run();
+
+      // Notify first player if game started
+      if (status === "playing") {
+        const firstPlayer = players[0];
+        if (firstPlayer !== m.id) {
+          const gameName = gt?.name || g.type;
+          env.ctx?.waitUntil?.(notifyMembers(db, [firstPlayer], {
+            type: 'turn', title: 'Game on!',
+            body: `${m.name} joined your ${gameName} game. Your turn!`,
+            tag: `ohana-game-${g.id}`,
+          }).catch(() => {}));
+        }
+      }
+
+      return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin }, game_id: g.id, status });
+    }
+  }
+
   const me = await auth(req, env);
   if (!me) return err("Please sign in.", 401);
 
@@ -834,8 +915,9 @@ async function api2(req, env, url) {
     if (!gt) throw new Error("Unknown game.");
     const max = Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
-    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode) VALUES(?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode).run();
-    return json({ id: r.meta.last_row_id });
+    const inviteCode = rid(6);
+    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode).run();
+    return json({ id: r.meta.last_row_id, invite_code: inviteCode });
   }
   const gm = p.match(/^\/api\/game\/(\d+)(?:\/(\w+))?$/);
   if (gm) {

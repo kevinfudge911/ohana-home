@@ -199,6 +199,13 @@ nav.tabs button.on{color:var(--sun)}
 .sw-toggle::after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;background:var(--sand);border-radius:50%;transition:transform .2s}
 .sw-toggle.on::after{transform:translateX(22px)}
 
+/* invite */
+.invite-card{background:var(--deep);border-radius:20px;padding:20px;text-align:center;margin:12px 0}
+.invite-card .big{font-size:48px;margin-bottom:8px}
+.invite-card h2{font-size:22px;margin-bottom:4px}
+.invite-card .sub{font-family:Caveat,cursive;font-size:20px;color:var(--sun);margin-bottom:12px}
+.invite-btn{display:inline-flex;align-items:center;gap:6px;background:var(--leaf);color:var(--ink);padding:12px 18px;border-radius:14px;font-weight:800;font-family:Fredoka;font-size:16px}
+.invite-link-box{background:var(--ocean);border:2px solid var(--shallow);border-radius:12px;padding:10px;margin:8px 0;font-size:13px;word-break:break-all;color:var(--sand);user-select:all}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -402,8 +409,10 @@ function renderGame() {
   if (g.status === 'waiting') {
     b.innerHTML = `<div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
       <p style="text-align:center;color:rgba(246,231,200,.75)">Everyone in the family can see this game on their Games tab and tap Join. It starts by itself when the seats are full.</p>
+      ${g.invite_code && g.in_game ? `<div style="text-align:center;margin:12px 0"><button class="soft" id="inviteb" style="font-size:15px">📨 Send Invite Link</button></div>` : ''}
       ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
       ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb">Start now with ${g.players.length}</button></div>` : ''}`;
+    const ib = $('#inviteb'); if (ib) ib.onclick = () => shareInvite(g.invite_code, g.name);
     const jb = $('#joinb'); if (jb) jb.onclick = async () => { try { await api(`/api/game/${g.id}/join`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     const sb = $('#startb'); if (sb) sb.onclick = async () => { try { await api(`/api/game/${g.id}/start`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     return;
@@ -913,7 +922,92 @@ function schedulePoll() {
   }, getPollInterval());
 }
 schedulePoll();
-(async () => { render(); if (S.token) { await sync(); render(); setupPush(); } })();
+
+// ---------- INVITE SYSTEM ----------
+function getInviteCode() {
+  const m = location.pathname.match(/^\/invite\/([a-f0-9]+)$/);
+  return m ? m[1] : null;
+}
+
+async function renderInvite(code, errMsg) {
+  try {
+    const info = await fetch(`/api/invite/${code}`).then(r => r.json());
+    if (info.error) { app.innerHTML = `<div class="join"><h1>Ohana Home</h1><div class="err">${esc(info.error)}</div><button onclick="location.href='/'">Go to Ohana Home</button></div>`; return; }
+    if (info.status !== 'waiting') { app.innerHTML = `<div class="join"><h1>Ohana Home</h1><div class="err">This game already started. Ask for a new invite!</div><button onclick="location.href='/'">Go to Ohana Home</button></div>`; return; }
+    const modeLabel = info.mode === 'random' ? ' 🎲 Random Random' : '';
+    app.innerHTML = `<div class="join">
+      <img src="/icon.svg" width="72" height="72" alt="">
+      <h1>Ohana Home</h1>
+      <div class="tag">You've been invited to play!</div>
+      <div class="invite-card">
+        <div class="big">${EM[info.type] || '🎲'}</div>
+        <h2>${esc(info.game_name)}${modeLabel}</h2>
+        <div class="sub">${esc(info.created_by)} ${info.created_by_avatar} wants to play with you!</div>
+        <div style="font-size:14px;color:rgba(246,231,200,.7)">${info.player_count}/${info.max_players} players</div>
+      </div>
+      ${errMsg ? `<div class="err">${esc(errMsg)}</div>` : ''}
+      <label>What should we call you?</label><input id="iname" placeholder="Your name" autocomplete="off" maxlength="24">
+      <label>Pick a 4-number PIN (so only you can be you)</label><input id="ipin" placeholder="1234" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password">
+      <label>Pick your face</label><div class="avs">${AV.map(a => `<button class="${a === S.av ? 'sel' : ''}" data-av="${a}">${a}</button>`).join('')}</div>
+      <button id="igo" style="margin-top:10px">Join the game!</button>
+      <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">Been here before? Use the same name and PIN.</p>
+    </div>`;
+    const nm = localStorage.getItem('ohana_name'); if (nm) $('#iname').value = nm;
+    app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; localStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
+    $('#igo').onclick = async () => {
+      try {
+        $('#igo').disabled = true;
+        const d = await api(`/api/invite/${code}/join`, { name: $('#iname').value, pin: $('#ipin').value, avatar: S.av });
+        S.token = d.token; S.me = d.me;
+        localStorage.setItem('ohana_token', d.token);
+        localStorage.setItem('ohana_name', d.me.name);
+        // Clear invite URL, go to main app
+        history.replaceState(null, '', '/');
+        await sync();
+        openGame(d.game_id);
+        setupPush();
+      } catch (e) { renderInvite(code, e.message); }
+    };
+  } catch(e) { app.innerHTML = `<div class="join"><h1>Ohana Home</h1><div class="err">Could not load invite. Try again.</div><button onclick="location.href='/'">Go to Ohana Home</button></div>`; }
+}
+
+function getInviteLink(inviteCode) {
+  return `${location.origin}/invite/${inviteCode}`;
+}
+
+async function shareInvite(inviteCode, gameName) {
+  const link = getInviteLink(inviteCode);
+  const text = `Come play ${gameName} with me on Ohana Home! Tap to join: ${link}`;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Ohana Home — Game Invite', text }); return; } catch(e) { /* user cancelled or not supported */ }
+  }
+  // Fallback: copy to clipboard
+  try { await navigator.clipboard.writeText(link); toast('Invite link copied!'); } catch(e) { prompt('Copy this invite link:', link); }
+}
+
+// On load: check for invite URL
+(async () => {
+  const invCode = getInviteCode();
+  if (invCode) {
+    // If already logged in, try to join directly
+    if (S.token) {
+      try {
+        const info = await fetch(`/api/invite/${invCode}`).then(r => r.json());
+        if (info.status === 'waiting') {
+          // Already a member — join the game directly
+          try {
+            const d = await api(`/api/invite/${invCode}/join`, { name: localStorage.getItem('ohana_name') || 'Friend', pin: '0000', avatar: S.av });
+            history.replaceState(null, '', '/');
+            await sync(); openGame(d.game_id); return;
+          } catch(e) { /* PIN mismatch or full — show invite screen */ }
+        }
+      } catch(e) {}
+    }
+    renderInvite(invCode);
+  } else {
+    render(); if (S.token) { await sync(); render(); setupPush(); }
+  }
+})();
 </script>
 </body>
 </html>
