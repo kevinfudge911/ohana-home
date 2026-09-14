@@ -65,10 +65,7 @@ nav.tabs button.on{color:var(--sun)}
 
 /* game screen */
 #game{position:fixed;inset:0;background:var(--ocean);display:flex;flex-direction:column;z-index:20;max-width:720px;margin:0 auto}
-#game .top{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--deep)}
-#game .top h2{flex:1;font-size:20px}
-#game .top button{padding:8px 12px;font-size:14px}
-#game .body{flex:1;overflow:auto;padding:10px 10px 20px;position:relative}
+#game .body{flex:1;overflow:auto;padding:10px 10px 100px;position:relative}
 .scores{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .sc{flex:1;min-width:120px;background:var(--deep);border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:2px solid transparent}
 .sc.turn{border-color:var(--sun)}
@@ -119,8 +116,8 @@ nav.tabs button.on{color:var(--sun)}
 .acts button{padding:10px 14px;font-size:15px}
 .bagn{text-align:center;font-size:13px;color:rgba(246,231,200,.6)}
 
-/* fixed bottom game chat + score panel */
-.game-bottom{position:fixed;bottom:0;left:0;right:0;background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:45vh;border-top:2px solid rgba(246,231,200,.15)}
+/* fixed top game chat + score panel */
+.game-bottom{position:fixed;top:0;left:0;right:0;background:var(--deep);z-index:80;display:flex;flex-direction:column;max-height:45vh;border-bottom:2px solid rgba(246,231,200,.15)}
 .game-bottom .gb-inner{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:45vh}
 .gb-scores{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0}
 .gb-scores .gbs{display:flex;align-items:center;gap:5px;flex:1;min-width:0}
@@ -145,10 +142,10 @@ nav.tabs button.on{color:var(--sun)}
 .gchat-input-row input{flex:1;padding:9px 12px;font-size:16px;border-radius:12px;min-width:0}
 .gchat-input-row .send-btn{padding:8px 12px;font-size:16px;min-width:36px}
 /* safe area for phones */
-.gb-safe{height:max(4px,env(safe-area-inset-bottom));flex-shrink:0}
+.gb-safe{height:max(4px,env(safe-area-inset-top));flex-shrink:0}
 /* hide tab bar when in game */
 body.in-game nav.tabs{display:none}
-body.in-game main{padding-bottom:260px}
+body.in-game main{padding-bottom:20px}
 
 /* tictac */
 .ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:10px auto;position:relative;z-index:1}
@@ -418,19 +415,18 @@ function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; documen
 
 function renderGame() {
   const g = S.gstate;
-  if (!g) { app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>Loading…</h2></div></div>`; $('#back').onclick = closeGame; return; }
+  if (!g) { app.innerHTML = `<div id="game"><div class="body" style="display:flex;align-items:center;justify-content:center;color:rgba(246,231,200,.6)">Loading…</div></div>`; return; }
   const meId = S.me.id;
-  const modeLabel = g.mode === 'random' ? ' 🎲' : '';
-  app.innerHTML = `<div id="game"><div class="top"><button class="soft" id="back">‹ Back</button><h2>${EM[g.type]} ${esc(g.name)}${modeLabel}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="leave">${g.status === 'waiting' ? (g.created_by === meId ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div><div class="body" id="gb"></div></div>`;
-  $('#back').onclick = closeGame;
-  const lv = $('#leave'); if (lv) lv.onclick = async () => { if (!confirm(g.status === 'waiting' ? 'Close this game?' : 'Give up this game?')) return; try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } };
+  app.innerHTML = `<div id="game"><div class="body" id="gb"></div></div>`;
   const b = $('#gb');
   if (g.status === 'waiting') {
-    b.innerHTML = `<div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
+    b.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:6px 0 8px"><button class="soft" id="wback" style="padding:8px 12px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:20px;margin:0">${EM[g.type]} ${esc(g.name)}</h2>${g.in_game ? `<button class="ghost" id="wleave" style="padding:8px 12px;font-size:14px">${g.created_by === meId ? 'Cancel' : 'Leave'}</button>` : ''}</div><div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
       <p style="text-align:center;color:rgba(246,231,200,.75)">Everyone in the family can see this game on their Games tab and tap Join. It starts by itself when the seats are full.</p>
       ${g.invite_code && g.in_game ? `<div style="text-align:center;margin:12px 0"><button class="soft" id="inviteb" style="font-size:15px">📨 Send Invite Link</button></div>` : ''}
       ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
       ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb">Start now with ${g.players.length}</button></div>` : ''}`;
+    const wb = $('#wback'); if (wb) wb.onclick = () => closeGame();
+    const wl = $('#wleave'); if (wl) wl.onclick = async () => { if (confirm('Leave this game?')) { try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } } };
     const ib = $('#inviteb'); if (ib) ib.onclick = () => shareInvite(g.invite_code, g.name);
     const jb = $('#joinb'); if (jb) jb.onclick = async () => { try { await api(`/api/game/${g.id}/join`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     const sb = $('#startb'); if (sb) sb.onclick = async () => { try { await api(`/api/game/${g.id}/start`, {}); await loadGame(); } catch (e) { toast(e.message); } };
@@ -721,12 +717,12 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `${g.status === 'playing' && rack.length ? `${previewHtml}
-    <div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+  bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
+    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
+    ${previewHtml}
+    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
       `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
-    <div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb">${cells.join('')}</div></div>
-    <div class="bagn">${st.bag} tiles in the bag${st.starFound ? ' · Ohana Star found' : ' · the Ohana Star is hidden (+20)'} · ${(st.surprises||[]).filter(i => !st.foundSurprises[i] && !st.board[i]).length} surprise squares left${st.mode === 'random' ? ' · 🎲 bonuses shuffle each turn!' : ''}</div>
     `;
   const rerender = () => renderWords(st, g, myTurn);
 
@@ -804,7 +800,13 @@ function renderGameChat(st, g) {
   const oldInput = bp.querySelector('#gchat-in');
   const savedVal = oldInput ? oldInput.value : '';
 
+  // Nav row with Back + game title + Give up
+  const modeLabel = g.mode === 'random' ? ' 🎲' : '';
+  const meId2 = S.me.id;
+  const navHtml = `<div style="display:flex;align-items:center;gap:8px;padding:max(6px,env(safe-area-inset-top)) 12px 2px;flex-shrink:0"><button class="soft" id="gb-back" style="padding:6px 10px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:17px;font-family:Fredoka;font-weight:600;margin:0">${esc(g.name)}${modeLabel}</h2>${g.status !== 'finished' && g.in_game ? `<button class="ghost" id="gb-leave" style="padding:6px 10px;font-size:13px">${g.status === 'waiting' ? (g.created_by === meId2 ? 'Cancel' : 'Leave') : 'Give up'}</button>` : ''}</div>`;
+
   bp.innerHTML = `<div class="gb-inner">
+    ${navHtml}
     <div class="gb-scores">${scoresHtml}</div>
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
@@ -837,6 +839,10 @@ function renderGameChat(st, g) {
   const sendBtn = $('#gchat-send'); if (sendBtn) sendBtn.onclick = sendText;
   const inp = $('#gchat-in');
   if (inp) inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); sendText(); } };
+
+  // Wire up nav buttons in the top panel
+  const gbBack = $('#gb-back'); if (gbBack) gbBack.onclick = closeGame;
+  const gbLeave = $('#gb-leave'); if (gbLeave) gbLeave.onclick = async () => { if (!confirm(g.status === 'waiting' ? 'Close this game?' : 'Give up this game?')) return; try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } };
 }
 
 async function sendGameChat(gameId, text) {
