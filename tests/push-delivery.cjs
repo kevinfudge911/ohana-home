@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),crypto=require('crypto');
+let src=fs.readFileSync('worker.js','utf8').replace(/^import (\w+) from .*;$/gm,'const $1=null;').replace(/^import .*;$/gm,'').replace(/export\s*\{[\s\S]*?\};\s*$/,'');
+let request;const c=vm.createContext({console,URL,Response,TextEncoder,Uint8Array,DataView,crypto:crypto.webcrypto,atob,btoa,fetch:async(url,opts)=>{request=opts;return {status:201}}});vm.runInContext(fs.readFileSync('mahjong.js','utf8').replaceAll('export function','function')+'\n'+src,c);
+(async()=>{const ua=crypto.createECDH('prime256v1');ua.generateKeys();const auth=crypto.randomBytes(16),payload={title:'Your turn!',body:'Pe-paw, your table is ready.'};const sub={endpoint:'https://fcm.googleapis.com/example',p256dh:ua.getPublicKey().toString('base64url'),auth:auth.toString('base64url')};
+assert.equal(await c.sendPush(sub,payload),201);assert.equal(request.headers['Content-Encoding'],'aes128gcm');assert.equal(request.headers.Urgency,'high');assert(request.headers.Authorization.startsWith('vapid t='));
+const data=Buffer.from(request.body),salt=data.subarray(0,16),server=data.subarray(21,86);assert.equal(data.readUInt32BE(16),4096);assert.equal(data[20],65);
+const hkdf=(ikm,salt,info,len)=>Buffer.from(crypto.hkdfSync('sha256',ikm,salt,info,len));
+const ikm=hkdf(ua.computeSecret(server),auth,Buffer.concat([Buffer.from('WebPush: info\0'),ua.getPublicKey(),server]),32);
+const key=hkdf(ikm,salt,Buffer.from('Content-Encoding: aes128gcm\0'),16),nonce=hkdf(ikm,salt,Buffer.from('Content-Encoding: nonce\0'),12);
+const dec=crypto.createDecipheriv('aes-128-gcm',key,nonce);dec.setAuthTag(data.subarray(-16));const plain=Buffer.concat([dec.update(data.subarray(86,-16)),dec.final()]);assert.equal(plain.at(-1),2);assert.deepEqual(JSON.parse(plain.subarray(0,-1)),payload);
+const jwt=request.headers.Authorization.match(/t=([^,]+)/)[1].split('.'),publicKey=request.headers.Authorization.split('k=')[1];const pub=Buffer.from(publicKey,'base64url');assert(crypto.verify('sha256',Buffer.from(jwt[0]+'.'+jwt[1]),{key:crypto.createPublicKey({key:{kty:'EC',crv:'P-256',x:pub.subarray(1,33).toString('base64url'),y:pub.subarray(33).toString('base64url')},format:'jwk'}),dsaEncoding:'ieee-p1363'},Buffer.from(jwt[2],'base64url')));
+console.log('PASS: RFC8291 payload decrypted independently, final padding/header correct, VAPID signature verified, modern auth and urgent delivery.');
+})().catch(e=>{console.error(e);process.exitCode=1});

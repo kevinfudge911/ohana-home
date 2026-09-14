@@ -745,43 +745,22 @@ async function encryptPayload(p256dhB64, authB64, payloadText) {
   // Derive shared secret
   const sharedSecret = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: clientKey }, ephemeral.privateKey, 256));
 
-  // HKDF for auth secret
-  const authInfo = new TextEncoder().encode('Content-Encoding: auth\0');
-  const prk = await hkdfExtract(clientAuth, sharedSecret);
-
-  const ikm = await hkdfExpand(prk, authInfo, 32);
-
-  // Context for key and nonce derivation
-  const keyLabel = new TextEncoder().encode('Content-Encoding: aesgcm\0');
-  const nonceLabel = new TextEncoder().encode('Content-Encoding: nonce\0');
-
-  // Build context: "P-256\0" + len(client) + client + len(server) + server
-  const context = new Uint8Array([
-    ...new TextEncoder().encode('P-256\0'),
-    0, 65, ...clientPublicKey,
-    0, 65, ...ephemeralPublicRaw
-  ]);
-
-  const keyInfo = new Uint8Array([...keyLabel, ...context]);
-  const nonceInfo = new Uint8Array([...nonceLabel, ...context]);
-
-  // Salt
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-
-  const prk2 = await hkdfExtract(salt, ikm);
-  const contentKey = await hkdfExpand(prk2, keyInfo, 16);
-  const nonce = await hkdfExpand(prk2, nonceInfo, 12);
-
-  // Pad payload (2 bytes padding length = 0)
-  const padded = new Uint8Array(2 + payload.length);
-  padded[0] = 0; padded[1] = 0;
-  padded.set(payload, 2);
+  // RFC 8291: bind both public keys to the authentication secret.
+  const enc=new TextEncoder();
+  const prk=await hkdfExtract(clientAuth,sharedSecret);
+  const ikm=await hkdfExpand(prk,new Uint8Array([...enc.encode('WebPush: info\0'),...clientPublicKey,...ephemeralPublicRaw]),32);
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const prk2=await hkdfExtract(salt,ikm);
+  const contentKey=await hkdfExpand(prk2,enc.encode('Content-Encoding: aes128gcm\0'),16);
+  const nonce=await hkdfExpand(prk2,enc.encode('Content-Encoding: nonce\0'),12);
+  const padded=new Uint8Array([...payload,2]);
 
   // Encrypt with AES-128-GCM
   const aesKey = await crypto.subtle.importKey('raw', contentKey, 'AES-GCM', false, ['encrypt']);
   const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, aesKey, padded));
 
-  return { encrypted, salt, ephemeralPublicRaw };
+  const header=new Uint8Array(86);header.set(salt);new DataView(header.buffer).setUint32(16,4096);header[20]=65;header.set(ephemeralPublicRaw,21);
+  return { encrypted:new Uint8Array([...header,...encrypted]), salt, ephemeralPublicRaw };
 }
 __name(encryptPayload, "encryptPayload");
 
@@ -813,10 +792,9 @@ async function sendPush(subscription, payloadObj) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aesgcm',
-        'Encryption': `salt=${b64urlEncode(salt)}`,
-        'Crypto-Key': `dh=${b64urlEncode(ephemeralPublicRaw)};p256ecdsa=${VAPID_PUBLIC_KEY}`,
-        'Authorization': `WebPush ${jwt}`,
+        'Content-Encoding': 'aes128gcm',
+        'Authorization': `vapid t=${jwt}, k=${VAPID_PUBLIC_KEY}`,
+        'Urgency':'high',
         'TTL': '86400',
       },
       body: encrypted,
@@ -836,7 +814,9 @@ async function notifyMembers(db, memberIds, payload) {
   const subs = (await db.prepare(`SELECT * FROM push_subscriptions WHERE member_id IN (${placeholders})`).bind(...memberIds).all()).results;
   const toDelete = [];
   for (const sub of subs) {
-    const status = await sendPush(sub, payload);
+    let status = await sendPush(sub, payload);
+    if(status===0||status===429||status>=500)status=await sendPush(sub,payload);
+    if(status<200||status>=300)console.warn("Push delivery failed",sub.member_id,status);
     if (status === 404 || status === 410) {
       toDelete.push(sub.id);
     }
@@ -1079,10 +1059,20 @@ async function api2(req, env, url) {
     const p256dh = String(body.p256dh || "");
     const authKey = String(body.auth || "");
     if (!endpoint || !p256dh || !authKey) throw new Error("Missing push subscription data.");
-    // Upsert: delete old then insert
-    await db.prepare("DELETE FROM push_subscriptions WHERE member_id=? AND endpoint=?").bind(me.id, endpoint).run();
-    await db.prepare("INSERT INTO push_subscriptions(member_id,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?)").bind(me.id, endpoint, p256dh, authKey, now()).run();
+    const pushURL=new URL(endpoint);
+    if(pushURL.protocol!=="https:"||!(/^(fcm\.googleapis\.com|(?:[a-z0-9-]+\.)*push\.services\.mozilla\.com|(?:[a-z0-9-]+\.)*notify\.windows\.com|web\.push\.apple\.com)$/.test(pushURL.hostname)))throw new Error("Unsupported notification service.");
+    if(b64urlDecode(p256dh).length!==65||b64urlDecode(authKey).length!==16)throw new Error("Invalid notification keys. Try enabling again.");
+    // Keep a shared browser endpoint attached only to its current account.
+    await db.batch([db.prepare("DELETE FROM push_subscriptions WHERE endpoint=?").bind(endpoint),db.prepare("INSERT INTO push_subscriptions(member_id,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?)").bind(me.id,endpoint,p256dh,authKey,now())]);
     return json({ ok: true });
+  }
+  if(p==='/api/push/test'&&req.method==='POST'){
+    const sub=await db.prepare("SELECT * FROM push_subscriptions WHERE member_id=? AND endpoint=?").bind(me.id,String(body.endpoint||'')).first();
+    if(!sub)return err("This device is not connected yet. Tap Enable notifications.",400);
+    const status=await sendPush(sub,{type:'test',title:'Ohana notifications are ready',body:'Your turn alerts will arrive here—even when Ohana Home is closed.',tag:'ohana-test'});
+    if(status===404||status===410)await db.prepare("DELETE FROM push_subscriptions WHERE id=?").bind(sub.id).run();
+    if(status<200||status>=300)return err(status===404||status===410?'This device connection expired. Tap Enable notifications again.':'The notification service did not accept the test. Please try again.',502);
+    return json({ok:true,accepted:true});
   }
   if (p === "/api/push/unsubscribe" && req.method === "POST") {
     const endpoint = String(body.endpoint || "");
@@ -1314,7 +1304,7 @@ __name(api2, "api2");
 var ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0E3B47"/><path d="M64 24c-9 0-16 6-19 13-8-2-17 3-17 13 0 8 5 12 10 14-2 5-1 12 5 16 5 3 11 2 15-1 4 3 10 4 15 1 6-4 7-11 5-16 5-2 10-6 10-14 0-10-9-15-17-13-3-7-10-13-19-13z" fill="#FF8C69"/><circle cx="64" cy="60" r="12" fill="#FFD166"/><path d="M40 104c8-10 40-10 48 0" stroke="#F6E7C8" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`;
 var SW = `
 self.addEventListener('install', e => self.skipWaiting());
-self.addEventListener('activate', e => self.clients.claim());
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', function(event) {
   let data = { title: 'Ohana Home', body: 'Something happened!', tag: 'ohana' };
@@ -1326,7 +1316,10 @@ self.addEventListener('push', function(event) {
     badge: '/icon.svg',
     tag: data.tag || 'ohana',
     renotify: true,
-    data: { type: data.type || 'general' }
+    data: { type: data.type || 'general' },
+    silent:false,
+    requireInteraction:data.type==='turn',
+    vibrate:[200,100,200]
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
