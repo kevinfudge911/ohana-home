@@ -287,14 +287,18 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .wb>.c{min-width:0;min-height:0;width:100%;height:100%}
 #game .body{width:100%;min-width:0}
 .game-head{min-width:0;flex-wrap:wrap}.game-head h2{min-width:0}
-/* Floating rack: stays at bottom of screen so letters are always visible */
-#board .rack{position:sticky;bottom:0;z-index:50;backdrop-filter:blur(6px)}
-#board .acts{position:sticky;bottom:0;z-index:49;backdrop-filter:blur(6px)}
+/* Floating tray: rack + actions pinned at bottom of game screen */
+.game-tray{position:fixed;bottom:0;left:0;right:0;z-index:55;max-width:1000px;margin:0 auto;padding:0 8px env(safe-area-inset-bottom,0);background:linear-gradient(#0d2f35f0,#0b2930fa);border-top:1px solid #e2c59233;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.game-tray .rack{margin:8px auto 4px}
+.game-tray .acts{margin:2px auto 8px}
+/* Spacer so board content isn't hidden behind tray */
+.tray-spacer{height:140px}
 /* Prevent tiles from disappearing on mobile zoom */
 .wb-plane>.c .t{will-change:transform;transform:translateZ(0)}
 .rack .rt{will-change:transform;transform:translateZ(0)}
 /* Fix drag on mobile: prevent browser touch interception */
 .wb-plane{touch-action:none}
+.game-tray .rack{touch-action:none}
 
 .room-current{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 10px;color:#f9dca2;font-size:13px}.room-current button{font-size:13px;padding:7px 12px}.room-welcome{display:flex;align-items:center;gap:15px;padding:20px 0}.room-welcome>span{font-size:48px}.room-welcome h2{font:26px Georgia;color:#ffe5ac}.room-welcome p{margin:5px 0;color:#baded2}.room-help{font-size:14px;color:#d3e5d9}.room-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}.room-card{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:18px;border:1px solid #76acac80;border-radius:22px;background:radial-gradient(ellipse at top,#36746b88,transparent 75%),linear-gradient(135deg,#173d49,#192c48);box-shadow:inset 0 1px #fff2,0 5px 0 #071f2a}.room-card.current{border-color:#f0ce86}.room-symbol{font-size:36px}.room-card h3{font:22px Georgia;color:#ffe2a2}.room-card small,.room-create small,.room-game small{display:block;font-size:12px;color:#c8dcd5}.room-card button{grid-column:1/-1;font-size:15px;padding:10px}.room-card details{grid-column:1/-1;font-size:12px}.room-card details button{font-size:12px;margin-top:8px}.room-create{display:grid;gap:10px;padding:20px;margin:25px 0;border:1px solid #d6b97866;border-radius:20px;background:#183b43}.room-create h3{color:#ffe1a2}.room-create label{font-size:14px}.room-create button{font-size:16px;background:linear-gradient(#ffe6b1,#e7b174)}.room-game{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px;border-bottom:1px solid #ffffff20}.room-game button{font-size:13px;padding:8px 13px}
 .notification-control{font:12px Nunito,sans-serif;color:#f6dfad;max-width:100%;position:relative}.notification-control summary{cursor:pointer;list-style:none;border:1px solid #91b8a866;border-radius:12px;padding:6px 9px;white-space:nowrap;background:#21464c}.notification-control summary::-webkit-details-marker{display:none}.notification-control [data-push-indicator]{font-size:10px;color:#b7e5cf}.notification-control[open]{flex-basis:100%}.notification-options{padding:10px;border:1px solid #82afa866;border-radius:12px;background:#123440;margin-top:6px}.notification-options p{margin:0 0 8px;font-size:13px}.notification-options>div{display:flex;flex-wrap:wrap;gap:6px}.notification-options button{font-size:12px!important;padding:7px 9px!important}.notification-options small{display:block;margin-top:8px;color:#c3d9cf}.room-current{flex-wrap:wrap}.room-current>span{margin-right:auto}.game-nook{margin:14px 0 18px;padding:15px;border:1px solid #d2b17699;border-radius:24px;background:radial-gradient(ellipse at 100% 0,#d3a65026,transparent 58%),linear-gradient(145deg,#234d48,#132f39);box-shadow:inset 0 1px #ffe4a333,0 5px 0 #092730,0 12px 25px #001a2033}.nook-heading{display:flex;align-items:center;gap:8px;position:relative;margin-bottom:4px}.nook-heading img{width:64px;height:82px;object-fit:contain;filter:drop-shadow(0 0 8px #f7ca7044)}.nook-heading h2{font:26px Georgia;color:#ffe8b4}.nook-heading small{font-size:8px;letter-spacing:1.3px;color:#d3c79f}.nook-heading p{font:16px Caveat,cursive;margin:3px 0;color:#cce0cf}.nook-lantern{margin-left:auto;color:#ffe3a0;text-shadow:0 0 12px #ffce72;font-size:26px}.nook-count{font:500 12px Fredoka;color:#ffe1a2;margin:6px 0 12px;padding:7px 10px;border-radius:10px;background:#081f292e}.game-nook .gcard{margin:9px 0;padding:12px 10px;border-radius:16px;background:linear-gradient(120deg,#345d5355,#122e3b);border:1px solid #8db7a44d;gap:9px}.game-nook .gcard.turn{border-color:#edcf89;background:linear-gradient(120deg,#76694344,#234944)}.game-nook .gcard .em{font-size:30px}.game-nook .gcard .t>b{font-size:17px}.game-nook .gcard button{font-size:12px;padding:9px 10px;max-width:85px;line-height:1.2;background:linear-gradient(#ffe1a9,#dba86b);color:#214338}.nook-room{display:block;font:11px Nunito!important;color:#caddcc!important;margin:3px 0}.game-nook .who{flex-wrap:wrap;gap:4px}.game-nook .who small{font:10px Nunito;color:#c5dad2;flex-basis:100%}.nook-foot,.nook-empty{font:12px Nunito;color:#c6d8cd;line-height:1.5;margin:13px 4px 0}.room-conversation{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:13px;border-radius:16px;background:#183c43;border:1px solid #8baaa65c;margin-bottom:18px}.room-conversation small{display:block;font-size:9px;letter-spacing:1px;color:#c5d5c9}.room-conversation b{font:19px Georgia;color:#ffe3b0}.room-conversation span{display:block;font-size:11px;color:#bad2ca}.room-conversation button{flex:none;font-size:12px;padding:9px}.nook-heading>div{min-width:0}
@@ -755,7 +759,7 @@ async function loadGame() {
     }
   } catch (e) { toast(e.message); }
 }
-function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); sync().then(render); render(); }
+function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); const tr = document.querySelector('.game-tray'); if (tr) tr.remove(); sync().then(render); render(); }
 
 function renderGame() {
   const g = S.gstate;
@@ -1042,7 +1046,9 @@ function placeDraftTile(st, rack, rackIdx, i) {
 function initDragDrop(st, g, myTurn, rack, rerender) {
   if(!myTurn||S.swapMode)return;
   const bd=$('#board');
-  const sources=[...bd.querySelectorAll('.rt:not(.used)'),...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
+  const trayEl=document.querySelector('.game-tray');
+  const rackTiles=trayEl?[...trayEl.querySelectorAll('.rt:not(.used)')]:[...bd.querySelectorAll('.rt:not(.used)')];
+  const sources=[...rackTiles,...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
   sources.forEach(el=>{
     const staged=el.matches('.c')?S.placed.find(p=>p.i===+el.dataset.i):null;
     const k=staged?staged.rackIdx:+el.dataset.r;
@@ -1072,7 +1078,7 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
       if(!cancelled){
         const target=document.elementFromPoint(e.clientX,e.clientY);const cell=target?.closest('.c');
         if(cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i))AudioSys.tileDrop();
-        else if(staged&&target?.closest('.rack')&&bd.contains(target)){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
+        else if(staged&&target?.closest('.rack')){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
       }
       S.sel=null;rerender();
     };
@@ -1139,19 +1145,28 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
+  const hasRack = g.status === 'playing' && rack.length;
+  const rackHtml = hasRack ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
+      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : '';
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
     <div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div>
     ${previewHtml}
-    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
-    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
-      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
+    ${hasRack ? '<div class="tray-spacer"></div>' : ''}
     `;
+  // Float the rack+acts in a fixed tray at the bottom of the screen
+  let tray = document.querySelector('.game-tray');
+  if (hasRack) {
+    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.getElementById('game').appendChild(tray); }
+    tray.innerHTML = rackHtml;
+  } else if (tray) { tray.remove(); }
   bd.insertAdjacentHTML("beforeend",renderPlayBreakdown(st));
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
   const rerender = () => renderWords(st, g, myTurn);
 
   // Tap-to-select (still works alongside drag)
-  bd.querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
+  const trayEl = document.querySelector('.game-tray');
+  (trayEl||bd).querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
     const k = +btn.dataset.r; if (usedIdx.has(k)) return;
     if (S.swapMode) { S.swapSel = S.swapSel.includes(k) ? S.swapSel.filter(x => x !== k) : [...S.swapSel, k]; return rerender(); }
     S.sel = S.sel === k ? null : k; rerender();
