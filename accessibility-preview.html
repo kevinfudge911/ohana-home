@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script>const previewStorage={getItem:()=>null,setItem:()=>{},removeItem:()=>{}};window.fetch=async()=>{throw Error("Fictional preview: network actions are disabled")};</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ohana Home</title>
@@ -445,7 +445,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 #access-help{color:#fff1d1;background:#113f47;border:2px solid #e2ba70;border-radius:20px;max-width:560px;width:calc(100% - 36px);max-height:85dvh;padding:20px;overflow:auto;line-height:1.6}
 #access-help::backdrop{background:#001c28cc}#access-help label{display:block;margin:12px 0}#access-help input{width:22px;height:22px;margin-right:10px}
 .less-motion *,.less-motion *::before,.less-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-</style>
+.preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{position:relative;height:calc(100dvh - 60px);max-width:700px;margin:auto} </style>
 </head>
 <body>
 <div id="app"></div>
@@ -489,7 +489,7 @@ const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"><
 const EM = { mahjong:"🌺", words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴', handfoot:'🂡' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
 const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
-let S = { room: Number(localStorage.getItem('ohana_room'))||0, roomEpoch:0, token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
+let S = { room: Number(previewStorage.getItem('ohana_room'))||0, roomEpoch:0, token: previewStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: previewStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
 const app = $('#app');
 
 async function api(path, body, method, room=S.room) {
@@ -507,7 +507,7 @@ function showSessionReconnect(){
  bar.innerHTML='<span>Your seat is saved. Let’s reconnect.</span><button class="soft" data-retry-session>Retry</button><button class="ghost" data-signin-session>Sign in another way</button>';
  document.body.append(bar);
  bar.querySelector('[data-retry-session]').onclick=async()=>{try{await sync();render();bar.remove();}catch(e){toast('Still reconnecting. Your saved sign-in has been kept.');}};
- bar.querySelector('[data-signin-session]').onclick=()=>{S.token=null;S.me=null;S.sync=null;S.game=null;localStorage.removeItem('ohana_token');bar.remove();render();};
+ bar.querySelector('[data-signin-session]').onclick=()=>{S.token=null;S.me=null;S.sync=null;S.game=null;previewStorage.removeItem('ohana_token');bar.remove();render();};
 }
 function roomTheme(name,id){return /flower|rose|bloom/i.test(name||'')?'flower':id===1?'home':'private';}
 function roomIcon(name,id){return roomTheme(name,id)==='flower'?'🌺':id===1?'🏡':'🌙';}
@@ -579,14 +579,14 @@ function renderJoin(errMsg) {
     <button id="jgo" style="margin-top:10px">Come on in</button>
     <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">First time? Just make up a name and PIN. Coming back? Use the same ones.</p>
   </div>`;
-  const code = localStorage.getItem('ohana_code'); if (code) $('#jcode').value = code;
-  const nm = localStorage.getItem('ohana_name'); if (nm) $('#jname').value = nm;
-  app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; localStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
+  const code = previewStorage.getItem('ohana_code'); if (code) $('#jcode').value = code;
+  const nm = previewStorage.getItem('ohana_name'); if (nm) $('#jname').value = nm;
+  app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; previewStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
   $('#jgo').onclick = async () => {
     try {
       $('#jgo').disabled = true;
       const d = await api('/api/join', { code: $('#jcode').value, name: $('#jname').value, pin: $('#jpin').value, avatar: S.av });
-      S.token = d.token; S.me = d.me; S.room=d.room_id||0;localStorage.setItem('ohana_room',S.room); localStorage.setItem('ohana_token', d.token); localStorage.setItem('ohana_code', $('#jcode').value); localStorage.setItem('ohana_name', d.me.name);
+      S.token = d.token; S.me = d.me; S.room=d.room_id||0;previewStorage.setItem('ohana_room',S.room); previewStorage.setItem('ohana_token', d.token); previewStorage.setItem('ohana_code', $('#jcode').value); previewStorage.setItem('ohana_name', d.me.name);
       await sync(); render();
       // After joining, try to set up push
       setupPush();
@@ -617,7 +617,7 @@ function render() {
 
 
 async function enterRoom(id,tab='games'){
-  S.roomEpoch++;S.room=Number(id);localStorage.setItem('ohana_room',S.room);
+  S.roomEpoch++;S.room=Number(id);previewStorage.setItem('ohana_room',S.room);
   S.game=null;S.gstate=null;S.msgs=[];S.lastMsg=0;S.unread=0;S.sig=null;S.sync=null;S.tab=tab;
   app.innerHTML='<div class="join"><h2>Opening your room…</h2></div>';
   await sync();render();
@@ -648,7 +648,7 @@ async function renderRoomInvite(code,error=''){
   if(!response.ok){app.innerHTML='<div class="join"><h1>Ohana Home</h1><p>This invitation is no longer available.</p><a href="/">Go home</a></div>';return;}
   app.innerHTML=`<div class="join"><ohana-scene></ohana-scene><h1>${esc(info.name)}</h1><div class="tag">Your own little corner of Ohana.</div><p>Private games. Familiar faces. A conversation just for this room.</p>${error?`<div class="err">${esc(error)}</div>`:''}${!S.token?`<label>Your name</label><input id="room-guest-name" maxlength="24" autocomplete="username"><label>Your four-number PIN</label><input id="room-guest-pin" inputmode="numeric" type="password" maxlength="4" autocomplete="current-password"><p>Returning? Use your same name and PIN. New here? Pick your own.</p><label>Choose your buddy</label>${buddyPicker()}`:'<p>Join with your current Ohana profile.</p>'}<button id="room-join">Come on in</button><a href="/">Back to Ohana Home</a></div>`;
   app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;app.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
-  $('#room-join').onclick=async()=>{try{$('#room-join').disabled=true;const d=await api('/api/room-invite/'+code+'/join',{name:$('#room-guest-name')?.value,pin:$('#room-guest-pin')?.value,avatar:S.av});S.token=d.token;S.me=d.me;localStorage.setItem('ohana_token',d.token);localStorage.setItem('ohana_name',d.me.name);history.replaceState(null,'','/');await enterRoom(d.room_id);setupPush();}catch(e){await renderRoomInvite(code,e.message);}};
+  $('#room-join').onclick=async()=>{try{$('#room-join').disabled=true;const d=await api('/api/room-invite/'+code+'/join',{name:$('#room-guest-name')?.value,pin:$('#room-guest-pin')?.value,avatar:S.av});S.token=d.token;S.me=d.me;previewStorage.setItem('ohana_token',d.token);previewStorage.setItem('ohana_name',d.me.name);history.replaceState(null,'','/');await enterRoom(d.room_id);setupPush();}catch(e){await renderRoomInvite(code,e.message);}};
 }
 
 // ---------- GAMES LIST ----------
@@ -820,7 +820,7 @@ function renderGame() {
 // ----- Audio & Celebration System -----
 const AudioSys = {
   ctx: null,
-  muted: localStorage.getItem("ohana_muted")==="true",
+  muted: previewStorage.getItem("ohana_muted")==="true",
   getCtx() { if(this.muted)return null;if (!this.ctx) try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} return this.ctx; },
   beep(freq, dur, vol = .3) {
     if(this.muted)return;const c = this.getCtx(); if (!c) return;
@@ -853,12 +853,12 @@ let dialogueMemory=null;
 function characterDialogue(event,n=0,detail=''){
   // One persistent sequence for every event, room and character on this device.
   const key='ohana_dialogue_v2';let saved;
-  try{saved=JSON.parse(localStorage.getItem(key)||'null');}catch{}
+  try{saved=JSON.parse(previewStorage.getItem(key)||'null');}catch{}
   const endings=DIALOGUE_FRESH_END.length,size=20*20*endings;
   let state=saved&&Number.isSafeInteger(saved.count)&&saved.count>=0?saved:dialogueMemory;
   if(!state)state={count:Math.floor(Math.random()*size)};
   const code=state.count%size,e=code%endings,block=Math.floor(code/endings),a=(block%20+e)%20,b=(Math.floor(block/20)+block%20+e)%20;
-  state={count:state.count+1};dialogueMemory=state;try{localStorage.setItem(key,JSON.stringify(state));}catch{}
+  state={count:state.count+1};dialogueMemory=state;try{previewStorage.setItem(key,JSON.stringify(state));}catch{}
   const welcome=DIALOGUE_WELCOME[a],lead=DIALOGUE_START[a],points=DIALOGUE_POINTS[b].replaceAll('{n}',String(n)),end=DIALOGUE_FRESH_END[e];
   if(event==='match')return `${lead} ${detail?detail+'. ':''}${points} ${end}`;
   if(event==='score')return n>0?`${lead} ${points} ${end}`:`That play earned ${n} points. ${detail||'Let’s see what the next turn brings.'} ${end}`;
@@ -917,7 +917,7 @@ function showCharacterMoment(text,points=null,a=speakingCharacter()){
 }
 function announceCharacter(event,points=null,detail=''){showCharacterMoment(characterDialogue(event,points||0,detail),points);}
 function setGameMuted(muted){
-  AudioSys.muted=muted;localStorage.setItem('ohana_muted',String(muted));
+  AudioSys.muted=muted;previewStorage.setItem('ohana_muted',String(muted));
   if(muted){stopCharacterSpeech(false);AudioSys.ctx?.suspend();const box=document.querySelector('.character-pop');if(box)characterSpeechTimer=setTimeout(()=>box.remove(),7000);}else AudioSys.ctx?.resume();
   document.querySelectorAll('.voice-toggle').forEach(b=>{b.textContent=muted?'🔇 Sound off':'🔊 Sound on';b.setAttribute('aria-label',muted?'Unmute game sounds and voices':'Mute game sounds and voices');b.setAttribute('aria-pressed',String(muted));});
 }
@@ -1264,7 +1264,7 @@ function openEmojiPicker(inputId){
  const input=document.getElementById(inputId);if(!input)return;
  document.querySelector('.emoji-picker')?.close();
  const context={game:S.game,room:S.room,tab:S.tab,start:input.selectionStart??input.value.length,end:input.selectionEnd??input.value.length};
- let recent=[];try{recent=JSON.parse(localStorage.getItem('ohana_recent_emojis')||'[]');if(!Array.isArray(recent))recent=[];}catch{}
+ let recent=[];try{recent=JSON.parse(previewStorage.getItem('ohana_recent_emojis')||'[]');if(!Array.isArray(recent))recent=[];}catch{}
  const allowed=new Set(Object.values(EMOJI_GROUPS).flatMap(s=>s.split(' ')));recent=recent.filter(e=>allowed.has(e)).slice(0,24);
  const dialog=document.createElement('dialog');dialog.className='emoji-picker';dialog.setAttribute('aria-label','Choose an emoji');
  dialog.innerHTML=`<div class="emoji-heading"><img src="/buddy-kiko.webp" alt=""><div><h2>A little expression</h2><p>Pick one to add to your message.</p></div><button type="button" data-emoji-close aria-label="Close emoji picker">×</button></div><div class="emoji-categories" role="group" aria-label="Emoji categories"></div><div class="emoji-grid" role="group" aria-label="Emoji choices"></div>`;
@@ -1275,7 +1275,7 @@ function openEmojiPicker(inputId){
    const max=target.maxLength>0?target.maxLength:2000;const start=Math.min(context.start,target.value.length),end=Math.min(context.end,target.value.length);
    if(target.value.length-(end-start)+emoji.length>max){toast('Your message is full. Send it or make a little room.');return;}
    target.setRangeText(emoji,start,end,'end');target.dispatchEvent(new Event('input',{bubbles:true}));
-   recent=[emoji,...recent.filter(x=>x!==emoji)].slice(0,24);try{localStorage.setItem('ohana_recent_emojis',JSON.stringify(recent));}catch{}
+   recent=[emoji,...recent.filter(x=>x!==emoji)].slice(0,24);try{previewStorage.setItem('ohana_recent_emojis',JSON.stringify(recent));}catch{}
    dialog.close();target.focus();
  };grid.append(b);}};
  for(const name of [...(recent.length?['Recent']:[]),...Object.keys(EMOJI_GROUPS)]){const b=document.createElement('button');b.type='button';b.textContent=name;b.onclick=()=>show(name);categories.append(b);}
@@ -1492,7 +1492,7 @@ function renderSettings() {
   $('#profile-form').onsubmit=async e=>{
     e.preventDefault();const form=e.currentTarget,b=form.querySelector('#save-profile'),status=form.querySelector('#profile-status');b.disabled=true;status.textContent='Saving…';
     const payload={name:form.querySelector('#profile-name').value.trim(),about:form.querySelector('#profile-about').value.trim(),avatar:S.av};
-    try {const d=await api('/api/profile',payload);Object.assign(S.me,{name:d.name,avatar:d.avatar,about:d.about});localStorage.setItem('ohana_name',d.name);localStorage.setItem('ohana_av',d.avatar);status.textContent='Saved. Your Ohana profile is up to date.';await sync();}
+    try {const d=await api('/api/profile',payload);Object.assign(S.me,{name:d.name,avatar:d.avatar,about:d.about});previewStorage.setItem('ohana_name',d.name);previewStorage.setItem('ohana_av',d.avatar);status.textContent='Saved. Your Ohana profile is up to date.';await sync();}
     catch(err){status.textContent=err.message;}finally{b.disabled=false;}
   };
 }
@@ -1512,7 +1512,7 @@ async function renderFamily() {
   m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
   $('#my-settings').onclick=()=>{S.tab='settings';render();};
   $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
-  $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;localStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
+  $('#out').onclick = () => { previewStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;previewStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
   $('#install').onclick = () => { if (S.installPrompt) S.installPrompt.prompt(); else toast('Use your browser menu: Add to Home Screen'); };
   const ntog = $('#ntoggle');
   if (ntog) ntog.onclick = async () => {
@@ -1526,7 +1526,7 @@ async function renderFamily() {
         <label style="font-size:13px">Family name — shows under the title</label><div class="row"><input id="fn" value="${esc(info.family_name)}"><button id="fns">Save</button></div>
         <h3 style="margin-top:14px">Members</h3>${sy.members.filter(x => !x.is_admin).map(x => `<div class="row" style="align-items:center"><span style="flex:1">${avatarMarkup(x.avatar)} ${esc(x.name)}</span><button class="soft" data-pin="${x.id}" style="padding:8px 10px;font-size:14px">Reset PIN</button><button class="ghost" data-rm="${x.id}" style="padding:8px 10px;font-size:14px">Remove</button></div>`).join('') || '<div class="empty">Just you so far.</div>'}
         <button class="ghost" id="clr" style="margin-top:8px;font-size:14px">Clear all chat messages</button>`;
-      $('#fcs').onclick = async () => { try { await api('/api/admin/settings', { family_code: $('#fc').value }); localStorage.setItem('ohana_code', $('#fc').value); toast('Family code saved'); } catch (e) { toast(e.message); } };
+      $('#fcs').onclick = async () => { try { await api('/api/admin/settings', { family_code: $('#fc').value }); previewStorage.setItem('ohana_code', $('#fc').value); toast('Family code saved'); } catch (e) { toast(e.message); } };
       $('#fns').onclick = async () => { try { await api('/api/admin/settings', { family_name: $('#fn').value }); toast('Saved'); await sync(); render(); } catch (e) { toast(e.message); } };
       $('#adm').querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm('Remove this person? They can rejoin with the family code.')) return; await api('/api/admin/remove', { id: +b.dataset.rm }); await sync(); render(); });
       $('#adm').querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => { const p = prompt('New 4-number PIN for them:'); if (!p || !/^\d{4}$/.test(p)) return; await api('/api/admin/reset_pin', { id: +b.dataset.pin, pin: p }); toast('PIN reset'); });
@@ -1542,7 +1542,7 @@ async function sync() {
     const epoch=S.roomEpoch;
     const d = await api('/api/sync?msgSince=' + S.lastMsg);
     if(epoch!==S.roomEpoch)return;
-    S.room=d.roomId;localStorage.setItem('ohana_room',S.room);
+    S.room=d.roomId;previewStorage.setItem('ohana_room',S.room);
     S.me = d.me; const hadSync = !!S.sync; S.sync = d;
     if (d.messages.length) { const fresh = d.messages.filter(x => x.id > S.lastMsg); S.msgs = [...S.msgs, ...fresh].slice(-200); S.lastMsg = S.msgs[S.msgs.length - 1].id; if (hadSync && S.tab !== 'chat') S.unread = (S.unread || 0) + fresh.filter(x => x.member_id !== S.me.id).length; if (S.tab === 'chat' && !S.game) paintMsgs(true); }
     const allTurnGames=d.allGames||d.games;
@@ -1555,7 +1555,7 @@ async function sync() {
   } catch (e) { /* quiet */ }
 }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installPrompt = e; });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
 // Adaptive polling: fast when both players online in a game, normal otherwise
 function getPollInterval() {
   if (S.game && S.gstate?.players && S.sync?.members) {
@@ -1571,19 +1571,11 @@ function schedulePoll() {
     try {
       if(!/^\/(?:room|invite)\//.test(location.pathname)){if (S.game) await loadGame(); else await sync();}
     } catch(e) { /* never let polling die */ }
-    schedulePoll();
+    
   }, getPollInterval());
 }
-schedulePoll();
-// Also re-poll when app comes back to foreground (phone unlock, tab switch)
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && !/^\/(?:room|invite)\//.test(location.pathname)) {
-    schedulePoll(); // restart fast
-    if (S.game) loadGame().catch(() => {});
-    else if (S.token) sync().then(() => { if (!S.game) render(); }).catch(() => {});
-  }
-});
 
+// Also re-poll when app comes back to foreground (phone unlock, tab switch)
 // ---------- INVITE SYSTEM ----------
 function getInviteCode() {
   const m = location.pathname.match(/^\/invite\/([a-f0-9]+)$/);
@@ -1613,15 +1605,15 @@ async function renderInvite(code, errMsg) {
       <button id="igo" style="margin-top:10px">Join the game!</button>
       <p style="font-size:13px;color:rgba(246,231,200,.55);text-align:center;margin:4px 0 0">Been here before? Use the same name and PIN.</p>
     </div>`;
-    const nm = localStorage.getItem('ohana_name'); if (nm) $('#iname').value = nm;
-    app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; localStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
+    const nm = previewStorage.getItem('ohana_name'); if (nm) $('#iname').value = nm;
+    app.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { S.av = b.dataset.av; previewStorage.setItem('ohana_av', S.av); app.querySelectorAll('[data-av]').forEach(x => x.classList.toggle('sel', x.dataset.av === S.av)); });
     $('#igo').onclick = async () => {
       try {
         $('#igo').disabled = true;
         const d = await api(`/api/invite/${code}/join`, { name: $('#iname').value, pin: $('#ipin').value, avatar: S.av });
-        S.token = d.token; S.me = d.me; S.room=d.room_id||0;localStorage.setItem('ohana_room',S.room);
-        localStorage.setItem('ohana_token', d.token);
-        localStorage.setItem('ohana_name', d.me.name);
+        S.token = d.token; S.me = d.me; S.room=d.room_id||0;previewStorage.setItem('ohana_room',S.room);
+        previewStorage.setItem('ohana_token', d.token);
+        previewStorage.setItem('ohana_name', d.me.name);
         // Clear invite URL, go to main app
         history.replaceState(null, '', '/');
         await sync();
@@ -1647,30 +1639,7 @@ async function shareInvite(inviteCode, gameName) {
 }
 
 // On load: check for invite URL
-(async () => {
-  const doorway=location.pathname.match(/^\/room\/([a-f0-9]{32})$/);
-  if(doorway){await renderRoomInvite(doorway[1]);return;}
-  const invCode = getInviteCode();
-  if (invCode) {
-    // If already logged in, try to join directly
-    if (S.token) {
-      try {
-        const info = await fetch(`/api/invite/${invCode}`).then(r => r.json());
-        if (info.status === 'waiting') {
-          // Already a member — join the game directly
-          try {
-            const d = await api(`/api/invite/${invCode}/join`, { name: localStorage.getItem('ohana_name') || 'Friend', pin: '0000', avatar: S.av });
-            history.replaceState(null, '', '/');
-            await enterRoom(d.room_id); openGame(d.game_id); return;
-          } catch(e) { /* PIN mismatch or full — show invite screen */ }
-        }
-      } catch(e) {}
-    }
-    renderInvite(invCode);
-  } else {
-    render(); if (S.token) { await sync(); render(); setupPush(); }
-  }
-})();
+
 
 // ----- Hand & Foot -----
 function renderHandFoot(st,g,myTurn){
@@ -1744,10 +1713,10 @@ function accessibleAnnounce(message) {
 function showAccessHelp(){
  if(document.getElementById('access-help'))return;
  const previous=document.activeElement,d=document.createElement('dialog');d.id='access-help';d.setAttribute('aria-labelledby','access-title');
- d.innerHTML=`<h2 id="access-title" tabindex="-1">Make yourself at home</h2><button type="button" id="access-close">Close help</button><h3>Sounds and movement</h3><p>Your screen reader works independently of the game voices. Silence game sounds here if they talk over it.</p><label><input type="checkbox" id="access-quiet" ${AudioSys.muted?'checked':''}> Silence game voices and sound effects</label><label><input type="checkbox" id="access-motion" ${localStorage.getItem('ohana_less_motion')==='true'?'checked':''}> Reduce decorative movement</label><h3>Playing without sight</h3><p>Use your screen reader’s next button gesture to explore pieces. Double-tap to select, then explore and activate the destination. With a keyboard, Tab reaches a board; arrow keys explore squares, Home and End move within a row, and Enter or Space selects. Tab leaves the board.</p><p>Words: select a rack letter, then a square. Select an unplayed letter on the board to move it again. The square name includes its row, column and bonus. Use Jump to square to reach a coordinate directly. Play word submits your draft; Take back returns it to your rack.</p><p>Checkers: select your piece, then a destination announced as available. Memory: turn over a face-down card; its identity is revealed only after turning it. Mahjong: choose two matching free treasures. Hand &amp; Foot: draw, select cards, then choose a meld or discard. Selected pieces are announced as pressed.</p><h3>Install Ohana Home</h3><p>You can play in your browser without installing. Keep your room invitation, name and PIN handy for your first sign-in on a new browser.</p><ol><li>Android with Chrome: open the browser’s More options menu, then Install app or Add to Home screen, and confirm.</li><li>iPhone or iPad with Safari: open Share, choose Add to Home Screen, then Add. With VoiceOver, swipe through the share actions to find it.</li><li>On a computer: use your browser’s Install option when available, or bookmark this page.</li></ol><p>Browser menus vary. Once installed, find Ohana Home among your apps. Open Notifications in Ohana Home, choose Enable, and allow the browser’s permission request for turn alerts.</p>`;
+ d.innerHTML=`<h2 id="access-title" tabindex="-1">Make yourself at home</h2><button type="button" id="access-close">Close help</button><h3>Sounds and movement</h3><p>Your screen reader works independently of the game voices. Silence game sounds here if they talk over it.</p><label><input type="checkbox" id="access-quiet" ${AudioSys.muted?'checked':''}> Silence game voices and sound effects</label><label><input type="checkbox" id="access-motion" ${previewStorage.getItem('ohana_less_motion')==='true'?'checked':''}> Reduce decorative movement</label><h3>Playing without sight</h3><p>Use your screen reader’s next button gesture to explore pieces. Double-tap to select, then explore and activate the destination. With a keyboard, Tab reaches a board; arrow keys explore squares, Home and End move within a row, and Enter or Space selects. Tab leaves the board.</p><p>Words: select a rack letter, then a square. Select an unplayed letter on the board to move it again. The square name includes its row, column and bonus. Use Jump to square to reach a coordinate directly. Play word submits your draft; Take back returns it to your rack.</p><p>Checkers: select your piece, then a destination announced as available. Memory: turn over a face-down card; its identity is revealed only after turning it. Mahjong: choose two matching free treasures. Hand &amp; Foot: draw, select cards, then choose a meld or discard. Selected pieces are announced as pressed.</p><h3>Install Ohana Home</h3><p>You can play in your browser without installing. Keep your room invitation, name and PIN handy for your first sign-in on a new browser.</p><ol><li>Android with Chrome: open the browser’s More options menu, then Install app or Add to Home screen, and confirm.</li><li>iPhone or iPad with Safari: open Share, choose Add to Home Screen, then Add. With VoiceOver, swipe through the share actions to find it.</li><li>On a computer: use your browser’s Install option when available, or bookmark this page.</li></ol><p>Browser menus vary. Once installed, find Ohana Home among your apps. Open Notifications in Ohana Home, choose Enable, and allow the browser’s permission request for turn alerts.</p>`;
  d.onkeydown=e=>{if(e.key!=='Tab')return;const items=[...d.querySelectorAll('button,input')].filter(x=>!x.disabled),first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===d.querySelector('h2'))){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}};
  d.querySelector('#access-close').onclick=()=>d.close();d.querySelector('#access-quiet').onchange=e=>setGameMuted(e.target.checked);
- d.querySelector('#access-motion').onchange=e=>{localStorage.setItem('ohana_less_motion',String(e.target.checked));document.documentElement.classList.toggle('less-motion',e.target.checked);window.dispatchEvent(new Event('ohana-motion-change'));};
+ d.querySelector('#access-motion').onchange=e=>{previewStorage.setItem('ohana_less_motion',String(e.target.checked));document.documentElement.classList.toggle('less-motion',e.target.checked);window.dispatchEvent(new Event('ohana-motion-change'));};
  d.onclose=()=>{d.remove();if(previous?.isConnected)previous.focus();};document.body.append(d);d.showModal();d.querySelector('h2').focus();
 }
 function accessEscape(value){return String(value).replace(/[^a-zA-Z0-9_-]/g,c=>"\\"+c);}
@@ -1820,7 +1789,7 @@ function announceChatAccess(scope,messages){
 }
 function enhancePageAccess(){
  document.querySelectorAll('.buddy-choice img').forEach(img=>img.alt='');
- document.documentElement.classList.toggle('less-motion',localStorage.getItem('ohana_less_motion')==='true');
+ document.documentElement.classList.toggle('less-motion',previewStorage.getItem('ohana_less_motion')==='true');
  document.querySelectorAll('[data-tab]').forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
  for(const [id,label] of Object.entries({txt:'Message this room',send:'Send message',file:'Choose a picture to share',pic:'Send a picture',ntoggle:'Turn notifications on or off',fc:'Family code',fn:'Family name',iname:'Your name',ipin:'Your four-number PIN','room-guest-name':'Your name','room-guest-pin':'Your four-number PIN'})){const e=document.getElementById(id);if(e)e.setAttribute('aria-label',label);}
  document.querySelectorAll('.err').forEach(e=>e.setAttribute('role','alert'));
@@ -1838,5 +1807,43 @@ enhancePageAccess();
 
 </script>
 <script src="/ohana-scene.js"></script>
-<script src="/island-icons.js"></script></body>
+<script src="/island-icons.js"></script><script>
+clearTimeout(pollTimer); schedulePoll = () => {};
+S.token='local-preview';S.me={id:1,name:'Alex',avatar:'🐢',is_admin:false};S._pushAsked=true;
+const previewMembers=[S.me,{id:2,name:'Jamie',avatar:'🌺',online:true},{id:3,name:'Riley',avatar:'🦊',online:false}];
+const previewTypes={words:{name:'Ohana Words',max:4,desc:'Build words. Find surprises. Make memories.'},tictac:{name:'Tic-Tac-Toe',max:2,desc:'A quick little game for a big smile.'},memory:{name:'Memory Match',max:2,desc:'Flip a card. Find a pair. Play together.'},checkers:{name:'Checkers',max:2,desc:'A family favorite, one clever move at a time.'}};
+let previewGame={id:1,type:'words',name:'Ohana Words',status:'playing',in_game:true,my_turn:true,players:[1,2],turn:0,max_players:2,updated_at:1,mode:'classic',state:{board:Array(225).fill(null),bonus:Array(225).fill(''),racks:{1:['F','A','M','I','L','Y','S']},scores:{1:48,2:36},bag:64,lastMove:[],foundSurprises:{},surprises:[],chat:[{p:2,text:'Always room for one more game. ❤️'}],history:[]}};
+for(let i=0;i<225;i++){if(i%37===0)previewGame.state.bonus[i]='TW';else if(i%17===0)previewGame.state.bonus[i]='DL';else if(i%23===0)previewGame.state.bonus[i]='DW';}
+'HOME'.split('').forEach((l,i)=>previewGame.state.board[110+i]={l,v:LV[l]});
+const previewWords=JSON.parse(JSON.stringify(previewGame.state));
+const previewSync=()=>({me:S.me,familyName:'Our family, together',members:previewMembers,games:[previewGame],types:previewTypes,messages:[]});
+api=async (path,body)=>{
+ if(path.startsWith('/api/sync'))return previewSync();
+ if(path.endsWith('/chat')){previewGame.state.chat.push({p:1,text:body.text});return {};}
+ if(path==='/api/game/create'){
+  previewGame={...previewGame,type:body.type,name:previewTypes[body.type].name,turn:0};
+  if(body.type==='words')previewGame.state=JSON.parse(JSON.stringify(previewWords));
+  if(body.type==='checkers')previewGame.state={board:Array.from({length:64},(_,i)=>(Math.floor(i/8)+i%8)%2===1?(i<24?'b':i>39?'r':null):null),mustContinue:null,chat:[]};
+  if(body.type==='tictac')previewGame.state={board:Array(9).fill(null),chat:[]};
+  if(body.type==='memory')previewGame.state={cards:['🐢','🐢','🌺','🌺','🦊','🦊','⭐','⭐','🐱','🐱','🐸','🐸','🌞','🌞','🍀','🍀'],matched:[],open:[],pending:[],scores:{1:0,2:0},chat:[]};
+  return {id:1};
+ }
+ if(path.endsWith('/move')){toast('Design preview only — game results are not saved.');if(previewGame.type==='tictac'){previewGame.state.board[body.i]='X';previewGame.turn=1;}return {};}
+ if(path==='/api/message'){S.msgs.push({id:Date.now(),member_id:1,text:body.text,created_at:Date.now()});return {};}
+ if(path==='/api/game/1')return JSON.parse(JSON.stringify(previewGame));
+ throw new Error('Preview only: this action does not change a real account.');
+};
+S.sync=previewSync();
+render();
+
+S.game=1;S.gstate=previewGame;renderGame();
+const picker=document.createElement('div');picker.className='preview-switcher';picker.innerHTML='<b>Practice only · fictional players</b><label>Choose a practice game <select id="practice-game"><option value="words">Words</option><option value="tictac">Tic-Tac-Toe</option><option value="memory">Memory</option><option value="checkers">Checkers</option><option value="mahjong">Mahjong</option><option value="handfoot">Hand & Foot</option></select></label>';document.body.prepend(picker);
+picker.querySelector('select').onchange=async e=>{
+ const type=e.target.value;
+ if(['words','tictac','memory','checkers'].includes(type))await api('/api/game/create',{type});
+ else if(type==='mahjong')previewGame={...previewGame,type,name:'Ohana Mahjong',state:{tiles:[{id:1,face:0,x:0,y:0,z:0},{id:2,face:0,x:3,y:0,z:0},{id:3,face:1,x:0,y:2,z:0},{id:4,face:1,x:3,y:2,z:0}],pairs:0,revision:1,scores:{1:0,2:0},chat:[]}};
+ else previewGame={...previewGame,type,name:'Hand & Foot',state:{hands:{1:[{id:1,rank:'K',suit:'♥'},{id:2,rank:'K',suit:'♣'},{id:3,rank:'K',suit:'♦'}],2:11},feet:{1:11,2:11},inFoot:{},melds:{1:[],2:[]},red3s:{1:[],2:[]},scores:{1:0,2:0},drawPile:80,discardPile:[{rank:'6',suit:'♥'}],discardCount:3,hasDrawn:true,chat:[]}};
+ S.game=1;S.placed=[];S.sel=null;S.chkFrom=null;S.gstate=previewGame;renderGame();document.querySelector('#board').focus();
+};
+</script></body>
 </html>

@@ -16,16 +16,16 @@
       :host{display:block;contain:content}section{position:relative;aspect-ratio:3/2;overflow:hidden;border-radius:18px;border:1px solid #b6976277;background:#173441;box-shadow:0 10px 30px #00181c44}canvas{display:block;width:100%;height:100%}.title,.saying,.verse{position:absolute;pointer-events:none;margin:0;font-family:Georgia,serif}.title{top:4%;left:0;width:100%;text-align:center;font-weight:400;font-size:clamp(12px,2.6vw,19px);color:#ffe6b7;text-shadow:0 1px 4px #163441;white-space:nowrap}.saying{top:24%;right:20%;font-size:clamp(10px,2.2vw,16px);font-style:italic;color:#654a40;opacity:.8}.verse{bottom:0;left:0;right:0;padding:7px 3px;text-align:center;font-size:clamp(9px,1.9vw,14px);color:#fff1d4;background:linear-gradient(transparent,#061f24bd);white-space:normal;line-height:1.2}.pause{position:absolute;right:7px;top:7px;border:1px solid #ead8ad55;background:#132c3870;color:#fff2d7;border-radius:20px;width:27px;height:27px;font-size:12px;cursor:pointer;padding:0}.error{position:absolute;bottom:30px;color:white;font:12px sans-serif}
       </style><section aria-label="Ohana Home ocean porch with two wicker chairs, a family game, soda glasses, and the Good Games Brighter People pillow"><canvas width="960" height="640" aria-hidden="true"></canvas><h2 class="title">Ohana Home · Our family, together</h2><p class="saying">There's always a place for you.</p><p class="verse">Let all that you do be done with love. — 1 Corinthians 16:14 NKJV</p><button class="pause" type="button" aria-label="Pause scene motion" title="Pause scene motion">Ⅱ</button></section>`;
       this.canvas=root.querySelector('canvas');this.ctx=this.canvas.getContext('2d');
-      this.reduced=matchMedia('(prefers-reduced-motion: reduce)');this.paused=this.reduced.matches;
+      this.reduced=matchMedia('(prefers-reduced-motion: reduce)');this.paused=this.reduced.matches||localStorage.getItem('ohana_less_motion')==='true';
       const button=root.querySelector('button');
       const sync=()=>{button.textContent=this.paused?'▶':'Ⅱ';button.setAttribute('aria-label',this.paused?'Resume scene motion':'Pause scene motion');};
       button.onclick=()=>{this.paused=!this.paused;sync();};sync();
-      this.onReduced=()=>{this.paused=this.reduced.matches;sync();};this.reduced.addEventListener('change',this.onReduced);
+      this.onReduced=()=>{this.paused=this.reduced.matches||localStorage.getItem('ohana_less_motion')==='true';sync();};this.reduced.addEventListener('change',this.onReduced);window.addEventListener('ohana-motion-change',this.onReduced);
       this.visible=true;this.observer=new IntersectionObserver(e=>this.visible=e[0].isIntersecting);this.observer.observe(this);
       this.images={};this.buffer=document.createElement('canvas');this.buffer.width=960;this.buffer.height=640;
       const im=new Image();im.src='/ohana-island.webp';im.decode().then(()=>{this.images.island=im;if(this.isConnected)this.tick();}).catch(()=>{const fallback=document.createElement('img');fallback.src='/ohana-island.webp';fallback.alt='Illustrated Ohana island game table';fallback.style.cssText='width:100%;height:100%;object-fit:cover';this.canvas.replaceWith(fallback);});
     }
-    disconnectedCallback(){clearTimeout(this.timer);this.observer?.disconnect();this.reduced?.removeEventListener('change',this.onReduced);}
+    disconnectedCallback(){window.removeEventListener('ohana-motion-change',this.onReduced);clearTimeout(this.timer);this.observer?.disconnect();this.reduced?.removeEventListener('change',this.onReduced);}
     tick(){
       if(!this.isConnected)return;
       if(!document.hidden&&this.visible)this.paint(new Date());
