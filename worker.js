@@ -599,6 +599,56 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
     }
     return best||{action:'pass'};
   }
+  if(type==='handfoot'){
+    const p=players[turn],hand=st.inFoot[p]?st.feet[p]:st.hands[p];
+    // Step 1: draw if haven't drawn yet
+    if(!st.hasDrawn)return {action:'draw'};
+    // Step 2: try to meld — group hand by rank
+    const byRank={};
+    for(const c of hand){
+      if(hfIsWild(c)||hfIsRed3(c)||hfIsBlack3(c))continue;
+      (byRank[c.rank]=byRank[c.rank]||[]).push(c);
+    }
+    const wilds=hand.filter(c=>hfIsWild(c));
+    // Add to existing melds first
+    for(const m of st.melds[p]){
+      const matching=byRank[m.rank]||[];
+      if(matching.length>0){
+        return {action:'meld',cardIds:matching.map(c=>c.id),rank:m.rank};
+      }
+    }
+    // Start new melds with 3+ natural cards of same rank
+    for(const[rank,cards]of Object.entries(byRank)){
+      if(cards.length>=3){
+        return {action:'meld',cardIds:cards.slice(0,Math.min(cards.length,6)).map(c=>c.id),rank};
+      }
+    }
+    // Try new meld with 2 natural + 1 wild
+    if(wilds.length>0){
+      for(const[rank,cards]of Object.entries(byRank)){
+        if(cards.length>=2){
+          const ids=[...cards.slice(0,2).map(c=>c.id),wilds[0].id];
+          // Check min meld requirement for first meld
+          if(st.melds[p].length===0){
+            const val=cards.slice(0,2).reduce((s,c)=>s+hfCardVal(c),0)+hfCardVal(wilds[0]);
+            if(val<hfMinMeld(st.scores[p]))continue;
+          }
+          return {action:'meld',cardIds:ids,rank};
+        }
+      }
+    }
+    // Step 3: discard — pick lowest value non-wild card, prefer black 3s
+    const discardable=hand.filter(c=>!hfIsWild(c));
+    const black3=discardable.find(c=>hfIsBlack3(c));
+    if(black3)return {action:'discard',cardId:black3.id};
+    if(discardable.length>0){
+      discardable.sort((a,b)=>hfCardVal(a)-hfCardVal(b));
+      return {action:'discard',cardId:discardable[0].id};
+    }
+    // Only wilds left — discard one
+    if(hand.length>0)return {action:'discard',cardId:hand[0].id};
+    return null;
+  }
   throw new Error('No computer player for this game.');
 }
 async function advanceBot(env,id){
