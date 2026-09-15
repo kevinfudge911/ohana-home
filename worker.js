@@ -1133,9 +1133,9 @@ var worker_default = {
   async fetch(req, env) {
     const url = new URL(req.url);
     const p = url.pathname;
-    if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
+    if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8", "cache-control": "no-cache" } });
     // Invite links: /invite/{code} serves the app (it reads the code from URL)
-    if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8" } });
+    if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8", "cache-control": "no-cache" } });
     if (p === "/manifest.json") return json({ name: "Ohana Home", short_name: "Ohana", start_url: "/", display: "standalone", background_color: "#0E3B47", theme_color: "#0E3B47", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] });
     if (p === "/icon.svg") return new Response(ICON, { headers: { "content-type": "image/svg+xml", "cache-control": "public,max-age=86400" } });
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
