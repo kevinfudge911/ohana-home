@@ -54,5 +54,6 @@ assert.equal((await api('/api/rooms/rotate-invite','family',1,{})).status,403);
 assert.equal((await api('/api/rooms/rotate-invite','host',1,{})).status,200);
 assert.equal((await api('/api/room-invite/'+homeInvite.data.invite_code,'',0)).status,404);
 assert.equal((await api('/api/sync',newcomer.data.token,1)).status,200,'rotation does not sign out existing members');
+const eagleAvatar=await api('/api/avatar','family',1,{avatar:'@eag'});assert.equal(eagleAvatar.status,200);assert.equal(sql.prepare('SELECT avatar FROM members WHERE id=2').get().avatar,'@eag');assert.equal(sql.prepare('SELECT token FROM members WHERE id=2').get().token,'family');
 console.log('PASS: migration preserves family; private signup, room/game/chat/member isolation, guessed-ID rejection on every game action, scoped notifications, all-room overview, guest-created rooms, invitation rotation, signed-in joins and private game chat.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>sql.close());

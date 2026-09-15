@@ -1,0 +1,13 @@
+# Eddie, Mike’s eagle buddy
+
+Added as `@eag` to the character picker (first page), server avatar allowlist, asset routes, and character voice profiles. No existing player's avatar or login was changed. Select Ohana → Choose my Ohana character → Eddie → Save my character.
+
+Assets: `buddy-eddie.webp` and `talk-eddie.webp`. Both use alpha transparency and were encoded from built-in image generation outputs without altering the artwork. The talking sheet has four poses and is used by the existing speech/animation/mute system. Speech is device text-to-speech with a warm male voice preference, not a separately recorded actor voice.
+
+Portrait prompt (built-in image generation):
+Create one adorable original bald eagle cartoon character for Mike in the Ohana Home family game app. Full body centered, genuinely transparent background. White fluffy head and tail, warm chestnut brown wings, golden yellow curved beak and little yellow feet, enormous kind expressive blue eyes, cheerful gentle smile. Wearing a turquoise Hawaiian aloha shirt with subtle cream hibiscus flowers, open at neck. One wing raised in a welcoming wave, other relaxed. Cute rounded proportions, polished hand-painted animated family film character, soft dimensional shading and crisp clean silhouette, tropical island warmth. Eagle anatomy, wings not human hands. Keep entire character including both feet and wing tips inside frame, generous transparent margin. No lettering, no name, no logo, no scene, no emoji, no border. Square 1024x1024.
+
+Talking-sheet prompt (built-in image generation, portrait as reference):
+Use the eagle just generated as exact character reference. Make a talking animation sprite sheet for the Ohana game. ONE horizontal row of EXACTLY FOUR equal-width cells, transparent background, total image 1536 wide by 1024 high or similarly landscape. Each cell contains the same full body eagle at identical scale, baseline, and centered anchor, white fluffy head, blue eyes, brown feathers, turquoise hibiscus aloha shirt. Generous margins so no wings overlap neighboring cells. All four characters must fit fully including head and feet. Left to right: 1 relaxed friendly closed beak smile; 2 small open beak speaking; 3 wider open beak speaking and little happy wing lift; 4 closed beak smile and friendly blink. Preserve identical shirt, anatomy, proportions and lighting. Only subtle mouth, eyelid and wing pose differences. No labels, no text, no dividing lines. Genuine alpha transparent background. This is a functional four-frame sprite sheet, not a montage.
+
+Validation: private-rooms API suite accepts and persists @eag without rotating the member token; dialogue/mute and session-preservation checks pass. Artwork visually checked before integration.

@@ -388,6 +388,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const CHARACTERS = {
+  "@eag": {name:"Eddie",file:"/buddy-eddie.webp",line:"Mike’s eagle buddy. Big wings, bigger heart."},
   '@hon': {name:'Honu',file:'/honu.webp',line:'Your kindhearted turtle friend.'},
   '@spl': {name:'Splash',file:'/buddy-splash.webp',line:'A little dolphin with a big playful heart.'},
   '@kik': {name:'Kiko',file:'/buddy-kiko.webp',line:'Curious toes. Clever little moves.'},
@@ -790,6 +791,7 @@ function characterDialogue(event,n=0,detail=''){
   return `${welcome} ${end}`;
 }
 const CHARACTER_VOICES={
+  "@eag":{rate:.96,pitch:.93,prefer:["Guy","Alex","Google UK English Male"]},
   '@hon':{rate:.95,pitch:1.04,prefer:['Samantha','Aria','Google US English']},
   '@spl':{rate:1.03,pitch:1.16,prefer:['Jenny','Karen','Google UK English Female']},
   '@kik':{rate:1.08,pitch:1.09,prefer:['Guy','Daniel','Google UK English Male']},
