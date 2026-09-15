@@ -386,6 +386,8 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .waiting-ohana-member{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;background:#22565a;min-width:0}
 .waiting-ohana-member .av{width:36px;height:36px;flex-shrink:0}.waiting-ohana-member .av img{width:100%;height:100%;object-fit:contain}
 .waiting-ohana-member b{flex:1;overflow-wrap:anywhere}.waiting-ohana-member button{padding:8px 12px;font-size:14px;min-height:42px}
+.profile-settings{max-width:680px;margin:0 auto;padding:20px;background:#19494d;border:1px solid #75b8b7;border-radius:22px}
+.profile-settings label{display:block;font-weight:700;margin:14px 0 8px}.profile-settings input,.profile-settings textarea{width:100%;box-sizing:border-box;color:#fff3db;background:#103c43;border:1px solid #8bbfba;border-radius:12px;padding:12px;font:inherit}.profile-settings small{color:#c5e0d9}.profile-settings .character-settings{margin-top:20px}.member-about{font-size:14px;line-height:1.4;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}nav.tabs button[data-tab="settings"]{--island-face:#b9dce9;--island-shadow:#7398ad}
 </style>
 </head>
 <body>
@@ -547,12 +549,13 @@ function render() {
       <button data-tab="chat" class="${S.tab === 'chat' ? 'on' : ''}"><span class="ic">💬</span>Chat${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button>
       <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>Ohana</button>
       <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
+      <button data-tab="settings" class="${S.tab === 'settings' ? 'on' : ''}"><span class="ic">⚙</span>Settings</button>
     </div></nav>`;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if (S.tab === 'chat') S.unread = 0; render(); });
   updatePushControls();
   $('#room-door').onclick=()=>{S.tab='rooms';render();};
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
-  if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else if(S.tab==='rooms')renderRooms(); else renderFamily();
+  if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else if(S.tab==='rooms')renderRooms(); else if(S.tab==='settings')renderSettings(); else renderFamily();
 }
 
 
@@ -1378,24 +1381,34 @@ function bindInvitations(root) {
  root.querySelectorAll('[data-accept-invite]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await enterRoom(+b.dataset.inviteRoom);await api(`/api/game/${b.dataset.acceptInvite}/join`,{});await sync();await openGame(+b.dataset.acceptInvite);}catch(e){toast(e.message);await sync();}});
  root.querySelectorAll('[data-decline-invite]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await api(`/api/game/${b.dataset.declineInvite}/decline`,{});await sync();render();}catch(e){toast(e.message);b.disabled=false;}});
 }
+function renderSettings() {
+  const m=$('#main');S.av=S.me.avatar;
+  m.innerHTML=`<h2 class="shelf">Your little corner<small>Make yourself at home.</small></h2><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me.name)}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><div class="character-settings"><h3>Choose your character</h3>${buddyPicker()}</div><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>`;
+  m.querySelectorAll('[data-av]').forEach(b=>{b.type='button';b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>{x.classList.toggle('sel',x.dataset.av===S.av);x.setAttribute('aria-pressed',String(x.dataset.av===S.av));});$('#buddy-preview').innerHTML=avatarMarkup(S.av);$('#buddy-name').textContent=buddyName(S.av);$('#buddy-line').textContent=CHARACTERS[S.av]?.line||'Ready for a little friendly competition?';};});
+  m.querySelectorAll('.buddy-more button').forEach(b=>b.type='button');
+  $('#profile-form').onsubmit=async e=>{
+    e.preventDefault();const form=e.currentTarget,b=form.querySelector('#save-profile'),status=form.querySelector('#profile-status');b.disabled=true;status.textContent='Saving…';
+    const payload={name:form.querySelector('#profile-name').value.trim(),about:form.querySelector('#profile-about').value.trim(),avatar:S.av};
+    try {const d=await api('/api/profile',payload);Object.assign(S.me,{name:d.name,avatar:d.avatar,about:d.about});localStorage.setItem('ohana_name',d.name);localStorage.setItem('ohana_av',d.avatar);status.textContent='Saved. Your Ohana profile is up to date.';await sync();}
+    catch(err){status.textContent=err.message;}finally{b.disabled=false;}
+  };
+}
+
 // ---------- FAMILY ----------
 async function renderFamily() {
   const m = $('#main'); const sy = S.sync;
   const pushSupported = 'PushManager' in window;
   const pushOn = !!S.pushReady;
   if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
-    <details class="character-settings" id="character-settings" ${S.avatarEditing?'open':''}><summary>Choose my Ohana character</summary>${buddyPicker()}<button id="save-character">Save my character</button><small>Your character follows you through every game and conversation.</small></details>
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small>${x.about?`<p class="member-about">${esc(x.about)}</p>`:''}</div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
+    <button class="soft" id="my-settings">My settings · name, character &amp; about me</button>
     ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
     <p style="font-size:13px;color:rgba(246,231,200,.55)">To put Ohana Home on your phone like an app: on iPhone tap Share, then "Add to Home Screen". On Android tap the menu, then "Add to Home screen" or "Install".</p>
     ${S.me.is_admin && sy.roomId===1 ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
   m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
-  $('#character-settings').ontoggle=e=>{S.avatarEditing=e.target.open;};
-  m.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>x.classList.toggle('sel',x.dataset.av===S.av));});
+  $('#my-settings').onclick=()=>{S.tab='settings';render();};
   $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
-  $('#save-character').onclick=async()=>{const b=$('#save-character');b.disabled=true;try{await api('/api/avatar',{avatar:S.av});localStorage.setItem('ohana_av',S.av);S.me.avatar=S.av;S.avatarEditing=false;toast(buddyName(S.av)+' is your new game buddy!');await sync();renderFamily();}catch(e){b.disabled=false;toast(e.message);}};
-  $('#rename').onclick = async () => { const n = prompt('What do you want to be called?', S.me.name); if (!n || n.trim() === S.me.name) return; try { await api('/api/rename', { name: n.trim() }); S.me.name = n.trim(); toast('Name changed!'); await sync(); render(); } catch (e) { toast(e.message); } };
   $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;localStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
   $('#install').onclick = () => { if (S.installPrompt) S.installPrompt.prompt(); else toast('Use your browser menu: Add to Home Screen'); };
   const ntog = $('#ntoggle');
@@ -1433,8 +1446,8 @@ async function sync() {
     const turns = allTurnGames.filter(g => g.my_turn).map(g => g.id);
     if (hadSync) for (const id of turns) if (!S.seenTurns.has(id) && id !== S.game) { toast('🎲 Your turn in ' + allTurnGames.find(g => g.id === id).name); }
     S.seenTurns = new Set(turns);
-    const sig = JSON.stringify([d.games, d.allGames, d.invitations, d.rooms, d.members.map(x => [x.id, x.online, x.avatar]), S.unread, d.familyName]);
-    if (!S.game && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms') render();
+    const sig = JSON.stringify([d.games, d.allGames, d.invitations, d.rooms, d.members.map(x => [x.id, x.online, x.avatar, x.name, x.about]), S.unread, d.familyName]);
+    if (!S.game && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms' && S.tab!=='settings') render();
     S.sig = sig;
   } catch (e) { /* quiet */ }
 }

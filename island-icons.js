@@ -2,6 +2,7 @@
    pieces, member avatars, chat content, or the emoji picker. */
 (()=>{
  const shapes={
+ settings:'<circle cx="32" cy="32" r="23" fill="#a9d9df"/><path d="M17 22h30M17 32h30M17 42h30" stroke="#337f96" stroke-width="4"/><circle cx="25" cy="22" r="5" fill="#ffe4a6"/><circle cx="39" cy="32" r="5" fill="#f6b3a6"/><circle cx="28" cy="42" r="5" fill="#b8e5cd"/>',
  flower:'<g fill="#f08083"><ellipse cx="32" cy="21" rx="11" ry="17"/><ellipse cx="21" cy="31" rx="17" ry="11" transform="rotate(28 21 31)"/><ellipse cx="25" cy="43" rx="11" ry="16" transform="rotate(30 25 43)"/><ellipse cx="41" cy="42" rx="11" ry="16" transform="rotate(-30 41 42)"/><ellipse cx="44" cy="28" rx="16" ry="11" transform="rotate(-25 44 28)"/></g><path d="M33 33q12-7 19-19" fill="none" stroke="#ffe18b" stroke-width="4"/><circle cx="31" cy="33" r="7" fill="#ffdc7e"/>',
  home:'<path d="M9 31L32 10l24 21" fill="#ec997b"/><path d="M15 30h35v27H15z" fill="#f8df9b"/><path d="M8 31L32 8l25 23-7 4-18-16-18 16z" fill="#45a9a8"/><path d="M28 57V39q7-6 12 0v18" fill="#5db5b3"/><path d="M19 35h7v8h-7z" fill="#b7e8e7"/><path d="M9 56h48" fill="none"/>',
  games:'<g transform="rotate(-10 31 33)"><rect x="10" y="12" width="43" height="42" rx="10" fill="#ffe4a6"/><path d="M14 49h34" stroke="#c49959"/><g fill="#247c91" stroke="none"><circle cx="21" cy="23" r="4"/><circle cx="42" cy="23" r="4"/><circle cx="31" cy="33" r="4"/><circle cx="21" cy="43" r="4"/><circle cx="42" cy="43" r="4"/></g></g>',
@@ -33,7 +34,7 @@
   document.querySelectorAll('button,.notification-control>summary,.room-name>i').forEach(b=>{
    if(b.closest(excluded)||b.querySelector('.island-icon'))return;
    const nav=b.dataset.tab;
-   if(nav){const holder=b.querySelector('.ic');if(holder){holder.replaceChildren(icon(({games:'games',chat:'chat',family:'home',rooms:'rooms'})[nav]));}return;}
+   if(nav){const holder=b.querySelector('.ic');if(holder){holder.replaceChildren(icon(({games:'games',chat:'chat',family:'home',rooms:'rooms',settings:'settings'})[nav]));}return;}
    let symbol=Object.keys(prefix).find(p=>b.textContent.trimStart().startsWith(p));
    let type=symbol?prefix[symbol]:exact[b.textContent.trim()];if(!type)return;
    if(b.textContent.trim()==='＋')b.textContent='';
