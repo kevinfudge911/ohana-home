@@ -15,7 +15,9 @@ async function audit(name){const r=await w.axe.run(d,{rules:{'color-contrast':{e
  key(d.activeElement,'Home');assert.equal(d.activeElement.dataset.i,'90');key(d.activeElement,'ArrowUp');assert.equal(d.activeElement.dataset.i,'75');
  assert.equal(d.querySelectorAll('.wb-plane [tabindex="0"]').length,1);assert.equal(d.querySelectorAll('.wb .c').length,225);assert.equal(d.querySelectorAll('.wb svg rect').length,225);
  w.run('renderGame()');assert.equal(d.activeElement.dataset.i,'75');await audit('Words');
+ assert(!d.querySelector('#access-open'));w.run('S.game=null;S.tab="settings";render()');assert(d.querySelector('.settings-tools .notification-control'));assert(!d.querySelector('.room-current'));
  const help=d.querySelector('#access-open');help.focus();help.click();assert(d.querySelector('#access-help').open);d.querySelector('#access-quiet').click();assert.equal(w.run('AudioSys.muted'),true);d.querySelector('#access-motion').click();assert(d.documentElement.classList.contains('less-motion'));d.querySelector('#access-motion').focus();key(d.activeElement,'Tab');assert.equal(d.activeElement.id,'access-close');d.querySelector('#access-close').click();assert.equal(d.activeElement.id,'access-open');
+ w.run('S.game=1');
  for(const type of ['tictac','memory','checkers']){
   await w.run(`api('/api/game/create',{type:'${type}'})`);w.run('S.gstate=previewGame;renderGame()');
   const cells=[...d.querySelectorAll('#board [data-i]')];assert(cells.every(c=>c.getAttribute('aria-label')));cells[0].focus();key(cells[0],'ArrowRight');assert.equal(d.activeElement.dataset.i,cells[1].dataset.i);await audit(type);

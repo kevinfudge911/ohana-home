@@ -445,6 +445,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 #access-help{color:#fff1d1;background:#113f47;border:2px solid #e2ba70;border-radius:20px;max-width:560px;width:calc(100% - 36px);max-height:85dvh;padding:20px;overflow:auto;line-height:1.6}
 #access-help::backdrop{background:#001c28cc}#access-help label{display:block;margin:12px 0}#access-help input{width:22px;height:22px;margin-right:10px}
 .less-motion *,.less-motion *::before,.less-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+.settings-tools{display:grid;gap:14px;padding:18px;margin-bottom:22px;border:1px solid #85c4c5;border-radius:18px;background:#fff2d9;color:#174654}.settings-tools h3{margin:0;color:#174654}.settings-tools>button{justify-self:start;background:#9bdde4;color:#174654;font-size:15px;padding:10px 14px}.settings-room{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}.settings-room button{font-size:14px;padding:8px 12px}.join .signin-help{align-self:center;width:auto!important;background:none!important;border:0!important;box-shadow:none!important;color:#215564!important;text-decoration:underline;font-size:13px!important}
 </style>
 </head>
 <body>
@@ -600,17 +601,16 @@ function render() {
   if (S.game) return renderGame();
   const myTurn = (S.sync?.allGames || S.sync?.games || []).filter(g => g.my_turn).length;
   app.innerHTML = `<header><span class="header-buddy">${avatarMarkup(S.me?.avatar||'@hon')}</span><span class="home-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15 16 5l12 10M8 13v14h16V13"/><path d="M16 23s-6-3.5-6-7c0-3 4-4 6-1 2-3 6-2 6 1 0 3.5-6 7-6 7Z"/></svg></span><div><h1>Ohana Home</h1><small>${esc(S.sync?.familyName || '')}</small></div></header>
-    <div class="room-current"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span>${notificationControl()}<button class="soft" id="room-door">Doorways ▸</button></div><main id="main"></main>
+    <main id="main"></main>
     <nav class="tabs"><div class="in">
       <button data-tab="games" class="${S.tab === 'games' ? 'on' : ''}"><span class="ic">🎲</span>Games${myTurn ? `<span class="badge">${myTurn}</span>` : ''}</button>
       <button data-tab="chat" class="${S.tab === 'chat' ? 'on' : ''}"><span class="ic">💬</span>Chat${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button>
       <button data-tab="family" class="${S.tab === 'family' ? 'on' : ''}"><span class="ic">🏠</span>Ohana</button>
       <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
-      <button data-tab="settings" class="${S.tab === 'settings' ? 'on' : ''}"><span class="ic">⚙</span>Settings</button>
+      <button data-tab="settings" aria-label="Settings, accessibility and notifications" class="${S.tab === 'settings' ? 'on' : ''}"><span class="ic">⚙</span>Settings</button>
     </div></nav>`;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if(S.tab==='games')S.gameShelf='new'; if (S.tab === 'chat') S.unread = 0; render(); });
   updatePushControls();
-  $('#room-door').onclick=()=>{S.tab='rooms';render();};
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
   if (S.tab === 'games') renderGames(); else if (S.tab === 'chat') renderChat(); else if(S.tab==='rooms')renderRooms(); else if(S.tab==='settings')renderSettings(); else renderFamily();
 }
@@ -1488,7 +1488,8 @@ function bindInvitations(root) {
 }
 function renderSettings() {
   const m=$('#main');S.av=S.me.avatar;
-  m.innerHTML=`<h2 class="shelf">Your little corner<small>Make yourself at home.</small></h2><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me.name)}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><div class="character-settings"><h3>Choose your character</h3>${buddyPicker()}</div><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>`;
+  m.innerHTML=`<h2 class="shelf">Settings<small>Make yourself at home.</small></h2><section class="settings-tools" aria-labelledby="settings-tools-title"><h3 id="settings-tools-title">Accessibility &amp; app preferences</h3><button type="button" id="access-open" class="soft">Accessibility &amp; install help</button>${notificationControl()}<div class="settings-room"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span><button type="button" class="soft" id="settings-rooms">Choose a room</button></div></section><h3>Your profile</h3><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me.name)}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><div class="character-settings"><h3>Choose your character</h3>${buddyPicker()}</div><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>`;
+  $('#access-open').onclick=showAccessHelp;$('#settings-rooms').onclick=()=>{S.tab='rooms';render();};updatePushControls();
   m.querySelectorAll('[data-av]').forEach(b=>{b.type='button';b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>{x.classList.toggle('sel',x.dataset.av===S.av);x.setAttribute('aria-pressed',String(x.dataset.av===S.av));});$('#buddy-preview').innerHTML=avatarMarkup(S.av);$('#buddy-name').textContent=buddyName(S.av);$('#buddy-line').textContent=CHARACTERS[S.av]?.line||'Ready for a little friendly competition?';};});
   m.querySelectorAll('.buddy-more button').forEach(b=>b.type='button');
   $('#profile-form').onsubmit=async e=>{
@@ -1850,7 +1851,7 @@ function enhancePageAccess(){
  document.querySelectorAll('[data-tab]').forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
  for(const [id,label] of Object.entries({txt:'Message this room',send:'Send message',file:'Choose a picture to share',pic:'Send a picture',ntoggle:'Turn notifications on or off',fc:'Family code',fn:'Family name',iname:'Your name',ipin:'Your four-number PIN','room-guest-name':'Your name','room-guest-pin':'Your four-number PIN'})){const e=document.getElementById(id);if(e)e.setAttribute('aria-label',label);}
  document.querySelectorAll('.err').forEach(e=>e.setAttribute('role','alert'));
- if(!document.getElementById('access-open')){const place=document.querySelector('#gb')||document.querySelector('#main')||document.querySelector('.join');if(place){const b=document.createElement('button');b.id='access-open';b.className='soft access-open';b.textContent='Accessibility & install help';b.onclick=showAccessHelp;place.prepend(b);}}
+ if(!document.getElementById('access-open')){const place=!S.token?document.querySelector('.join'):null;if(place){const b=document.createElement('button');b.id='access-open';b.className='soft access-open';b.textContent='Accessibility & install help';b.onclick=showAccessHelp;b.classList.add('signin-help');const intro=place.querySelector('.tag');if(intro)intro.after(b);else place.append(b);}}
  const install=document.getElementById('install');if(install)install.onclick=()=>{if(S.installPrompt)S.installPrompt.prompt();else showAccessHelp();};
 }
 // Preserve focused controls when polling or selection replaces their DOM nodes.
