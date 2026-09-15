@@ -388,6 +388,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .waiting-ohana-member b{flex:1;overflow-wrap:anywhere}.waiting-ohana-member button{padding:8px 12px;font-size:14px;min-height:42px}
 .profile-settings{max-width:680px;margin:0 auto;padding:20px;background:#19494d;border:1px solid #75b8b7;border-radius:22px}
 .profile-settings label{display:block;font-weight:700;margin:14px 0 8px}.profile-settings input,.profile-settings textarea{width:100%;box-sizing:border-box;color:#fff3db;background:#103c43;border:1px solid #8bbfba;border-radius:12px;padding:12px;font:inherit}.profile-settings small{color:#c5e0d9}.profile-settings .buddy-welcome small{color:#355d62}.profile-settings .buddy-choice small{color:#fff1d5}.profile-settings .character-settings summary{color:#fff1d5!important}.profile-settings .character-settings summary span{color:inherit!important}.profile-settings .character-settings{margin-top:20px}.member-about{font-size:14px;line-height:1.4;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}nav.tabs button[data-tab="settings"]{--island-face:#b9dce9;--island-shadow:#7398ad}
+.game-shelf-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.game-shelf-tabs button{flex:1;min-height:42px;padding:9px 12px;font-size:14px}.game-shelf-tabs button[aria-pressed="true"]{outline:2px solid #a8ebdf;outline-offset:2px;background:#246c71;color:#fff1d5}.finished-games{margin:16px 0}.finished-games>summary{cursor:pointer;padding:12px;color:#fff1d5}
 </style>
 </head>
 <body>
@@ -551,7 +552,7 @@ function render() {
       <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
       <button data-tab="settings" class="${S.tab === 'settings' ? 'on' : ''}"><span class="ic">⚙</span>Settings</button>
     </div></nav>`;
-  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if (S.tab === 'chat') S.unread = 0; render(); });
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if(S.tab==='games')S.gameShelf='mine'; if (S.tab === 'chat') S.unread = 0; render(); });
   updatePushControls();
   $('#room-door').onclick=()=>{S.tab='rooms';render();};
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
@@ -636,7 +637,8 @@ function renderGames() {
   const m = $('#main'); const sy = S.sync; if (!sy) { m.innerHTML = '<div class="empty">Loading…</div>'; return; }
   const allGames=sy.allGames||sy.games;
   const mine = allGames.filter(g => g.in_game && g.status !== 'finished').sort((a, b) => (b.my_turn - a.my_turn) || (b.updated_at - a.updated_at));
-  const open = sy.games.filter(g => !g.in_game && g.status === 'waiting');
+  const others = allGames.filter(g => !g.in_game && g.status !== 'finished');
+  const shelf=S.gameShelf||'mine';
   const done = allGames.filter(g => g.in_game && g.status === 'finished').slice(0, 12);
   const person=(g,id)=>id===-1?'Honu · computer':g.names?.[id]?.name||nameOf(id);
   const who=g=>`<div class="who">${g.players.map(id=>`<span title="${esc(person(g,id))}">${g.names?.[id]?avatarMarkup(g.names[id].avatar):avOf(id)}</span>`).join('')}<small>${g.players.map(id=>esc(person(g,id))).join(' · ')}</small></div>`;
@@ -645,18 +647,21 @@ function renderGames() {
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${esc(person(g,+g.winner))} won`) : g.my_turn ? 'Your turn!' : `${esc(person(g,g.players[g.turn]))}'s turn`) + modeBit; };
   const card = (g, btn) => `<div class="gcard nook-card ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${roomTitle(roomName(g),g.room_id)}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='hard'?'Hard':g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers', 'mahjong']], ['Grown-ups & big kids', 'bring your brain', ['words']]];
-  m.innerHTML = `<ohana-scene></ohana-scene>${invitationCards()}${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>OHANA GAME ISLAND</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?'<div class="nook-grid">'+mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':'<p class="nook-empty">Pull up a chair. Start a game below and it will be waiting here.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
+  m.innerHTML = `<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['mine','My games'],['others','Other games'],['new','Start a game']].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${invitationCards()}${shelf==='mine'?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>OHANA GAME ISLAND</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?'<div class="nook-grid">'+mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':'<p class="nook-empty">Your games will appear here once you join. Choose Start a game or browse Other games.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
     <div class="room-conversation"><div><small>YOU ARE IN</small><b>${roomTitle(sy.familyName,sy.roomId)}</b><span>Only this room’s Ohana share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
-    ${open.length ? `<h2 class="shelf">Somebody's waiting for a player</h2>` + open.map(g => card(g, `<button data-join="${g.id}">Join</button>`)).join('') : ''}
+    ${done.length ? `<details class="finished-games"><summary>My finished games</summary>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">See</button>`)).join('')+'</details>' : ''}`:''}
+    ${shelf==='others'?`<h2 class="shelf">Other games<small>In rooms you belong to</small></h2><div class="nook-grid">${others.length?others.map(g=>card(g,g.status==='waiting'?`<button data-join="${g.id}" data-join-room="${g.room_id||sy.roomId||1}">Join</button>`:`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">View</button>`)).join(''):'<p>No other games are going on in your rooms right now.</p>'}</div>`:''}
+    ${shelf==='new'?`
     <div class="family-note">Family is at the heart of every game.</div>
     <h2 class="shelf" style="margin-top:0">Start a game<small>In ${esc(sy.familyName)}</small></h2>
     ${shelves.map(([t,sub,ids])=>`<h3 class="shelf">${t}<small>${sub}</small></h3>`+ids.filter(id=>sy.types[id]).map(id=>gameSetupCard(id,sy)).join('')).join('')}
-    ${done.length ? `<h2 class="shelf">Finished lately</h2>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">See</button>`)).join('') : ''}`;
+    `:''}`;
+  m.querySelectorAll('[data-game-shelf]').forEach(b=>b.onclick=()=>{S.gameShelf=b.dataset.gameShelf;renderGames();});
   bindInvitations(m);
   bindScoreReviews(m);
   m.querySelectorAll('[data-open]').forEach(b => b.onclick = async () => {try{if(+b.dataset.openRoom!==S.room)await enterRoom(+b.dataset.openRoom);await openGame(+b.dataset.open);}catch(e){toast(e.message);}});
-  $('#nook-chat').onclick=()=>{S.tab='chat';render();};
-  m.querySelectorAll('[data-join]').forEach(b => b.onclick = async () => { try { await api(`/api/game/${b.dataset.join}/join`, {}); await sync(); openGame(+b.dataset.join); } catch (e) { toast(e.message); } });
+  const nookChat=$('#nook-chat');if(nookChat)nookChat.onclick=()=>{S.tab='chat';render();};
+  m.querySelectorAll('[data-join]').forEach(b => b.onclick = async () => { try { if(+b.dataset.joinRoom!==S.room)await enterRoom(+b.dataset.joinRoom);await api(`/api/game/${b.dataset.join}/join`, {}); await sync(); openGame(+b.dataset.join); } catch (e) { toast(e.message); } });
   bindGameSetups(m);
 
 }
