@@ -1395,7 +1395,7 @@ function renderMahjong(st,g,myTurn){
   if(S.mjGame!==g.id||S.mjRevision!==st.revision){S.mjPick=null;S.mjHint=[];S.mjGame=g.id;S.mjRevision=st.revision;}
   $('#board').innerHTML=`<section class="mj-room"><div class="mj-heading"><div><small>THE LITTLE ISLAND COLLECTION</small><h3>A match made in Ohana</h3></div><span class="mj-count">${live.length/2}<small>pairs left</small></span></div><div class="mj-progress" role="progressbar" aria-valuemin="0" aria-valuemax="36" aria-valuenow="${st.pairs}" aria-label="${st.pairs} of 36 pairs collected"><i style="width:${st.pairs/36*100}%"></i></div><p class="mj-guide">Match two identical treasures. Each needs a clear top and a free left or right edge.</p><div class="mj-table" role="group" aria-label="Stacked Ohana Mahjong tiles">${live.map(t=>`<button type="button" class="mj-tile ${mjFree(st.tiles,t)?'free':'blocked'} ${S.mjPick===t.id?'picked':''} ${(S.mjHint||[]).includes(t.id)?'hinted':''}" style="--x:${t.x};--y:${t.y};--z:${t.z}" data-mj="${t.id}" aria-label="${MJ_NAMES[t.face]}, ${mjFree(st.tiles,t)?'free':'blocked'}, layer ${t.z+1}, row ${t.y+1}, column ${t.x+1}" aria-pressed="${S.mjPick===t.id}" ${!myTurn||!mjFree(st.tiles,t)?'disabled':''}>${mjArt(t.face)}<span>${MJ_NAMES[t.face]}</span></button>`).join('')}${!live.length?'<div class="mj-complete">🌺<h3>Every treasure found.</h3><p>Good games. Brighter people.</p></div>':''}</div><div class="mj-message" role="status" aria-live="polite">${!live.length?'Island complete! Start another from Your games.':!pair?'No open matches. Stir the sea for a fresh, solvable arrangement.':S.mjPick!==null?'Find another free '+MJ_NAMES[st.tiles.find(t=>t.id===S.mjPick).face]+'.':g.players.length===1?'Your little island escape. Take your time.':myTurn?'Your turn: find a pair for +10 points.':'Cheer them on. Your turn is coming.'}</div><div class="mj-tools"><button class="soft" id="mj-hint" ${!myTurn||!pair?'disabled':''}>✦ A little hint</button><button class="soft" id="mj-shuffle" ${!myTurn||!live.length?'disabled':''}>↻ Stir the sea</button></div><small class="mj-fair">10 points per pair · Hints & reshuffles are free${g.players.length>1?' · Take turns after each pair':''}</small><div class="mj-scores">${g.players.map(p=>`<span>${avOf(p)} ${esc(nameOf(p))} <b>${st.scores[p]} points</b></span>`).join('')}</div>${st.lastPair?`<div class="mj-last">${mjArt(st.lastPair.face)}<span>${esc(nameOf(st.lastPair.player))} found ${MJ_NAMES[st.lastPair.face]}<b>+10 points · ${st.pairs} pairs collected</b></span></div>`:''}</section>`;
   let busy=false;
-  const send=async m=>{if(busy)return;busy=true;$('#board').querySelectorAll('button').forEach(b=>b.disabled=true);try{await api(`/api/game/${g.id}/move`,{...m,revision:st.revision});S.mjPick=null;await loadGame();AudioSys.beep(660,.12,.25);setTimeout(()=>AudioSys.beep(880,.15,.25),130);if(m.action==='match')announceCharacter(st.pairs===35?'win':'match',10,MJ_NAMES[st.tiles.find(t=>t.id===m.ids[0]).face]);else announceCharacter('shuffle');}catch(e){toast(e.message);await loadGame();renderGame();}finally{busy=false;}};
+  const send=async m=>{if(busy||S.movePending)return;busy=true;S.movePending=true;$('#board').querySelectorAll('button').forEach(b=>b.disabled=true);try{await api(`/api/game/${g.id}/move`,{...m,revision:st.revision});S.mjPick=null;await loadGame();AudioSys.beep(660,.12,.25);setTimeout(()=>AudioSys.beep(880,.15,.25),130);if(m.action==='match')announceCharacter(st.pairs===35?'win':'match',10,MJ_NAMES[st.tiles.find(t=>t.id===m.ids[0]).face]);else announceCharacter('shuffle');}catch(e){toast(e.message);await loadGame();renderGame();}finally{busy=false;S.movePending=false;}};
   $('#board').querySelectorAll('[data-mj]').forEach(b=>b.onclick=()=>{const id=+b.dataset.mj,t=st.tiles.find(t=>t.id===id);if(S.mjPick===id){S.mjPick=null;renderMahjong(st,g,myTurn);return;}if(S.mjPick!==null){const first=st.tiles.find(t=>t.id===S.mjPick);if(first.face===t.face){send({action:'match',ids:[first.id,id]});return;}toast('Different treasures. Try another '+MJ_NAMES[first.face]+'.');}S.mjPick=id;S.mjHint=[];AudioSys.beep(440,.07,.12);renderMahjong(st,g,myTurn);});
   $('#mj-hint').onclick=()=>{S.mjHint=pair.map(t=>t.id);S.mjPick=null;renderMahjong(st,g,myTurn);announceCharacter('hint',null,'the glowing '+MJ_NAMES[pair[0].face]+' pair');};
   $('#mj-shuffle').onclick=()=>send({action:'shuffle'});
@@ -1780,8 +1780,32 @@ function accessibleBoard(root,columns,label){
   };
  });
 }
+async function goToNextGame(){
+ if(S.nextGamePending||S.movePending)return;
+ if(S.placed?.length&&!confirm('Leave your unplayed letters and open your next game?'))return;
+ const current=S.game;S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
+ try{
+  const latest=await api('/api/sync?msgSince='+S.lastMsg);
+  if(S.game!==current)return;
+  const next=(latest.allGames||latest.games||[]).filter(g=>g.id!==current&&g.in_game&&g.status==='playing'&&g.my_turn).sort((a,b)=>(b.updated_at||0)-(a.updated_at||0))[0];
+  if(!next){toast('You’re all caught up! No other games are waiting for your move.',5000);return;}
+  const room=next.room_id||latest.roomId||S.room;
+  if(Number(room)!==Number(S.room))await enterRoom(room);
+  await openGame(next.id);
+ }catch(e){toast(e.message||'Could not check your next game. Please try again.');}
+ finally{S.nextGamePending=false;document.getElementById('next-game')?.removeAttribute('disabled');}
+}
+function addNextGameControl(){
+ const board=document.getElementById('board');if(!board)return;
+ let controls=document.querySelector('.game-tray .acts')||board.querySelector('.hf-acts,.mj-tools,.next-game-controls');
+ if(!controls){controls=document.createElement('div');controls.className='acts next-game-controls';board.append(controls);}
+ if(controls.querySelector('#next-game'))return;
+ const button=document.createElement('button');button.type='button';button.id='next-game';button.className='soft';button.textContent='Next game';button.setAttribute('aria-label','Next game waiting for your turn');button.disabled=!!S.nextGamePending;button.onclick=goToNextGame;controls.append(button);
+ if(controls.closest('.game-tray'))positionWordTray();
+}
 function enhanceGameAccess(st,g,myTurn){
  const board=document.getElementById('board');if(!board)return;
+ addNextGameControl();
  board.setAttribute('role','region');board.setAttribute('aria-label',g.name+' board');board.tabIndex=-1;
  const bonus={DL:'double letter',TL:'triple letter',DW:'double word',TW:'triple word'};
  if(g.type==='words'){
