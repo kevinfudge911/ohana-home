@@ -628,7 +628,7 @@ function renderRooms(){
   <p class="room-help">Each room has its own Ohana, games, and conversation. Only members who join can see inside.</p>
   <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card room-theme-${roomTheme(r.name,r.id)} ${r.id===sy.roomId?'current':''}"><div><h3>${roomTitle(r.name,r.id)}</h3><small>${r.id===sy.roomId?'You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.id===1||r.invite_code?`<button class="soft" data-room-share="${r.id}">${r.id===1?'Invite new Ohana':'Invite new friends'}</button>`:''}${(r.id===1?S.me.is_admin:r.owner_id===S.me.id)?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
   <form id="new-room" class="room-create"><h3>Open another doorway</h3><label for="room-name">What shall we call your room?</label><input id="room-name" maxlength="48" placeholder="Pe-paw’s friends, Friday game night…" required><button type="submit">✦ Create my private room</button><small>Your friends can create their own private rooms here too.</small></form>
-  <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
+  <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).filter(g=>g.in_game).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
   $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>enterRoom(b.dataset.room));
   $('#main').querySelectorAll('[data-room-share]').forEach(b=>b.onclick=()=>shareRoom(sy.rooms.find(r=>r.id===+b.dataset.roomShare)));
   $('#main').querySelectorAll('[data-room-game]').forEach(b=>b.onclick=async()=>{await enterRoom(b.dataset.gameRoom);await openGame(+b.dataset.roomGame);});
@@ -1314,7 +1314,6 @@ function renderGameChat(st, g) {
   let gameHead = $('#game-head');
   if (!gameHead) { gameHead = document.createElement('div'); gameHead.id = 'game-head'; gameHead.className = 'game-head'; $('#game').prepend(gameHead); }
   gameHead.innerHTML = navHtml;
-  gameHead.insertAdjacentHTML("beforeend",notificationControl());updatePushControls();
   const voice=document.createElement('button');voice.className='ghost voice-toggle';voice.textContent=AudioSys.muted?'🔇 Voice off':'🔊 Voice on';voice.setAttribute('aria-label','Toggle game voices and sounds');voice.setAttribute('aria-pressed',String(!AudioSys.muted));
   voice.onclick=()=>setGameMuted(!AudioSys.muted);gameHead.insertBefore(voice,gameHead.lastElementChild);voice.textContent=AudioSys.muted?'🔇 Sound off':'🔊 Sound on';voice.setAttribute('aria-label',AudioSys.muted?'Unmute game sounds and voices':'Mute game sounds and voices');voice.setAttribute('aria-pressed',String(AudioSys.muted));
 
@@ -1488,7 +1487,10 @@ function bindInvitations(root) {
 }
 function renderSettings() {
   const m=$('#main');S.av=S.me.avatar;
-  m.innerHTML=`<h2 class="shelf">Settings<small>Make yourself at home.</small></h2><section class="settings-tools" aria-labelledby="settings-tools-title"><h3 id="settings-tools-title">Accessibility &amp; app preferences</h3><button type="button" id="access-open" class="soft">Accessibility &amp; install help</button>${notificationControl()}<div class="settings-room"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span><button type="button" class="soft" id="settings-rooms">Choose a room</button></div></section><h3>Your profile</h3><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me.name)}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><div class="character-settings"><h3>Choose your character</h3>${buddyPicker()}</div><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>`;
+  m.innerHTML=`<h2 class="shelf">Settings<small>Make yourself at home.</small></h2><section class="settings-tools" aria-labelledby="settings-tools-title"><h3 id="settings-tools-title">Accessibility &amp; app preferences</h3><button type="button" id="access-open" class="soft">Accessibility &amp; install help</button>${notificationControl()}<div class="settings-room"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span><button type="button" class="soft" id="settings-rooms">Choose a room</button></div></section><h3>Your profile</h3><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me.name)}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><div class="character-settings"><h3>Choose your character</h3>${buddyPicker()}</div><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>${S.me.is_admin&&S.sync?.roomId===1?'<details class="settings-tools"><summary>Family administration</summary><div class="admin" id="adm">Loading…</div></details>':''}<section class="settings-tools" aria-label="This device"><h3>This device</h3><button type="button" id="install" class="soft">Install Ohana Home</button><button type="button" id="out" class="ghost">Sign out</button></section>`;
+  $('#install').onclick=()=>{if(S.installPrompt)S.installPrompt.prompt();else showAccessHelp();};
+  $('#out').onclick=()=>{if(!confirm('Sign out on this device? You will need your name and PIN to come back.'))return;localStorage.removeItem('ohana_token');localStorage.removeItem('ohana_room');S.token=null;S.me=null;S.sync=null;S.room=0;S.msgs=[];S.lastMsg=0;render();};
+  if($('#adm'))renderAdminSettings($('#adm'),S.sync);
   $('#access-open').onclick=showAccessHelp;$('#settings-rooms').onclick=()=>{S.tab='rooms';render();};updatePushControls();
   m.querySelectorAll('[data-av]').forEach(b=>{b.type='button';b.onclick=()=>{S.av=b.dataset.av;m.querySelectorAll('[data-av]').forEach(x=>{x.classList.toggle('sel',x.dataset.av===S.av);x.setAttribute('aria-pressed',String(x.dataset.av===S.av));});$('#buddy-preview').innerHTML=avatarMarkup(S.av);$('#buddy-name').textContent=buddyName(S.av);$('#buddy-line').textContent=CHARACTERS[S.av]?.line||'Ready for a little friendly competition?';};});
   m.querySelectorAll('.buddy-more button').forEach(b=>b.type='button');
@@ -1500,42 +1502,32 @@ function renderSettings() {
   };
 }
 
-// ---------- FAMILY ----------
-async function renderFamily() {
-  const m = $('#main'); const sy = S.sync;
-  const pushSupported = 'PushManager' in window;
-  const pushOn = !!S.pushReady;
-  if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small>${x.about?`<p class="member-about">${esc(x.about)}</p>`:''}</div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
-    <button class="soft" id="my-settings">My settings · name, character &amp; about me</button>
-    ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
-    <p style="font-size:13px;color:rgba(246,231,200,.55)">To put Ohana Home on your phone like an app: on iPhone tap Share, then "Add to Home Screen". On Android tap the menu, then "Add to Home screen" or "Install".</p>
-    ${S.me.is_admin && sy.roomId===1 ? `<div class="admin" id="adm">Loading…</div>` : ''}`;
-  m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
-  $('#my-settings').onclick=()=>{S.tab='settings';render();};
-  $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
-  $('#out').onclick = () => { localStorage.removeItem('ohana_token'); S.token = null; S.me = null; S.sync = null;S.room=0;localStorage.removeItem('ohana_room');S.msgs=[];S.lastMsg=0; render(); };
-  $('#install').onclick = () => { if (S.installPrompt) S.installPrompt.prompt(); else toast('Use your browser menu: Add to Home Screen'); };
-  const ntog = $('#ntoggle');
-  if (ntog) ntog.onclick = async () => {
-    if (S.pushReady) { await unsubscribePush(); } else { await subscribePush(); }
-    renderFamily();
-  };
+async function renderAdminSettings(container,sy){
   if (S.me.is_admin && sy.roomId===1) {
-    try { const info = await api('/api/admin/info');
-      $('#adm').innerHTML = `<h3>Family settings (only you see this)</h3>
-        <label style="font-size:13px">Family code — what everybody types to get in</label><div class="row"><input id="fc" value="${esc(info.family_code)}"><button id="fcs">Save</button></div>
-        <label style="font-size:13px">Family name — shows under the title</label><div class="row"><input id="fn" value="${esc(info.family_name)}"><button id="fns">Save</button></div>
+    try { const info = await api('/api/admin/info');if(!container.isConnected)return;
+      container.innerHTML = `<h3>Family settings (only you see this)</h3>
+        <label for="fc" style="font-size:13px">Family code — what everybody types to get in</label><div class="row"><input id="fc" value="${esc(info.family_code)}"><button id="fcs">Save</button></div>
+        <label for="fn" style="font-size:13px">Family name — shows under the title</label><div class="row"><input id="fn" value="${esc(info.family_name)}"><button id="fns">Save</button></div>
         <h3 style="margin-top:14px">Members</h3>${sy.members.filter(x => !x.is_admin).map(x => `<div class="row" style="align-items:center"><span style="flex:1">${avatarMarkup(x.avatar)} ${esc(x.name)}</span><button class="soft" data-pin="${x.id}" style="padding:8px 10px;font-size:14px">Reset PIN</button><button class="ghost" data-rm="${x.id}" style="padding:8px 10px;font-size:14px">Remove</button></div>`).join('') || '<div class="empty">Just you so far.</div>'}
         <button class="ghost" id="clr" style="margin-top:8px;font-size:14px">Clear all chat messages</button>`;
       $('#fcs').onclick = async () => { try { await api('/api/admin/settings', { family_code: $('#fc').value }); localStorage.setItem('ohana_code', $('#fc').value); toast('Family code saved'); } catch (e) { toast(e.message); } };
       $('#fns').onclick = async () => { try { await api('/api/admin/settings', { family_name: $('#fn').value }); toast('Saved'); await sync(); render(); } catch (e) { toast(e.message); } };
-      $('#adm').querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm('Remove this person? They can rejoin with the family code.')) return; await api('/api/admin/remove', { id: +b.dataset.rm }); await sync(); render(); });
-      $('#adm').querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => { const p = prompt('New 4-number PIN for them:'); if (!p || !/^\d{4}$/.test(p)) return; await api('/api/admin/reset_pin', { id: +b.dataset.pin, pin: p }); toast('PIN reset'); });
+      container.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm('Remove this person? They can rejoin with the family code.')) return; await api('/api/admin/remove', { id: +b.dataset.rm }); await sync(); render(); });
+      container.querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => { const p = prompt('New 4-number PIN for them:'); if (!p || !/^\d{4}$/.test(p)) return; await api('/api/admin/reset_pin', { id: +b.dataset.pin, pin: p }); toast('PIN reset'); });
       $('#clr').onclick = async () => { if (!confirm('Delete every chat message for everybody?')) return; await api('/api/admin/clear_chat', {}); S.msgs = []; S.lastMsg = 0; toast('Chat cleared'); };
-    } catch (e) { $('#adm').textContent = e.message; }
+    } catch (e) { container.textContent = e.message; }
   }
+}
+
+// ---------- FAMILY ----------
+async function renderFamily() {
+  const m = $('#main'); const sy = S.sync;
+  if(!S.avatarEditing)S.av=S.me.avatar;
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small>${x.about?`<p class="member-about">${esc(x.about)}</p>`:''}</div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
+    `;
+  m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
+  $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
+
 }
 
 // ---------- SYNC LOOP ----------
