@@ -389,6 +389,8 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .profile-settings{max-width:680px;margin:0 auto;padding:20px;background:#19494d;border:1px solid #75b8b7;border-radius:22px}
 .profile-settings label{display:block;font-weight:700;margin:14px 0 8px}.profile-settings input,.profile-settings textarea{width:100%;box-sizing:border-box;color:#fff3db;background:#103c43;border:1px solid #8bbfba;border-radius:12px;padding:12px;font:inherit}.profile-settings small{color:#c5e0d9}.profile-settings .buddy-welcome small{color:#355d62}.profile-settings .buddy-choice small{color:#fff1d5}.profile-settings .character-settings summary{color:#fff1d5!important}.profile-settings .character-settings summary span{color:inherit!important}.profile-settings .character-settings{margin-top:20px}.member-about{font-size:14px;line-height:1.4;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}nav.tabs button[data-tab="settings"]{--island-face:#b9dce9;--island-shadow:#7398ad}
 .game-shelf-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.game-shelf-tabs button{flex:1;min-height:42px;padding:9px 12px;font-size:14px}.game-shelf-tabs button[aria-pressed="true"]{outline:2px solid #a8ebdf;outline-offset:2px;background:#246c71;color:#fff1d5}.finished-games{margin:16px 0}.finished-games>summary{cursor:pointer;padding:12px;color:#fff1d5}
+#play-error{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(390px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;padding:24px;border:2px solid #8dd8cb;border-radius:24px;background:#174950;color:#fff3d5;box-shadow:0 18px 70px #00192399;text-align:center}#play-error::backdrop{background:#001f3659}#play-error h2{font:600 24px Fredoka,sans-serif;color:#ffe0a2;margin:0 0 16px}#play-error p{font-size:19px;line-height:1.5;color:#fff7e8;margin:0 0 14px;overflow-wrap:anywhere}#play-error small{display:block;font-size:14px;line-height:1.5;color:#cae4de;margin-bottom:20px}#play-error button{background:#bde9d7;color:#153f46;font-size:16px;font-weight:800;min-height:46px;padding:12px 18px;border:1px solid #edf9d7;border-radius:14px}
+.new-player-invite{text-align:center;margin:14px auto}.new-player-invite small{display:block;color:#cae4de;margin-top:8px;font-size:13px}
 </style>
 </head>
 <body>
@@ -721,11 +723,13 @@ function renderGame() {
     b.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:6px 0 8px"><button class="soft" id="wback" style="padding:8px 12px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:20px;margin:0">${EM[g.type]} ${esc(g.name)}</h2>${g.in_game ? `<button class="ghost" id="wleave" style="padding:8px 12px;font-size:14px">${g.created_by === meId ? 'Cancel' : 'Leave'}</button>` : ''}</div><div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
       <p style="text-align:center;color:rgba(246,231,200,.75)">Ohana in this room can see this game on their Games tab and tap Join. It starts by itself when the seats are full.</p>
       ${g.in_game ? waitingOhanaInvites(g) : ''}
+      ${g.invite_code&&g.in_game?`<div class="new-player-invite"><button type="button" class="soft" id="inviteb">Invite someone new</button><small>Share a link so they can join your table.</small></div>`:''}
       ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
       ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb">Start now with ${g.players.length}</button></div>` : ''}`;
     const wb = $('#wback'); if (wb) wb.onclick = () => closeGame();
     const wl = $('#wleave'); if (wl) wl.onclick = async () => { if (confirm('Leave this game?')) { try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } } };
     bindWaitingOhanaInvites(b,g);
+    const ib=$('#inviteb');if(ib)ib.onclick=()=>shareInvite(g.invite_code,g.name);
     const jb = $('#joinb'); if (jb) jb.onclick = async () => { try { await api(`/api/game/${g.id}/join`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     const sb = $('#startb'); if (sb) sb.onclick = async () => { try { await api(`/api/game/${g.id}/start`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     return;
@@ -1127,7 +1131,17 @@ function renderWords(st, g, myTurn) {
   on('pass', () => { if (confirm('Pass your turn?')) move({ action: 'pass' }); });
   on('play', () => move({ action: 'play', placements: S.placed.map(p => ({ i: p.i, l: p.l, blank: p.blank })) }, () => { S.placed = []; S.sel = null; }));
 }
+function showPlayError(message) {
+  document.getElementById('play-error')?.close();
+  const dialog=document.createElement('dialog');dialog.id='play-error';dialog.setAttribute('role','alertdialog');dialog.setAttribute('aria-labelledby','play-error-title');dialog.setAttribute('aria-describedby','play-error-message');
+  dialog.innerHTML='<h2 id="play-error-title">That play didn’t go through</h2><p id="play-error-message"></p><small>Your tiles are still here. Adjust your play and try again.</small><button type="button" autofocus>OK · Back to my tiles</button>';
+  dialog.querySelector('p').textContent=String(message||'Please check your word and try again.');
+  const previous=document.activeElement;
+  dialog.onclose=()=>{dialog.remove();if(previous?.isConnected)previous.focus({preventScroll:true});};
+  dialog.querySelector('button').onclick=()=>dialog.close();document.body.append(dialog);dialog.showModal();
+}
 async function move(m, after) {
+  const gameId=S.game,wordPlay=S.gstate?.type==='words';
   try {
     const g = S.gstate; const meId = S.me?.id;
     const d = await api(`/api/game/${S.game}/move`, m);
@@ -1146,7 +1160,7 @@ async function move(m, after) {
     await loadGame();
     if(g?.type==='words' && m.action==='play')runLastReveal(true,true);
   }
-  catch (e) { toast(e.message, 3500); }
+  catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }
 }
 
 // ----- Game Chat (fixed bottom panel with scores) -----
