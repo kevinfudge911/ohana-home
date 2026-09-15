@@ -1,3 +1,4 @@
+import HANDFOOT_PREVIEW_HTML from "./handfoot-preview.html";
 import WORD_ERROR_PREVIEW_HTML from "./word-error-preview.html";
 import SETTINGS_PREVIEW_HTML from "./settings-preview.html";
 import EDDIE_PORTRAIT from "./buddy-eddie.webp";
@@ -601,53 +602,22 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
   }
   if(type==='handfoot'){
     const p=players[turn],hand=st.inFoot[p]?st.feet[p]:st.hands[p];
-    // Step 1: draw if haven't drawn yet
     if(!st.hasDrawn)return {action:'draw'};
-    // Step 2: try to meld — group hand by rank
-    const byRank={};
-    for(const c of hand){
-      if(hfIsWild(c)||hfIsRed3(c)||hfIsBlack3(c))continue;
-      (byRank[c.rank]=byRank[c.rank]||[]).push(c);
-    }
-    const wilds=hand.filter(c=>hfIsWild(c));
-    // Add to existing melds first
-    for(const m of st.melds[p]){
-      const matching=byRank[m.rank]||[];
-      if(matching.length>0){
-        return {action:'meld',cardIds:matching.map(c=>c.id),rank:m.rank};
+    const groups={},wilds=hand.filter(hfIsWild),options=[];
+    for(const c of hand)if(!hfIsWild(c)&&c.rank!=='3')(groups[c.rank]||=[]).push(c);
+    for(const [rank,cards] of Object.entries(groups)){
+      for(let n=1;n<=cards.length;n++)for(let w=0;w<=Math.min(3,wilds.length);w++){
+        const m={action:'meld',rank,cardIds:[...cards.slice(0,n),...wilds.slice(0,w)].map(c=>c.id)};
+        try{hfMove(structuredClone(st),players,turn,m);options.push(m);}catch{}
       }
     }
-    // Start new melds with 3+ natural cards of same rank
-    for(const[rank,cards]of Object.entries(byRank)){
-      if(cards.length>=3){
-        return {action:'meld',cardIds:cards.slice(0,Math.min(cards.length,6)).map(c=>c.id),rank};
-      }
+    if(options.length&&(hard||medium||random()<.65)){
+      if(hard)options.sort((a,b)=>b.cardIds.length-a.cardIds.length);
+      return hard?options[0]:pick(options);
     }
-    // Try new meld with 2 natural + 1 wild
-    if(wilds.length>0){
-      for(const[rank,cards]of Object.entries(byRank)){
-        if(cards.length>=2){
-          const ids=[...cards.slice(0,2).map(c=>c.id),wilds[0].id];
-          // Check min meld requirement for first meld
-          if(st.melds[p].length===0){
-            const val=cards.slice(0,2).reduce((s,c)=>s+hfCardVal(c),0)+hfCardVal(wilds[0]);
-            if(val<hfMinMeld(st.scores[p]))continue;
-          }
-          return {action:'meld',cardIds:ids,rank};
-        }
-      }
-    }
-    // Step 3: discard — pick lowest value non-wild card, prefer black 3s
-    const discardable=hand.filter(c=>!hfIsWild(c));
-    const black3=discardable.find(c=>hfIsBlack3(c));
-    if(black3)return {action:'discard',cardId:black3.id};
-    if(discardable.length>0){
-      discardable.sort((a,b)=>hfCardVal(a)-hfCardVal(b));
-      return {action:'discard',cardId:discardable[0].id};
-    }
-    // Only wilds left — discard one
-    if(hand.length>0)return {action:'discard',cardId:hand[0].id};
-    return null;
+    const discards=[...hand].sort((a,b)=>hfIsBlack3(b)-hfIsBlack3(a)||hfCardVal(a)-hfCardVal(b));
+    for(const c of discards){const m={action:'discard',cardId:c.id};try{hfMove(structuredClone(st),players,turn,m);return m;}catch{}}
+    return options[0]||null;
   }
   throw new Error('No computer player for this game.');
 }
@@ -661,6 +631,7 @@ async function advanceBot(env,id){
     const move=await chooseBotMove(g.type,st,players,g.turn,db);
     if(!move)throw new Error('Computer player has no legal move.');
     const res=await applyMove(g.type,st,players,g.turn,move,db);rememberBotCards(st);
+    st.lastPlay={p:players[g.turn],at:now()};
     st.bot.moves=(st.bot.moves||0)+1;
     const saved=await db.prepare('UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?').bind(JSON.stringify(st),res.next,res.over?'finished':'playing',res.over?String(res.winner):null,now(),id,g.state).run();
     if(!saved.meta.changes)return;
@@ -867,7 +838,7 @@ function hfMove(st, players, turnIdx, move) {
       for (const c of naturals) {
         if (c.rank !== targetRank) throw new Error(`All natural cards must be the same rank.`);
       }
-      if (hfIsBlack3({ rank: targetRank })) throw new Error("Black 3s can only be discarded.");
+      if (targetRank === '3') throw new Error("Black 3s can only be discarded.");
       if (targetRank === 'Joker' || targetRank === '2') throw new Error("Can't make a meld of wilds.");
       if (wilds.length >= naturals.length) throw new Error("A meld needs more natural cards than wilds.");
       if (wilds.length > 3) throw new Error("A meld can't have more than 3 wild cards.");
@@ -878,6 +849,10 @@ function hfMove(st, players, turnIdx, move) {
         if (meldTotal < minReq) throw new Error(`First meld of the round needs at least ${minReq} points. These cards are worth ${meldTotal}.`);
       }
       st.melds[p].push({ rank: targetRank, cards });
+    }
+    if(handCopy.length<=1&&st.inFoot[p]){
+      const {clean,dirty}=hfCountCanastas(st.melds[p]);
+      if(clean<1||dirty<1)throw new Error('Keep two cards so you can discard without going out, until you have one clean and one wild-card canasta.');
     }
     for (const id of cardIds) {
       const idx = hand.findIndex(c => c.id === id);
@@ -897,6 +872,7 @@ function hfMove(st, players, turnIdx, move) {
         }
       }
     }
+    if(hand.length===0&&st.inFoot[p]&&st.feet[p].length===0)return hfEndRound(st,players,p);
     return { over: false, next: turnIdx };
   }
 
@@ -1061,6 +1037,7 @@ function gameRow(g, me) {
     winner: g.winner,
     created_by: g.created_by,
     updated_at: g.updated_at,
+    last_play: g.state ? JSON.parse(g.state).lastPlay || null : null,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
     bot: g.state ? JSON.parse(g.state).bot || null : null,
@@ -1263,6 +1240,7 @@ var worker_default = {
     const buddyAssets={"/buddy-eddie.webp":EDDIE_PORTRAIT,"/talk-eddie.webp":EDDIE_TALK,"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/handfoot-preview")return new Response(HANDFOOT_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/word-error-preview")return new Response(WORD_ERROR_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/settings-preview")return new Response(SETTINGS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/ohana-preview")return new Response(OHANA_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -1679,9 +1657,10 @@ async function api2(req, env, url) {
       if (players[g.turn] !== me.id) throw new Error("It's not your turn yet.");
       const st = JSON.parse(g.state);
       const res = await applyMove(g.type, st, players, g.turn, body, db);
+      st.lastPlay={p:me.id,at:now()};
       rememberBotCards(st);
       const status = res.over ? "finished" : "playing";
-      if(g.type==='mahjong'||st.bot) {
+      if(g.type==='mahjong'||g.type==='handfoot'||st.bot) {
         const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state).run();
         if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
       } else {

@@ -432,6 +432,10 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .game-tray .rack{margin:8px auto 4px}
 .game-tray .acts{margin:2px auto 8px}
 .tray-spacer{height:140px}
+
+.game-tray{box-sizing:border-box;border:2px solid #8dc9bf;border-radius:18px 18px 0 0;z-index:55}.game-tray .rack{max-width:100%;box-sizing:border-box;display:flex;gap:5px}.game-tray .rt{flex:1;min-width:0;max-width:56px}.tray-spacer{display:none}
+.hf-area{max-width:760px;margin:auto;color:#fff2d8}.hf-welcome{display:flex;align-items:center;gap:14px;margin:12px 0}.hf-welcome img{width:78px;height:88px;object-fit:contain}.hf-welcome h3{font:600 28px Fredoka;margin:2px 0;color:#ffe3a3}.hf-welcome small{letter-spacing:2px;color:#bce6dc;font-size:10px}.hf-welcome p{font-size:15px;margin:6px 0;line-height:1.4}.hf-players{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.hf-player{display:flex;align-items:center;gap:8px;background:#164b59;border:1px solid #79b7b6;border-radius:16px;padding:10px;flex:1;min-width:170px}.hf-player.current{border-color:#ffe3a3;background:#236573}.hf-player>div{flex:1}.hf-player small{display:block;font-size:11px;color:#c7e1d9}.hf-player strong{font:600 22px Fredoka;color:#ffe3a3}.hf-felt{padding:18px;border:3px solid #82c7bc;border-radius:26px;background:radial-gradient(ellipse at top,#397e75,#164d53 75%);box-shadow:0 6px #073b48}.hf-decks{display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:20px}.hf-deck{width:96px;padding:8px;background:#164b70;border:3px solid #baded8;border-radius:15px;color:#fff1cf;box-shadow:4px 4px #0c3546}.hf-deck-art{display:block}.hf-deck svg{display:block;width:72px;height:64px}.hf-deck small,.hf-deck b{display:block}.hf-discard-stack{text-align:center}.hf-discard-stack>small{display:block;margin-top:9px;font-size:11px;color:#d8ece2}.hf-card{width:58px;height:84px;padding:5px;border-radius:10px;border:2px solid #efddb7;box-sizing:border-box;flex:none;background:#fff5da;box-shadow:0 3px #bba36f;position:relative;display:block;font-family:Fredoka;color:#234958}.hf-card.red{color:#b94150}.hf-card.wild{background:#e9d7f5;border-color:#bfa1dc}.hf-card.sel{transform:translateY(-5px);border-color:#77efdb;outline:2px solid #77efdb;box-shadow:0 4px #186f73}.hf-corner{position:absolute;left:5px;top:3px;font-weight:700;font-size:15px;line-height:1}.hf-corner small{display:block;font-size:11px}.hf-pip{display:block;font-size:30px;line-height:64px;text-align:center}.hf-card-label{position:absolute;bottom:4px;left:0;right:0;font-size:8px;letter-spacing:1px;text-align:center}.hf-hand{gap:7px;padding:10px 0;min-height:90px}.hf-hand-title,.hf-meld-heading h4{font:500 19px Fredoka;margin:16px 0 6px}.hf-hand-title small,.hf-meld-heading small{font:12px Nunito;color:#cfe6df}.hf-hand-title small{display:block}.hf-progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.hf-progress span{font-size:11px;border:1px solid #7aa89e;border-radius:20px;padding:5px 9px;color:#d1e8df}.hf-progress .complete{background:#c8e9b7;color:#21594b}.hf-meld{display:flex;flex-direction:column;gap:3px;min-width:68px;color:#e7eed7;background:#155168;border:1px solid #76b9b4;padding:8px}.hf-meld b{font:600 23px Fredoka;color:#ffe7b1}.hf-meld span{font-size:12px}.hf-meld small{font-size:10px}.hf-meld.book{border:2px solid #ffe0a2}.hf-meld[aria-pressed=true]{outline:3px solid #a3eddb}.hf-empty{font-size:13px;color:#bddbd3;border:1px dashed #84b9a6;border-radius:14px;padding:16px;width:100%;text-align:center}.hf-acts button{background:#bbe4cd;color:#174b51;border:1px solid #e7f3d4;border-radius:13px;min-height:44px}.hf-acts #hf-discard{background:#f3b7a5}.hf-acts #hf-clear{background:#c5d8ed}.hf-guide{margin:12px 0;padding:12px 16px;background:#144754;border:1px solid #77aaa7;border-radius:16px;font-size:13px;line-height:1.5}.hf-guide summary{cursor:pointer;font-weight:700;color:#ffe6b5}.hf-guide p{color:#d5e9e1}.hf-area button:disabled{opacity:.6;cursor:default}.last-play{display:block;color:#cce5df;font-size:11px;margin-top:4px}@media(max-width:420px){.hf-felt{padding:12px}.hf-hand{gap:6px}.hf-card{width:51px;height:76px}.hf-pip{line-height:57px}.hf-player{min-width:130px}.hf-welcome h3{font-size:24px}}
+#game-head{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center}#gb-back{grid-column:1;grid-row:1}#game-head h2{grid-column:2;grid-row:1;min-width:0;font-size:20px!important;line-height:1.2}#gb-leave{grid-column:3;grid-row:1}#game-head .voice-toggle{grid-column:1 / 3;grid-row:2;justify-self:start}#game-head .notification-control{grid-column:3;grid-row:2}#game-head button{color:#174b60!important;text-shadow:none!important}.hf-player .character-avatar{width:28px;height:28px}
 </style>
 </head>
 <body>
@@ -660,7 +664,7 @@ function gameSetupCard(id,sy){
  if(!rooms.some(r=>r.id===cfg.room))cfg.room=rooms[0].id;
  const gt=sy.types[id];
  const choices=(key,items)=>`<div class="setup-choices" role="group">${items.map(([value,label])=>`<button type="button" class="setup-choice" data-setup-key="${key}" data-setup-value="${value}" aria-pressed="${String(cfg[key])===String(value)}">${key==='room'?roomTitle(rooms.find(r=>r.id===Number(value))?.name,Number(value)):esc(label)}</button>`).join('')}</div>`;
- return `<article class="gcard game-setup" data-setup-game="${id}"><div class="setup-title"><div class="setup-buddy" aria-hidden="true">${avatarMarkup(({tictac:"@sun",memory:"@kik",checkers:"@man",mahjong:"@spl",words:"@hon"})[id]||"@hon")}</div><div class="t"><b>${esc(gt.name)}</b><span>${esc(gt.desc)}</span></div></div><div class="setup-fields"><div class="setup-field"><small>Where’s our table?</small>${choices('room',rooms.map(r=>[r.id,roomIcon(r.name,r.id)+' '+r.name]))}</div><div class="setup-field"><small>Who’s playing?</small>${choices('opponent',[['family','🌺 Ohana together'],['bot','🐢 Honu · computer'],...(id==='mahjong'?[['solo','🐚 Solo escape']]:[])])}</div>${cfg.opponent==='bot'?`<div class="setup-field"><small>Honu’s challenge</small>${choices('difficulty',[['easy','🌿 Easy'],['medium','🌊 Medium'],['hard','🔥 Hard']])}<p class="setup-hint">${cfg.difficulty==='hard'?'A sharper opponent for a serious challenge.':cfg.difficulty==='medium'?'A little strategy, a little friendly competition.':'Relaxed play with room to learn.'}</p></div>`:cfg.opponent==='family'&&gt.max>2?`<div class="setup-field"><small>Seats at the table</small>${choices('players',Array.from({length:gt.max-1},(_,i)=>[i+2,(i+2)+' players']))}</div>`:''}${id==='words'?`<div class="setup-field"><small>Board adventure</small>${choices('mode',[['classic','⭐ Classic'],['random','🎲 Surprise island']])}</div>`:''}</div><div class="setup-footer"><small>${cfg.opponent==='bot'?'Just you and Honu':cfg.opponent==='solo'?'A little time for yourself':'Start a table, then invite your Ohana'}</small><button class="setup-start" data-new="${id}">✦ Let’s play</button></div></article>`;
+ return `<article class="gcard game-setup" data-setup-game="${id}"><div class="setup-title"><div class="setup-buddy" aria-hidden="true">${avatarMarkup(({tictac:"@sun",memory:"@kik",checkers:"@man",mahjong:"@spl",words:"@hon",handfoot:"@eag"})[id]||"@hon")}</div><div class="t"><b>${esc(gt.name)}</b><span>${esc(gt.desc)}</span></div></div><div class="setup-fields"><div class="setup-field"><small>Where’s our table?</small>${choices('room',rooms.map(r=>[r.id,roomIcon(r.name,r.id)+' '+r.name]))}</div><div class="setup-field"><small>Who’s playing?</small>${choices('opponent',[['family','🌺 Ohana together'],['bot','🐢 Honu · computer'],...(id==='mahjong'?[['solo','🐚 Solo escape']]:[])])}</div>${cfg.opponent==='bot'?`<div class="setup-field"><small>Honu’s challenge</small>${choices('difficulty',[['easy','🌿 Easy'],['medium','🌊 Medium'],['hard','🔥 Hard']])}<p class="setup-hint">${cfg.difficulty==='hard'?'A sharper opponent for a serious challenge.':cfg.difficulty==='medium'?'A little strategy, a little friendly competition.':'Relaxed play with room to learn.'}</p></div>`:cfg.opponent==='family'&&gt.max>2?`<div class="setup-field"><small>Seats at the table</small>${choices('players',Array.from({length:gt.max-1},(_,i)=>[i+2,(i+2)+' players']))}</div>`:''}${id==='words'?`<div class="setup-field"><small>Board adventure</small>${choices('mode',[['classic','⭐ Classic'],['random','🎲 Surprise island']])}</div>`:''}</div><div class="setup-footer"><small>${cfg.opponent==='bot'?'Just you and Honu':cfg.opponent==='solo'?'A little time for yourself':'Start a table, then invite your Ohana'}</small><button class="setup-start" data-new="${id}">✦ Let’s play</button></div></article>`;
 }
 function bindGameSetups(root){
  root.querySelectorAll('[data-setup-key]').forEach(b=>b.onclick=()=>{
@@ -676,6 +680,11 @@ function bindGameSetups(root){
   await sync();await openGame(d.id);
  }catch(e){toast(e.message);b.disabled=false;}});
 }
+function gameLastPlayed(g,person){
+ const at=g.last_play?.at||g.updated_at;if(!at)return '';
+ const label=g.last_play?person(g,g.last_play.p)+' played':'Last activity';
+ return `<small class="last-play">${esc(label)} · <time datetime="${new Date(at).toISOString()}">${esc(fmtTime(at))}</time></small>`;
+}
 function renderGames() {
   const m = $('#main'); const sy = S.sync; if (!sy) { m.innerHTML = '<div class="empty">Loading…</div>'; return; }
   const allGames=sy.allGames||sy.games;
@@ -688,7 +697,7 @@ function renderGames() {
   const roomName=g=>(sy.rooms||[]).find(r=>r.id===(g.room_id||sy.roomId))?.name||g.room_name||sy.familyName;
 
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${esc(person(g,+g.winner))} won`) : g.my_turn ? 'Your turn!' : `${esc(person(g,g.players[g.turn]))}'s turn`) + modeBit; };
-  const card = (g, btn) => `<div class="gcard nook-card ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${roomTitle(roomName(g),g.room_id)}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='hard'?'Hard':g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
+  const card = (g, btn) => `<div class="gcard nook-card ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${roomTitle(roomName(g),g.room_id)}</small><span>${line(g)}</span>${gameLastPlayed(g,person)}${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='hard'?'Hard':g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers', 'mahjong']], ['Grown-ups & big kids', 'bring your brain', ['words', 'handfoot']]];
   m.innerHTML = `<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['mine','My games'],['others','Other games'],['new','Start a game']].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${invitationCards()}${shelf==='mine'?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>OHANA GAME ISLAND</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?'<div class="nook-grid">'+mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':'<p class="nook-empty">Your games will appear here once you join. Choose Start a game or browse Other games.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
     <div class="room-conversation"><div><small>YOU ARE IN</small><b>${roomTitle(sy.familyName,sy.roomId)}</b><span>Only this room’s Ohana share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
@@ -710,7 +719,7 @@ function renderGames() {
 }
 
 // ---------- GAME SCREEN ----------
-async function openGame(id) { S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; render(); await loadGame(); }
+async function openGame(id) { S.hfSel=[];S.hfMeldTarget=null;S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; render(); await loadGame(); }
 async function loadGame() {
   if (!S.game) return;
   // Also sync member online status in background
@@ -753,6 +762,7 @@ function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; documen
 
 function renderGame() {
   const g = S.gstate;
+  if(g?.type!=='words')document.querySelector('.game-tray')?.remove();
   if (!g) { app.innerHTML = `<div id="game"><div class="body" style="display:flex;align-items:center;justify-content:center;color:rgba(246,231,200,.6)">Loading…</div></div>`; return; }
   const draft = $('#gchat-in')?.value || '';
   const hadChatFocus = document.activeElement?.id === 'gchat-in';
@@ -778,7 +788,7 @@ function renderGame() {
   const st = g.state; const turnId = g.players[g.turn];
   let head = '';
   if (g.status === 'finished') head = `<div class="winbox">${g.winner === 'tie' ? "It's a tie!" : g.winner === 'resigned' ? 'Game ended' : (+g.winner === meId ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`)}${st.scores ? `<small>${g.players.map(p => `${esc(nameOf(p))} ${st.scores[p]}`).join(' · ')}</small>` : ''}</div>`;
-  else head = `<div class="status turn-greeting ${turnId === meId ? 'me' : ''}"><button class="honu-host" type="button" aria-label="Talk to Honu"><img src="/honu.webp" alt="Honu, your Ohana sea turtle host"></button><div><b>${turnId === meId ? 'Your turn, '+esc(nameOf(meId))+'!' : esc(nameOf(turnId))+"’s turn"}</b><small>${turnId === meId ? ({mahjong:'Find a little island treasure.',words:'A little word magic?',checkers:'Your next clever move.',memory:'Found a familiar face?',tictac:'Make your mark.'}[g.type] || 'Let’s play!') : 'Pull up a chair. Your turn is coming.'}</small></div><span class="turn-leaf" aria-hidden="true">${avOf(turnId)}</span></div>`;
+  else head = `<div class="status turn-greeting ${turnId === meId ? 'me' : ''}"><button class="honu-host" type="button" aria-label="Talk to Honu"><img src="/honu.webp" alt="Honu, your Ohana sea turtle host"></button><div><b>${turnId === meId ? 'Your turn, '+esc(nameOf(meId))+'!' : esc(nameOf(turnId))+"’s turn"}</b><small>${turnId === meId ? ({mahjong:'Find a little island treasure.',words:'A little word magic?',handfoot:'A little island card magic.',checkers:'Your next clever move.',memory:'Found a familiar face?',tictac:'Make your mark.'}[g.type] || 'Let’s play!') : 'Pull up a chair. Your turn is coming.'}</small></div><span class="turn-leaf" aria-hidden="true">${avOf(turnId)}</span></div>`;
   b.innerHTML = renderScoreReview(g) + head + `<div id="board"></div>`;
   bindScoreReviews(b);
   // Fixed bottom panel with scores + chat
@@ -1033,6 +1043,19 @@ function placeDraftTile(st, rack, rackIdx, i) {
   if(l==='?'){const a=prompt('Blank tile! What letter?');if(!a||!/^[a-z]$/i.test(a.trim()))return false;l=a.trim().toUpperCase();blank=true;}
   S.placed.push({i,l,blank,rackIdx});return true;
 }
+function positionWordTray(){
+ const tray=document.querySelector('.game-tray');if(!tray)return;
+ const v=window.visualViewport,scale=v?.scale||1,vw=v?.width||window.innerWidth,vh=v?.height||window.innerHeight;
+ const width=Math.min(720,vw*scale);
+ Object.assign(tray.style,{width:width+'px',maxWidth:'none',margin:'0',right:'auto',bottom:'auto',transformOrigin:'top left',transform:`scale(${1/scale})`});
+ tray.style.left=((v?.offsetLeft||0)+(vw-width/scale)/2)+'px';
+ tray.style.top=((v?.offsetTop||0)+vh-tray.offsetHeight/scale)+'px';
+ const game=document.getElementById('game');if(game)game.style.paddingBottom=(tray.offsetHeight/scale+24)+'px';
+}
+window.visualViewport?.addEventListener('resize',positionWordTray);
+window.visualViewport?.addEventListener('scroll',positionWordTray);
+window.addEventListener('resize',positionWordTray);
+
 function initDragDrop(st, g, myTurn, rack, rerender) {
   if(!myTurn||S.swapMode)return;
   const bd=$('#board');
@@ -1146,8 +1169,8 @@ function renderWords(st, g, myTurn) {
       `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : '';
   let tray = document.querySelector('.game-tray');
   if (hasRack) {
-    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.getElementById('game').appendChild(tray); }
-    tray.innerHTML = rackHtml;
+    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.body.appendChild(tray); }
+    tray.innerHTML = rackHtml;positionWordTray();
   } else if (tray) { tray.remove(); }
   bd.insertAdjacentHTML("beforeend",renderPlayBreakdown(st));
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
@@ -1185,14 +1208,15 @@ function renderWords(st, g, myTurn) {
 function showPlayError(message) {
   document.getElementById('play-error')?.close();
   const dialog=document.createElement('dialog');dialog.id='play-error';dialog.setAttribute('role','alertdialog');dialog.setAttribute('aria-labelledby','play-error-title');dialog.setAttribute('aria-describedby','play-error-message');
-  dialog.innerHTML='<h2 id="play-error-title">That play didn’t go through</h2><p id="play-error-message"></p><small>Your tiles are still here. Adjust your play and try again.</small><button type="button" autofocus>OK · Back to my tiles</button>';
+  dialog.innerHTML='<h2 id="play-error-title">That play didn’t go through</h2><p id="play-error-message"></p><small>Your pieces are still here. Adjust your play and try again.</small><button type="button" autofocus>OK · Back to my game</button>';
   dialog.querySelector('p').textContent=String(message||'Please check your word and try again.');
   const previous=document.activeElement;
   dialog.onclose=()=>{dialog.remove();if(previous?.isConnected)previous.focus({preventScroll:true});};
   dialog.querySelector('button').onclick=()=>dialog.close();document.body.append(dialog);dialog.showModal();
 }
 async function move(m, after) {
-  const gameId=S.game,wordPlay=S.gstate?.type==='words';
+  if(S.movePending)return;S.movePending=true;
+  const gameId=S.game,wordPlay=['words','handfoot'].includes(S.gstate?.type);
   try {
     const g = S.gstate; const meId = S.me?.id;
     const d = await api(`/api/game/${S.game}/move`, m);
@@ -1211,7 +1235,7 @@ async function move(m, after) {
     await loadGame();
     if(g?.type==='words' && m.action==='play')runLastReveal(true,true);
   }
-  catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }
+  catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }finally{S.movePending=false;}
 }
 
 // ----- Game Chat (fixed bottom panel with scores) -----
@@ -1284,7 +1308,7 @@ function renderGameChat(st, g) {
   voice.onclick=()=>setGameMuted(!AudioSys.muted);gameHead.insertBefore(voice,gameHead.lastElementChild);voice.textContent=AudioSys.muted?'🔇 Sound off':'🔊 Sound on';voice.setAttribute('aria-label',AudioSys.muted?'Unmute game sounds and voices':'Mute game sounds and voices');voice.setAttribute('aria-pressed',String(AudioSys.muted));
 
   bp.innerHTML = `<div class="gb-inner"><div class="table-chat-title"><span aria-hidden="true">🌺</span><b>Around the table</b><small>A little friendly banter</small></div>
-    ${g.type !== 'words' ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
+    ${!['words','handfoot'].includes(g.type) ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
       const emojiOnly = isEmoji(m.text);
@@ -1640,187 +1664,33 @@ async function shareInvite(inviteCode, gameName) {
 })();
 
 // ----- Hand & Foot -----
-function renderHandFoot(st, g, myTurn) {
-  const meId = S.me.id;
-  if (!S.hfSel) S.hfSel = [];
-  if (!S.hfMeldTarget) S.hfMeldTarget = null;
-  const myHand = st.hands[meId];
-  const isArr = Array.isArray(myHand);
-  const myFoot = st.feet[meId];
-  const inFoot = !!st.inFoot?.[meId];
-
-  function cardColor(c) { return (c.suit === '♥' || c.suit === '♦') ? 'red' : 'blk'; }
-  function cardClass(c) { return `hf-card ${S.hfSel.includes(c.id) ? 'sel' : ''} ${hfIsWildFE(c) ? 'wild' : cardColor(c)}`; }
-  function hfIsWildFE(c) { return c.rank === 'Joker' || c.rank === '2'; }
-  function cardHTML(c) {
-    const disp = c.rank === 'Joker' ? '🃏' : c.rank;
-    const suit = c.rank === 'Joker' ? '' : c.suit;
-    return `<div class="${cardClass(c)}" data-cid="${c.id}"><span class="r">${disp}</span><span class="s">${suit}</span></div>`;
-  }
-
-  const hand = isArr ? [...myHand].sort((a, b) => {
-    if (hfIsWildFE(a) && !hfIsWildFE(b)) return 1;
-    if (!hfIsWildFE(a) && hfIsWildFE(b)) return -1;
-    const ro = 'A K Q J 10 9 8 7 6 5 4 3'.split(' ');
-    return ro.indexOf(a.rank) - ro.indexOf(b.rank);
-  }) : [];
-
-  const topDiscard = st.discardPile?.[0];
-  const discardCount = st.discardCount || 0;
-  const myMelds = st.melds?.[meId] || [];
-  const myRed3s = st.red3s?.[meId] || [];
-
-  let html = '<div class="hf-area"><div class="hf-table">';
-
-  // Opponents
-  html += '<div class="hf-opp">';
-  for (const pid of g.players) {
-    if (pid === meId) continue;
-    const oHand = typeof st.hands[pid] === 'number' ? st.hands[pid] : '?';
-    const oFoot = typeof st.feet[pid] === 'number' ? st.feet[pid] : '?';
-    const oMelds = st.melds?.[pid] || [];
-    const oRed3s = st.red3s?.[pid] || [];
-    const oInFoot = !!st.inFoot?.[pid];
-    const { cl, di } = countCanFE(oMelds);
-    html += `<div class="hf-opp-card"><b>${avOf(pid)} ${esc(nameOf(pid))}</b>
-      🂠 ${oHand} cards ${oInFoot ? '<span class="hf-foot-badge active">In foot</span>' : `· 👟 ${oFoot}`}
-      ${oMelds.length ? `<br>Melds: ${oMelds.map(m => `${m.rank}×${m.cards.length}${m.cards.length>=7?'⭐':''}`).join(' ')}` : ''}
-      ${oRed3s.length ? `<br>${oRed3s.map(()=>'🔴3').join(' ')}` : ''}
-      ${cl+di>0 ? `<br>Canastas: ${cl}🟢 ${di}🟡` : ''}
-    </div>`;
-  }
-  html += '</div>';
-
-  // Draw/Discard
-  html += `<div class="hf-discard">
-    <div class="hf-pile hf-draw" id="hf-draw"><div>${st.drawPile}</div><div style="font-size:11px">Draw</div></div>
-    <div class="hf-pile hf-disc" id="hf-pickup">${topDiscard ? `<span class="crd-rank" style="color:${(topDiscard.suit==='♥'||topDiscard.suit==='♦')?'#C0392B':'#213d3a'}">${topDiscard.rank === 'Joker' ? '🃏' : topDiscard.rank}</span><span class="crd-suit">${topDiscard.rank==='Joker'?'':topDiscard.suit}</span>` : '<span style="color:rgba(0,0,0,.3)">empty</span>'}<div style="font-size:10px;position:absolute;bottom:2px;right:4px;color:rgba(0,0,0,.4)">${discardCount}</div></div>
-  </div>`;
-
-  // Info
-  html += `<div class="hf-info">`;
-  html += `<span>${inFoot ? '<span class="hf-foot-badge active">👟 Playing foot</span>' : `<span class="hf-foot-badge">✋ Playing hand</span> · 👟 ${typeof myFoot === 'number' ? myFoot : myFoot.length} in foot`}</span>`;
-  const minMeld = hfMinMeldFE(st.scores?.[meId] || 0);
-  if (myMelds.length === 0) html += ` · <b>Need ${minMeld} to meld</b>`;
-  html += `</div>`;
-
-  // Red 3s
-  if (myRed3s.length) {
-    html += `<div class="hf-red3s">${myRed3s.map(() => '<span class="r3">🔴3</span>').join('')} <span style="font-size:12px;color:#c8d6cc">+${myRed3s.length * 100}pts</span></div>`;
-  }
-
-  // My melds
-  if (myMelds.length) {
-    html += '<div style="font-size:13px;color:#c8d6cc;text-align:center">Your melds (tap to add cards):</div>';
-    html += '<div class="hf-melds">';
-    for (let mi = 0; mi < myMelds.length; mi++) {
-      const m = myMelds[mi];
-      const isCan = m.cards.length >= 7;
-      const isClean = m.cards.every(c => !hfIsWildFE(c));
-      html += `<div class="hf-meld ${isCan ? (isClean ? 'clean' : 'canasta') : ''} ${S.hfMeldTarget === mi ? 'sel-meld' : ''}" data-mi="${mi}">
-        <span class="mlbl">${m.rank}</span>
-        <span class="mcnt">×${m.cards.length}${isCan ? (isClean ? '🟢' : '🟡') : ''}</span>
-      </div>`;
-    }
-    html += '</div>';
-  }
-
-  // Hand
-  if (isArr) {
-    html += '<div class="hf-hand" id="hf-hand">';
-    for (const c of hand) html += cardHTML(c);
-    html += '</div>';
-  }
-
-  // Actions
-  if (myTurn && isArr) {
-    html += '<div class="hf-acts">';
-    if (!st.hasDrawn) {
-      html += `<button id="hf-draw-btn">🂠 Draw 2</button>`;
-      if (discardCount > 0) html += `<button id="hf-pickup-btn" class="soft">📥 Pick up pile (${discardCount})</button>`;
-    } else {
-      if (S.hfSel.length >= 3) {
-        html += `<button id="hf-newmeld-btn">✨ New meld</button>`;
-      }
-      if (S.hfSel.length >= 1 && S.hfMeldTarget !== null) {
-        html += `<button id="hf-addmeld-btn">➕ Add to ${myMelds[S.hfMeldTarget]?.rank} meld</button>`;
-      }
-      if (S.hfSel.length === 1) {
-        html += `<button id="hf-discard-btn" class="ghost">🗑 Discard</button>`;
-      }
-      html += `<button id="hf-clear-btn" class="soft" style="font-size:13px">Clear</button>`;
-    }
-    html += '</div>';
-  }
-
-  // Score
-  const { cl: myCl, di: myDi } = countCanFE(myMelds);
-  html += `<div class="hf-info" style="margin-top:6px">Score: <b>${st.scores?.[meId] || 0}</b> · Canastas: <b>${myCl}🟢 ${myDi}🟡</b></div>`;
-  if (g.status === 'playing') {
-    html += `<div style="text-align:center;font-size:12px;color:#9cb5a4">Need 1🟢 clean + 1🟡 dirty canasta to go out</div>`;
-  }
-
-  html += '</div></div>';
-  $('#board').innerHTML = html;
-
-  if (!myTurn || !isArr) return;
-
-  document.querySelectorAll('.hf-card').forEach(el => {
-    el.onclick = () => {
-      const cid = +el.dataset.cid;
-      if (S.hfSel.includes(cid)) S.hfSel = S.hfSel.filter(x => x !== cid);
-      else S.hfSel.push(cid);
-      renderHandFoot(st, g, myTurn);
-    };
-  });
-
-  document.querySelectorAll('.hf-meld').forEach(el => {
-    el.onclick = () => {
-      const mi = +el.dataset.mi;
-      S.hfMeldTarget = S.hfMeldTarget === mi ? null : mi;
-      renderHandFoot(st, g, myTurn);
-    };
-  });
-
-  const drawBtn = document.querySelector('#hf-draw-btn');
-  const drawPile = document.querySelector('#hf-draw');
-  const doDraw = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'draw' }); };
-  if (drawBtn) drawBtn.onclick = doDraw;
-  if (drawPile && !st.hasDrawn) drawPile.onclick = doDraw;
-
-  const pickupBtn = document.querySelector('#hf-pickup-btn');
-  const pickupPile = document.querySelector('#hf-pickup');
-  const doPickup = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'pickup' }); };
-  if (pickupBtn) pickupBtn.onclick = doPickup;
-  if (pickupPile && !st.hasDrawn) pickupPile.onclick = doPickup;
-
-  const newMeldBtn = document.querySelector('#hf-newmeld-btn');
-  if (newMeldBtn) newMeldBtn.onclick = () => {
-    const selCards = hand.filter(c => S.hfSel.includes(c.id));
-    const naturals = selCards.filter(c => !hfIsWildFE(c));
-    if (naturals.length === 0) { toast('Pick at least one non-wild card'); return; }
-    const rank = naturals[0].rank;
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank });
-  };
-
-  const addBtn = document.querySelector('#hf-addmeld-btn');
-  if (addBtn) addBtn.onclick = () => {
-    const selCards = hand.filter(c => S.hfSel.includes(c.id));
-    const meld = myMelds[S.hfMeldTarget];
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank: meld.rank });
-  };
-
-  const discBtn = document.querySelector('#hf-discard-btn');
-  if (discBtn) discBtn.onclick = () => {
-    const cardId = S.hfSel[0];
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'discard', cardId });
-  };
-
-  const clearBtn = document.querySelector('#hf-clear-btn');
-  if (clearBtn) clearBtn.onclick = () => { S.hfSel = []; S.hfMeldTarget = null; renderHandFoot(st, g, myTurn); };
+function renderHandFoot(st,g,myTurn){
+ const me=S.me.id,inFoot=!!st.inFoot?.[me],hand=Array.isArray(inFoot?st.feet[me]:st.hands[me])?[...(inFoot?st.feet[me]:st.hands[me])]:[];
+ S.hfSel=(S.hfSel||[]).filter(id=>hand.some(c=>c.id===id));
+ if(S.hfMeldTarget===undefined)S.hfMeldTarget=null;
+ const melds=st.melds?.[me]||[];if(!melds[S.hfMeldTarget])S.hfMeldTarget=null;
+ const wild=c=>c.rank==='2'||c.rank==='Joker',red=c=>['♥','♦'].includes(c.suit);
+ const rankOrder=['3','4','5','6','7','8','9','10','J','Q','K','A','2','Joker'];hand.sort((a,b)=>rankOrder.indexOf(a.rank)-rankOrder.indexOf(b.rank)||a.id-b.id);
+ const face=c=>`<span class="hf-corner">${esc(c.rank==='Joker'?'J':c.rank)}<small>${esc(c.suit||'★')}</small></span><span class="hf-pip">${esc(c.rank==='Joker'?'★':c.suit)}</span><span class="hf-card-label">${wild(c)?'WILD':''}</span>`;
+ const top=st.discardPile?.[0],books=countCanFE(melds),phase=!myTurn?'Your seat is saved. Watch the table.':!st.hasDrawn?'Draw two cards to begin your turn.':'Choose cards to meld, or discard one to end your turn.';
+ const counts=(v)=>Array.isArray(v)?v.length:v||0;
+ const root=$('#board');root.innerHTML=`<section class="hf-area"><div class="hf-welcome"><img src="/buddy-eddie.webp" alt="Eddie, your island card buddy"><div><small>OHANA CARD CLUB</small><h3>Hand &amp; Foot</h3><p>${phase}</p></div></div>
+ <div class="hf-players">${g.players.map(p=>`<div class="hf-player ${g.players[g.turn]===p?'current':''}">${avOf(p)}<div><b>${esc(nameOf(p))}${p===me?' · you':''}</b><small>${counts(st.inFoot?.[p]?st.feet[p]:st.hands[p])} cards · ${st.inFoot?.[p]?'Playing foot':'Playing hand'}</small></div><strong>${st.scores?.[p]||0}<small>points</small></strong></div>`).join('')}</div>
+ <div class="hf-felt"><div class="hf-decks"><button type="button" class="hf-deck" id="hf-draw-btn" ${!myTurn||st.hasDrawn?'disabled':''}><span class="hf-deck-art" aria-hidden="true"><svg viewBox="0 0 80 70"><path d="M4 46q20 10 30-12T76 26q-22-7-19 8 5 10 19 8v20H4Z" fill="#9cddd4"/><path d="M4 44q20 10 30-12T76 26" fill="none" stroke="#fff0c7" stroke-width="4"/><circle cx="58" cy="14" r="9" fill="#ffe09a"/></svg></span><b>Draw 2</b><small>${st.drawPile} left</small></button><div class="hf-discard-stack"><button type="button" id="hf-pickup-btn" class="hf-card ${top&&red(top)?'red':'blk'}" aria-label="Pick up discard pile" ${!myTurn||st.hasDrawn||!top?'disabled':''}>${top?face(top):'<span>Empty</span>'}</button><small>Discard pile · ${st.discardCount||0}</small></div></div>
+ <div class="hf-progress"><span class="${books.cl?'complete':''}">${books.cl} clean book</span><span class="${books.di?'complete':''}">${books.di} wild-card book</span><span>${inFoot?'Your foot is open':counts(st.feet[me])+' cards in your foot'}</span></div>
+ <div class="hf-meld-heading"><h4>Your melds</h4><small>${melds.length?'Choose a meld to add matching cards':'Opening meld: '+hfMinMeldFE(st.scores?.[me]||0)+' points'}</small></div><div class="hf-melds">${melds.length?melds.map((m,i)=>`<button type="button" class="hf-meld ${m.cards.length>=7?'book':''}" data-mi="${i}" aria-pressed="${S.hfMeldTarget===i}" ${!myTurn?'disabled':''}><b>${esc(m.rank)}</b><span>${m.cards.length} cards</span><small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></button>`).join(''):'<p class="hf-empty">Your first little collection starts here.</p>'}</div>
+ <h4 class="hf-hand-title">Your ${inFoot?'foot':'hand'} <small>${hand.length} cards · ${S.hfSel.length} selected</small></h4><div class="hf-hand">${hand.map(c=>`<button type="button" class="hf-card ${red(c)?'red':'blk'} ${wild(c)?'wild':''} ${S.hfSel.includes(c.id)?'sel':''}" data-cid="${c.id}" aria-label="${esc(c.rank+' '+(c.suit||'wild'))}" aria-pressed="${S.hfSel.includes(c.id)}" ${!myTurn?'disabled':''}>${face(c)}</button>`).join('')}</div>
+ <div class="hf-acts"><button type="button" id="hf-meld" ${!myTurn||!st.hasDrawn||S.hfSel.length<(S.hfMeldTarget!==null?1:3)?'disabled':''}>${S.hfMeldTarget!==null?'Add to '+esc(melds[S.hfMeldTarget].rank):'Make a meld'}</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear selection</button></div></div>
+ <details class="hf-guide"><summary>How this table plays</summary><p>Draw two, then build groups of matching ranks. A book has at least seven cards. A clean book has no wilds; a wild-card book contains twos or jokers. Each meld needs more natural cards than wilds, with at most three wilds.</p><p>Finish your hand to open your foot. You need one clean and one wild-card book to go out. Discarding ends your turn. Opening meld: ${hfMinMeldFE(st.scores?.[me]||0)} points. Clean books earn 500; wild-card books earn 300, plus card values. Scores settle when the round ends.</p></details>
+ <details class="hf-guide"><summary>Around the card table</summary>${g.players.filter(p=>p!==me).map(p=>`<p><b>${esc(nameOf(p))}</b> · ${(st.melds?.[p]||[]).map(m=>esc(m.rank)+' × '+m.cards.length).join(' · ')||'No melds yet'}</p>`).join('')}<p>Your red threes: ${st.red3s?.[me]?.length||0}</p></details></section>`;
+ const clear=()=>{S.hfSel=[];S.hfMeldTarget=null;};
+ root.querySelectorAll('[data-cid]').forEach(b=>b.onclick=()=>{const id=+b.dataset.cid;S.hfSel=S.hfSel.includes(id)?S.hfSel.filter(x=>x!==id):[...S.hfSel,id];renderHandFoot(st,g,myTurn);});
+ root.querySelectorAll('[data-mi]').forEach(b=>b.onclick=()=>{S.hfMeldTarget=S.hfMeldTarget===+b.dataset.mi?null:+b.dataset.mi;renderHandFoot(st,g,myTurn);});
+ root.querySelector('#hf-draw-btn').onclick=()=>move({action:'draw'},clear);
+ root.querySelector('#hf-pickup-btn').onclick=()=>move({action:'pickup'},clear);
+ root.querySelector('#hf-discard').onclick=()=>move({action:'discard',cardId:S.hfSel[0]},clear);
+ root.querySelector('#hf-clear').onclick=()=>{clear();renderHandFoot(st,g,myTurn);};
+ root.querySelector('#hf-meld').onclick=()=>{const cards=hand.filter(c=>S.hfSel.includes(c.id)),rank=melds[S.hfMeldTarget]?.rank||cards.find(c=>!wild(c))?.rank;if(!rank)return showPlayError('Choose matching natural cards along with your wild cards.');move({action:'meld',cardIds:cards.map(c=>c.id),rank},clear);};
 }
 
 function hfMinMeldFE(score) {
