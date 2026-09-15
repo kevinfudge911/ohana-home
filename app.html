@@ -608,7 +608,7 @@ function render() {
       <button data-tab="rooms" class="${S.tab === 'rooms' ? 'on' : ''}"><span class="ic">🚪</span>Rooms</button>
       <button data-tab="settings" class="${S.tab === 'settings' ? 'on' : ''}"><span class="ic">⚙</span>Settings</button>
     </div></nav>`;
-  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if(S.tab==='games')S.gameShelf='mine'; if (S.tab === 'chat') S.unread = 0; render(); });
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; if(S.tab==='games')S.gameShelf='new'; if (S.tab === 'chat') S.unread = 0; render(); });
   updatePushControls();
   $('#room-door').onclick=()=>{S.tab='rooms';render();};
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
