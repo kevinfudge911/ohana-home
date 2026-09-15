@@ -428,6 +428,10 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .hf-opp-card b{font-family:Georgia,serif;display:block;font-size:14px;color:#fff1d8}
 .hf-red3s{display:flex;gap:3px;margin:4px 0;justify-content:center}
 .hf-red3s .r3{font-size:18px}
+.game-tray{position:fixed;bottom:0;left:0;right:0;z-index:55;max-width:1000px;margin:0 auto;padding:0 8px env(safe-area-inset-bottom,0);background:linear-gradient(#0d2f35f0,#0b2930fa);border-top:1px solid #e2c59233;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.game-tray .rack{margin:8px auto 4px}
+.game-tray .acts{margin:2px auto 8px}
+.tray-spacer{height:140px}
 </style>
 </head>
 <body>
@@ -745,7 +749,7 @@ async function loadGame() {
     }
   } catch (e) { toast(e.message); }
 }
-function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); sync().then(render); render(); }
+function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); const tr = document.querySelector('.game-tray'); if (tr) tr.remove(); sync().then(render); render(); }
 
 function renderGame() {
   const g = S.gstate;
@@ -1032,7 +1036,9 @@ function placeDraftTile(st, rack, rackIdx, i) {
 function initDragDrop(st, g, myTurn, rack, rerender) {
   if(!myTurn||S.swapMode)return;
   const bd=$('#board');
-  const sources=[...bd.querySelectorAll('.rt:not(.used)'),...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
+  const trayEl=document.querySelector('.game-tray');
+  const rackTiles=trayEl?[...trayEl.querySelectorAll('.rt:not(.used)')]:[...bd.querySelectorAll('.rt:not(.used)')];
+  const sources=[...rackTiles,...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
   sources.forEach(el=>{
     const staged=el.matches('.c')?S.placed.find(p=>p.i===+el.dataset.i):null;
     const k=staged?staged.rackIdx:+el.dataset.r;
@@ -1062,7 +1068,7 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
       if(!cancelled){
         const target=document.elementFromPoint(e.clientX,e.clientY);const cell=target?.closest('.c');
         if(cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i))AudioSys.tileDrop();
-        else if(staged&&target?.closest('.rack')&&bd.contains(target)){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
+        else if(staged&&target?.closest('.rack')){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
       }
       S.sel=null;rerender();
     };
@@ -1132,16 +1138,24 @@ function renderWords(st, g, myTurn) {
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
     <div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div>
     ${previewHtml}
-    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
-    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
-      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
+    ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
     `;
+  const hasRack = g.status === 'playing' && rack.length;
+  const rackHtml = hasRack ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
+      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : '';
+  let tray = document.querySelector('.game-tray');
+  if (hasRack) {
+    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.getElementById('game').appendChild(tray); }
+    tray.innerHTML = rackHtml;
+  } else if (tray) { tray.remove(); }
   bd.insertAdjacentHTML("beforeend",renderPlayBreakdown(st));
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
   const rerender = () => renderWords(st, g, myTurn);
 
   // Tap-to-select (still works alongside drag)
-  bd.querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
+  const trayEl = document.querySelector('.game-tray');
+  (trayEl||bd).querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
     const k = +btn.dataset.r; if (usedIdx.has(k)) return;
     if (S.swapMode) { S.swapSel = S.swapSel.includes(k) ? S.swapSel.filter(x => x !== k) : [...S.swapSel, k]; return rerender(); }
     S.sel = S.sel === k ? null : k; rerender();
