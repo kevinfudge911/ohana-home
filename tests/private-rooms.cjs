@@ -20,6 +20,7 @@ const fg=await api('/api/game/create','host',1,{type:'tictac'}),pg=await api('/a
 assert.equal((await api('/api/game/'+fg.data.id+'/invite','host',1,{member_id:id})).status,400,'cannot invite private guest to family');
 assert.equal((await api('/api/game/'+fg.data.id+'/invite','family',1,{member_id:1})).status,403,'only seated player invites');
 assert.equal((await api('/api/game/'+fg.data.id+'/invite','host',1,{member_id:2})).status,200);
+assert.deepEqual((await api('/api/game/'+fg.data.id,'host',1)).data.invited_members,[2],'pending invitations survive reload');
 assert.equal((await api('/api/sync','family',1)).data.invitations.length,1);
 assert.equal((await api('/api/sync',token,room.id)).data.invitations.length,0);
 await api('/api/game/'+fg.data.id+'/decline','family',1,{});

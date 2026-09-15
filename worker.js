@@ -1195,7 +1195,8 @@ async function api2(req, env, url) {
     if (!action) {
       if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
-      return json({ ...gameRow(g, me.id), state: st, names });
+      const invited_members=players.includes(me.id)&&g.status==='waiting'?(await db.prepare("SELECT member_id FROM game_invitations WHERE game_id=? AND status='pending'").bind(id).all()).results.map(i=>i.member_id):[];
+      return json({ ...gameRow(g, me.id), state: st, names, invited_members });
     }
     if(action==='invite' && req.method==='POST') {
       if(!players.includes(me.id))return err("Only a player at this table can invite Ohana.",403);

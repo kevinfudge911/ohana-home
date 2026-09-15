@@ -11,5 +11,14 @@ if(process.argv.includes('--preview')){
 }
 w.invEval(`window.calls=[];api=async(path,body)=>{window.calls.push({path,body});return {id:44}};sync=async()=>{};`);await d.querySelector('#send-ohana-invite').onclick();assert.equal(w.calls[0].path,'/api/game/create');assert.equal(w.calls[1].path,'/api/game/44/invite');assert.equal(w.calls[1].body.member_id,2);
 w.invEval(`S.sync.invitations=[{game_id:55,sender_name:'Riley',room_id:2,room_name:'Friends',type:'words'}];S.tab='games';render();window.sequence=[];enterRoom=async id=>window.sequence.push(['room',id]);api=async path=>window.sequence.push(['api',path]);openGame=async id=>window.sequence.push(['game',id]);`);
-assert(d.querySelector('.ohana-invitation').textContent.includes('Riley saved you a seat'));await d.querySelector('[data-accept-invite]').onclick();assert.equal(JSON.stringify(w.sequence),'[["room",2],["api","/api/game/55/join"],["game",55]]');console.log('PASS: Ohana label, member invite buttons, all five game choices, addressed invitation, cross-room accept opens correct room.');
+assert(d.querySelector('.ohana-invitation').textContent.includes('Riley saved you a seat'));await d.querySelector('[data-accept-invite]').onclick();assert.equal(JSON.stringify(w.sequence),'[["room",2],["api","/api/game/55/join"],["game",55]]');w.invEval(`S.game=77;S.gstate={id:77,room_id:2,type:'words',name:'Ohana Words',status:'waiting',players:[1],max_players:2,in_game:true,created_by:1,names:{1:{id:1,name:'Me',avatar:'@hon'},2:{id:2,name:'Jamie',avatar:'@eag'}},invited_members:[]};window.directCalls=[];api=async(...args)=>{window.directCalls.push(args);return {ok:true}};renderGame();`);
+assert(!d.querySelector('#inviteb'),'waiting game must not require a share link');
+assert.equal(d.querySelectorAll('[data-table-invite]').length,1);
+await d.querySelector('[data-table-invite]').onclick();
+assert.equal(JSON.stringify(w.directCalls),JSON.stringify([['/api/game/77/invite',{member_id:2},'POST',2]]));
+assert.equal(d.querySelector('[data-table-invite]').textContent,'Invited');
+w.invEval('renderGame()');assert(d.querySelector('[data-table-invite]').disabled);
+w.invEval(`S.gstate.invited_members=[];api=async()=>{throw new Error('Connection hiccup')};renderGame()`);
+await d.querySelector('[data-table-invite]').onclick();assert(!d.querySelector('[data-table-invite]').disabled);assert(d.querySelector('.waiting-invite-status').textContent.includes('Connection hiccup'));
+console.log('PASS: Ohana label, member invite buttons, all five game choices, addressed invitation, cross-room accept opens correct room.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>w.close());

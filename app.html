@@ -380,6 +380,12 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 @media(max-width:480px){.island-icon{width:23px;height:23px;flex-basis:23px}.game-head{gap:5px}.game-head button{padding:6px!important}.acts .island-icon{width:19px;height:19px;flex-basis:19px}.game-head h2{font-size:18px!important}.room-card>button{font-size:13px!important}}
 
 .drawn-game-art:before,.drawn-game-art:after{display:none!important}.drawn-game-art .island-icon{width:46px;height:46px;margin:0}.gchat-input-row #gchat-emojis .island-icon{width:22px;height:22px;flex-basis:22px}.table-chat-title>span .island-icon{margin:0;width:28px;height:28px}
+.waiting-ohana{margin:16px auto;max-width:760px;padding:16px;border:1px solid #75b8b7;border-radius:20px;background:#19494d}
+.waiting-ohana h3{margin:0 0 6px;color:#fff0c4}.waiting-ohana p{font-size:14px;color:#c8e4df}
+.waiting-ohana-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.waiting-ohana-member{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;background:#22565a;min-width:0}
+.waiting-ohana-member .av{width:36px;height:36px;flex-shrink:0}.waiting-ohana-member .av img{width:100%;height:100%;object-fit:contain}
+.waiting-ohana-member b{flex:1;overflow-wrap:anywhere}.waiting-ohana-member button{padding:8px 12px;font-size:14px;min-height:42px}
 </style>
 </head>
 <body>
@@ -560,7 +566,7 @@ function renderRooms(){
   const sy=S.sync;if(!sy){$('#main').innerHTML='<p>Opening your doorways…</p>';return;}
   $('#main').innerHTML=`<section class="room-welcome"><span class="room-host"><img src="/honu.webp" alt="Honu welcomes you"></span><div><h2>A little place of your own.</h2><p>Different doors. Same Ohana welcome.</p></div></section>
   <p class="room-help">Each room has its own Ohana, games, and conversation. Only members who join can see inside.</p>
-  <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card room-theme-${roomTheme(r.name,r.id)} ${r.id===sy.roomId?'current':''}"><div><h3>${roomTitle(r.name,r.id)}</h3><small>${r.id===sy.roomId?'You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.id===1||r.invite_code?`<button class="soft" data-room-share="${r.id}">${r.id===1?'Invite to Ohana':'Invite friends'}</button>`:''}${(r.id===1?S.me.is_admin:r.owner_id===S.me.id)?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
+  <div class="room-doors">${(sy.rooms||[]).map(r=>`<article class="room-card room-theme-${roomTheme(r.name,r.id)} ${r.id===sy.roomId?'current':''}"><div><h3>${roomTitle(r.name,r.id)}</h3><small>${r.id===sy.roomId?'You are here':''}</small></div><button data-room="${r.id}">Come on in</button>${r.id===1||r.invite_code?`<button class="soft" data-room-share="${r.id}">${r.id===1?'Invite new Ohana':'Invite new friends'}</button>`:''}${(r.id===1?S.me.is_admin:r.owner_id===S.me.id)?`<details><summary>Invitation settings</summary><p>Replace the link to stop new people using the old invitation. Current room members keep their seats.</p><button class="soft" data-room-rotate="${r.id}">Replace invitation link</button></details>`:''}</article>`).join('')}</div>
   <form id="new-room" class="room-create"><h3>Open another doorway</h3><label for="room-name">What shall we call your room?</label><input id="room-name" maxlength="48" placeholder="Pe-paw’s friends, Friday game night…" required><button type="submit">✦ Create my private room</button><small>Your friends can create their own private rooms here too.</small></form>
   <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
   $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>enterRoom(b.dataset.room));
@@ -706,12 +712,12 @@ function renderGame() {
   if (g.status === 'waiting') {
     b.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:6px 0 8px"><button class="soft" id="wback" style="padding:8px 12px;font-size:14px">‹ Back</button><h2 style="flex:1;font-size:20px;margin:0">${EM[g.type]} ${esc(g.name)}</h2>${g.in_game ? `<button class="ghost" id="wleave" style="padding:8px 12px;font-size:14px">${g.created_by === meId ? 'Cancel' : 'Leave'}</button>` : ''}</div><div class="status">Waiting for players…</div><div class="scores">${g.players.map(p => `<div class="sc"><span style="font-size:26px">${avOf(p)}</span><div class="n">${esc(nameOf(p))}</div></div>`).join('')}${Array(g.max_players - g.players.length).fill('<div class="sc" style="opacity:.4"><span style="font-size:26px">❔</span><div class="n">open seat</div></div>').join('')}</div>
       <p style="text-align:center;color:rgba(246,231,200,.75)">Ohana in this room can see this game on their Games tab and tap Join. It starts by itself when the seats are full.</p>
-      ${g.invite_code && g.in_game ? `<div style="text-align:center;margin:12px 0"><button class="soft" id="inviteb" style="font-size:15px">📨 Send Invite Link</button></div>` : ''}
+      ${g.in_game ? waitingOhanaInvites(g) : ''}
       ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
       ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb">Start now with ${g.players.length}</button></div>` : ''}`;
     const wb = $('#wback'); if (wb) wb.onclick = () => closeGame();
     const wl = $('#wleave'); if (wl) wl.onclick = async () => { if (confirm('Leave this game?')) { try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } } };
-    const ib = $('#inviteb'); if (ib) ib.onclick = () => shareInvite(g.invite_code, g.name);
+    bindWaitingOhanaInvites(b,g);
     const jb = $('#joinb'); if (jb) jb.onclick = async () => { try { await api(`/api/game/${g.id}/join`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     const sb = $('#startb'); if (sb) sb.onclick = async () => { try { await api(`/api/game/${g.id}/start`, {}); await loadGame(); } catch (e) { toast(e.message); } };
     return;
@@ -1336,6 +1342,21 @@ function shrink(file) {
   return new Promise((res, rej) => { const img = new Image(); const u = URL.createObjectURL(file); img.onload = () => { const max = 1000; let w = img.width, h = img.height; const s = Math.min(1, max / Math.max(w, h)); w = Math.round(w * s); h = Math.round(h * s); const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); let q = .8, out; do { out = c.toDataURL('image/jpeg', q); q -= .1; } while (out.length > 850000 && q > .3); URL.revokeObjectURL(u); res(out); }; img.onerror = rej; img.src = u; });
 }
 
+function waitingOhanaInvites(g) {
+  const members=Object.values(g.names||{}).filter(m=>m.id>0&&!g.players.includes(m.id));
+  return `<section class="waiting-ohana"><h3>Invite your Ohana</h3><p>Tap Invite beside a name. Their invitation appears in their Game Nook.</p><div class="waiting-ohana-list">${members.map(m=>`<div class="waiting-ohana-member"><span class="av">${avatarMarkup(m.avatar)}</span><b>${esc(m.name)}</b><button class="soft" data-table-invite="${m.id}" ${(g.invited_members||[]).includes(m.id)?'disabled':''}>${(g.invited_members||[]).includes(m.id)?'Invited':'Invite'}</button></div>`).join('')||'<p>Everyone in this room is already at the table.</p>'}</div><p class="waiting-invite-status" role="status" aria-live="polite"></p></section>`;
+}
+function bindWaitingOhanaInvites(root,g) {
+  root.querySelectorAll('[data-table-invite]').forEach(b=>b.onclick=async()=>{
+    const memberId=+b.dataset.tableInvite;b.disabled=true;b.textContent='Sending…';
+    try {
+      await api(`/api/game/${g.id}/invite`,{member_id:memberId},'POST',g.room_id);
+      g.invited_members=[...new Set([...(g.invited_members||[]),memberId])];
+      b.textContent='Invited';root.querySelector('.waiting-invite-status').textContent=`Invitation sent to ${g.names[memberId].name}. They can accept in their Game Nook.`;
+    } catch(e) {b.disabled=false;b.textContent='Invite';root.querySelector('.waiting-invite-status').textContent=e.message;}
+  });
+}
+
 function openOhanaInvite(memberId) {
   const sy=S.sync,roomId=sy.roomId,member=sy.members.find(x=>x.id===memberId);if(!member)return;
   const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog';
@@ -1363,7 +1384,7 @@ async function renderFamily() {
   const pushSupported = 'PushManager' in window;
   const pushOn = !!S.pushReady;
   if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>There’s room for one more.</b><span>Invite someone into ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite to Ohana':'Invite friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.map(x => `<div class="fam"><div class="av">${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small></div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
     <details class="character-settings" id="character-settings" ${S.avatarEditing?'open':''}><summary>Choose my Ohana character</summary>${buddyPicker()}<button id="save-character">Save my character</button><small>Your character follows you through every game and conversation.</small></details>
     ${pushSupported ? `<div class="notif-row"><div class="ntxt"><b>🔔 Notifications</b><small>Get notified when it's your turn or someone sends a message</small></div><button class="sw-toggle ${pushOn ? 'on' : ''}" id="ntoggle"></button></div>` : ''}
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="soft" id="rename">✏️ Change my name</button><button class="soft" id="install">Add to home screen</button><button class="ghost" id="out">Sign out</button></div>
