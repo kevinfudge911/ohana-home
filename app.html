@@ -235,7 +235,6 @@ input,textarea{background:#0c292dc9;border:1px solid #8cac9d66;box-shadow:inset 
 .game-art{width:62px;height:62px;display:grid;place-items:center;border-radius:14px;background:repeating-linear-gradient(6deg,#9b663a22 0 2px,transparent 3px 8px),linear-gradient(140deg,#dcb780,#835830);box-shadow:inset 0 0 0 2px #f5dca270,0 5px 7px #0004;position:relative;transform:rotate(-5deg)}
 .game-art.words:before{content:'A';width:39px;height:43px;background:linear-gradient(#fff0ca,#e7c18a);border-radius:5px;box-shadow:0 3px #855f31,0 6px 8px #0004;color:#34423c;font:700 30px/43px Georgia;text-align:center}.game-art.words:after{content:'1';position:absolute;bottom:11px;right:16px;color:#34423c;font:700 10px Nunito}
 .game-art.tictac:before{content:'× ○';font:bold 28px Georgia;color:#fff0d1;white-space:pre;text-shadow:0 2px #764927}.game-art.checkers:before{content:'';width:36px;height:36px;border-radius:50%;background:#b95140;border:4px double #e8916e;box-shadow:0 5px #763728,10px -8px 0 -1px #243e3d}.game-art.memory:before{content:'✦';display:grid;place-items:center;width:30px;height:40px;border-radius:4px;color:#f6d7a0;background:#245e5d;border:2px solid #e2bf7e;box-shadow:7px 4px #123f42,-5px -3px #eed2a1;font-size:26px}
-.game-art.handfoot:before{content:'🂡';font-size:30px;color:#fff0d1;text-shadow:0 2px #764927}
 .family-note{text-align:center;border-top:1px solid #e4c58c33;padding:16px 8px 0;margin:22px 0;color:#dfc79e;font-family:Caveat,cursive;font-size:24px}
 nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1px solid #e2c59255}nav.tabs .in{max-width:1000px}nav.tabs button{border-radius:0;box-shadow:none;color:#c8d6cc;font-size:15px;min-height:62px}nav.tabs button.on{background:linear-gradient(#d3ad6425,transparent);color:#ffdaa0;border-top:2px solid #eac18a}.tabs .ic svg{width:23px;height:23px}
 .join{max-width:520px;margin:24px auto;padding:30px;gap:10px;border:1px solid #d7b67955;border-radius:24px;background:linear-gradient(#143d40d9,#0c2c30f2);box-shadow:0 20px 60px #0003}.join:before{content:'';position:fixed;inset:0;background:linear-gradient(#082d3277,#082d32b0),url('/ohana-welcome.png') center/cover;z-index:-1;pointer-events:none}.join h1{font-family:Georgia,serif;font-size:44px;letter-spacing:-1px}.join .tag{font-size:24px;margin:4px 0 12px}.join label{font-size:15px;color:#ece4d4}.join .avs{gap:8px}.join .avs button{box-shadow:none}.join>p{color:#c4d0c7!important}.avs button.sel{box-shadow:0 0 0 2px #f5ce8740}
@@ -284,21 +283,9 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 #board,.wbwrap{min-width:0;width:100%}
 .wbwrap{max-width:600px;margin-inline:auto;container-type:inline-size}
 .wb{--cs:calc((100cqw - 30px)/15);width:100%;max-width:600px;aspect-ratio:1;grid-template-columns:repeat(15,minmax(0,1fr));grid-template-rows:repeat(15,minmax(0,1fr));grid-auto-rows:auto;align-items:stretch;justify-items:stretch}
-.wb>.c{min-width:0;min-height:0;width:100%;height:100%}
+.wb>.c{min-width:0;min-height:0;width:100%;height:100%;overflow:visible}
 #game .body{width:100%;min-width:0}
 .game-head{min-width:0;flex-wrap:wrap}.game-head h2{min-width:0}
-/* Floating tray: rack + actions pinned at bottom of game screen */
-.game-tray{position:fixed;bottom:0;left:0;right:0;z-index:55;max-width:1000px;margin:0 auto;padding:0 8px env(safe-area-inset-bottom,0);background:linear-gradient(#0d2f35f0,#0b2930fa);border-top:1px solid #e2c59233;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.game-tray .rack{margin:8px auto 4px}
-.game-tray .acts{margin:2px auto 8px}
-/* Spacer so board content isn't hidden behind tray */
-.tray-spacer{height:140px}
-/* Prevent tiles from disappearing on mobile zoom */
-.wb-plane>.c .t{will-change:transform;transform:translateZ(0)}
-.rack .rt{will-change:transform;transform:translateZ(0)}
-/* Fix drag on mobile: prevent browser touch interception */
-.wb-plane{touch-action:none}
-.game-tray .rack{touch-action:none}
 
 .room-current{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 10px;color:#f9dca2;font-size:13px}.room-current button{font-size:13px;padding:7px 12px}.room-welcome{display:flex;align-items:center;gap:15px;padding:20px 0}.room-welcome>span{font-size:48px}.room-welcome h2{font:26px Georgia;color:#ffe5ac}.room-welcome p{margin:5px 0;color:#baded2}.room-help{font-size:14px;color:#d3e5d9}.room-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}.room-card{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:18px;border:1px solid #76acac80;border-radius:22px;background:radial-gradient(ellipse at top,#36746b88,transparent 75%),linear-gradient(135deg,#173d49,#192c48);box-shadow:inset 0 1px #fff2,0 5px 0 #071f2a}.room-card.current{border-color:#f0ce86}.room-symbol{font-size:36px}.room-card h3{font:22px Georgia;color:#ffe2a2}.room-card small,.room-create small,.room-game small{display:block;font-size:12px;color:#c8dcd5}.room-card button{grid-column:1/-1;font-size:15px;padding:10px}.room-card details{grid-column:1/-1;font-size:12px}.room-card details button{font-size:12px;margin-top:8px}.room-create{display:grid;gap:10px;padding:20px;margin:25px 0;border:1px solid #d6b97866;border-radius:20px;background:#183b43}.room-create h3{color:#ffe1a2}.room-create label{font-size:14px}.room-create button{font-size:16px;background:linear-gradient(#ffe6b1,#e7b174)}.room-game{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px;border-bottom:1px solid #ffffff20}.room-game button{font-size:13px;padding:8px 13px}
 .notification-control{font:12px Nunito,sans-serif;color:#f6dfad;max-width:100%;position:relative}.notification-control summary{cursor:pointer;list-style:none;border:1px solid #91b8a866;border-radius:12px;padding:6px 9px;white-space:nowrap;background:#21464c}.notification-control summary::-webkit-details-marker{display:none}.notification-control [data-push-indicator]{font-size:10px;color:#b7e5cf}.notification-control[open]{flex-basis:100%}.notification-options{padding:10px;border:1px solid #82afa866;border-radius:12px;background:#123440;margin-top:6px}.notification-options p{margin:0 0 8px;font-size:13px}.notification-options>div{display:flex;flex-wrap:wrap;gap:6px}.notification-options button{font-size:12px!important;padding:7px 9px!important}.notification-options small{display:block;margin-top:8px;color:#c3d9cf}.room-current{flex-wrap:wrap}.room-current>span{margin-right:auto}.game-nook{margin:14px 0 18px;padding:15px;border:1px solid #d2b17699;border-radius:24px;background:radial-gradient(ellipse at 100% 0,#d3a65026,transparent 58%),linear-gradient(145deg,#234d48,#132f39);box-shadow:inset 0 1px #ffe4a333,0 5px 0 #092730,0 12px 25px #001a2033}.nook-heading{display:flex;align-items:center;gap:8px;position:relative;margin-bottom:4px}.nook-heading img{width:64px;height:82px;object-fit:contain;filter:drop-shadow(0 0 8px #f7ca7044)}.nook-heading h2{font:26px Georgia;color:#ffe8b4}.nook-heading small{font-size:8px;letter-spacing:1.3px;color:#d3c79f}.nook-heading p{font:16px Caveat,cursive;margin:3px 0;color:#cce0cf}.nook-lantern{margin-left:auto;color:#ffe3a0;text-shadow:0 0 12px #ffce72;font-size:26px}.nook-count{font:500 12px Fredoka;color:#ffe1a2;margin:6px 0 12px;padding:7px 10px;border-radius:10px;background:#081f292e}.game-nook .gcard{margin:9px 0;padding:12px 10px;border-radius:16px;background:linear-gradient(120deg,#345d5355,#122e3b);border:1px solid #8db7a44d;gap:9px}.game-nook .gcard.turn{border-color:#edcf89;background:linear-gradient(120deg,#76694344,#234944)}.game-nook .gcard .em{font-size:30px}.game-nook .gcard .t>b{font-size:17px}.game-nook .gcard button{font-size:12px;padding:9px 10px;max-width:85px;line-height:1.2;background:linear-gradient(#ffe1a9,#dba86b);color:#214338}.nook-room{display:block;font:11px Nunito!important;color:#caddcc!important;margin:3px 0}.game-nook .who{flex-wrap:wrap;gap:4px}.game-nook .who small{font:10px Nunito;color:#c5dad2;flex-basis:100%}.nook-foot,.nook-empty{font:12px Nunito;color:#c6d8cd;line-height:1.5;margin:13px 4px 0}.room-conversation{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:13px;border-radius:16px;background:#183c43;border:1px solid #8baaa65c;margin-bottom:18px}.room-conversation small{display:block;font-size:9px;letter-spacing:1px;color:#c5d5c9}.room-conversation b{font:19px Georgia;color:#ffe3b0}.room-conversation span{display:block;font-size:11px;color:#bad2ca}.room-conversation button{flex:none;font-size:12px;padding:9px}.nook-heading>div{min-width:0}
@@ -324,7 +311,6 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .game-nook .nook-card .who small{font-size:11px;overflow-wrap:anywhere}
 .game-nook .nook-card button{font-size:12px;padding:8px;min-height:36px;max-width:70px;flex:none;border-radius:10px;box-shadow:0 2px 0 #966642;white-space:normal}
 .game-nook{padding:12px}.nook-heading img{width:43px;height:55px}.nook-heading h2{font-size:23px;margin:0}.nook-count{margin:6px 0 8px;padding:5px 8px}.nook-foot{margin-top:9px;font-size:11px}
-.nook-section-label{font:500 15px Fredoka;color:#ffe1a2;margin:12px 0 6px 4px;letter-spacing:.5px}
 
 .game-setup{display:block!important;padding:14px!important;--play-a:#7edcc4;--play-b:#278b87}
 .game-setup[data-setup-game="memory"]{--play-a:#d6adff;--play-b:#825bb5}.game-setup[data-setup-game="checkers"]{--play-a:#ffb2a0;--play-b:#bd5b70}.game-setup[data-setup-game="mahjong"]{--play-a:#8edbe8;--play-b:#3488ac}.game-setup[data-setup-game="words"]{--play-a:#c8e790;--play-b:#72994c}
@@ -405,7 +391,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 .game-shelf-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.game-shelf-tabs button{flex:1;min-height:42px;padding:9px 12px;font-size:14px}.game-shelf-tabs button[aria-pressed="true"]{outline:2px solid #a8ebdf;outline-offset:2px;background:#246c71;color:#fff1d5}.finished-games{margin:16px 0}.finished-games>summary{cursor:pointer;padding:12px;color:#fff1d5}
 #play-error{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(390px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;padding:24px;border:2px solid #8dd8cb;border-radius:24px;background:#174950;color:#fff3d5;box-shadow:0 18px 70px #00192399;text-align:center}#play-error::backdrop{background:#001f3659}#play-error h2{font:600 24px Fredoka,sans-serif;color:#ffe0a2;margin:0 0 16px}#play-error p{font-size:19px;line-height:1.5;color:#fff7e8;margin:0 0 14px;overflow-wrap:anywhere}#play-error small{display:block;font-size:14px;line-height:1.5;color:#cae4de;margin-bottom:20px}#play-error button{background:#bde9d7;color:#153f46;font-size:16px;font-weight:800;min-height:46px;padding:12px 18px;border:1px solid #edf9d7;border-radius:14px}
 .new-player-invite{text-align:center;margin:14px auto}.new-player-invite small{display:block;color:#cae4de;margin-top:8px;font-size:13px}
-/* hand & foot */
+.game-art.handfoot:before{content:'🂡';font-size:30px;color:#fff0d1;text-shadow:0 2px #764927}
 .hf-area{position:relative;z-index:1;padding:0 4px}
 .hf-table{display:flex;flex-direction:column;gap:10px}
 .hf-info{display:flex;gap:8px;align-items:center;justify-content:center;font-size:14px;color:#d0dbc8;flex-wrap:wrap}
@@ -486,7 +472,7 @@ const gameArt = type => `<div class="game-art ${esc(type)}" aria-hidden="true"><
 const EM = { mahjong:"🌺", words:'🔤', tictac:'❌', memory:'🃏', checkers:'🔴', handfoot:'🂡' };
 const LV = {A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
 const VAPID_PUBLIC = 'BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc';
-let S = { room: Number(localStorage.getItem('ohana_room'))||0, roomEpoch:0, token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, hfSel: [], hfMeldTarget: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
+let S = { room: Number(localStorage.getItem('ohana_room'))||0, roomEpoch:0, token: localStorage.getItem('ohana_token'), me: null, tab: 'games', sync: null, msgs: [], lastMsg: 0, game: null, gstate: null, sel: null, placed: [], swapMode: false, swapSel: [], chkFrom: null, seenTurns: new Set(), av: localStorage.getItem('ohana_av') || '@hon', pushSub: null, seenMoveCount: {}, lastCelebratedMove: null };
 const app = $('#app');
 
 async function api(path, body, method, room=S.room) {
@@ -700,7 +686,7 @@ function renderGames() {
   const line = g => { const modeBit = g.mode === 'random' ? ' 🎲' : ''; return (g.status === 'waiting' ? `Waiting for ${g.max_players - g.players.length} more` : g.status === 'finished' ? (g.winner === 'tie' ? 'Tie game' : g.winner === 'resigned' ? 'Ended' : `${esc(person(g,+g.winner))} won`) : g.my_turn ? 'Your turn!' : `${esc(person(g,g.players[g.turn]))}'s turn`) + modeBit; };
   const card = (g, btn) => `<div class="gcard nook-card ${g.my_turn ? 'turn' : ''}"><div class="em">${gameArt(g.type)}</div><div class="t"><b>${esc(g.name)}</b><small class="nook-room">${roomTitle(roomName(g),g.room_id)}</small><span>${line(g)}</span>${who(g)}${g.bot?`<span>Friendly computer · ${g.bot.difficulty==='hard'?'Hard':g.bot.difficulty==='medium'?'Medium':'Easy'}</span>`:''}</div>${btn}</div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['checkers', 'mahjong']], ['Grown-ups & big kids', 'bring your brain', ['words', 'handfoot']]];
-  m.innerHTML = `<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['mine','My games'],['others','Other games'],['new','Start a game']].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${invitationCards()}${shelf==='mine'?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>OHANA GAME ISLAND</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${(()=>{const myTurnGames=mine.filter(g=>g.my_turn);const waitingGames=mine.filter(g=>!g.my_turn);if(!mine.length)return '<p class="nook-empty">Your games will appear here once you join. Choose Start a game or browse Other games.</p>';let html='';if(myTurnGames.length){html+='<h3 class="nook-section-label">Your Turn</h3><div class="nook-grid">'+myTurnGames.map(g=>card(g,`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">Your move</button>`)).join('')+'</div>';}if(waitingGames.length){html+='<h3 class="nook-section-label">Waiting</h3><div class="nook-grid">'+waitingGames.map(g=>card(g,`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status==="waiting"?"Open":"Visit"}</button>`)).join('')+'</div>';}return html;})()}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
+  m.innerHTML = `<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['mine','My games'],['others','Other games'],['new','Start a game']].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${invitationCards()}${shelf==='mine'?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="All my games"><div class="nook-heading"><img src="/honu.webp" alt="Honu welcomes you"><div><small>OHANA GAME ISLAND</small><h2>My Game Nook</h2><p>All your tables. One cozy place.</p></div><span class="nook-lantern" aria-hidden="true">✦</span></div><div class="nook-count">${mine.filter(g=>g.my_turn).length?mine.filter(g=>g.my_turn).length+' waiting for your move':'Your tables are ready when you are'}</div>${mine.length?'<div class="nook-grid">'+mine.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':'<p class="nook-empty">Your games will appear here once you join. Choose Start a game or browse Other games.</p>'}<p class="nook-foot">Family and private games meet here. Conversations stay in their own rooms.</p></section>
     <div class="room-conversation"><div><small>YOU ARE IN</small><b>${roomTitle(sy.familyName,sy.roomId)}</b><span>Only this room’s Ohana share this chat.</span></div><button id="nook-chat" class="soft">💬 Room chat</button></div>
     ${done.length ? `<details class="finished-games"><summary>My finished games</summary>` + done.map(g => card(g, `<button class="soft" data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">See</button>`)).join('')+'</details>' : ''}`:''}
     ${shelf==='others'?`<h2 class="shelf">Other games<small>In rooms you belong to</small></h2><div class="nook-grid">${others.length?others.map(g=>card(g,g.status==='waiting'?`<button data-join="${g.id}" data-join-room="${g.room_id||sy.roomId||1}">Join</button>`:`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">View</button>`)).join(''):'<p>No other games are going on in your rooms right now.</p>'}</div>`:''}
@@ -720,7 +706,7 @@ function renderGames() {
 }
 
 // ---------- GAME SCREEN ----------
-async function openGame(id) { S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; S.hfSel = []; S.hfMeldTarget = null; render(); await loadGame(); }
+async function openGame(id) { S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; render(); await loadGame(); }
 async function loadGame() {
   if (!S.game) return;
   // Also sync member online status in background
@@ -759,7 +745,7 @@ async function loadGame() {
     }
   } catch (e) { toast(e.message); }
 }
-function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); const tr = document.querySelector('.game-tray'); if (tr) tr.remove(); sync().then(render); render(); }
+function closeGame() { S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); sync().then(render); render(); }
 
 function renderGame() {
   const g = S.gstate;
@@ -1046,9 +1032,7 @@ function placeDraftTile(st, rack, rackIdx, i) {
 function initDragDrop(st, g, myTurn, rack, rerender) {
   if(!myTurn||S.swapMode)return;
   const bd=$('#board');
-  const trayEl=document.querySelector('.game-tray');
-  const rackTiles=trayEl?[...trayEl.querySelectorAll('.rt:not(.used)')]:[...bd.querySelectorAll('.rt:not(.used)')];
-  const sources=[...rackTiles,...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
+  const sources=[...bd.querySelectorAll('.rt:not(.used)'),...bd.querySelectorAll('.c')].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
   sources.forEach(el=>{
     const staged=el.matches('.c')?S.placed.find(p=>p.i===+el.dataset.i):null;
     const k=staged?staged.rackIdx:+el.dataset.r;
@@ -1078,7 +1062,7 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
       if(!cancelled){
         const target=document.elementFromPoint(e.clientX,e.clientY);const cell=target?.closest('.c');
         if(cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i))AudioSys.tileDrop();
-        else if(staged&&target?.closest('.rack')){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
+        else if(staged&&target?.closest('.rack')&&bd.contains(target)){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tilePickup();}
       }
       S.sel=null;rerender();
     };
@@ -1145,28 +1129,19 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  const hasRack = g.status === 'playing' && rack.length;
-  const rackHtml = hasRack ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
-    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
-      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : '';
   bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
     <div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div>
     ${previewHtml}
-    ${hasRack ? '<div class="tray-spacer"></div>' : ''}
+    ${g.status === 'playing' && rack.length ? `<div class="rack">${rack.map((l, k) => `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''}" data-r="${k}">${l === '?' ? '' : l}<i>${LV[l]}</i></button>`).join('')}</div>
+    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Never mind</button>` :
+      `<button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play word${preview.total ? ' (+' + preview.total + ')' : ''}</button><button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button>`}</div>` : ''}
     `;
-  // Float the rack+acts in a fixed tray at the bottom of the screen
-  let tray = document.querySelector('.game-tray');
-  if (hasRack) {
-    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.getElementById('game').appendChild(tray); }
-    tray.innerHTML = rackHtml;
-  } else if (tray) { tray.remove(); }
   bd.insertAdjacentHTML("beforeend",renderPlayBreakdown(st));
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
   const rerender = () => renderWords(st, g, myTurn);
 
   // Tap-to-select (still works alongside drag)
-  const trayEl = document.querySelector('.game-tray');
-  (trayEl||bd).querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
+  bd.querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
     const k = +btn.dataset.r; if (usedIdx.has(k)) return;
     if (S.swapMode) { S.swapSel = S.swapSel.includes(k) ? S.swapSel.filter(x => x !== k) : [...S.swapSel, k]; return rerender(); }
     S.sel = S.sel === k ? null : k; rerender();
@@ -1382,207 +1357,6 @@ function renderMem(st, g, myTurn) {
   $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn ? 'disabled' : ''}>${up(i) ? c : ''}</button>`).join('')}</div><p style="text-align:center;font-size:14px;color:rgba(246,231,200,.7)">Find a pair and you go again.</p>`;
   $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
 }
-// ----- Hand & Foot -----
-function renderHandFoot(st, g, myTurn) {
-  const meId = S.me.id;
-  if (!S.hfSel) S.hfSel = [];
-  if (!S.hfMeldTarget) S.hfMeldTarget = null;
-  const myHand = st.hands[meId];
-  const isArr = Array.isArray(myHand);
-  const myFoot = st.feet[meId];
-  const inFoot = !!st.inFoot?.[meId];
-
-  function cardColor(c) { return (c.suit === '♥' || c.suit === '♦') ? 'red' : 'blk'; }
-  function cardClass(c) { return `hf-card ${S.hfSel.includes(c.id) ? 'sel' : ''} ${hfIsWildFE(c) ? 'wild' : cardColor(c)}`; }
-  function hfIsWildFE(c) { return c.rank === 'Joker' || c.rank === '2'; }
-  function cardHTML(c) {
-    const disp = c.rank === 'Joker' ? '🃏' : c.rank;
-    const suit = c.rank === 'Joker' ? '' : c.suit;
-    return `<div class="${cardClass(c)}" data-cid="${c.id}"><span class="r">${disp}</span><span class="s">${suit}</span></div>`;
-  }
-
-  const hand = isArr ? [...myHand].sort((a, b) => {
-    if (hfIsWildFE(a) && !hfIsWildFE(b)) return 1;
-    if (!hfIsWildFE(a) && hfIsWildFE(b)) return -1;
-    const ro = 'A K Q J 10 9 8 7 6 5 4 3'.split(' ');
-    return ro.indexOf(a.rank) - ro.indexOf(b.rank);
-  }) : [];
-
-  const topDiscard = st.discardPile?.[0];
-  const discardCount = st.discardCount || 0;
-  const myMelds = st.melds?.[meId] || [];
-  const myRed3s = st.red3s?.[meId] || [];
-
-  let html = '<div class="hf-area"><div class="hf-table">';
-
-  // Opponents
-  html += '<div class="hf-opp">';
-  for (const pid of g.players) {
-    if (pid === meId) continue;
-    const oHand = typeof st.hands[pid] === 'number' ? st.hands[pid] : '?';
-    const oFoot = typeof st.feet[pid] === 'number' ? st.feet[pid] : '?';
-    const oMelds = st.melds?.[pid] || [];
-    const oRed3s = st.red3s?.[pid] || [];
-    const oInFoot = !!st.inFoot?.[pid];
-    const { cl, di } = countCanFE(oMelds);
-    html += `<div class="hf-opp-card"><b>${avOf(pid)} ${esc(nameOf(pid))}</b>
-      🂠 ${oHand} cards ${oInFoot ? '<span class="hf-foot-badge active">In foot</span>' : `· 👟 ${oFoot}`}
-      ${oMelds.length ? `<br>Melds: ${oMelds.map(m => `${m.rank}×${m.cards.length}${m.cards.length>=7?'⭐':''}`).join(' ')}` : ''}
-      ${oRed3s.length ? `<br>${oRed3s.map(()=>'🔴3').join(' ')}` : ''}
-      ${cl+di>0 ? `<br>Canastas: ${cl}🟢 ${di}🟡` : ''}
-    </div>`;
-  }
-  html += '</div>';
-
-  // Draw/Discard
-  html += `<div class="hf-discard">
-    <div class="hf-pile hf-draw" id="hf-draw"><div>${st.drawPile}</div><div style="font-size:11px">Draw</div></div>
-    <div class="hf-pile hf-disc" id="hf-pickup">${topDiscard ? `<span class="crd-rank" style="color:${(topDiscard.suit==='♥'||topDiscard.suit==='♦')?'#C0392B':'#213d3a'}">${topDiscard.rank === 'Joker' ? '🃏' : topDiscard.rank}</span><span class="crd-suit">${topDiscard.rank==='Joker'?'':topDiscard.suit}</span>` : '<span style="color:rgba(0,0,0,.3)">empty</span>'}<div style="font-size:10px;position:absolute;bottom:2px;right:4px;color:rgba(0,0,0,.4)">${discardCount}</div></div>
-  </div>`;
-
-  // Info
-  html += `<div class="hf-info">`;
-  html += `<span>${inFoot ? '<span class="hf-foot-badge active">👟 Playing foot</span>' : `<span class="hf-foot-badge">✋ Playing hand</span> · 👟 ${typeof myFoot === 'number' ? myFoot : myFoot.length} in foot`}</span>`;
-  const minMeld = hfMinMeldFE(st.scores?.[meId] || 0);
-  if (myMelds.length === 0) html += ` · <b>Need ${minMeld} to meld</b>`;
-  html += `</div>`;
-
-  // Red 3s
-  if (myRed3s.length) {
-    html += `<div class="hf-red3s">${myRed3s.map(() => '<span class="r3">🔴3</span>').join('')} <span style="font-size:12px;color:#c8d6cc">+${myRed3s.length * 100}pts</span></div>`;
-  }
-
-  // My melds
-  if (myMelds.length) {
-    html += '<div style="font-size:13px;color:#c8d6cc;text-align:center">Your melds (tap to add cards):</div>';
-    html += '<div class="hf-melds">';
-    for (let mi = 0; mi < myMelds.length; mi++) {
-      const m = myMelds[mi];
-      const isCan = m.cards.length >= 7;
-      const isClean = m.cards.every(c => !hfIsWildFE(c));
-      html += `<div class="hf-meld ${isCan ? (isClean ? 'clean' : 'canasta') : ''} ${S.hfMeldTarget === mi ? 'sel-meld' : ''}" data-mi="${mi}">
-        <span class="mlbl">${m.rank}</span>
-        <span class="mcnt">×${m.cards.length}${isCan ? (isClean ? '🟢' : '🟡') : ''}</span>
-      </div>`;
-    }
-    html += '</div>';
-  }
-
-  // Hand
-  if (isArr) {
-    html += '<div class="hf-hand" id="hf-hand">';
-    for (const c of hand) html += cardHTML(c);
-    html += '</div>';
-  }
-
-  // Actions
-  if (myTurn && isArr) {
-    html += '<div class="hf-acts">';
-    if (!st.hasDrawn) {
-      html += `<button id="hf-draw-btn">🂠 Draw 2</button>`;
-      if (discardCount > 0) html += `<button id="hf-pickup-btn" class="soft">📥 Pick up pile (${discardCount})</button>`;
-    } else {
-      if (S.hfSel.length >= 3) {
-        html += `<button id="hf-newmeld-btn">✨ New meld</button>`;
-      }
-      if (S.hfSel.length >= 1 && S.hfMeldTarget !== null) {
-        html += `<button id="hf-addmeld-btn">➕ Add to ${myMelds[S.hfMeldTarget]?.rank} meld</button>`;
-      }
-      if (S.hfSel.length === 1) {
-        html += `<button id="hf-discard-btn" class="ghost">🗑 Discard</button>`;
-      }
-      html += `<button id="hf-clear-btn" class="soft" style="font-size:13px">Clear</button>`;
-    }
-    html += '</div>';
-  }
-
-  // Score
-  const { cl: myCl, di: myDi } = countCanFE(myMelds);
-  html += `<div class="hf-info" style="margin-top:6px">Score: <b>${st.scores?.[meId] || 0}</b> · Canastas: <b>${myCl}🟢 ${myDi}🟡</b></div>`;
-  if (g.status === 'playing') {
-    html += `<div style="text-align:center;font-size:12px;color:#9cb5a4">Need 1🟢 clean + 1🟡 dirty canasta to go out</div>`;
-  }
-
-  html += '</div></div>';
-  $('#board').innerHTML = html;
-
-  if (!myTurn || !isArr) return;
-
-  document.querySelectorAll('.hf-card').forEach(el => {
-    el.onclick = () => {
-      const cid = +el.dataset.cid;
-      if (S.hfSel.includes(cid)) S.hfSel = S.hfSel.filter(x => x !== cid);
-      else S.hfSel.push(cid);
-      renderHandFoot(st, g, myTurn);
-    };
-  });
-
-  document.querySelectorAll('.hf-meld').forEach(el => {
-    el.onclick = () => {
-      const mi = +el.dataset.mi;
-      S.hfMeldTarget = S.hfMeldTarget === mi ? null : mi;
-      renderHandFoot(st, g, myTurn);
-    };
-  });
-
-  const drawBtn = $('#hf-draw-btn');
-  const drawPile = $('#hf-draw');
-  const doDraw = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'draw' }); };
-  if (drawBtn) drawBtn.onclick = doDraw;
-  if (drawPile && !st.hasDrawn) drawPile.onclick = doDraw;
-
-  const pickupBtn = $('#hf-pickup-btn');
-  const pickupPile = $('#hf-pickup');
-  const doPickup = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'pickup' }); };
-  if (pickupBtn) pickupBtn.onclick = doPickup;
-  if (pickupPile && !st.hasDrawn) pickupPile.onclick = doPickup;
-
-  const newMeldBtn = $('#hf-newmeld-btn');
-  if (newMeldBtn) newMeldBtn.onclick = () => {
-    const selCards = hand.filter(c => S.hfSel.includes(c.id));
-    const naturals = selCards.filter(c => !hfIsWildFE(c));
-    if (naturals.length === 0) { toast('Pick at least one non-wild card'); return; }
-    const rank = naturals[0].rank;
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank });
-  };
-
-  const addBtn = $('#hf-addmeld-btn');
-  if (addBtn) addBtn.onclick = () => {
-    const selCards = hand.filter(c => S.hfSel.includes(c.id));
-    const meld = myMelds[S.hfMeldTarget];
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank: meld.rank });
-  };
-
-  const discBtn = $('#hf-discard-btn');
-  if (discBtn) discBtn.onclick = () => {
-    const cardId = S.hfSel[0];
-    S.hfSel = []; S.hfMeldTarget = null;
-    move({ action: 'discard', cardId });
-  };
-
-  const clearBtn = $('#hf-clear-btn');
-  if (clearBtn) clearBtn.onclick = () => { S.hfSel = []; S.hfMeldTarget = null; renderHandFoot(st, g, myTurn); };
-}
-
-function hfMinMeldFE(score) {
-  if (score < 0) return 15;
-  if (score < 1500) return 50;
-  if (score < 3000) return 90;
-  return 120;
-}
-function countCanFE(melds) {
-  let cl = 0, di = 0;
-  for (const m of melds) {
-    if (m.cards.length >= 7) {
-      if (m.cards.every(c => c.rank !== 'Joker' && c.rank !== '2')) cl++;
-      else di++;
-    }
-  }
-  return { cl, di };
-}
-
 // ----- Checkers -----
 function renderChk(st, g, myTurn) {
   const meIdx = g.players.indexOf(S.me.id); const mine = meIdx === 0 ? 'r' : 'b';
@@ -1850,6 +1624,207 @@ async function shareInvite(inviteCode, gameName) {
     render(); if (S.token) { await sync(); render(); setupPush(); }
   }
 })();
+
+// ----- Hand & Foot -----
+function renderHandFoot(st, g, myTurn) {
+  const meId = S.me.id;
+  if (!S.hfSel) S.hfSel = [];
+  if (!S.hfMeldTarget) S.hfMeldTarget = null;
+  const myHand = st.hands[meId];
+  const isArr = Array.isArray(myHand);
+  const myFoot = st.feet[meId];
+  const inFoot = !!st.inFoot?.[meId];
+
+  function cardColor(c) { return (c.suit === '♥' || c.suit === '♦') ? 'red' : 'blk'; }
+  function cardClass(c) { return `hf-card ${S.hfSel.includes(c.id) ? 'sel' : ''} ${hfIsWildFE(c) ? 'wild' : cardColor(c)}`; }
+  function hfIsWildFE(c) { return c.rank === 'Joker' || c.rank === '2'; }
+  function cardHTML(c) {
+    const disp = c.rank === 'Joker' ? '🃏' : c.rank;
+    const suit = c.rank === 'Joker' ? '' : c.suit;
+    return `<div class="${cardClass(c)}" data-cid="${c.id}"><span class="r">${disp}</span><span class="s">${suit}</span></div>`;
+  }
+
+  const hand = isArr ? [...myHand].sort((a, b) => {
+    if (hfIsWildFE(a) && !hfIsWildFE(b)) return 1;
+    if (!hfIsWildFE(a) && hfIsWildFE(b)) return -1;
+    const ro = 'A K Q J 10 9 8 7 6 5 4 3'.split(' ');
+    return ro.indexOf(a.rank) - ro.indexOf(b.rank);
+  }) : [];
+
+  const topDiscard = st.discardPile?.[0];
+  const discardCount = st.discardCount || 0;
+  const myMelds = st.melds?.[meId] || [];
+  const myRed3s = st.red3s?.[meId] || [];
+
+  let html = '<div class="hf-area"><div class="hf-table">';
+
+  // Opponents
+  html += '<div class="hf-opp">';
+  for (const pid of g.players) {
+    if (pid === meId) continue;
+    const oHand = typeof st.hands[pid] === 'number' ? st.hands[pid] : '?';
+    const oFoot = typeof st.feet[pid] === 'number' ? st.feet[pid] : '?';
+    const oMelds = st.melds?.[pid] || [];
+    const oRed3s = st.red3s?.[pid] || [];
+    const oInFoot = !!st.inFoot?.[pid];
+    const { cl, di } = countCanFE(oMelds);
+    html += `<div class="hf-opp-card"><b>${avOf(pid)} ${esc(nameOf(pid))}</b>
+      🂠 ${oHand} cards ${oInFoot ? '<span class="hf-foot-badge active">In foot</span>' : `· 👟 ${oFoot}`}
+      ${oMelds.length ? `<br>Melds: ${oMelds.map(m => `${m.rank}×${m.cards.length}${m.cards.length>=7?'⭐':''}`).join(' ')}` : ''}
+      ${oRed3s.length ? `<br>${oRed3s.map(()=>'🔴3').join(' ')}` : ''}
+      ${cl+di>0 ? `<br>Canastas: ${cl}🟢 ${di}🟡` : ''}
+    </div>`;
+  }
+  html += '</div>';
+
+  // Draw/Discard
+  html += `<div class="hf-discard">
+    <div class="hf-pile hf-draw" id="hf-draw"><div>${st.drawPile}</div><div style="font-size:11px">Draw</div></div>
+    <div class="hf-pile hf-disc" id="hf-pickup">${topDiscard ? `<span class="crd-rank" style="color:${(topDiscard.suit==='♥'||topDiscard.suit==='♦')?'#C0392B':'#213d3a'}">${topDiscard.rank === 'Joker' ? '🃏' : topDiscard.rank}</span><span class="crd-suit">${topDiscard.rank==='Joker'?'':topDiscard.suit}</span>` : '<span style="color:rgba(0,0,0,.3)">empty</span>'}<div style="font-size:10px;position:absolute;bottom:2px;right:4px;color:rgba(0,0,0,.4)">${discardCount}</div></div>
+  </div>`;
+
+  // Info
+  html += `<div class="hf-info">`;
+  html += `<span>${inFoot ? '<span class="hf-foot-badge active">👟 Playing foot</span>' : `<span class="hf-foot-badge">✋ Playing hand</span> · 👟 ${typeof myFoot === 'number' ? myFoot : myFoot.length} in foot`}</span>`;
+  const minMeld = hfMinMeldFE(st.scores?.[meId] || 0);
+  if (myMelds.length === 0) html += ` · <b>Need ${minMeld} to meld</b>`;
+  html += `</div>`;
+
+  // Red 3s
+  if (myRed3s.length) {
+    html += `<div class="hf-red3s">${myRed3s.map(() => '<span class="r3">🔴3</span>').join('')} <span style="font-size:12px;color:#c8d6cc">+${myRed3s.length * 100}pts</span></div>`;
+  }
+
+  // My melds
+  if (myMelds.length) {
+    html += '<div style="font-size:13px;color:#c8d6cc;text-align:center">Your melds (tap to add cards):</div>';
+    html += '<div class="hf-melds">';
+    for (let mi = 0; mi < myMelds.length; mi++) {
+      const m = myMelds[mi];
+      const isCan = m.cards.length >= 7;
+      const isClean = m.cards.every(c => !hfIsWildFE(c));
+      html += `<div class="hf-meld ${isCan ? (isClean ? 'clean' : 'canasta') : ''} ${S.hfMeldTarget === mi ? 'sel-meld' : ''}" data-mi="${mi}">
+        <span class="mlbl">${m.rank}</span>
+        <span class="mcnt">×${m.cards.length}${isCan ? (isClean ? '🟢' : '🟡') : ''}</span>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Hand
+  if (isArr) {
+    html += '<div class="hf-hand" id="hf-hand">';
+    for (const c of hand) html += cardHTML(c);
+    html += '</div>';
+  }
+
+  // Actions
+  if (myTurn && isArr) {
+    html += '<div class="hf-acts">';
+    if (!st.hasDrawn) {
+      html += `<button id="hf-draw-btn">🂠 Draw 2</button>`;
+      if (discardCount > 0) html += `<button id="hf-pickup-btn" class="soft">📥 Pick up pile (${discardCount})</button>`;
+    } else {
+      if (S.hfSel.length >= 3) {
+        html += `<button id="hf-newmeld-btn">✨ New meld</button>`;
+      }
+      if (S.hfSel.length >= 1 && S.hfMeldTarget !== null) {
+        html += `<button id="hf-addmeld-btn">➕ Add to ${myMelds[S.hfMeldTarget]?.rank} meld</button>`;
+      }
+      if (S.hfSel.length === 1) {
+        html += `<button id="hf-discard-btn" class="ghost">🗑 Discard</button>`;
+      }
+      html += `<button id="hf-clear-btn" class="soft" style="font-size:13px">Clear</button>`;
+    }
+    html += '</div>';
+  }
+
+  // Score
+  const { cl: myCl, di: myDi } = countCanFE(myMelds);
+  html += `<div class="hf-info" style="margin-top:6px">Score: <b>${st.scores?.[meId] || 0}</b> · Canastas: <b>${myCl}🟢 ${myDi}🟡</b></div>`;
+  if (g.status === 'playing') {
+    html += `<div style="text-align:center;font-size:12px;color:#9cb5a4">Need 1🟢 clean + 1🟡 dirty canasta to go out</div>`;
+  }
+
+  html += '</div></div>';
+  $('#board').innerHTML = html;
+
+  if (!myTurn || !isArr) return;
+
+  document.querySelectorAll('.hf-card').forEach(el => {
+    el.onclick = () => {
+      const cid = +el.dataset.cid;
+      if (S.hfSel.includes(cid)) S.hfSel = S.hfSel.filter(x => x !== cid);
+      else S.hfSel.push(cid);
+      renderHandFoot(st, g, myTurn);
+    };
+  });
+
+  document.querySelectorAll('.hf-meld').forEach(el => {
+    el.onclick = () => {
+      const mi = +el.dataset.mi;
+      S.hfMeldTarget = S.hfMeldTarget === mi ? null : mi;
+      renderHandFoot(st, g, myTurn);
+    };
+  });
+
+  const drawBtn = document.querySelector('#hf-draw-btn');
+  const drawPile = document.querySelector('#hf-draw');
+  const doDraw = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'draw' }); };
+  if (drawBtn) drawBtn.onclick = doDraw;
+  if (drawPile && !st.hasDrawn) drawPile.onclick = doDraw;
+
+  const pickupBtn = document.querySelector('#hf-pickup-btn');
+  const pickupPile = document.querySelector('#hf-pickup');
+  const doPickup = () => { S.hfSel = []; S.hfMeldTarget = null; move({ action: 'pickup' }); };
+  if (pickupBtn) pickupBtn.onclick = doPickup;
+  if (pickupPile && !st.hasDrawn) pickupPile.onclick = doPickup;
+
+  const newMeldBtn = document.querySelector('#hf-newmeld-btn');
+  if (newMeldBtn) newMeldBtn.onclick = () => {
+    const selCards = hand.filter(c => S.hfSel.includes(c.id));
+    const naturals = selCards.filter(c => !hfIsWildFE(c));
+    if (naturals.length === 0) { toast('Pick at least one non-wild card'); return; }
+    const rank = naturals[0].rank;
+    S.hfSel = []; S.hfMeldTarget = null;
+    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank });
+  };
+
+  const addBtn = document.querySelector('#hf-addmeld-btn');
+  if (addBtn) addBtn.onclick = () => {
+    const selCards = hand.filter(c => S.hfSel.includes(c.id));
+    const meld = myMelds[S.hfMeldTarget];
+    S.hfSel = []; S.hfMeldTarget = null;
+    move({ action: 'meld', cardIds: selCards.map(c => c.id), rank: meld.rank });
+  };
+
+  const discBtn = document.querySelector('#hf-discard-btn');
+  if (discBtn) discBtn.onclick = () => {
+    const cardId = S.hfSel[0];
+    S.hfSel = []; S.hfMeldTarget = null;
+    move({ action: 'discard', cardId });
+  };
+
+  const clearBtn = document.querySelector('#hf-clear-btn');
+  if (clearBtn) clearBtn.onclick = () => { S.hfSel = []; S.hfMeldTarget = null; renderHandFoot(st, g, myTurn); };
+}
+
+function hfMinMeldFE(score) {
+  if (score < 0) return 15;
+  if (score < 1500) return 50;
+  if (score < 3000) return 90;
+  return 120;
+}
+function countCanFE(melds) {
+  let cl = 0, di = 0;
+  for (const m of melds) {
+    if (m.cards.length >= 7) {
+      if (m.cards.every(c => c.rank !== 'Joker' && c.rank !== '2')) cl++;
+      else di++;
+    }
+  }
+  return { cl, di };
+}
 </script>
 <script>
 // One delegated listener survives screen changes without adding duplicate handlers.
