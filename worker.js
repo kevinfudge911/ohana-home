@@ -1,8 +1,70 @@
+import WORD_ERROR_PREVIEW_HTML from "./word-error-preview.html";
+import SETTINGS_PREVIEW_HTML from "./settings-preview.html";
+import EDDIE_PORTRAIT from "./buddy-eddie.webp";
+import EDDIE_TALK from "./talk-eddie.webp";
+import ISLAND_IMAGE from "./ohana-island.webp";
+import ISLAND_ICONS from "./island-icons.js.txt";
+import SETUP_PREVIEW_HTML from "./setup-preview.html";
+import OHANA_PREVIEW_HTML from "./ohana-preview.html";
+import NOOK_PREVIEW_HTML from "./nook-preview.html";
+import ROOMS_PREVIEW_HTML from "./rooms-preview.html";
+import MORE_OTTO_PORTRAIT from "./buddy-otto.webp";
+import MORE_OTTO_TALK from "./talk-otto.webp";
+import MORE_PIPPA_PORTRAIT from "./buddy-pippa.webp";
+import MORE_PIPPA_TALK from "./talk-pippa.webp";
+import MORE_LULU_PORTRAIT from "./buddy-lulu.webp";
+import MORE_LULU_TALK from "./talk-lulu.webp";
+import MORE_HOOT_PORTRAIT from "./buddy-hoot.webp";
+import MORE_HOOT_TALK from "./talk-hoot.webp";
+import MORE_FLUTTER_PORTRAIT from "./buddy-flutter.webp";
+import MORE_FLUTTER_TALK from "./talk-flutter.webp";
+import MORE_ROSIE_PORTRAIT from "./buddy-rosie.webp";
+import MORE_ROSIE_TALK from "./talk-rosie.webp";
+import MORE_KOA_PORTRAIT from "./buddy-koa.webp";
+import MORE_KOA_TALK from "./talk-koa.webp";
+import MORE_MILO_PORTRAIT from "./buddy-milo.webp";
+import MORE_MILO_TALK from "./talk-milo.webp";
+import MORE_BAMBOO_PORTRAIT from "./buddy-bamboo.webp";
+import MORE_BAMBOO_TALK from "./talk-bamboo.webp";
+import MORE_COCO_PORTRAIT from "./buddy-coco.webp";
+import MORE_COCO_TALK from "./talk-coco.webp";
+import MORE_FINN_PORTRAIT from "./buddy-finn.webp";
+import MORE_FINN_TALK from "./talk-finn.webp";
+import MORE_INKY_PORTRAIT from "./buddy-inky.webp";
+import MORE_INKY_TALK from "./talk-inky.webp";
+import MORE_KAI_PORTRAIT from "./buddy-kai.webp";
+import MORE_KAI_TALK from "./talk-kai.webp";
+import MORE_FLORA_PORTRAIT from "./buddy-flora.webp";
+import MORE_FLORA_TALK from "./talk-flora.webp";
+import MORE_REEF_PORTRAIT from "./buddy-reef.webp";
+import MORE_REEF_TALK from "./talk-reef.webp";
+import BUDDIES_PREVIEW_HTML from "./buddies-preview.html";
+import TALK_HONU from "./talk-honu.webp";
+import TALK_SPLASH from "./talk-splash.webp";
+import TALK_KIKO from "./talk-kiko.webp";
+import TALK_PEBBLE from "./talk-pebble.webp";
+import TALK_MANGO from "./talk-mango.webp";
+import TALK_SUNNY from "./talk-sunny.webp";
+import BUDDY_KIKO from "./buddy-kiko.webp";
+import BUDDY_PEBBLE from "./buddy-pebble.webp";
+import BUDDY_MANGO from "./buddy-mango.webp";
+import BUDDY_SUNNY from "./buddy-sunny.webp";
+import BUDDY_SPLASH from "./buddy-splash.webp";
+import MAHJONG_PREVIEW_HTML from "./mahjong-preview.html";
+import { mahjongInit, mahjongMove, mahjongFree } from "./mahjong.js";
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/worker.js
 import APP_HTML from "./app.html";
+import HONU_IMAGE from "./honu.webp";
+import GAME_PREVIEW_HTML from "./game-preview.html";
+import SCENE_JS from "./ohana-scene.js.txt";
+import PORCH_DAWN from "./porch-dawn.webp";
+import PORCH_DAY from "./porch-day.webp";
+import PORCH_NIGHT from "./porch-night.webp";
+import PORCH_PLAYED from "./porch-played.webp";
+const WELCOME_IMAGE = PORCH_DAWN;
 
 // src/games.js
 function rng(seed) {
@@ -25,11 +87,12 @@ function shuffle(arr, r) {
 }
 __name(shuffle, "shuffle");
 var GAME_TYPES = {
+  mahjong: { name: "Ohana Mahjong", min: 1, max: 2, tag: "Everybody", desc: "Match sea turtles, flowers and island treasures. Relax solo or take turns together. 10 points per pair." },
   words: { name: "Ohana Words", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Our own Wordfeud. Random boards, hidden surprise squares (good & bad!), plus the Ohana Star." },
-  handfoot: { name: "Hand & Foot", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Canasta-style card game. Build melds, make canastas, play your hand then your foot!" },
   tictac: { name: "Tic-Tac-Toe", min: 2, max: 2, tag: "Little ones", desc: "Three in a row wins. Quick and easy." },
   memory: { name: "Memory Match", min: 2, max: 2, tag: "Little ones", desc: "Flip two cards. Find the pairs. Most pairs wins." },
-  checkers: { name: "Checkers", min: 2, max: 2, tag: "Everybody", desc: "Jump your way across the board. Kings move both ways." }
+  checkers: { name: "Checkers", min: 2, max: 2, tag: "Everybody", desc: "Jump your way across the board. Kings move both ways." },
+  handfoot: { name: "Hand & Foot", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Canasta-style card game. Build melds, make canastas, play your hand then your foot!" }
 };
 var DIST = { A: [9, 1], B: [2, 3], C: [2, 3], D: [4, 2], E: [12, 1], F: [2, 4], G: [3, 2], H: [2, 4], I: [9, 1], J: [1, 8], K: [1, 5], L: [4, 1], M: [2, 3], N: [6, 1], O: [8, 1], P: [2, 3], Q: [1, 10], R: [6, 1], S: [4, 1], T: [6, 1], U: [4, 1], V: [2, 4], W: [2, 4], X: [1, 8], Y: [2, 4], Z: [1, 10], "?": [2, 0] };
 var LETTER_VALUES = Object.fromEntries(Object.entries(DIST).map(([k, v]) => [k, v[1]]));
@@ -185,6 +248,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
   const detail = [];
   for (const w of uniq) {
     let sum = 0, mult = 1;
+    const letters = [];
     for (const i of w) {
       let v = board[i].v;
       if (placedSet.has(i)) {
@@ -194,26 +258,31 @@ async function wordsMove(st, players, turnIdx, move, db) {
         if (b === "DW") mult *= 2;
         if (b === "TW") mult *= 3;
       }
+      letters.push({letter:board[i].l,base:board[i].v,points:v,bonus:placedSet.has(i)?(st.bonus[i]||""):""});
       sum += v;
     }
     const sc = sum * mult;
     total += sc;
-    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc });
+    detail.push({ word: w.map((i) => board[i].l).join(""), score: sc, letters, letterTotal:sum, wordMultiplier:mult });
   }
   let note = "";
+  const adjustments = [];
   if (pl.length === 7) {
     total += 50;
     note = "All 7 tiles! +50";
+    adjustments.push({label:note,delta:50,total});
   }
   if (!st.starFound && placedSet.has(st.star)) {
     st.starFound = true;
     total += 20;
+    adjustments.push({label:"Found the Ohana Star!",delta:20,total});
     note += (note ? " \xB7 " : "") + "Found the Ohana Star! +20";
   }
   let extraTurn = false;
   for (const t of pl) {
     const surp = st.surprises[t.i];
     if (surp && !st.foundSurprises[t.i]) {
+      const before=total, oldNote=note;
       st.foundSurprises[t.i] = surp;
       switch (surp.type) {
         case "gift": total += 20; note += (note ? " \xB7 " : "") + "\u{1F381} Gift! +20"; break;
@@ -237,6 +306,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
           }
           break;
       }
+      adjustments.push({type:surp.type,square:t.i,label:note.slice(oldNote.length).replace(/^ · /,""),delta:total-before,total,...(surp.type==="robin"?{awards:players.filter(q=>q!==p).map(q=>({player:q,points:10}))}:{})});
     }
   }
   st.board = board;
@@ -245,7 +315,7 @@ async function wordsMove(st, players, turnIdx, move, db) {
   st.scores[p] += total;
   st.passes = 0;
   st.lastMove = [...placedSet];
-  st.history.push({ p, words: detail, score: total, note });
+  st.history.push({ p, words: detail, score: total, note, adjustments });
 
   // Random Random mode: shuffle unplayed bonus squares to new empty spots
   if (st.mode === 'random') {
@@ -450,14 +520,107 @@ function chkMove(st, players, turnIdx, move) {
   return { over: false, next: 1 - turnIdx };
 }
 __name(chkMove, "chkMove");
-// ========== HAND & FOOT (Canasta) ==========
-var HF_CARD_VALUES = {
-  'Joker': 50, '2': 20,
-  'A': 20, 'K': 10, 'Q': 10, 'J': 10, '10': 10, '9': 5, '8': 5, '7': 5, '6': 5, '5': 5,
-  '4': 5, '3r': 100, '3b': -100
-};
-__name(HF_CARD_VALUES, "HF_CARD_VALUES");
+const BOT_ID=-1;
+function rememberBotCards(st){
+  if(!st.bot||!st.cards)return;
+  const seen=[...new Set([...(st.open||[]),...(st.pending||[])])];
+  st.bot.memory=st.bot.memory||{};
+  for(const i of seen)st.bot.memory[i]=st.cards[i];
+  for(const i of Object.keys(st.bot.memory))if(st.matched[i])delete st.bot.memory[i];
+  const keys=Object.keys(st.bot.memory),limit=st.bot.difficulty==='hard'?48:st.bot.difficulty==='medium'?10:4;
+  while(keys.length>limit)delete st.bot.memory[keys.shift()];
+}
+const BOT_WORDS='AT TO IN IT IS AS AN ON NO SO GO DO UP US WE HE ME BE BY OR IF OF AM MY HI OH OX AX EX CAT DOG SUN SEA SKY BAY DAY WAY SAY MAY PAY RAY HAY JOY TOY BOY KEY TRY DRY FLY CRY SHY WHY YES YET SET GET LET MET NET PET WET BET SIT SAT RAT HAT BAT MAT FAT EAT ATE TEA EAR ARE ART TAR CAR FAR BAR WAR RED BED FED LED HEN PEN TEN DEN MEN MAN CAN FAN PAN RAN TAN VAN WIN WON ONE TWO SIX TEN TOP HOP POP POT HOT NOT COT DOT GOT LOT LOG LEG EGG BIG DIG PIG FIG JIG RIG BAG BUG HUG MUG RUG TUG NAP LAP MAP CAP TAP GAP ZIP ZAP ZOO BOX FOX FIX MIX TAX WAX HOME LOVE KIND PLAY GAME GOOD NICE WAVE SAND PALM FISH BIRD DUCK SEAL BOAT COAT GOAT STAR MOON BLUE PINK GOLD WARM COOL RAIN WIND SNOW SNUG SOFT HELP HOPE HUGS FUNNY HAPPY SMILE WATER SHELL BEACH HEART HOUSE CHAIR TABLE FAMILY FLOWER FRIEND TURTLE'.split(' ');
+function hardTicTac(board,mark){
+ const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],other=m=>m==='X'?'O':'X';
+ function search(b,m,depth){for(const l of lines)if(b[l[0]]&&l.every(i=>b[i]===b[l[0]]))return b[l[0]]===mark?10-depth:depth-10;
+ const empty=b.flatMap((v,i)=>v?[]:[i]);if(!empty.length)return 0;
+ const scores=empty.map(i=>{const next=[...b];next[i]=m;return search(next,other(m),depth+1)});return m===mark?Math.max(...scores):Math.min(...scores);}
+ return [4,0,2,6,8,1,3,5,7].filter(i=>!board[i]).map(i=>{const b=[...board];b[i]=mark;return {i,score:search(b,other(mark),0)}}).sort((a,b)=>b.score-a.score)[0].i;
+}
+function hardCheckers(st,players,turn,moves){
+ const own=turn===0?'r':'b';
+ function legal(s,t){const out=[];s.board.forEach((p,i)=>{if(p&&chkOwner(p)===(t===0?'r':'b')&&(s.mustContinue===null||s.mustContinue===i)){out.push(...chkJumps(s.board,i).map(m=>({from:i,to:m.to})));if(s.mustContinue===null)out.push(...chkSteps(s.board,i).map(m=>({from:i,to:m.to})));}});return out;}
+ function evaluate(s){return s.board.reduce((v,p,i)=>!p?v:v+(chkOwner(p)===own?1:-1)*((p===p.toUpperCase()?175:100)+(chkOwner(p)==='r'?7-Math.floor(i/8):Math.floor(i/8))*3),0);}
+ function search(s,t,depth){if(!depth)return evaluate(s);const options=legal(s,t);if(!options.length)return t===turn?-10000:10000;const values=options.map(m=>{const next=structuredClone(s),r=chkMove(next,players,t,m);return r.over?(r.winner===players[turn]?10000:-10000):search(next,r.next,depth-1)});return t===turn?Math.max(...values):Math.min(...values);}
+ return moves.map(move=>{const next=structuredClone(st),r=chkMove(next,players,turn,move);return {move,score:r.over?10000:search(next,r.next,2)}}).sort((a,b)=>b.score-a.score)[0].move;
+}
+async function chooseBotMove(type,st,players,turn,db,random=Math.random){
+  const pick=a=>a[Math.floor(random()*a.length)],hard=st.bot.difficulty==='hard',medium=st.bot.difficulty==='medium';
+  if(type==='tictac'){
+    const empty=st.board.flatMap((v,i)=>v?[]:[i]);
+    if(hard)return {i:hardTicTac(st.board,turn===0?'X':'O')};
+    if(medium&&random()<.75){for(const mark of ['O','X'])for(const i of empty){const b=[...st.board];b[i]=mark;if([[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(l=>l.every(j=>b[j]===mark)))return {i};}}
+    return {i:pick(empty)};
+  }
+  if(type==='memory'){
+    const available=st.cards.flatMap((_,i)=>st.matched[i]||st.open.includes(i)?[]:[i]);
+    const memory=st.bot.memory||{},useMemory=hard||random()<(medium?.85:.5);
+    if(useMemory&&st.open.length){const known=available.filter(i=>memory[i]===memory[st.open[0]]);if(known.length)return {i:pick(known)};}
+    if(useMemory&&!st.open.length){const known=available.filter(i=>Object.hasOwn(memory,i)&&available.some(j=>j!==i&&memory[j]===memory[i]));if(known.length)return {i:pick(known)};}
+    return {i:pick(available)};
+  }
+  if(type==='checkers'){
+    const own=turn===0?'r':'b',jumps=[],steps=[];
+    st.board.forEach((p,i)=>{if(p&&chkOwner(p)===own&&(st.mustContinue===null||st.mustContinue===i)){for(const m of chkJumps(st.board,i))jumps.push({from:i,to:m.to});if(st.mustContinue===null)for(const m of chkSteps(st.board,i))steps.push({from:i,to:m.to});}});
+    if(hard)return hardCheckers(st,players,turn,[...steps,...jumps]);
+    return pick(st.mustContinue!==null||!steps.length||(medium&&jumps.length&&random()<.7)?jumps:[...steps,...jumps]);
+  }
+  if(type==='mahjong'){
+    const free=st.tiles.filter(t=>mahjongFree(st.tiles,t)),pairs=[];
+    free.forEach((a,i)=>free.slice(i+1).forEach(b=>{if(a.face===b.face)pairs.push([a.id,b.id]);}));
+    if((hard||medium)&&pairs.length){const scored=pairs.map(ids=>{const tiles=st.tiles.map(t=>ids.includes(t.id)?{...t,removed:true}:t);return {ids,score:tiles.filter(t=>mahjongFree(tiles,t)).length};}).sort((a,b)=>b.score-a.score);if(hard||random()<.7)return {action:'match',ids:scored[0].ids,revision:st.revision};}
+    return pairs.length?{action:'match',ids:pick(pairs),revision:st.revision}:{action:'shuffle',revision:st.revision};
+  }
+  if(type==='words'){
+    const rack=st.racks[BOT_ID],board=st.board,empty=!board.some(Boolean),known=new Set(BOT_WORDS),candidates=[];
+    const words=shuffle(BOT_WORDS.filter(w=>w.length<=(hard?7:medium?6:4)),random);
+    wordSearch: for(const word of words)for(const dir of [1,15])for(let start=0;start<225;start++){
+      const end=start+(word.length-1)*dir;
+      if(end>=225||(dir===1&&start%15+word.length>15))continue;
+      if(start-dir>=0&&(dir===15||start%15>0)&&board[start-dir])continue;
+      if(end+dir<225&&(dir===15||end%15<14)&&board[end+dir])continue;
+      const remaining=[...rack],placements=[];let okay=true,connected=empty&&start<=112&&end>=112&&(dir===15?start%15===7:Math.floor(start/15)===7);
+      for(let k=0;k<word.length;k++){
+        const i=start+k*dir,l=word[k];if(board[i]){if(board[i].l!==l){okay=false;break;}connected=true;continue;}
+        let ri=remaining.indexOf(l),blank=false;if(ri<0){ri=remaining.indexOf('?');blank=true;}if(ri<0){okay=false;break;}remaining.splice(ri,1);placements.push({i,l,blank});
+        if([i-15,i+15,...(i%15>0?[i-1]:[]),...(i%15<14?[i+1]:[])].some(j=>board[j]))connected=true;
+      }
+      if(!okay||!connected||!placements.length)continue;
+      const test=[...board];for(const p of placements)test[p.i]={l:p.l,v:0};
+      for(const p of placements){const cross=collect(test,p.i,dir===1?15:1);if(cross.length>1&&!known.has(cross.map(i=>test[i].l).join(''))){okay=false;break;}}
+      if(okay)candidates.push({action:'play',placements});
+      if(candidates.length>=(hard?160:60))break wordSearch;
+    }
+    // Use ordinary words and stop at the first valid move, without optimizing bonuses or peeking at surprises.
+    let best=null,bestScore=-1;
+    for(const move of shuffle(candidates,random).slice(0,hard?80:8)){
+      try{const trial=structuredClone(st);if(hard){trial.surprises={};trial.starFound=true;}await wordsMove(trial,players,turn,move,db);if(!hard)return move;const score=trial.history.at(-1).score;if(score>bestScore){bestScore=score;best=move;}}catch(e){if(!/dictionary|tile|word|connect|line|center|gap/i.test(e.message))throw e;}
+    }
+    return best||{action:'pass'};
+  }
+  throw new Error('No computer player for this game.');
+}
+async function advanceBot(env,id){
+  const db=env.DB;
+  for(let step=0;step<50;step++){
+    const g=await db.prepare('SELECT * FROM games WHERE id=?').bind(id).first();
+    if(!g||g.status!=='playing')return;
+    const players=JSON.parse(g.players);if(players[g.turn]!==BOT_ID)return;
+    const st=JSON.parse(g.state);if(!st.bot)return;
+    const move=await chooseBotMove(g.type,st,players,g.turn,db);
+    if(!move)throw new Error('Computer player has no legal move.');
+    const res=await applyMove(g.type,st,players,g.turn,move,db);rememberBotCards(st);
+    st.bot.moves=(st.bot.moves||0)+1;
+    const saved=await db.prepare('UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?').bind(JSON.stringify(st),res.next,res.over?'finished':'playing',res.over?String(res.winner):null,now(),id,g.state).run();
+    if(!saved.meta.changes)return;
+    if(res.over||players[res.next]!==BOT_ID){
+      await notifyMembers(db,players.filter(p=>p>0),{type:'turn',title:res.over?'Game complete!':'Your turn!',body:res.over?'Your game with Honu is finished.':'Honu has played. Your move!',tag:'ohana-game-'+id}).catch(()=>{});return;
+    }
+  }
+}
 
+// ========== HAND & FOOT CANASTA ==========
 function hfCardVal(card) {
   if (card.rank === 'Joker') return 50;
   if (card.rank === '2') return 20;
@@ -494,7 +657,6 @@ function hfMakeDeck(numDecks) {
         deck.push({ rank, suit, id: deck.length });
       }
     }
-    // 2 jokers per deck
     deck.push({ rank: 'Joker', suit: '🃏', id: deck.length });
     deck.push({ rank: 'Joker', suit: '🃏', id: deck.length });
   }
@@ -507,8 +669,6 @@ function hfInit(players, seed) {
   const numDecks = players.length <= 2 ? 4 : 5;
   const deck = hfMakeDeck(numDecks);
   shuffle(deck, r);
-
-  // Reassign IDs after shuffle
   deck.forEach((c, i) => c.id = i);
 
   const hands = {};
@@ -520,11 +680,10 @@ function hfInit(players, seed) {
   for (const p of players) {
     hands[p] = deck.splice(0, 11);
     feet[p] = deck.splice(0, 11);
-    melds[p] = []; // array of { rank, cards:[], isClean:bool }
+    melds[p] = [];
     red3s[p] = [];
     scores[p] = 0;
 
-    // Auto-lay red 3s from hand, draw replacements
     let foundRed = true;
     while (foundRed) {
       foundRed = false;
@@ -539,19 +698,8 @@ function hfInit(players, seed) {
   }
 
   return {
-    drawPile: deck,
-    discardPile: [],
-    hands,
-    feet,
-    melds,
-    red3s,
-    scores,
-    inFoot: {}, // which players have picked up their foot
-    round: 1,
-    roundScores: [],
-    hasDrawn: false, // has current player drawn this turn
-    history: [],
-    goOutApproval: null // track if someone asked to go out
+    drawPile: deck, discardPile: [], hands, feet, melds, red3s, scores,
+    inFoot: {}, round: 1, roundScores: [], hasDrawn: false, history: [], goOutApproval: null
   };
 }
 __name(hfInit, "hfInit");
@@ -578,18 +726,14 @@ __name(hfCountCanastas, "hfCountCanastas");
 
 function hfScoreHand(melds, red3s, handCards) {
   let score = 0;
-  // Red 3s: 100 each, or 500 if all 4 (per standard rules we just do 100 each)
   score += red3s.length * 100;
-  // Meld points
   for (const m of melds) {
     for (const c of m.cards) score += hfCardVal(c);
-    // Canasta bonus
     if (m.cards.length >= 7) {
       const isClean = m.cards.every(c => !hfIsWild(c));
       score += isClean ? 500 : 300;
     }
   }
-  // Subtract remaining hand cards
   for (const c of handCards) score -= hfCardVal(c);
   return score;
 }
@@ -601,9 +745,7 @@ function hfMove(st, players, turnIdx, move) {
 
   if (move.action === 'draw') {
     if (st.hasDrawn) throw new Error("You already drew this turn.");
-    // Draw 2 from draw pile
     if (st.drawPile.length < 2) {
-      // Reshuffle discard into draw (keep top card)
       if (st.discardPile.length > 1) {
         const top = st.discardPile.pop();
         st.drawPile = shuffle([...st.discardPile], Math.random);
@@ -613,14 +755,9 @@ function hfMove(st, players, turnIdx, move) {
     const drawn = [];
     for (let i = 0; i < 2 && st.drawPile.length; i++) {
       const c = st.drawPile.shift();
-      // Auto-lay red 3s
       if (hfIsRed3(c)) {
         st.red3s[p].push(c);
-        // Draw a replacement
-        if (st.drawPile.length) {
-          i--; // don't count this as one of the 2 draws
-          continue;
-        }
+        if (st.drawPile.length) { i--; continue; }
       } else {
         hand.push(c);
         drawn.push(c);
@@ -636,24 +773,16 @@ function hfMove(st, players, turnIdx, move) {
     const topCard = st.discardPile[st.discardPile.length - 1];
     if (hfIsBlack3(topCard)) throw new Error("A black 3 blocks the pile!");
     if (hfIsWild(topCard)) throw new Error("Can't pick up the pile when a wild is on top.");
-
-    // Must be able to use the top card in a meld (new or existing) with 2 natural cards from hand
     const topRank = topCard.rank;
     const naturalInHand = hand.filter(c => c.rank === topRank && !hfIsWild(c)).length;
     const existingMeld = st.melds[p].find(m => m.rank === topRank);
-
     if (!existingMeld && naturalInHand < 2) {
       throw new Error("You need at least 2 cards of that rank in your hand to pick up the pile.");
     }
-
-    // Pick up entire discard pile
     const pile = st.discardPile.splice(0);
     for (const c of pile) {
-      if (hfIsRed3(c)) {
-        st.red3s[p].push(c);
-      } else {
-        hand.push(c);
-      }
+      if (hfIsRed3(c)) { st.red3s[p].push(c); }
+      else { hand.push(c); }
     }
     st.hasDrawn = true;
     return { over: false, next: turnIdx, pickedUp: pile.length };
@@ -664,8 +793,6 @@ function hfMove(st, players, turnIdx, move) {
     const cardIds = move.cardIds || [];
     if (cardIds.length < 1) throw new Error("Select cards to meld.");
     const targetRank = move.rank;
-
-    // Find the cards in hand
     const cards = [];
     const handCopy = [...hand];
     for (const id of cardIds) {
@@ -673,26 +800,19 @@ function hfMove(st, players, turnIdx, move) {
       if (idx < 0) throw new Error("You don't have that card.");
       cards.push(handCopy.splice(idx, 1)[0]);
     }
-
-    // Validate: check rank consistency
     const naturals = cards.filter(c => !hfIsWild(c));
     const wilds = cards.filter(c => hfIsWild(c));
-
     let existingMeld = st.melds[p].find(m => m.rank === targetRank);
-
     if (existingMeld) {
-      // Adding to existing meld
       for (const c of naturals) {
         if (c.rank !== targetRank) throw new Error(`${c.rank} doesn't match the ${targetRank} meld.`);
       }
-      // Check wild limit: max 3 wilds in a 7-card canasta, or less than half
       const totalWilds = existingMeld.cards.filter(c => hfIsWild(c)).length + wilds.length;
       const totalCards = existingMeld.cards.length + cards.length;
       if (totalWilds > 3) throw new Error("A meld can't have more than 3 wild cards.");
       if (totalWilds >= totalCards - totalWilds && totalCards > 1) throw new Error("A meld needs more natural cards than wilds.");
       existingMeld.cards.push(...cards);
     } else {
-      // New meld
       if (cards.length < 3) throw new Error("A new meld needs at least 3 cards.");
       for (const c of naturals) {
         if (c.rank !== targetRank) throw new Error(`All natural cards must be the same rank.`);
@@ -701,29 +821,21 @@ function hfMove(st, players, turnIdx, move) {
       if (targetRank === 'Joker' || targetRank === '2') throw new Error("Can't make a meld of wilds.");
       if (wilds.length >= naturals.length) throw new Error("A meld needs more natural cards than wilds.");
       if (wilds.length > 3) throw new Error("A meld can't have more than 3 wild cards.");
-
-      // Check minimum meld requirement (for first meld of the round)
       const hasAnyMelds = st.melds[p].length > 0;
       if (!hasAnyMelds) {
         const meldTotal = cards.reduce((sum, c) => sum + hfCardVal(c), 0);
         const minReq = hfMinMeld(st.scores[p]);
         if (meldTotal < minReq) throw new Error(`First meld of the round needs at least ${minReq} points. These cards are worth ${meldTotal}.`);
       }
-
       st.melds[p].push({ rank: targetRank, cards });
     }
-
-    // Remove cards from hand
     for (const id of cardIds) {
       const idx = hand.findIndex(c => c.id === id);
       if (idx >= 0) hand.splice(idx, 1);
     }
-
-    // Check if hand is empty → pick up foot
     if (hand.length === 0 && !st.inFoot[p]) {
       st.inFoot[p] = true;
       st.history.push({ p, note: `Picked up their foot!` });
-      // Auto-lay red 3s from foot
       let foundRed = true;
       while (foundRed) {
         foundRed = false;
@@ -735,7 +847,6 @@ function hfMove(st, players, turnIdx, move) {
         }
       }
     }
-
     return { over: false, next: turnIdx };
   }
 
@@ -747,12 +858,9 @@ function hfMove(st, players, turnIdx, move) {
     const card = hand.splice(idx, 1)[0];
     st.discardPile.push(card);
     st.hasDrawn = false;
-
-    // Check if hand is empty → pick up foot
     if (hand.length === 0 && !st.inFoot[p]) {
       st.inFoot[p] = true;
       st.history.push({ p, note: `Picked up their foot!` });
-      // Auto-lay red 3s from foot
       let foundRed = true;
       while (foundRed) {
         foundRed = false;
@@ -763,21 +871,14 @@ function hfMove(st, players, turnIdx, move) {
           }
         }
       }
-      // Don't end turn — player continues with foot
       return { over: false, next: turnIdx };
     }
-
-    // Check if going out
     if (hand.length === 0 && st.inFoot[p]) {
       const { clean, dirty } = hfCountCanastas(st.melds[p]);
       if (clean >= 1 && dirty >= 1 && (clean + dirty) >= 2) {
-        // Player went out! Score the round
         st.history.push({ p, note: `Went out!` });
         return hfEndRound(st, players, p);
       }
-      // If they can't go out, they need the card back — but we already discarded
-      // Actually in real hand and foot, you can't discard your last card unless you can go out
-      // Put card back
       st.discardPile.pop();
       hand.push(card);
       const needed = [];
@@ -785,13 +886,9 @@ function hfMove(st, players, turnIdx, move) {
       if (dirty < 1) needed.push('1 dirty canasta (has wilds)');
       throw new Error(`Can't go out yet! You still need: ${needed.join(' and ')}.`);
     }
-
-    // Check if draw pile is empty
     if (st.drawPile.length === 0 && st.discardPile.length <= 1) {
-      // Force end of round
       return hfEndRound(st, players, null);
     }
-
     st.history.push({ p, note: 'discarded' });
     return { over: false, next: (turnIdx + 1) % players.length };
   }
@@ -801,10 +898,8 @@ function hfMove(st, players, turnIdx, move) {
 __name(hfMove, "hfMove");
 
 function hfEndRound(st, players, goOutPlayer) {
-  // Score everyone
   for (const p of players) {
     const currentHand = st.inFoot[p] ? st.feet[p] : st.hands[p];
-    // If not in foot, also subtract foot cards
     let handCards = [...currentHand];
     if (!st.inFoot[p]) handCards = [...handCards, ...st.feet[p]];
     const roundScore = hfScoreHand(st.melds[p], st.red3s[p], handCards);
@@ -812,8 +907,6 @@ function hfEndRound(st, players, goOutPlayer) {
     st.scores[p] += roundScore + goOutBonus;
   }
   st.roundScores.push(Object.fromEntries(players.map(p => [p, st.scores[p]])));
-
-  // Game ends after round (single round for now — can expand to multi-round later)
   let best = null, tie = false;
   for (const p of players) {
     if (best === null || st.scores[p] > st.scores[best]) { best = p; tie = false; }
@@ -838,9 +931,7 @@ function hfView(st, viewer) {
     }
   }
   return {
-    ...st,
-    hands,
-    feet,
+    ...st, hands, feet,
     drawPile: st.drawPile.length,
     discardPile: st.discardPile.length > 0 ? [st.discardPile[st.discardPile.length - 1]] : [],
     discardCount: st.discardPile.length
@@ -850,6 +941,7 @@ __name(hfView, "hfView");
 // ========== END HAND & FOOT ==========
 
 function initState(type, players, seed, mode) {
+  if (type === "mahjong") return mahjongInit(players, rng(seed));
   if (type === "words") return wordsInit(players, seed, mode);
   if (type === "tictac") return tttInit();
   if (type === "memory") return memInit(players, seed);
@@ -859,6 +951,7 @@ function initState(type, players, seed, mode) {
 }
 __name(initState, "initState");
 async function applyMove(type, st, players, turnIdx, move, db) {
+  if (type === "mahjong") return mahjongMove(st, players, turnIdx, move);
   if (type === "words") return wordsMove(st, players, turnIdx, move, db);
   if (type === "tictac") return tttMove(st, players, turnIdx, move);
   if (type === "memory") return memMove(st, players, turnIdx, move);
@@ -897,7 +990,7 @@ __name(getSetting, "getSetting");
 async function auth(req, env) {
   const t = req.headers.get("authorization")?.replace("Bearer ", "") || "";
   if (!t) return null;
-  const m = await env.DB.prepare("SELECT id,name,avatar,is_admin,last_seen FROM members WHERE token=?").bind(t).first();
+  const m = await env.DB.prepare("SELECT id,name,avatar,is_admin,last_seen,COALESCE((SELECT value FROM settings WHERE key='profile_about_'||members.id),'') AS about FROM members WHERE token=?").bind(t).first();
   if (m && (env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase()) m.is_admin = 1;
   if (m && now() - m.last_seen > 12e4) await env.DB.prepare("UPDATE members SET last_seen=? WHERE id=?").bind(now(), m.id).run();
   return m;
@@ -907,6 +1000,8 @@ function gameRow(g, me) {
   const players = JSON.parse(g.players);
   return {
     id: g.id,
+    room_id: g.room_id || 1,
+    room_name: g.room_name || null,
     type: g.type,
     name: GAME_TYPES[g.type]?.name || g.type,
     players,
@@ -918,7 +1013,9 @@ function gameRow(g, me) {
     updated_at: g.updated_at,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
+    bot: g.state ? JSON.parse(g.state).bot || null : null,
     mode: g.mode || 'classic',
+    score_review: players.includes(me) && g.score_review ? JSON.parse(g.score_review) : null,
     invite_code: g.invite_code || null
   };
 }
@@ -999,43 +1096,22 @@ async function encryptPayload(p256dhB64, authB64, payloadText) {
   // Derive shared secret
   const sharedSecret = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: clientKey }, ephemeral.privateKey, 256));
 
-  // HKDF for auth secret
-  const authInfo = new TextEncoder().encode('Content-Encoding: auth\0');
-  const prk = await hkdfExtract(clientAuth, sharedSecret);
-
-  const ikm = await hkdfExpand(prk, authInfo, 32);
-
-  // Context for key and nonce derivation
-  const keyLabel = new TextEncoder().encode('Content-Encoding: aesgcm\0');
-  const nonceLabel = new TextEncoder().encode('Content-Encoding: nonce\0');
-
-  // Build context: "P-256\0" + len(client) + client + len(server) + server
-  const context = new Uint8Array([
-    ...new TextEncoder().encode('P-256\0'),
-    0, 65, ...clientPublicKey,
-    0, 65, ...ephemeralPublicRaw
-  ]);
-
-  const keyInfo = new Uint8Array([...keyLabel, ...context]);
-  const nonceInfo = new Uint8Array([...nonceLabel, ...context]);
-
-  // Salt
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-
-  const prk2 = await hkdfExtract(salt, ikm);
-  const contentKey = await hkdfExpand(prk2, keyInfo, 16);
-  const nonce = await hkdfExpand(prk2, nonceInfo, 12);
-
-  // Pad payload (2 bytes padding length = 0)
-  const padded = new Uint8Array(2 + payload.length);
-  padded[0] = 0; padded[1] = 0;
-  padded.set(payload, 2);
+  // RFC 8291: bind both public keys to the authentication secret.
+  const enc=new TextEncoder();
+  const prk=await hkdfExtract(clientAuth,sharedSecret);
+  const ikm=await hkdfExpand(prk,new Uint8Array([...enc.encode('WebPush: info\0'),...clientPublicKey,...ephemeralPublicRaw]),32);
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const prk2=await hkdfExtract(salt,ikm);
+  const contentKey=await hkdfExpand(prk2,enc.encode('Content-Encoding: aes128gcm\0'),16);
+  const nonce=await hkdfExpand(prk2,enc.encode('Content-Encoding: nonce\0'),12);
+  const padded=new Uint8Array([...payload,2]);
 
   // Encrypt with AES-128-GCM
   const aesKey = await crypto.subtle.importKey('raw', contentKey, 'AES-GCM', false, ['encrypt']);
   const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, aesKey, padded));
 
-  return { encrypted, salt, ephemeralPublicRaw };
+  const header=new Uint8Array(86);header.set(salt);new DataView(header.buffer).setUint32(16,4096);header[20]=65;header.set(ephemeralPublicRaw,21);
+  return { encrypted:new Uint8Array([...header,...encrypted]), salt, ephemeralPublicRaw };
 }
 __name(encryptPayload, "encryptPayload");
 
@@ -1067,10 +1143,9 @@ async function sendPush(subscription, payloadObj) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aesgcm',
-        'Encryption': `salt=${b64urlEncode(salt)}`,
-        'Crypto-Key': `dh=${b64urlEncode(ephemeralPublicRaw)};p256ecdsa=${VAPID_PUBLIC_KEY}`,
-        'Authorization': `WebPush ${jwt}`,
+        'Content-Encoding': 'aes128gcm',
+        'Authorization': `vapid t=${jwt}, k=${VAPID_PUBLIC_KEY}`,
+        'Urgency':'high',
         'TTL': '86400',
       },
       body: encrypted,
@@ -1090,7 +1165,9 @@ async function notifyMembers(db, memberIds, payload) {
   const subs = (await db.prepare(`SELECT * FROM push_subscriptions WHERE member_id IN (${placeholders})`).bind(...memberIds).all()).results;
   const toDelete = [];
   for (const sub of subs) {
-    const status = await sendPush(sub, payload);
+    let status = await sendPush(sub, payload);
+    if(status===0||status===429||status>=500)status=await sendPush(sub,payload);
+    if(status<200||status>=300)console.warn("Push delivery failed",sub.member_id,status);
     if (status === 404 || status === 410) {
       toDelete.push(sub.id);
     }
@@ -1130,18 +1207,37 @@ var worker_default = {
       }
     } catch (e) { /* quiet */ }
   },
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    const buddyAssets={"/buddy-eddie.webp":EDDIE_PORTRAIT,"/talk-eddie.webp":EDDIE_TALK,"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
+    if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/word-error-preview")return new Response(WORD_ERROR_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/settings-preview")return new Response(SETTINGS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/ohana-preview")return new Response(OHANA_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/setup-preview")return new Response(SETUP_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/nook-preview")return new Response(NOOK_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/rooms-preview")return new Response(ROOMS_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET" && p==="/buddies")return new Response(BUDDIES_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if (req.method === "GET" && p === "/mahjong-preview") return new Response(MAHJONG_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if (req.method === "GET" && p === "/game-preview") return new Response(GAME_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if (req.method === "GET" && p === "/porch") return new Response(`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Home · Living Porch</title><style>body{margin:0;min-height:100vh;background:#0b2e36;color:#f5e8cc;display:grid;place-content:center;font-family:Georgia,serif}main{width:min(96vw,620px)}a{display:block;text-align:center;color:#f5e8cc;margin:20px;text-decoration:none}</style></head><body><main><ohana-scene></ohana-scene><a href="/">Come on in · Ohana Home</a></main><script src="/ohana-scene.js"></script></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
+    if(req.method==="GET"&&p==="/ohana-island.webp")return new Response(ISLAND_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET"&&p==="/island-icons.js")return new Response(ISLAND_ICONS,{headers:{"content-type":"application/javascript","cache-control":"no-cache"}});
+    if (req.method === "GET" && p === "/ohana-scene.js") return new Response(SCENE_JS, {headers:{"content-type":"application/javascript; charset=utf-8","cache-control":"no-cache"}});
+    const porchAssets = {"/porch-dawn.webp":PORCH_DAWN,"/porch-day.webp":PORCH_DAY,"/porch-night.webp":PORCH_NIGHT,"/porch-played.webp":PORCH_PLAYED};
+    if (req.method === "GET" && porchAssets[p]) return new Response(porchAssets[p], {headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if (req.method === "GET" && p === "/ohana-welcome.png") return new Response(WELCOME_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public, max-age=3600" } });
     if (req.method === "GET" && (p === "/" || p === "/index.html")) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8", "cache-control": "no-cache" } });
     // Invite links: /invite/{code} serves the app (it reads the code from URL)
-    if (req.method === "GET" && p.match(/^\/invite\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8", "cache-control": "no-cache" } });
+    if (req.method === "GET" && p.match(/^\/(?:invite|room)\/[a-f0-9]+$/)) return new Response(APP_HTML, { headers: { "content-type": "text/html;charset=utf-8", "cache-control": "no-cache" } });
     if (p === "/manifest.json") return json({ name: "Ohana Home", short_name: "Ohana", start_url: "/", display: "standalone", background_color: "#0E3B47", theme_color: "#0E3B47", icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }] });
     if (p === "/icon.svg") return new Response(ICON, { headers: { "content-type": "image/svg+xml", "cache-control": "public,max-age=86400" } });
     if (p === "/sw.js") return new Response(SW, { headers: { "content-type": "application/javascript" } });
     if (!p.startsWith("/api/")) return new Response("Not found", { status: 404 });
     try {
-      return await api2(req, env, url);
+      return await api2(req, { ...env, ctx }, url);
     } catch (e) {
       return err(e.message || "Something went wrong", 400);
     }
@@ -1173,7 +1269,8 @@ async function api2(req, env, url) {
       await db.prepare("UPDATE members SET token=? WHERE id=?").bind(m.token, m.id).run();
     }
     if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
-    return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin || ((env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase() ? 1 : 0) } });
+    await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(1,?)").bind(m.id).run();
+    return json({ token: m.token, room_id:1, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin || ((env.ADMIN_NAME || "").toLowerCase() === m.name.toLowerCase() ? 1 : 0) } });
   }
   // ---------- INVITE ENDPOINTS (no auth needed) ----------
   const invMatch = p.match(/^\/api\/invite\/([a-f0-9]+)(?:\/(\w+))?$/);
@@ -1192,7 +1289,8 @@ async function api2(req, env, url) {
         game_id: g.id,
         type: g.type,
         game_name: gt?.name || g.type,
-        mode: g.mode || 'classic',
+        bot: g.state ? JSON.parse(g.state).bot || null : null,
+    mode: g.mode || 'classic',
         status: g.status,
         player_count: players.length,
         max_players: g.max_players,
@@ -1213,9 +1311,10 @@ async function api2(req, env, url) {
       const ph = await hash(pin);
 
       // Find or create member
-      let m = await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
+      const signedIn=await auth(req,env);
+      let m = signedIn ? await db.prepare("SELECT * FROM members WHERE id=?").bind(signedIn.id).first() : await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
       if (m) {
-        if (m.pin !== ph) throw new Error("That name is taken. Use the same PIN, or pick a different name.");
+        if (!signedIn && m.pin !== ph) throw new Error("That name is taken. Use the same PIN, or pick a different name.");
       } else {
         const count = (await db.prepare("SELECT COUNT(*) c FROM members").first()).c;
         const r2 = await db.prepare("INSERT INTO members(name,pin,avatar,token,is_admin,created_at,last_seen) VALUES(?,?,?,?,?,?,?)").bind(name, ph, avatar, rid(), 0, now(), now()).run();
@@ -1224,6 +1323,7 @@ async function api2(req, env, url) {
       if (!m.token) { m.token = rid(); await db.prepare("UPDATE members SET token=? WHERE id=?").bind(m.token, m.id).run(); }
       if (avatar && avatar !== m.avatar) await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar, m.id).run();
 
+      await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(?,?)").bind(g.room_id,m.id).run();
       // Join the game
       if (!players.includes(m.id)) {
         if (players.length >= g.max_players) throw new Error("This game is full.");
@@ -1249,23 +1349,110 @@ async function api2(req, env, url) {
         }
       }
 
-      return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin }, game_id: g.id, status });
+      return json({ token: m.token, me: { id: m.id, name: m.name, avatar, is_admin: m.is_admin }, game_id: g.id, room_id:g.room_id, status });
     }
   }
 
+  const roomInvite=p.match(/^\/api\/room-invite\/([a-f0-9]{32})(?:\/(join))?$/);
+  if(roomInvite){
+    const room=await db.prepare("SELECT id,name FROM rooms WHERE invite_code=?").bind(roomInvite[1]).first();
+    if(!room)return err("This room invitation is no longer available.",404);
+    if(req.method==='GET'&&!roomInvite[2])return json({name:room.name});
+    if(req.method==='POST'&&roomInvite[2]==='join'){
+      let member=await auth(req,env);
+      if(!member){
+        const name=String(body.name||'').trim().slice(0,24),pin=String(body.pin||'');
+        if(!name||!/^\d{4}$/.test(pin))throw new Error("Enter your name and a four-number PIN.");
+        const ph=await hash(pin);
+        member=await db.prepare("SELECT * FROM members WHERE name=?").bind(name).first();
+        if(member&&member.pin!==ph)throw new Error("That name and PIN do not match. Try again or choose a different name.");
+        if(!member){
+          const result=await db.prepare("INSERT INTO members(name,pin,avatar,token,is_admin,created_at,last_seen) VALUES(?,?,?,?,0,?,?)").bind(name,ph,String(body.avatar||'@hon').slice(0,4),rid(),now(),now()).run();
+          member=await db.prepare("SELECT * FROM members WHERE id=?").bind(result.meta.last_row_id).first();
+        }
+      }
+      const identity=await db.prepare("SELECT token FROM members WHERE id=?").bind(member.id).first();
+      const token=identity.token||rid();
+      if(!identity.token)await db.prepare("UPDATE members SET token=? WHERE id=?").bind(token,member.id).run();
+      await db.prepare("INSERT OR IGNORE INTO room_members(room_id,member_id) VALUES(?,?)").bind(room.id,member.id).run();
+      return json({token,room_id:room.id,me:{id:member.id,name:member.name,avatar:member.avatar,is_admin:member.is_admin}});
+    }
+    return err("Not found",404);
+  }
   const me = await auth(req, env);
   if (!me) return err("Please sign in.", 401);
 
+  if(p==='/api/rooms/create'&&req.method==='POST'){
+    const name=String(body.name||'').trim().slice(0,48);
+    if(!name)throw new Error("Give your room a name.");
+    const invite=rid(16);
+    // A batch makes the room and owner membership visible together.
+    await db.batch([
+      db.prepare("INSERT INTO rooms(name,owner_id,invite_code,created_at) VALUES(?,?,?,?)").bind(name,me.id,invite,now()),
+      db.prepare("INSERT INTO room_members(room_id,member_id) SELECT id,? FROM rooms WHERE invite_code=?").bind(me.id,invite)
+    ]);
+    const room=await db.prepare("SELECT id,name,invite_code FROM rooms WHERE invite_code=?").bind(invite).first();
+    return json(room);
+  }
+  const roomList=(await db.prepare("SELECT r.id,r.name,r.owner_id,r.invite_code FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE rm.member_id=? ORDER BY r.id").bind(me.id).all()).results;
+  const requestedRoom=Number(req.headers.get('x-ohana-room'));
+  const activeRoom=roomList.find(r=>r.id===requestedRoom)||(!requestedRoom?roomList[0]:null);
+  if(!activeRoom)return err("You do not belong to this room. Open Rooms or use a room invitation.",403);
+  const roomId=activeRoom.id;
+  if(p==='/api/rooms/invite'&&req.method==='POST'){
+    // Only members of the selected room reach this point. A single stable
+    // invitation is shared by the room; concurrent first requests cannot rotate it.
+    await db.prepare("UPDATE rooms SET invite_code=? WHERE id=? AND invite_code IS NULL").bind(rid(16),roomId).run();
+    const invitation=await db.prepare("SELECT id,name,invite_code FROM rooms WHERE id=?").bind(roomId).first();
+    return json(invitation);
+  }
+  if(p==='/api/rooms/rotate-invite'&&req.method==='POST'){
+    if(roomId===1?!me.is_admin:activeRoom.owner_id!==me.id)return err("Only the room host can replace its invitation.",403);
+    await db.prepare("UPDATE rooms SET invite_code=? WHERE id=?").bind(rid(16),roomId).run();
+    return json({ok:true});
+  }
   // ---------- PUSH SUBSCRIPTION ENDPOINTS ----------
+  if (p === "/api/avatar" && req.method === "POST") {
+    const avatar=String(body.avatar||'');
+    const characters=['@eag','@hon','@spl','@kik','@peb','@man','@sun',"@ott","@pip","@lul","@hoo","@flu","@ros","@koa","@mil","@bam","@coc","@fin","@ink","@kai","@flo","@ree"];
+    if(!characters.includes(avatar) && !(avatar.length<=4 && /\p{Extended_Pictographic}/u.test(avatar) && !/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");
+    await db.prepare("UPDATE members SET avatar=? WHERE id=?").bind(avatar,me.id).run();
+    return json({ok:true,avatar});
+  }
+  if (p === "/api/profile" && req.method === "POST") {
+    const name=String(body.name||'').trim(),about=String(body.about||'').trim();
+    if(!name||name.length>20)throw new Error('Use a name between 1 and 20 characters.');
+    if(about.length>300)throw new Error('Keep About me to 300 characters.');
+    const avatar=String(body.avatar||'');
+    const characters=['@eag','@hon','@spl','@kik','@peb','@man','@sun',"@ott","@pip","@lul","@hoo","@flu","@ros","@koa","@mil","@bam","@coc","@fin","@ink","@kai","@flo","@ree"];
+    if(!characters.includes(avatar) && !(avatar.length<=4 && /\p{Extended_Pictographic}/u.test(avatar) && !/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");
+    const existing=await db.prepare("SELECT id FROM members WHERE LOWER(name)=LOWER(?) AND id!=?").bind(name,me.id).first();
+    if(existing)throw new Error('Someone already has that name.');
+    await db.batch([
+      db.prepare("UPDATE members SET name=?,avatar=? WHERE id=?").bind(name,avatar,me.id),
+      db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind('profile_about_'+me.id,about)
+    ]);
+    return json({ok:true,name,avatar,about});
+  }
   if (p === "/api/push/subscribe" && req.method === "POST") {
     const endpoint = String(body.endpoint || "");
     const p256dh = String(body.p256dh || "");
     const authKey = String(body.auth || "");
     if (!endpoint || !p256dh || !authKey) throw new Error("Missing push subscription data.");
-    // Upsert: delete old then insert
-    await db.prepare("DELETE FROM push_subscriptions WHERE member_id=? AND endpoint=?").bind(me.id, endpoint).run();
-    await db.prepare("INSERT INTO push_subscriptions(member_id,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?)").bind(me.id, endpoint, p256dh, authKey, now()).run();
+    const pushURL=new URL(endpoint);
+    if(pushURL.protocol!=="https:"||!(/^(fcm\.googleapis\.com|(?:[a-z0-9-]+\.)*push\.services\.mozilla\.com|(?:[a-z0-9-]+\.)*notify\.windows\.com|web\.push\.apple\.com)$/.test(pushURL.hostname)))throw new Error("Unsupported notification service.");
+    if(b64urlDecode(p256dh).length!==65||b64urlDecode(authKey).length!==16)throw new Error("Invalid notification keys. Try enabling again.");
+    // Keep a shared browser endpoint attached only to its current account.
+    await db.batch([db.prepare("DELETE FROM push_subscriptions WHERE endpoint=?").bind(endpoint),db.prepare("INSERT INTO push_subscriptions(member_id,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?)").bind(me.id,endpoint,p256dh,authKey,now())]);
     return json({ ok: true });
+  }
+  if(p==='/api/push/test'&&req.method==='POST'){
+    const sub=await db.prepare("SELECT * FROM push_subscriptions WHERE member_id=? AND endpoint=?").bind(me.id,String(body.endpoint||'')).first();
+    if(!sub)return err("This device is not connected yet. Tap Enable notifications.",400);
+    const status=await sendPush(sub,{type:'test',title:'Ohana notifications are ready',body:'Your turn alerts will arrive here—even when Ohana Home is closed.',tag:'ohana-test'});
+    if(status===404||status===410)await db.prepare("DELETE FROM push_subscriptions WHERE id=?").bind(sub.id).run();
+    if(status<200||status>=300)return err(status===404||status===410?'This device connection expired. Tap Enable notifications again.':'The notification service did not accept the test. Please try again.',502);
+    return json({ok:true,accepted:true});
   }
   if (p === "/api/push/unsubscribe" && req.method === "POST") {
     const endpoint = String(body.endpoint || "");
@@ -1288,26 +1475,32 @@ async function api2(req, env, url) {
 
   if (p === "/api/sync") {
     const since = +url.searchParams.get("msgSince") || 0;
-    const members = (await db.prepare("SELECT id,name,avatar,last_seen,is_admin FROM members ORDER BY name").all()).results.map((m) => ({ ...m, online: now() - m.last_seen < ONLINE_MS }));
-    const msgs = (await db.prepare("SELECT m.id,m.member_id,m.text,m.image,m.created_at FROM messages m WHERE m.id>? ORDER BY m.id DESC LIMIT 60").bind(since).all()).results.reverse();
-    const games = (await db.prepare("SELECT * FROM games WHERE status!='finished' OR updated_at>? ORDER BY updated_at DESC LIMIT 40").bind(now() - 3 * 864e5).all()).results.map((g) => gameRow(g, me.id));
-    return json({ me, familyName: await getSetting(db, "family_name"), members, messages: msgs, games, types: GAME_TYPES });
+    const members=(await db.prepare("SELECT m.id,m.name,m.avatar,m.last_seen,m.is_admin,COALESCE((SELECT value FROM settings WHERE key='profile_about_'||m.id),'') AS about FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=? ORDER BY m.name").bind(roomId).all()).results.map(m=>({...m,online:now()-m.last_seen<ONLINE_MS}));
+    const msgs=(await db.prepare("SELECT id,member_id,text,image,created_at FROM messages WHERE room_id=? AND id>? ORDER BY id DESC LIMIT 60").bind(roomId,since).all()).results.reverse();
+    const games=(await db.prepare("SELECT games.*,score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.room_id=? AND (status!='finished' OR updated_at>?) ORDER BY updated_at DESC LIMIT 80").bind(roomId,now()-3*864e5).all()).results.map(g=>gameRow(g,me.id));
+    const allGames=(await db.prepare("SELECT g.*,r.name AS room_name FROM games g JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id WHERE rm.member_id=? AND (g.status!='finished' OR g.updated_at>?) ORDER BY g.updated_at DESC LIMIT 120").bind(me.id,now()-3*864e5).all()).results.map(g=>gameRow(g,me.id));
+    const visiblePeople=(await db.prepare("SELECT DISTINCT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id IN (SELECT room_id FROM room_members WHERE member_id=?)").bind(me.id).all()).results;
+    const peopleById=Object.fromEntries(visiblePeople.map(m=>[m.id,m]));
+    for(const game of allGames)game.names=Object.fromEntries(game.players.filter(id=>peopleById[id]).map(id=>[id,peopleById[id]]));
+    const familyName=await getSetting(db,'family_name');
+    const invitations=(await db.prepare("SELECT i.game_id,i.sender_id,m.name AS sender_name,g.type,g.room_id,r.name AS room_name FROM game_invitations i JOIN games g ON g.id=i.game_id JOIN members m ON m.id=i.sender_id JOIN rooms r ON r.id=g.room_id JOIN room_members rm ON rm.room_id=g.room_id AND rm.member_id=i.member_id WHERE i.member_id=? AND i.status='pending' AND g.status='waiting' AND NOT EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=i.member_id)").bind(me.id).all()).results;
+    return json({invitations,me,familyName:roomId===1?familyName:activeRoom.name,roomId,rooms:roomList.map(r=>({...r,name:r.id===1?familyName:r.name})),members,messages:msgs,games,allGames,types:GAME_TYPES});
   }
   if (p === "/api/message" && req.method === "POST") {
     const text = String(body.text || "").trim().slice(0, 2e3);
     const image = body.image ? String(body.image) : null;
     if (!text && !image) throw new Error("Nothing to send.");
     if (image && image.length > 9e5) throw new Error("That picture is too big.");
-    await db.prepare("INSERT INTO messages(member_id,text,image,created_at) VALUES(?,?,?,?)").bind(me.id, text, image, now()).run();
+    await db.prepare("INSERT INTO messages(member_id,text,image,created_at,room_id) VALUES(?,?,?,?,?)").bind(me.id, text, image, now(),roomId).run();
 
     // Notify all OTHER members about new chat message
-    const allMembers = (await db.prepare("SELECT id FROM members WHERE id!=?").bind(me.id).all()).results;
+    const allMembers = (await db.prepare("SELECT member_id AS id FROM room_members WHERE member_id!=? AND room_id=?").bind(me.id,roomId).all()).results;
     const otherIds = allMembers.map(m => m.id);
     env.ctx?.waitUntil?.(notifyMembers(db, otherIds, {
       type: 'chat',
-      title: `${me.name} in Ohana Home`,
+      title: `${me.name} in ${roomId===1?"Ohana Family":activeRoom.name}`,
       body: text ? (text.length > 80 ? text.slice(0, 77) + '…' : text) : '📷 Sent a picture',
-      tag: 'ohana-chat',
+      tag: 'ohana-room-'+roomId,
     }).catch(() => {}));
 
     return json({ ok: true });
@@ -1316,24 +1509,59 @@ async function api2(req, env, url) {
     const type = body.type;
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
-    const max = Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const withBot=body.opponent==='bot';
+    const max = withBot?2:Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
     const inviteCode = rid(6);
-    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code) VALUES(?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode).run();
+    const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode,roomId).run();
+    if (max === 1 || withBot) {
+      const players=withBot?[me.id,BOT_ID]:[me.id];
+      const st=initState(type,players,now(),mode);
+      if(withBot)st.bot={id:BOT_ID,name:'Honu',avatar:'@hon',difficulty:['easy','medium','hard'].includes(body.difficulty)?body.difficulty:'easy',memory:{},moves:0};
+      if(withBot)await db.prepare('UPDATE games SET players=? WHERE id=?').bind(JSON.stringify(players),r.meta.last_row_id).run();
+      const state=JSON.stringify(st);
+      await db.prepare("UPDATE games SET state=?,status='playing' WHERE id=?").bind(state,r.meta.last_row_id).run();
+    }
     return json({ id: r.meta.last_row_id, invite_code: inviteCode });
   }
   const gm = p.match(/^\/api\/game\/(\d+)(?:\/(\w+))?$/);
   if (gm) {
     const id = +gm[1];
     const action = gm[2];
-    const g = await db.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
+    const g = await db.prepare("SELECT games.*, score_reviews.payload AS score_review FROM games LEFT JOIN score_reviews ON score_reviews.game_id=games.id WHERE games.id=?").bind(id).first();
     if (!g) throw new Error("Game not found.");
+    if(!roomList.some(r=>r.id===g.room_id))return err("This game belongs to a private room.",403);
     const players = JSON.parse(g.players);
     const names = {};
-    for (const m of (await db.prepare("SELECT id,name,avatar FROM members").all()).results) names[m.id] = m;
+    for (const m of (await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=?").bind(g.room_id).all()).results) names[m.id] = m;
+    if(players.includes(BOT_ID))names[BOT_ID]={id:BOT_ID,name:'Honu · computer',avatar:'@hon'};
     if (!action) {
+      if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
-      return json({ ...gameRow(g, me.id), state: st, names });
+      const invited_members=players.includes(me.id)&&g.status==='waiting'?(await db.prepare("SELECT member_id FROM game_invitations WHERE game_id=? AND status='pending'").bind(id).all()).results.map(i=>i.member_id):[];
+      return json({ ...gameRow(g, me.id), state: st, names, invited_members });
+    }
+    if(action==='invite' && req.method==='POST') {
+      if(!players.includes(me.id))return err("Only a player at this table can invite Ohana.",403);
+      if(g.status!=='waiting'||players.length>=g.max_players)throw new Error("Choose a table that is waiting for players.");
+      const recipient=Number(body.member_id);
+      if(!names[recipient]||recipient===me.id||players.includes(recipient))throw new Error("Choose another member of this room’s Ohana.");
+      const sent=await db.prepare("INSERT INTO game_invitations(game_id,member_id,sender_id,status,created_at) VALUES(?,?,?,'pending',?) ON CONFLICT(game_id,member_id) DO UPDATE SET sender_id=excluded.sender_id,status='pending',created_at=excluded.created_at WHERE game_invitations.status!='pending'").bind(id,recipient,me.id,now()).run();
+      if(sent.meta.changes)env.ctx?.waitUntil?.(notifyMembers(db,[recipient],{type:'invite',title:me.name+' saved you a seat',body:'Join '+(GAME_TYPES[g.type]?.name||g.type)+' — open your Game Nook to accept.',tag:'ohana-invite-'+id}).catch(()=>{}));
+      return json({ok:true});
+    }
+    if(action==='decline' && req.method==='POST') {
+      await db.prepare("UPDATE game_invitations SET status='declined' WHERE game_id=? AND member_id=?").bind(id,me.id).run();
+      return json({ok:true});
+    }
+    if (action === "reviewack" && req.method === "POST") {
+      if (!players.includes(me.id)) throw new Error("Only players in this game can acknowledge its score review.");
+      const review = g.score_review ? JSON.parse(g.score_review) : null;
+      if (!review || body.reviewId !== review.id) throw new Error("This score review changed. Please refresh and read it again.");
+      const result = await db.prepare("UPDATE score_reviews SET payload=json_set(payload,?,COALESCE(json_extract(payload,?),?)) WHERE game_id=? AND json_extract(payload,'$.id')=?")
+        .bind('$.acknowledged."'+me.id+'"','$.acknowledged."'+me.id+'"',now(),id,review.id).run();
+      if (!result.meta.changes) throw new Error("This score review changed. Please refresh and read it again.");
+      return json({ok:true});
     }
     if (action === "join" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("This game already started.");
@@ -1346,7 +1574,9 @@ async function api2(req, env, url) {
         status = "playing";
         state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       }
-      await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=?").bind(JSON.stringify(players), status, state, now(), id).run();
+      const joined=await db.prepare("UPDATE games SET players=?,status=?,state=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(players), status, state, now(), id,g.players).run();
+      if(!joined.meta.changes)throw new Error("This table just changed. Please open it again.");
+      await db.prepare("UPDATE game_invitations SET status='accepted' WHERE game_id=? AND member_id=?").bind(id,me.id).run();
 
       // If game just started, notify the first player it's their turn
       if (status === "playing") {
@@ -1366,7 +1596,7 @@ async function api2(req, env, url) {
     }
     if (action === "start" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("Already started.");
-      if (g.created_by !== me.id && !me.is_admin) throw new Error("Only the person who made the game can start it.");
+      if (g.created_by !== me.id && !(me.is_admin&&g.room_id===1)) throw new Error("Only the person who made the game can start it.");
       if (players.length < GAME_TYPES[g.type].min) throw new Error("Need more players first.");
       const state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
       await db.prepare("UPDATE games SET status='playing',state=?,max_players=?,updated_at=? WHERE id=?").bind(state, players.length, now(), id).run();
@@ -1387,7 +1617,7 @@ async function api2(req, env, url) {
     }
     if (action === "leave" && req.method === "POST") {
       if (g.status === "waiting") {
-        if (g.created_by === me.id || me.is_admin) await db.prepare("DELETE FROM games WHERE id=?").bind(id).run();
+        if (g.created_by === me.id || (me.is_admin&&g.room_id===1)) await db.prepare("DELETE FROM games WHERE id=?").bind(id).run();
         else await db.prepare("UPDATE games SET players=? WHERE id=?").bind(JSON.stringify(players.filter((x) => x !== me.id)), id).run();
       } else if (g.status === "playing" && players.includes(me.id)) {
         await db.prepare("UPDATE games SET status='finished',winner=?,updated_at=? WHERE id=?").bind(players.length === 2 ? String(players.find((x) => x !== me.id)) : "resigned", now(), id).run();
@@ -1399,11 +1629,18 @@ async function api2(req, env, url) {
       if (players[g.turn] !== me.id) throw new Error("It's not your turn yet.");
       const st = JSON.parse(g.state);
       const res = await applyMove(g.type, st, players, g.turn, body, db);
+      rememberBotCards(st);
       const status = res.over ? "finished" : "playing";
+      if(g.type==='mahjong'||st.bot) {
+        const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state).run();
+        if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
+      } else {
       await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=?").bind(JSON.stringify(st), res.next, status, res.over ? String(res.winner) : null, now(), id).run();
+      }
 
+      if(!res.over&&players[res.next]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       // Send push notification to the next player (if game is still playing)
-      if (!res.over && players[res.next] !== me.id) {
+      if (!res.over && players[res.next] > 0 && players[res.next] !== me.id) {
         const nextPlayerId = players[res.next];
         const gameName = GAME_TYPES[g.type]?.name || g.type;
         env.ctx?.waitUntil?.(notifyMembers(db, [nextPlayerId], {
@@ -1414,7 +1651,7 @@ async function api2(req, env, url) {
         }).catch(() => {}));
       }
       // If game is over, notify the winner
-      if (res.over && res.winner && res.winner !== 'tie' && res.winner !== 'resigned' && +res.winner !== me.id) {
+      if (res.over && res.winner && res.winner !== 'tie' && res.winner !== 'resigned' && +res.winner > 0 && +res.winner !== me.id) {
         const gameName = GAME_TYPES[g.type]?.name || g.type;
         env.ctx?.waitUntil?.(notifyMembers(db, [+res.winner], {
           type: 'win',
@@ -1427,7 +1664,7 @@ async function api2(req, env, url) {
       return json({ ok: true, over: res.over, winner: res.winner, last: st.history ? st.history[st.history.length - 1] : null });
     }
     if (action === "chat" && req.method === "POST") {
-      if (!g.in_game) throw new Error("You're not in this game.");
+      if (!players.includes(me.id)) throw new Error("You're not in this game.");
       const text = String(body.text || "").trim().slice(0, 200);
       if (!text) throw new Error("Say something!");
       const st = JSON.parse(g.state);
@@ -1441,7 +1678,7 @@ async function api2(req, env, url) {
     }
   }
   if (p.startsWith("/api/admin/")) {
-    if (!me.is_admin) return err("Admins only.", 403);
+    if (!me.is_admin || roomId!==1) return err("Family admins only.", 403);
     if (p === "/api/admin/settings" && req.method === "POST") {
       if (body.family_code) await db.prepare("UPDATE settings SET value=? WHERE key='family_code'").bind(String(body.family_code).trim().toUpperCase()).run();
       if (body.family_name) await db.prepare("UPDATE settings SET value=? WHERE key='family_name'").bind(String(body.family_name).trim()).run();
@@ -1449,15 +1686,15 @@ async function api2(req, env, url) {
     }
     if (p === "/api/admin/info") return json({ family_code: await getSetting(db, "family_code"), family_name: await getSetting(db, "family_name") });
     if (p === "/api/admin/remove" && req.method === "POST") {
-      await db.prepare("DELETE FROM members WHERE id=? AND is_admin=0").bind(+body.id).run();
+      await db.prepare("DELETE FROM room_members WHERE member_id=? AND room_id=1 AND member_id IN (SELECT id FROM members WHERE is_admin=0)").bind(+body.id).run();
       return json({ ok: true });
     }
     if (p === "/api/admin/reset_pin" && req.method === "POST") {
-      await db.prepare("UPDATE members SET pin=?,token=NULL WHERE id=?").bind(await hash(String(body.pin)), +body.id).run();
+      await db.prepare("UPDATE members SET pin=?,token=NULL WHERE id=? AND id IN (SELECT member_id FROM room_members WHERE room_id=1)").bind(await hash(String(body.pin)), +body.id).run();
       return json({ ok: true });
     }
     if (p === "/api/admin/clear_chat" && req.method === "POST") {
-      await db.prepare("DELETE FROM messages").run();
+      await db.prepare("DELETE FROM messages WHERE room_id=1").run();
       return json({ ok: true });
     }
   }
@@ -1467,7 +1704,7 @@ __name(api2, "api2");
 var ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0E3B47"/><path d="M64 24c-9 0-16 6-19 13-8-2-17 3-17 13 0 8 5 12 10 14-2 5-1 12 5 16 5 3 11 2 15-1 4 3 10 4 15 1 6-4 7-11 5-16 5-2 10-6 10-14 0-10-9-15-17-13-3-7-10-13-19-13z" fill="#FF8C69"/><circle cx="64" cy="60" r="12" fill="#FFD166"/><path d="M40 104c8-10 40-10 48 0" stroke="#F6E7C8" stroke-width="6" stroke-linecap="round" fill="none"/></svg>`;
 var SW = `
 self.addEventListener('install', e => self.skipWaiting());
-self.addEventListener('activate', e => self.clients.claim());
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', function(event) {
   let data = { title: 'Ohana Home', body: 'Something happened!', tag: 'ohana' };
@@ -1479,7 +1716,10 @@ self.addEventListener('push', function(event) {
     badge: '/icon.svg',
     tag: data.tag || 'ohana',
     renotify: true,
-    data: { type: data.type || 'general' }
+    data: { type: data.type || 'general' },
+    silent:false,
+    requireInteraction:data.type==='turn',
+    vibrate:[200,100,200]
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
