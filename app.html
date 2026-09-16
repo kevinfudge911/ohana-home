@@ -576,6 +576,30 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ff
 .game-tray .acts{display:flex!important;flex-wrap:wrap;gap:5px!important;justify-content:center}.game-tray .acts button{min-width:0!important;min-height:44px!important;padding:5px 8px!important;font-size:13px!important;flex:0 1 auto!important}.game-tray .acts .island-icon{width:18px;height:18px;flex-basis:18px}
 @media(max-width:700px){#game .gchat-input-row{grid-template-columns:minmax(0,1fr) 44px!important}#game .gchat-input-row .reacts{grid-column:1/-1!important;justify-content:flex-start}#game-head h2{font-size:17px!important;flex:1 1 110px!important}#game-head>button{padding:5px 7px!important;font-size:12px!important}#game-head>button .island-icon{display:none}#game .moment-art{display:none}.game-tray .acts button{font-size:12px!important}}
 
+
+/* Audit: useful content determines height, even at tablet text scaling. */
+#game .moment-copy{flex-direction:row!important;align-items:center!important;gap:6px 10px!important}
+#game .play-receipt{display:grid;grid-template-columns:minmax(0,1fr);padding:5px 9px!important}
+#game .moment-art{width:32px!important;min-width:32px;flex-basis:32px;height:34px!important}#game .moment-art .treasure-chest{transform:scale(.3)}
+#game .replay-moment{width:44px!important;min-width:44px;font-size:22px!important;padding:0!important;border-radius:50%!important}
+#game .replay-moment .island-icon{display:none}#game .replay-moment:after{content:"↻";display:block;color:#174b59;font:26px Nunito}
+.score-details{color:#234d5b;font-size:13px}.score-details>summary{min-height:30px;padding:5px 0;cursor:pointer;line-height:1.45}.score-details>summary>span{font-weight:800;text-decoration:underline;margin-left:8px;white-space:nowrap}
+#game .gchat-input-row{grid-template-columns:44px minmax(0,1fr) 44px!important;padding:5px 7px!important;gap:6px!important}
+#game .gchat-input-row .reacts{grid-column:auto!important;display:block!important}#game .gchat-input-row .reacts button{margin:0!important}
+#game .gchat-msgs{max-height:110px;padding:4px 7px!important}#game .gchat-msg{margin:3px 0}#game .gchat-msg .bub{padding:6px 10px;font-size:14px;max-width:85%}
+#game .table-blessing{font-size:11px!important;line-height:1.3;padding:2px 6px 4px!important}
+.game-tray{border:0!important;border-radius:16px 16px 0 0!important;padding:3px 5px max(4px,env(safe-area-inset-bottom))!important;box-shadow:0 -2px 8px #092f4966!important}
+.game-tray .rack{padding:4px!important;margin:0 auto 4px!important;width:max-content!important;max-width:100%!important;gap:4px!important}
+.game-tray .rt{width:clamp(36px,7.5vw,52px)!important;min-width:0;flex:0 1 52px!important;height:52px!important}
+.game-tray .acts{margin:0!important}.game-tray .acts button{padding:5px 7px!important}
+@media(max-width:600px){#game .moment-copy>b{font-size:14px!important}.game-tray .acts{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px!important}.game-tray .acts button{width:100%!important}.game-tray .rt{height:46px!important;font-size:26px!important}.game-tray .rack{width:100%!important;justify-content:center}.score-details>summary{min-height:34px}}
+
+
+#game-head:has(.hf-players) .turn-greeting{flex:1 1 210px!important}#game-head .hf-players{order:1;flex:0 1 auto!important;flex-wrap:wrap}
+#game .hf-meld-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 10px;margin:4px 0}#game .hf-meld-heading h3{margin:0!important}
+#game .hf-foot-pile small{display:none}#game .hf-progress{margin:4px 0;gap:4px}#game .hf-hand-title{margin:5px 0 0!important}
+#game .hf-decks{align-items:center;gap:12px;padding:2px 0 6px!important}#game .hf-foot-pile{width:76px}#game .hf-foot-pile span{font-size:11px}
+
 </style>
 </head>
 <body>
@@ -1188,7 +1212,7 @@ function placeDraftTile(st, rack, rackIdx, i) {
 function positionWordTray(){
  const tray=document.querySelector('.game-tray');if(!tray)return;
  const v=window.visualViewport,scale=v?.scale||1,vw=v?.width||window.innerWidth,vh=v?.height||window.innerHeight;
- const width=Math.min(720,vw*scale);
+ const width=Math.min(620,vw*scale);
  Object.assign(tray.style,{width:width+'px',maxWidth:'none',margin:'0',right:'auto',bottom:'auto',transformOrigin:'top left',transform:`scale(${1/scale})`});
  tray.style.left=((v?.offsetLeft||0)+(vw-width/scale)/2)+'px';
  tray.style.top=((v?.offsetTop||0)+vh-tray.offsetHeight/scale)+'px';
@@ -1268,7 +1292,7 @@ function mysteryVoiceNote(last) {
 function renderPlayBreakdown(st) {
   const last=[...(st.history||[])].reverse().find(h=>h.words?.length);
   if(!last)return '';
-  return `<section class="play-receipt" aria-label="Last play scoring"><div class="moment-stage revealed" data-points="${last.score}"><div class="moment-art" aria-hidden="true"><span class="treasure-rays"></span><span class="treasure-chest"><i></i><b>✦</b></span><span class="reward-symbol">${last.note ? (/freeze/i.test(last.note)?'❄':/star/i.test(last.note)?'★':'✦'):'★'}</span></div><div class="moment-copy"><small>${last.note?'MYSTERY & BONUS REVEAL':'OHANA WORD MAGIC'}</small><b>${esc(nameOf(last.p))}’s play</b><strong class="moment-points">+${last.score}</strong><span>points earned</span></div><button class="replay-moment" type="button">↻ Replay the magic</button></div>${last.words.map(w=>`<div class="word-earned"><b>${esc(w.word)}</b><span>${w.score} points</span></div>${w.letters?`<details class="word-math"><summary>Letter values & bonuses</summary><div>${w.letters.map(l=>esc(l.letter)+' '+l.base+(l.points!==l.base?' → '+l.points:'')+(l.bonus?' ('+esc(l.bonus)+')':'')).join(' + ')} = ${w.letterTotal}${w.wordMultiplier>1?' × '+w.wordMultiplier+' word bonus':''} = ${w.score}</div></details>`:''}`).join('')}${last.adjustments?.length?`<div class="mystery-reveal">${last.adjustments.map(a=>`<div><b>${esc(a.type==='robin'?'🎯 Robin Hood · sharing with Ohana':a.label||a.type||'Bonus')}</b><span>${esc(mysteryAwardText(a,last))}</span></div>`).join('')}</div>`:last.note?`<div class="mystery-reveal">${esc(last.note)}</div>`:''}<small>Points for this play. Your running total is above.</small></section>`;
+  return `<section class="play-receipt" aria-label="Last play scoring"><div class="moment-stage revealed" data-points="${last.score}"><div class="moment-art" aria-hidden="true"><span class="treasure-rays"></span><span class="treasure-chest"><i></i><b>✦</b></span><span class="reward-symbol">${last.note ? (/freeze/i.test(last.note)?'❄':/star/i.test(last.note)?'★':'✦'):'★'}</span></div><div class="moment-copy"><small>${last.note?'MYSTERY & BONUS REVEAL':'OHANA WORD MAGIC'}</small><b>${esc(nameOf(last.p))}’s play</b><strong class="moment-points">+${last.score}</strong><span>points earned</span></div><button class="replay-moment" type="button" aria-label="Replay the last play animation and voice" title="Replay the last play">↻</button></div><details class="score-details"><summary>${esc(last.words.map(w=>w.word+' '+w.score).join(', '))}${last.note?' · '+esc(last.note):''} <span>Score details</span></summary>${last.words.map(w=>`<div class="word-earned"><b>${esc(w.word)}</b><span>${w.score} points</span></div>${w.letters?`<details class="word-math"><summary>Letter values & bonuses</summary><div>${w.letters.map(l=>esc(l.letter)+' '+l.base+(l.points!==l.base?' → '+l.points:'')+(l.bonus?' ('+esc(l.bonus)+')':'')).join(' + ')} = ${w.letterTotal}${w.wordMultiplier>1?' × '+w.wordMultiplier+' word bonus':''} = ${w.score}</div></details>`:''}`).join('')}${last.adjustments?.length?`<div class="mystery-reveal">${last.adjustments.map(a=>`<div><b>${esc(a.type==='robin'?'🎯 Robin Hood · sharing with Ohana':a.label||a.type||'Bonus')}</b><span>${esc(mysteryAwardText(a,last))}</span></div>`).join('')}</div>`:last.note?`<div class="mystery-reveal">${esc(last.note)}</div>`:''}</details></section>`;
 }
 // Paint the whole board in one SVG surface, independent of empty CSS-grid rows.
 function wordBoardSurface(st,placed){
@@ -1479,7 +1503,7 @@ function renderGameChat(st, g) {
       return `<div class="gchat-msg ${mine ? 'me' : ''} ${emojiOnly ? 'emoji-only' : ''}"><span class="av">${avOf(m.p)}</span><div class="bub">${!mine ? `<b>${esc(nameOf(m.p))}</b>` : ''}${esc(m.text)}</div></div>`;
     }).join('') : ''}</div>
     <div class="gchat-input-row">
-      <div class="reacts">${reacts.map(r => `<button data-react="${r}">${r}</button>`).join('')}<button type="button" id="gchat-emojis" aria-label="More chat emojis" title="More emojis">＋</button></div>
+      <div class="reacts"><button type="button" id="gchat-emojis" aria-label="More chat emojis" title="More emojis">＋</button></div>
       <input id="gchat-in" aria-label="Message your family" placeholder="Message the table…" maxlength="200" autocomplete="off" value="${esc(savedVal)}">
       <button class="send-btn" id="gchat-send" aria-label="Send message">➤</button>
     </div>
@@ -1495,12 +1519,12 @@ function renderGameChat(st, g) {
   bp.querySelectorAll('[data-react]').forEach(btn => btn.onclick = () => sendGameChat(g.id, btn.dataset.react));
 
   // Text send
-  const sendText = () => {
+  const sendText = async () => {
     const inp = $('#gchat-in');
     const t = inp?.value?.trim();
     if (!t) return;
-    inp.value = '';
-    sendGameChat(g.id, t);
+    if(inp.dataset.sending)return;inp.dataset.sending='true';
+    try {if(await sendGameChat(g.id,t)){const current=$('#gchat-in');if(S.game===g.id&&current?.value.trim()===t)current.value='';}}finally{delete inp.dataset.sending;}
   };
   const sendBtn = $('#gchat-send'); if (sendBtn) sendBtn.onclick = sendText;
   const inp = $('#gchat-in');
@@ -1515,8 +1539,9 @@ async function sendGameChat(gameId, text) {
   try {
     await api(`/api/game/${gameId}/chat`, { text });
     AudioSys.beep(440, .06, .15);
-    await loadGame();
-  } catch(e) { toast(e.message); }
+    if(S.game===gameId)try{await loadGame();}catch(e){toast("Message sent. Reconnecting to your table…");}
+    return true;
+  } catch(e) { toast(e.message);return false; }
 }
 
 // ----- Tic-tac-toe -----
@@ -1575,11 +1600,14 @@ function renderChk(st, g, myTurn) {
     if (S.chkFrom !== null && cans.includes(i)) { const from = S.chkFrom; S.chkFrom = null; move({ from, to: i }); }
   });
 }
-function chkTargets(b, i) {
+function chkTargets(b, i, raw=false) {
   const pc = b[i]; if (!pc) return []; const own = pc.toLowerCase(); const r = Math.floor(i / 8), c = i % 8; const out = [];
   const dirs = pc === 'R' || pc === 'B' ? [[-1,-1],[-1,1],[1,-1],[1,1]] : (own === 'r' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]]);
   for (const [dr, dc] of dirs) { const tr = r + dr, tc = c + dc; if (tr < 0 || tr > 7 || tc < 0 || tc > 7) continue; if (!b[tr * 8 + tc]) out.push(tr * 8 + tc); const jr = r + 2 * dr, jc = c + 2 * dc; if (jr < 0 || jr > 7 || jc < 0 || jc > 7) continue; const mid = b[tr * 8 + tc]; if (mid && mid.toLowerCase() !== own && !b[jr * 8 + jc]) out.push(jr * 8 + jc); }
-  return out;
+  if(raw)return out;
+  const jump=(from,to)=>Math.abs(Math.floor(to/8)-Math.floor(from/8))===2;
+  const forced=b.some((p,j)=>p&&p.toLowerCase()===own&&chkTargets(b,j,true).some(to=>jump(j,to)));
+  return forced?out.filter(to=>jump(i,to)):out;
 }
 
 // ---------- CHAT ----------
@@ -1590,7 +1618,7 @@ function renderChat() {
   $('#chat-emojis').onclick=()=>openEmojiPicker('txt');
   $('#pic').onclick = () => $('#file').click();
   $('#file').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const data = await shrink(f); await api('/api/message', { image: data, text: $('#txt').value.trim() }); $('#txt').value = ''; await sync(); paintMsgs(true); } catch (er) { toast(er.message); } e.target.value = ''; };
-  const send = async () => { const t = $('#txt').value.trim(); if (!t) return; $('#txt').value = ''; try { await api('/api/message', { text: t }); await sync(); paintMsgs(true); } catch (e) { toast(e.message); } };
+  const send = async () => { const input=$('#txt'),t=input.value.trim(); if(!t||input.dataset.sending)return;input.dataset.sending='true';try { await api('/api/message', { text: t }); if(input.value.trim()===t)input.value='';await sync(); paintMsgs(true); } catch (e) { toast(e.message); } finally{delete input.dataset.sending;} };
   $('#send').onclick = send;
   $('#txt').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 }
@@ -1841,7 +1869,7 @@ function renderHandFoot(st,g,myTurn){
  <div class="hf-players" aria-label="Player scores">${g.players.map(p=>`<div class="hf-player ${g.players[g.turn]===p?'current':''}">${avOf(p)}<div><b>${esc(nameOf(p))}${p===me?' · you':''}</b><small>${counts(st.inFoot?.[p]?st.feet[p]:st.hands[p])} cards · ${st.inFoot?.[p]?'Playing foot':'Playing hand'}</small></div><strong>${st.scores?.[p]||0}<small>points</small></strong></div>`).join('')}</div>
  <div class="hf-felt"><div class="hf-decks"><div class="hf-foot-pile" aria-label="Your separate foot pile"><img src="/honu.webp" alt=""><b>Your foot</b><span>${inFoot?'Now playing':counts(st.feet[me])+' cards · face down'}</span><small>${inFoot?'Finish these cards to go out.':'Opens after your hand is empty.'}</small></div><button type="button" class="hf-deck" id="hf-draw-btn" ${!myTurn||st.hasDrawn?'disabled':''}><span class="hf-deck-art" aria-hidden="true"><img src="/honu.webp" alt=""><span>OHANA</span></span><b>Draw 2</b><small>${st.drawPile} left</small></button><div class="hf-discard-stack"><button type="button" id="hf-pickup-btn" class="hf-card ${top&&red(top)?'red':'blk'} ${top&&wild(top)?'wild':''}" aria-label="Pick up discard pile" ${!myTurn||st.hasDrawn||!top?'disabled':''}>${top?face(top):'<span>Empty</span>'}</button><small>Discard pile · ${st.discardCount||0}</small></div></div>
  <div class="hf-progress"><span class="${books.cl?'complete':''}">${books.cl} clean book</span><span class="${books.di?'complete':''}">${books.di} wild-card book</span><span>${inFoot?'Your foot is open':counts(st.feet[me])+' cards in your foot'}</span></div>
- <div class="hf-meld-heading"><h3>Your melds</h3><small>${melds.length?'Choose a meld to add matching cards':'Opening meld: '+opening+' points across your groups'}</small></div><div class="hf-melds">${melds.length?melds.map((m,i)=>`<button type="button" class="hf-meld ${m.cards.length>=7?'book':''}" data-mi="${i}" aria-pressed="${S.hfMeldTarget===i}" ${!myTurn?'disabled':''}><b>${esc(m.rank)}</b><span>${m.cards.length} cards</span><small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></button>`).join(''):'<p class="hf-empty">Your first little collection starts here.</p>'}</div>
+ <div class="hf-meld-heading"><h3>Your melds</h3><small>${melds.length?'Choose a meld to add matching cards':'Opening meld: '+opening+' points across your groups'}</small></div><div class="hf-melds">${melds.length?melds.map((m,i)=>`<button type="button" class="hf-meld ${m.cards.length>=7?'book':''}" data-mi="${i}" aria-pressed="${S.hfMeldTarget===i}" ${!myTurn?'disabled':''}><b>${esc(m.rank)}</b><span>${m.cards.length} cards</span><small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></button>`).join(''):''}</div>
  <h3 class="hf-hand-title">Your ${inFoot?'foot':'hand'} <small>${hand.length} cards · ${S.hfSel.length} selected</small></h3><div class="hf-hand">${hand.map(c=>`<button type="button" class="hf-card ${red(c)?'red':'blk'} ${wild(c)?'wild':''} ${S.hfSel.includes(c.id)?'sel':''}" data-cid="${c.id}" aria-label="${esc(c.rank+' '+(c.suit||'wild'))}" aria-pressed="${S.hfSel.includes(c.id)}" ${!myTurn||queuedIds.has(c.id)?'disabled':''}>${face(c)}</button>`).join('')}</div>
  <div class="hf-staged" aria-live="polite">${S.hfQueue.length?S.hfQueue.map(group=>esc(group.rank)+' × '+group.cardIds.length).join(' · ')+' — '+queuePoints+' points ready.':'Select a group, stage it, then select your next group.'}</div><div class="hf-acts"><button type="button" id="hf-submit" ${!myTurn||!st.hasDrawn||!S.hfQueue.length?'disabled':''}>Play groups (${queuePoints} pts)</button><button type="button" id="hf-meld" ${!myTurn||S.hfSel.length<(S.hfMeldTarget!==null?1:3)?'disabled':''}>${S.hfMeldTarget!==null?'Add to '+esc(melds[S.hfMeldTarget].rank):'Stage group'}</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfQueue.length&&!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear selection</button></div></div>
  <details class="hf-guide" hidden><summary>How this table plays</summary><p>Ohana individual-play rules (no partnerships). ${st.rulesVersion===2?'Round '+st.round+' of 4; opening requirements 50, 90, 120, 150.':'Existing table: original score-based opening requirement.'} Draw two, then build groups of matching ranks. A book has exactly seven cards. Discard-pile pickup requires two matching natural cards and an immediate valid meld; take at most seven cards. A clean book has no wilds; a wild-card book contains twos or jokers. Each meld needs more natural cards than wilds, with at most three wilds.</p><p>You have a separate face-down foot. Meld your last hand card to play the foot immediately; discard your last hand card to play the foot on your next turn. You need one clean and one wild-card book to go out. Discarding ends your turn. Opening groups together: ${opening} points. Each new group needs at least three cards. Use Stage group for each rank, then Play groups to submit all groups together. Clean books earn 500; wild-card books earn 300, plus card values. Scores settle when the round ends.</p></details>
@@ -1995,7 +2023,7 @@ function enhanceGameAccess(st,g,myTurn){
   const pickup=board.querySelector('#hf-pickup-btn');if(pickup)pickup.setAttribute('aria-label','Pick up discard pile, '+(st.discardPile?.[0]?cardName(st.discardPile[0]):'empty'));
  }
  // Only public, visible state is announced. Never inspect hidden card faces.
- const summary=[g.status==='finished'?'Game finished':myTurn?'Your turn':nameOf(g.players[g.turn])+"’s turn",board.querySelector('.preview-score')?.textContent,board.querySelector('.mj-message')?.textContent,board.querySelector('.hf-hand-title')?.textContent,g.type==='memory'?[...board.querySelectorAll('.mem .up')].map(e=>e.getAttribute('aria-label')).join('. '):'',board.querySelector('.play-receipt')?.textContent].filter(Boolean).join('. ');
+ const summary=[g.status==='finished'?'Game finished':myTurn?'Your turn':nameOf(g.players[g.turn])+"’s turn",board.querySelector('.preview-score')?.textContent,board.querySelector('.mj-message')?.textContent,board.querySelector('.hf-hand-title')?.textContent,g.type==='memory'?[...board.querySelectorAll('.mem .up')].map(e=>e.getAttribute('aria-label')).join('. '):'',board.querySelector('.moment-copy')?.innerText||board.querySelector('.moment-copy')?.textContent].filter(Boolean).join('. ');
  accessibleAnnounce(summary);
 }
 const accessChatSeen=new Map();

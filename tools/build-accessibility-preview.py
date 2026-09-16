@@ -18,10 +18,12 @@ picker.querySelector('select').onchange=async e=>{
 
  if(['words','tictac','memory','checkers'].includes(type))await api('/api/game/create',{type});
  else if(type==='mahjong')previewGame={...previewGame,type,name:'Ohana Mahjong',state:{tiles:[{id:1,face:0,x:0,y:0,z:0},{id:2,face:0,x:3,y:0,z:0},{id:3,face:1,x:0,y:2,z:0},{id:4,face:1,x:3,y:2,z:0}],pairs:0,revision:1,scores:{1:0,2:0},chat:[]}};
- else previewGame={...previewGame,type,name:'Hand & Foot',state:{hands:{1:[{id:1,rank:'K',suit:'♥'},{id:2,rank:'K',suit:'♣'},{id:3,rank:'K',suit:'♦'}],2:11},feet:{1:11,2:11},inFoot:{},melds:{1:[],2:[]},red3s:{1:[],2:[]},scores:{1:0,2:0},drawPile:80,discardPile:[{rank:'6',suit:'♥'}],discardCount:3,hasDrawn:true,chat:[]}};
+ else previewGame={...previewGame,type,name:'Hand & Foot',state:{hands:{1:[{id:1,rank:'K',suit:'♥'},{id:2,rank:'K',suit:'♣'},{id:3,rank:'K',suit:'♦'},...['A','A','A','10','10','10','8','7','6','4','J'].map((rank,i)=>({id:i+4,rank,suit:['♥','♣','♦','♠'][i%4]}))],2:11},feet:{1:11,2:11},inFoot:{},melds:{1:[],2:[]},red3s:{1:[],2:[]},scores:{1:0,2:0},drawPile:80,discardPile:[{rank:'6',suit:'♥'}],discardCount:3,hasDrawn:true,chat:[]}};
  S.game=1;S.placed=[];S.sel=null;S.chkFrom=null;S.gstate=previewGame;renderGame();document.querySelector('#board').focus();
 };
+const args=new URLSearchParams(location.search);if(args.has('game')&&args.get('game')!=='words'){const select=picker.querySelector('select');if([...select.options].some(o=>o.value===args.get('game'))){select.value=args.get('game');select.dispatchEvent(new Event('change'));}}
+if(args.get('section')==='bottom')requestAnimationFrame(()=>document.querySelector('.play-receipt,.game-bottom')?.scrollIntoView({block:'start'}));else requestAnimationFrame(()=>document.querySelector('#game')?.scrollTo(0,0));
 '''
 s=s.replace('</body>','<script>'+fixture+'</script></body>')
-s=s.replace('</style>','.preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{position:relative;height:calc(100dvh - 60px);max-width:none;width:100vw;margin-left:calc(50% - 50vw);margin-right:0} </style>',1)
+s=s.replace('</style>','.preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{top:60px;height:calc(100dvh - 60px);max-width:none;width:100%;margin:0} </style>',1)
 Path('accessibility-preview.html').write_text(s)

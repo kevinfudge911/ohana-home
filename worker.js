@@ -192,8 +192,9 @@ async function wordsMove(st, players, turnIdx, move, db) {
   }
   const pl = (move.placements || []).map((x) => ({ i: +x.i, l: String(x.l || "").toUpperCase(), blank: !!x.blank }));
   if (!pl.length) throw new Error("Place at least one tile.");
+  if(new Set(pl.map(t=>t.i)).size!==pl.length)throw new Error("Use a different square for each tile.");
   for (const t of pl) {
-    if (t.i < 0 || t.i > 224 || st.board[t.i]) throw new Error("Bad square.");
+    if (!Number.isInteger(t.i) || t.i < 0 || t.i > 224 || st.board[t.i]) throw new Error("Bad square.");
     if (!/^[A-Z]$/.test(t.l)) throw new Error("Bad letter.");
   }
   const rack = [...st.racks[p]];
@@ -383,7 +384,7 @@ function tttInit() {
 __name(tttInit, "tttInit");
 function tttMove(st, players, turnIdx, move) {
   const i = +move.i;
-  if (!(i >= 0 && i < 9) || st.board[i]) throw new Error("Pick an empty square.");
+  if (!Number.isInteger(i) || !(i >= 0 && i < 9) || st.board[i]) throw new Error("Pick an empty square.");
   st.board[i] = turnIdx === 0 ? "X" : "O";
   st.last = i;
   const L = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -407,7 +408,7 @@ function memInit(players, seed) {
 __name(memInit, "memInit");
 function memMove(st, players, turnIdx, move) {
   const i = +move.i;
-  if (!(i >= 0 && i < 20) || st.matched[i] || st.open.includes(i)) throw new Error("Pick a face-down card.");
+  if (!Number.isInteger(i) || !(i >= 0 && i < 20) || st.matched[i] || st.open.includes(i)) throw new Error("Pick a face-down card.");
   st.pending = [];
   st.open.push(i);
   if (st.open.length < 2) return { over: false, next: turnIdx };
@@ -482,6 +483,7 @@ function chkMove(st, players, turnIdx, move) {
   const own = turnIdx === 0 ? "r" : "b";
   const b = st.board;
   const from = +move.from, to = +move.to;
+  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||from>63||to<0||to>63)throw new Error("Choose squares on the board.");
   if (!b[from] || chkOwner(b[from]) !== own) throw new Error("That is not your piece.");
   if (st.mustContinue !== null && st.mustContinue !== from) throw new Error("You must keep jumping with the same piece.");
   const jumps = chkJumps(b, from);
@@ -496,6 +498,7 @@ function chkMove(st, players, turnIdx, move) {
     jumped = true;
   } else {
     if (st.mustContinue !== null) throw new Error("You must keep jumping.");
+    if(b.some((pc,i)=>chkOwner(pc)===own&&chkJumps(b,i).length))throw new Error("A capture is available. Choose a jumping piece.");
     const s = chkSteps(b, from).find((x) => x.to === to);
     if (!s) throw new Error("That piece cannot move there.");
     b[to] = b[from];
@@ -542,7 +545,7 @@ function hardTicTac(board,mark){
 }
 function hardCheckers(st,players,turn,moves){
  const own=turn===0?'r':'b';
- function legal(s,t){const out=[];s.board.forEach((p,i)=>{if(p&&chkOwner(p)===(t===0?'r':'b')&&(s.mustContinue===null||s.mustContinue===i)){out.push(...chkJumps(s.board,i).map(m=>({from:i,to:m.to})));if(s.mustContinue===null)out.push(...chkSteps(s.board,i).map(m=>({from:i,to:m.to})));}});return out;}
+ function legal(s,t){const out=[];s.board.forEach((p,i)=>{if(p&&chkOwner(p)===(t===0?'r':'b')&&(s.mustContinue===null||s.mustContinue===i)){out.push(...chkJumps(s.board,i).map(m=>({from:i,to:m.to})));if(s.mustContinue===null)out.push(...chkSteps(s.board,i).map(m=>({from:i,to:m.to})));}});const captures=out.filter(m=>Math.abs(Math.floor(m.to/8)-Math.floor(m.from/8))===2);return captures.length?captures:out;}
  function evaluate(s){return s.board.reduce((v,p,i)=>!p?v:v+(chkOwner(p)===own?1:-1)*((p===p.toUpperCase()?175:100)+(chkOwner(p)==='r'?7-Math.floor(i/8):Math.floor(i/8))*3),0);}
  function search(s,t,depth){if(!depth)return evaluate(s);const options=legal(s,t);if(!options.length)return t===turn?-10000:10000;const values=options.map(m=>{const next=structuredClone(s),r=chkMove(next,players,t,m);return r.over?(r.winner===players[turn]?10000:-10000):search(next,r.next,depth-1)});return t===turn?Math.max(...values):Math.min(...values);}
  return moves.map(move=>{const next=structuredClone(st),r=chkMove(next,players,turn,move);return {move,score:r.over?10000:search(next,r.next,2)}}).sort((a,b)=>b.score-a.score)[0].move;
@@ -565,8 +568,9 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
   if(type==='checkers'){
     const own=turn===0?'r':'b',jumps=[],steps=[];
     st.board.forEach((p,i)=>{if(p&&chkOwner(p)===own&&(st.mustContinue===null||st.mustContinue===i)){for(const m of chkJumps(st.board,i))jumps.push({from:i,to:m.to});if(st.mustContinue===null)for(const m of chkSteps(st.board,i))steps.push({from:i,to:m.to});}});
-    if(hard)return hardCheckers(st,players,turn,[...steps,...jumps]);
-    return pick(st.mustContinue!==null||!steps.length||(medium&&jumps.length&&random()<.7)?jumps:[...steps,...jumps]);
+    const legal=jumps.length?jumps:steps;
+    if(hard)return hardCheckers(st,players,turn,legal);
+    return pick(legal);
   }
   if(type==='mahjong'){
     const free=st.tiles.filter(t=>mahjongFree(st.tiles,t)),pairs=[];
@@ -636,8 +640,8 @@ async function advanceBot(env,id){
     const res=await applyMove(g.type,st,players,g.turn,move,db);rememberBotCards(st);
     st.lastPlay={p:players[g.turn],at:now()};
     st.bot.moves=(st.bot.moves||0)+1;
-    const saved=await db.prepare('UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?').bind(JSON.stringify(st),res.next,res.over?'finished':'playing',res.over?String(res.winner):null,now(),id,g.state).run();
-    if(!saved.meta.changes)return;
+    const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=? AND turn=? AND status='playing'").bind(JSON.stringify(st),res.next,res.over?'finished':'playing',res.over?String(res.winner):null,now(),id,g.state,g.turn).run();
+    if(!saved.meta.changes)continue;
     if(res.over||players[res.next]!==BOT_ID){
       await notifyMembers(db,players.filter(p=>p>0),{type:'turn',title:res.over?'Game complete!':'Your turn!',body:res.over?'Your game with Honu is finished.':'Honu has played. Your move!',tag:'ohana-game-'+id}).catch(()=>{});return;
     }
@@ -944,6 +948,7 @@ __name(applyMove, "applyMove");
 function viewState(type, st, viewer) {
   if (type === "words") return wordsView(st, viewer);
   if (type === "handfoot") return hfView(st, viewer);
+  if(type === "memory"){const visible=new Set([...(st.open||[]),...(st.pending||[])]);const safe={...st,cards:st.cards.map((card,i)=>st.matched[i]||visible.has(i)?card:null)};if(st.bot){const {memory,...bot}=st.bot;safe.bot=bot;}return safe;}
   return st;
 }
 __name(viewState, "viewState");
@@ -1199,6 +1204,12 @@ var worker_default = {
     const buddyAssets={"/buddy-eddie.webp":EDDIE_PORTRAIT,"/talk-eddie.webp":EDDIE_TALK,"/buddy-otto.webp":MORE_OTTO_PORTRAIT,"/talk-otto.webp":MORE_OTTO_TALK,"/buddy-pippa.webp":MORE_PIPPA_PORTRAIT,"/talk-pippa.webp":MORE_PIPPA_TALK,"/buddy-lulu.webp":MORE_LULU_PORTRAIT,"/talk-lulu.webp":MORE_LULU_TALK,"/buddy-hoot.webp":MORE_HOOT_PORTRAIT,"/talk-hoot.webp":MORE_HOOT_TALK,"/buddy-flutter.webp":MORE_FLUTTER_PORTRAIT,"/talk-flutter.webp":MORE_FLUTTER_TALK,"/buddy-rosie.webp":MORE_ROSIE_PORTRAIT,"/talk-rosie.webp":MORE_ROSIE_TALK,"/buddy-koa.webp":MORE_KOA_PORTRAIT,"/talk-koa.webp":MORE_KOA_TALK,"/buddy-milo.webp":MORE_MILO_PORTRAIT,"/talk-milo.webp":MORE_MILO_TALK,"/buddy-bamboo.webp":MORE_BAMBOO_PORTRAIT,"/talk-bamboo.webp":MORE_BAMBOO_TALK,"/buddy-coco.webp":MORE_COCO_PORTRAIT,"/talk-coco.webp":MORE_COCO_TALK,"/buddy-finn.webp":MORE_FINN_PORTRAIT,"/talk-finn.webp":MORE_FINN_TALK,"/buddy-inky.webp":MORE_INKY_PORTRAIT,"/talk-inky.webp":MORE_INKY_TALK,"/buddy-kai.webp":MORE_KAI_PORTRAIT,"/talk-kai.webp":MORE_KAI_TALK,"/buddy-flora.webp":MORE_FLORA_PORTRAIT,"/talk-flora.webp":MORE_FLORA_TALK,"/buddy-reef.webp":MORE_REEF_PORTRAIT,"/talk-reef.webp":MORE_REEF_TALK,"/talk-honu.webp":TALK_HONU,"/talk-splash.webp":TALK_SPLASH,"/talk-kiko.webp":TALK_KIKO,"/talk-pebble.webp":TALK_PEBBLE,"/talk-mango.webp":TALK_MANGO,"/talk-sunny.webp":TALK_SUNNY,"/buddy-kiko.webp":BUDDY_KIKO,"/buddy-pebble.webp":BUDDY_PEBBLE,"/buddy-mango.webp":BUDDY_MANGO,"/buddy-sunny.webp":BUDDY_SUNNY,"/buddy-splash.webp":BUDDY_SPLASH};
     if(req.method==="GET" && buddyAssets[p])return new Response(buddyAssets[p],{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/honu.webp") return new Response(HONU_IMAGE,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if(req.method==="GET" && p==="/layout-preview"){
+      const width=Math.max(320,Math.min(1600,Number(url.searchParams.get('width'))||864));
+      const height=Math.max(480,Math.min(1800,Number(url.searchParams.get('height'))||1000));
+      const game=encodeURIComponent(url.searchParams.get('game')||'words'),section=url.searchParams.get('section')==='bottom'?'bottom':'top';
+      return new Response(`<!doctype html><html><head><title>Ohana responsive practice</title><style>body{margin:0;background:#173f50;color:white;font:14px sans-serif}iframe{display:block;border:0;margin:0 auto;width:${width}px;height:${height}px}</style></head><body><iframe title="Fictional game viewport" src="/accessibility-preview?game=${game}&section=${section}"></iframe></body></html>`,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store"}});
+    }
     if(req.method==="GET" && p==="/accessibility-preview")return new Response(ACCESSIBILITY_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store"}});
     if(req.method==="GET" && p==="/handfoot-preview")return new Response(HANDFOOT_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
     if(req.method==="GET" && p==="/word-error-preview")return new Response(WORD_ERROR_PREVIEW_HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-cache"}});
@@ -1587,7 +1598,8 @@ async function api2(req, env, url) {
       if (g.created_by !== me.id && !(me.is_admin&&g.room_id===1)) throw new Error("Only the person who made the game can start it.");
       if (players.length < GAME_TYPES[g.type].min) throw new Error("Need more players first.");
       const state = JSON.stringify(initState(g.type, players, id * 7919 + now() % 1e5, g.mode || 'classic'));
-      await db.prepare("UPDATE games SET status='playing',state=?,max_players=?,updated_at=? WHERE id=?").bind(state, players.length, now(), id).run();
+      const started=await db.prepare("UPDATE games SET status='playing',state=?,max_players=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(state, players.length, now(), id,g.players).run();
+      if(!started.meta.changes)throw new Error("This table just changed. Please open it again.");
 
       // Notify first player
       const firstPlayer = players[0];
@@ -1605,8 +1617,10 @@ async function api2(req, env, url) {
     }
     if (action === "leave" && req.method === "POST") {
       if (g.status === "waiting") {
-        if (g.created_by === me.id || (me.is_admin&&g.room_id===1)) await db.prepare("DELETE FROM games WHERE id=?").bind(id).run();
-        else await db.prepare("UPDATE games SET players=? WHERE id=?").bind(JSON.stringify(players.filter((x) => x !== me.id)), id).run();
+        const left=(g.created_by === me.id || (me.is_admin&&g.room_id===1))
+          ?await db.prepare("DELETE FROM games WHERE id=? AND status='waiting' AND players=?").bind(id,g.players).run()
+          :await db.prepare("UPDATE games SET players=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(players.filter((x) => x !== me.id)),id,g.players).run();
+        if(!left.meta.changes)throw new Error("This table just changed. Please open it again.");
       } else if (g.status === "playing" && players.includes(me.id)) {
         await db.prepare("UPDATE games SET status='finished',winner=?,updated_at=? WHERE id=?").bind(players.length === 2 ? String(players.find((x) => x !== me.id)) : "resigned", now(), id).run();
       }
@@ -1620,12 +1634,8 @@ async function api2(req, env, url) {
       st.lastPlay={p:me.id,at:now()};
       rememberBotCards(st);
       const status = res.over ? "finished" : "playing";
-      if(g.type==='mahjong'||g.type==='handfoot'||st.bot) {
-        const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=?").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state).run();
-        if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
-      } else {
-      await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=?").bind(JSON.stringify(st), res.next, status, res.over ? String(res.winner) : null, now(), id).run();
-      }
+      const saved=await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=? AND turn=? AND status='playing'").bind(JSON.stringify(st),res.next,status,res.over?String(res.winner):null,now(),id,g.state,g.turn).run();
+      if(!saved.meta.changes)throw new Error("The table changed. Please refresh and try again.");
 
       if(!res.over&&players[res.next]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       // Send push notification to the next player (if game is still playing)
@@ -1656,14 +1666,17 @@ async function api2(req, env, url) {
       if (!players.includes(me.id)) throw new Error("You're not in this game.");
       const text = String(body.text || "").trim().slice(0, 200);
       if (!text) throw new Error("Say something!");
-      const st = JSON.parse(g.state);
-      if (!st.chat) st.chat = [];
       const msg = { p: me.id, text, t: now() };
-      st.chat.push(msg);
-      // Keep last 50 messages
-      if (st.chat.length > 50) st.chat = st.chat.slice(-50);
-      await db.prepare("UPDATE games SET state=? WHERE id=?").bind(JSON.stringify(st), id).run();
-      return json({ ok: true, msg });
+      let snapshot=g.state;
+      for(let attempt=0;attempt<4;attempt++){
+        const st=JSON.parse(snapshot);st.chat=[...(st.chat||[]),msg].slice(-50);
+        const saved=await db.prepare("UPDATE games SET state=? WHERE id=? AND state=?").bind(JSON.stringify(st),id,snapshot).run();
+        if(saved.meta.changes)return json({ok:true,msg});
+        const current=await db.prepare("SELECT state FROM games WHERE id=?").bind(id).first();
+        if(!current)throw new Error("This table is no longer available.");
+        snapshot=current.state;
+      }
+      throw new Error("The table is busy. Your message is still here; please send it again.");
     }
   }
   if (p.startsWith("/api/admin/")) {

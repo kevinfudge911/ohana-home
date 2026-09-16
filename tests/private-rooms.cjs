@@ -3,7 +3,8 @@ const sql=new DatabaseSync(':memory:');
 sql.exec(`CREATE TABLE members(id INTEGER PRIMARY KEY,name TEXT UNIQUE,pin TEXT,avatar TEXT,token TEXT,is_admin INTEGER,created_at INTEGER,last_seen INTEGER);CREATE TABLE settings(key TEXT PRIMARY KEY,value TEXT);INSERT INTO settings VALUES('family_code','FAMILY'),('family_name','Our Ohana');CREATE TABLE games(id INTEGER PRIMARY KEY,type TEXT,players TEXT,max_players INTEGER,status TEXT,turn INTEGER,created_by INTEGER,created_at INTEGER,updated_at INTEGER,mode TEXT,invite_code TEXT,state TEXT,winner TEXT);CREATE TABLE messages(id INTEGER PRIMARY KEY,member_id INTEGER,text TEXT,image TEXT,created_at INTEGER);CREATE TABLE push_subscriptions(member_id INTEGER,endpoint TEXT,p256dh TEXT,auth TEXT,created_at INTEGER);INSERT INTO members VALUES(1,'Host','','@hon','host',1,0,0),(2,'Family','','@hon','family',0,0,0);`);
 sql.exec(fs.readFileSync('migrations/0002_score_reviews.sql','utf8'));sql.exec(fs.readFileSync('migrations/0003_private_rooms.sql','utf8'));
 sql.exec(fs.readFileSync('migrations/0004_game_invitations.sql','utf8'));
-function prepare(q){let args=[];return {bind(...a){args=a;return this},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){const r=sql.prepare(q).run(...args);return {meta:{last_row_id:Number(r.lastInsertRowid),changes:Number(r.changes)}}}}};
+let beforeWrite=null;
+function prepare(q){let args=[];return {bind(...a){args=a;return this},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){if(beforeWrite&&q.startsWith("UPDATE games SET state=")){const hook=beforeWrite;beforeWrite=null;hook(q,args);}const r=sql.prepare(q).run(...args);return {meta:{last_row_id:Number(r.lastInsertRowid),changes:Number(r.changes)}}}}};
 const DB={prepare,async batch(stmts){sql.exec('BEGIN');try{const out=[];for(const s of stmts)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
 let source=fs.readFileSync('worker.js','utf8').replace(/^import (\w+) from .*;$/gm,'const $1=null;').replace(/^import .*;$/gm,'').replace(/export\s*\{[\s\S]*?\};\s*$/,'');
 const c=vm.createContext({console,URL,Response,Request,crypto:webcrypto,TextEncoder,Uint8Array,btoa,atob,structuredClone});vm.runInContext(fs.readFileSync('mahjong.js','utf8').replaceAll('export function','function')+'\n'+source,c);
@@ -63,5 +64,17 @@ assert.equal((await api('/api/profile','family',1,{name:'Host',avatar:'@hon',abo
 assert.equal((await api('/api/profile','family',1,{name:'Meemaw',avatar:'@eag',about:'x'.repeat(301)})).status,400);
 assert.equal((await api('/api/profile','family',1,{name:'Meemaw',avatar:'invalid',about:''})).status,400);
 assert.equal((await api('/api/profile','family',1,{name:'Meemaw',avatar:'@eag',about:''})).status,200);assert.equal((await api('/api/sync','family',1)).data.me.about,'');
+// A chat arriving after a move read must never restore the old board.
+const raceId=fg.data.id;
+const raceState={board:Array(9).fill(null),chat:[]};
+sql.prepare("UPDATE games SET state=?,turn=0,status='playing',players='[1,2]' WHERE id=?").run(JSON.stringify(raceState),raceId);
+beforeWrite=()=>{const state=JSON.parse(sql.prepare('SELECT state FROM games WHERE id=?').get(raceId).state);state.board[4]='X';sql.prepare('UPDATE games SET state=?,turn=1 WHERE id=?').run(JSON.stringify(state),raceId);};
+const chatRace=await api('/api/game/'+raceId+'/chat','host',1,{text:'Keep the new move'});assert.equal(chatRace.status,200);
+let persisted=JSON.parse(sql.prepare('SELECT state FROM games WHERE id=?').get(raceId).state);assert.equal(persisted.board[4],'X');assert.equal(persisted.chat.at(-1).text,'Keep the new move');
+// Two requests read the same turn: only the first write may commit.
+sql.prepare("UPDATE games SET state=?,turn=0,status='playing' WHERE id=?").run(JSON.stringify(raceState),raceId);
+beforeWrite=()=>{const state={...raceState,board:[...raceState.board]};state.board[4]='X';sql.prepare('UPDATE games SET state=?,turn=1 WHERE id=?').run(JSON.stringify(state),raceId);};
+const moveRace=await api('/api/game/'+raceId+'/move','host',1,{i:0});assert.equal(moveRace.status,400);assert.match(moveRace.data.error,/table changed/i);persisted=JSON.parse(sql.prepare('SELECT state FROM games WHERE id=?').get(raceId).state);assert.equal(persisted.board[4],'X');assert.equal(persisted.board[0],null);
+console.log('PASS: concurrent chat preserves the newer board; stale moves cannot overwrite a committed turn.');
 console.log('PASS: migration preserves family; private signup, room/game/chat/member isolation, guessed-ID rejection on every game action, scoped notifications, all-room overview, guest-created rooms, invitation rotation, signed-in joins and private game chat.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>sql.close());

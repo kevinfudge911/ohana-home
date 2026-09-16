@@ -27,7 +27,7 @@ console.log('PASS: Medium can spot a threat but does not always block perfectly.
 const state=c.tttInit();state.board[0]='X';state.bot={difficulty:'easy',memory:{}};
 let record={id:900,type:'tictac',players:'[5,-1]',turn:1,status:'playing',state:JSON.stringify(state)};
 let writes=0;
-const DB={prepare:sql=>({bind:(...args)=>({first:async()=>({...record}),run:async()=>{assert(sql.includes('AND state=?'));assert.equal(args.at(-1),record.state);record={...record,state:args[0],turn:args[1],status:args[2]};writes++;return {meta:{changes:1}};}})})};
+const DB={prepare:sql=>({bind:(...args)=>({first:async()=>({...record}),run:async()=>{assert(sql.includes('AND state=?'));assert.equal(args[6],record.state);assert.equal(args[7],record.turn);assert(sql.includes("status='playing'"));record={...record,state:args[0],turn:args[1],status:args[2]};writes++;return {meta:{changes:1}};}})})};
 c.notifyMembers=async()=>{};await c.advanceBot({DB},900);assert.equal(writes,1);assert.equal(record.turn,0);assert.equal(JSON.parse(record.state).board.filter(x=>x==='O').length,1);
 console.log('PASS: background computer turn persists one legal move atomically and returns control to the human.');
 })().catch(e=>{console.error(e);process.exitCode=1});
