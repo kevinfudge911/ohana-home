@@ -9,6 +9,7 @@ a=s.index("document.addEventListener('visibilitychange'");b=s.index('// --------
 s=s.replace('localStorage','previewStorage')
 s=s.replace('<head>','<head><script>const previewValues=new Map();const previewStorage={getItem:k=>previewValues.get(k)??null,setItem:(k,v)=>previewValues.set(k,String(v)),removeItem:k=>previewValues.delete(k)};window.fetch=async()=>{throw Error("Fictional preview: network actions are disabled")};</script>')
 fixture=Path('tests/fixtures/words-ui.js').read_text()+'''
+previewGame.state.history=[{p:2,score:26,words:[{word:'HOME',score:6}],note:'Gift! +20',adjustments:[{type:'gift',label:'Gift! +20',delta:20}]}];
 S.game=1;S.gstate=previewGame;renderGame();
 const picker=document.createElement('div');picker.className='preview-switcher';picker.innerHTML='<b>Practice only · fictional players</b><label>Choose a practice game <select id="practice-game"><option value="words">Words</option><option value="tictac">Tic-Tac-Toe</option><option value="memory">Memory</option><option value="checkers">Checkers</option><option value="mahjong">Mahjong</option><option value="handfoot">Hand & Foot</option><option value="view-games">My games</option><option value="view-start">Start a game</option><option value="view-chat">Chat</option><option value="view-family">Ohana</option><option value="view-rooms">Rooms</option><option value="view-settings">Settings</option><option value="view-join">Sign in</option></select></label>';document.body.prepend(picker);
 picker.querySelector('select').onchange=async e=>{
@@ -22,5 +23,5 @@ picker.querySelector('select').onchange=async e=>{
 };
 '''
 s=s.replace('</body>','<script>'+fixture+'</script></body>')
-s=s.replace('</style>','.preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{position:relative;height:calc(100dvh - 60px);max-width:none;margin:auto} </style>',1)
+s=s.replace('</style>','.preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{position:relative;height:calc(100dvh - 60px);max-width:none;width:100vw;margin-left:calc(50% - 50vw);margin-right:0} </style>',1)
 Path('accessibility-preview.html').write_text(s)
