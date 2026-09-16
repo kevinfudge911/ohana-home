@@ -811,10 +811,10 @@ function hfMoveApply(st, players, turnIdx, move) {
     const same=extra.filter(m=>m.rank===topRank).flatMap(m=>m.cardIds||[]);
     const openingGroups=[{rank:topRank,cardIds:[...new Set([...matching.map(c=>c.id),topCard.id,...same])]},...extra.filter(m=>m.rank!==topRank)];
     st.discardPile.pop();hand.push(topCard);st.hasDrawn=true;
+    // Ohana house rule: pick up the entire pile before checking hand-to-foot progression.
+    const pile=st.discardPile.splice(0);
+    for(const card of pile){if(hfIsRed3(card)){st.red3s[p].push(card);while(st.drawPile.length){const replacement=st.drawPile.shift();if(hfIsRed3(replacement))st.red3s[p].push(replacement);else{hand.push(replacement);break;}}}else hand.push(card);}
     hfMoveApply(st,players,turnIdx,{action:'melds',melds:openingGroups,pickingUp:true});
-    const pile=st.discardPile.splice(Math.max(0,st.discardPile.length-6));
-    const current=st.inFoot[p]?st.feet[p]:st.hands[p];
-    for(const card of pile){if(hfIsRed3(card)){st.red3s[p].push(card);while(st.drawPile.length){const replacement=st.drawPile.shift();if(hfIsRed3(replacement))st.red3s[p].push(replacement);else{current.push(replacement);break;}}}else current.push(card);}
     return {over:false,next:turnIdx,pickedUp:pile.length+1};
   }
 
