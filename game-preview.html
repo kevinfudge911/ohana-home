@@ -374,7 +374,7 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
     <div class="rack"><button class="rt   " data-r="0" style="touch-action: none; cursor: grab;">F<i>4</i></button><button class="rt   " data-r="1" style="touch-action: none; cursor: grab;">A<i>1</i></button><button class="rt   " data-r="2" style="touch-action: none; cursor: grab;">M<i>3</i></button><button class="rt   " data-r="3" style="touch-action: none; cursor: grab;">I<i>1</i></button><button class="rt   " data-r="4" style="touch-action: none; cursor: grab;">L<i>1</i></button><button class="rt   " data-r="5" style="touch-action: none; cursor: grab;">Y<i>4</i></button><button class="rt   " data-r="6" style="touch-action: none; cursor: grab;">S<i>1</i></button></div>
     <div class="acts"><button id="play" disabled="">Play word</button><button class="soft" id="recall" disabled="">Take back</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap">Swap</button><button class="ghost" id="pass">Pass</button></div>
     <section class="play-receipt" aria-label="Last play scoring"><div class="moment-stage revealed" data-points="29"><div class="moment-art" aria-hidden="true"><span class="treasure-rays"></span><span class="treasure-chest"><i></i><b>✦</b></span><span class="reward-symbol">✦</span></div><div class="moment-copy"><small>MYSTERY &amp; BONUS REVEAL</small><b>Jamie’s play</b><strong class="moment-points">+29</strong><span>points earned</span></div><button class="replay-moment" type="button">↻ Replay the magic</button></div><div class="word-earned"><b>HOME</b><span>9 points</span></div><div class="mystery-reveal"><div><b>Gift! +20</b><span>+20 points</span></div></div><small>Points for this play. Your running total is above.</small></section></div></div><div class="game-bottom" id="game-bottom"><div class="gb-inner"><div class="table-chat-title"><span aria-hidden="true">🌺</span><b>Around the table</b><small>A little friendly banter</small></div>
-    
+
     <div class="gchat-msgs" id="gchat-msgs"><div class="gchat-msg  "><span class="av"><span class="ohana-buddy" title="Aloha">🌺</span></span><div class="bub"><b>Jamie</b>Always room for one more game. ❤️</div></div></div>
     <div class="gchat-input-row">
       <div class="reacts"><button data-react="👏">👏</button><button data-react="😂">😂</button><button data-react="🔥">🔥</button><button data-react="💀">💀</button><button data-react="🎉">🎉</button><button data-react="😎">😎</button><button type="button" id="gchat-emojis" aria-label="More chat emojis" title="More emojis">＋</button></div>
@@ -414,5 +414,49 @@ function openEmojiPicker(inputId){
  dialog.querySelector('[data-emoji-close]').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();show(recent.length?'Recent':'Faces');
 }
 
+document.querySelector('#gchat-emojis').onclick=()=>openEmojiPicker('gchat-in');</script><script>const S={game:1,room:1,tab:'games'};const toast=()=>{};const EMOJI_GROUPS={
+ 'Faces':'😀 😃 😄 😁 😆 😅 😂 🤣 😊 🙂 🙃 😉 😍 🥰 😘 😋 😛 😜 🤪 😎 🤩 🥳 😇 🤗 🤭 🫢 🫣 🤫 🤔 🫡 😴 🥱 😮 😲 😳 🥹 🥺 😢 😭 😤 😡 🤯 😬 🫠 🤠 🥸 🤓 🧐 😌 😏',
+ 'Love & cheers':'❤️ 🧡 💛 💚 💙 💜 🩷 🩵 🤍 🤎 🖤 💖 💝 💕 💞 💓 💗 💘 💌 💯 👏 🙌 👐 🤲 🤝 👍 👎 👊 ✊ 🤛 🤜 🤞 ✌️ 🤟 🤘 🤙 👌 🫶 🙏 💪 👋 🫰 🫵 🫂 🎉 🎊 🥇 🏆 🎖️ 🌟',
+ 'Island life':'🌺 🌸 🌼 🌻 🌷 🪷 💐 🌹 🥀 🌿 🍃 🍀 ☘️ 🌴 🌳 🌵 🌱 🪴 🌾 🌵 🐚 🪸 🌊 🏝️ 🏖️ 🌅 🌄 ☀️ 🌤️ ⛅ 🌈 🌙 ⭐ ✨ 💫 🏄 🏊 🚣 ⛵ 🛶 🩴 🕶️ 👒 🪁 🏕️ 🔥 🪵 🥥 🍍',
+ 'Animal friends':'🐢 🐬 🦎 🦜 🦀 🦭 🦦 🐙 🐠 🐟 🐡 🦈 🐳 🐋 🦑 🦐 🦞 🐧 🦩 🦋 🐝 🐞 🐌 🐸 🐶 🐱 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐰 🐹 🐭 🐵 🦉 🦆 🐔 🐥 🦄 🐴 🦒 🐘 🦓 🦔 🦥 🐿️',
+ 'Food & treats':'🍕 🍔 🍟 🌭 🌮 🌯 🥪 🥗 🍿 🥨 🧀 🍳 🥓 🥞 🧇 🍞 🥐 🥯 🍝 🍜 🍣 🍤 🍱 🥟 🍚 🥑 🌽 🥕 🍅 🥒 🍓 🍒 🍎 🍊 🍋 🍌 🍉 🍇 🥭 🥝 🫐 🍑 🍐 🍦 🍧 🍨 🍩 🍪 🎂 🍰 🧁 🍫 🍬 🍭 🍯 ☕ 🫖 🥤 🧋 🧃',
+ 'Games & fun':'🎲 🀄 ♟️ 🃏 🎯 🎮 🕹️ 🧩 🎨 🖌️ 🎭 🎤 🎵 🎶 🎸 🪕 🥁 🎹 🎺 🎷 🎻 🎬 🎥 📸 📷 📚 📖 ✏️ 📝 💡 🔎 🔍 🎁 🎈 🪄 🎆 🎇 🧸 🪀 🪁 ⚽ 🏀 🏈 ⚾ 🎾 🏐 🏓 🏸 🎳 🏒 ⛳ 🏅 🏆 🥇 🥈 🥉 🚀 🛸 🤖 👽',
+ 'Home & faith':'🏡 🏠 🛖 🏘️ 🚪 🪑 🛋️ 🛏️ 🪟 🧺 🕯️ 🪔 💒 ⛪ ✝️ 🕊️ 🙏 📖 🫶 ❤️ 👨‍👩‍👧‍👦 👵 👴 👩 👨 👧 👦 👶 🧑‍🤝‍🧑 👩‍❤️‍👨 👩‍❤️‍👩 👨‍❤️‍👨 🎄 🎃 🎂 🎁 🎊 🎉 🪅 🧶 🧵 🧹 🫧 🧼 🧽 🛎️ 🔔 ⏰ ⌚ 📅',
+ 'Little extras':'✅ ☑️ ❎ ❌ ❓ ❗ ⁉️ ‼️ 💬 💭 🗯️ 💤 💥 💦 💨 💫 ✨ 🌟 💎 🔮 🧿 🪬 🔑 🗝️ 🧭 🗺️ 📍 📌 📎 🖇️ ✉️ 💌 📬 📦 🛍️ 🎀 👑 💍 💄 👟 🥾 🎒 🧢 🪖 ☂️ ☔ ❄️ ⛄ ☃️ 🌧️ ⛈️ 🌩️ 🌦️ ☄️ 🪐 🌎 🌍 🌏'
+};
+function openEmojiPicker(inputId){
+ const input=document.getElementById(inputId);if(!input)return;
+ document.querySelector('.emoji-picker')?.close();
+ const context={game:S.game,room:S.room,tab:S.tab,start:input.selectionStart??input.value.length,end:input.selectionEnd??input.value.length};
+ let recent=[];try{recent=JSON.parse(localStorage.getItem('ohana_recent_emojis')||'[]');if(!Array.isArray(recent))recent=[];}catch{}
+ const allowed=new Set(Object.values(EMOJI_GROUPS).flatMap(s=>s.split(' ')));recent=recent.filter(e=>allowed.has(e)).slice(0,24);
+ const dialog=document.createElement('dialog');dialog.className='emoji-picker';dialog.setAttribute('aria-label','Choose an emoji');
+ dialog.innerHTML=`<div class="emoji-heading"><img src="/buddy-kiko.webp" alt=""><div><h2>A little expression</h2><p>Pick one to add to your message.</p></div><button type="button" data-emoji-close aria-label="Close emoji picker">×</button></div><div class="emoji-categories" role="group" aria-label="Emoji categories"></div><div class="emoji-grid" role="group" aria-label="Emoji choices"></div>`;
+ document.body.append(dialog);
+ const categories=dialog.querySelector('.emoji-categories'),grid=dialog.querySelector('.emoji-grid');
+ const show=name=>{categories.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===name)));const list=name==='Recent'?recent:EMOJI_GROUPS[name].split(' ');grid.replaceChildren();for(const emoji of [...new Set(list)]){const b=document.createElement('button');b.type='button';b.textContent=emoji;b.setAttribute('aria-label','Add '+emoji);b.onclick=()=>{
+   const target=document.getElementById(inputId);if(!target||S.game!==context.game||S.room!==context.room||S.tab!==context.tab){dialog.close();return;}
+   const max=target.maxLength>0?target.maxLength:2000;const start=Math.min(context.start,target.value.length),end=Math.min(context.end,target.value.length);
+   if(target.value.length-(end-start)+emoji.length>max){toast('Your message is full. Send it or make a little room.');return;}
+   target.setRangeText(emoji,start,end,'end');target.dispatchEvent(new Event('input',{bubbles:true}));
+   recent=[emoji,...recent.filter(x=>x!==emoji)].slice(0,24);try{localStorage.setItem('ohana_recent_emojis',JSON.stringify(recent));}catch{}
+   dialog.close();target.focus();
+ };grid.append(b);}};
+ for(const name of [...(recent.length?['Recent']:[]),...Object.keys(EMOJI_GROUPS)]){const b=document.createElement('button');b.type='button';b.textContent=name;b.onclick=()=>show(name);categories.append(b);}
+ dialog.querySelector('[data-emoji-close]').onclick=()=>dialog.close();dialog.onclose=()=>dialog.remove();dialog.showModal();show(recent.length?'Recent':'Faces');
+}
+
+function showTableHelp(type){
+ const notes={words:'Place connected letters in one row or column, then Play word. Select an unplayed tile to move it again. Letter bonuses apply to newly placed tiles; word bonuses multiply the word. Mystery squares reveal their effect after a valid play.',mahjong:'Match two identical treasures with nothing on top and a free left or right side. Each pair earns 10 points. Hint and reshuffle are free. Players take turns after each pair.',memory:'Turn over two cards. A matching pair scores and lets you play again. Unmatched cards turn back over.',checkers:'Select your piece, then a highlighted destination. Captures are required when available. Continue jumping with the same piece if another capture is possible. Kings can move both ways.',tictac:'Take turns placing your mark. Three in a row, column or diagonal wins.'};
+ const previous=document.activeElement,d=document.createElement('dialog');d.className='compact-game-help';d.setAttribute('aria-labelledby','table-help-title');d.innerHTML='<h2 id="table-help-title">At this table</h2><button type="button">Close help</button><p>'+esc(notes[type]||'Choose a piece to begin.')+'</p><p>Sound toggles voices and effects. Wide board uses the screen width; Fit board makes it compact. Next game opens another table waiting for your turn. Accessibility and installation help are in Settings.</p>';d.querySelector('button').onclick=()=>d.close();d.onclose=()=>{d.remove();if(previous?.isConnected)previous.focus();};document.body.append(d);d.showModal();d.querySelector('button').focus();
+}
+function compactHandFootHeader(){
+ const head=$('#game-head'),players=$('#board .hf-players');if(!head||!players)return;
+ head.querySelector('.hf-players')?.remove();head.append(players);
+ if(!head.querySelector('#hf-help')){const help=document.createElement('button');help.id='hf-help';help.type='button';help.textContent='?';help.title='Game rules and table details';help.setAttribute('aria-label','Hand and Foot help and table details');help.onclick=()=>{
+ const previous=document.activeElement,d=document.createElement('dialog');d.className='compact-game-help';d.setAttribute('aria-labelledby','hf-help-title');
+ d.innerHTML='<h2 id="hf-help-title">Hand &amp; Foot help</h2><button type="button">Close help</button>'+[...document.querySelectorAll('#board .hf-guide')].map(el=>'<section><h3>'+el.querySelector('summary').textContent+'</h3>'+[...el.querySelectorAll('p')].map(p=>p.outerHTML).join('')+'</section>').join('');
+ d.querySelector('button').onclick=()=>d.close();d.onclose=()=>{d.remove();if(previous?.isConnected)previous.focus();};document.body.append(d);d.showModal();d.querySelector('button').focus();};head.append(help);}
+}
 document.querySelector('#gchat-emojis').onclick=()=>openEmojiPicker('gchat-in');</script></body></html>
 <script src="/island-icons.js"></script>
