@@ -790,6 +790,37 @@ body nav.tabs button{font-size:15px!important}
 #game-head:not(.score-turn-header) .turn-greeting{order:4;flex:1 0 100%!important}
 #game .mj-scores{font-size:15px!important}
 #game .mj-scores b{font:600 21px Fredoka,sans-serif!important;color:#12485c}
+
+/* One shared player rail; illustrations are game pieces, never hidden-state hints. */
+#game-head .table-players{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex:0 1 auto;order:3;margin:0}
+#game-head .table-player{display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 4px;border:1px solid #8ac6cc;border-radius:22px;background:#fff5d8;color:#173f51;box-shadow:0 2px #163f5840;max-width:100%}
+#game-head .table-player.active{background:#c1f3e7;border-color:#ffdc82;box-shadow:0 0 0 1px #ffdc82,0 2px #163f5840}
+#game-head .table-avatar{width:30px;height:32px;display:grid;place-items:center;font-size:23px;flex:none}
+#game-head .table-avatar img{width:100%;height:100%;object-fit:contain}
+#game-head .table-name{font-weight:800;font-size:14px}
+#game-head .table-player b{font:600 18px Fredoka,sans-serif;color:#174f68;white-space:nowrap}
+#game .ttt{gap:9px;padding:9px;background:linear-gradient(150deg,#328ea2,#154e70);border:3px solid #f8df9e;border-radius:26px;box-shadow:inset 0 2px #9edcd2,0 6px #123b52}
+#game .ttt button{position:relative;overflow:hidden;display:grid;place-items:center;box-shadow:inset 0 2px #fff,0 4px #809b8b!important}
+#game .ttt button img{width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 3px 2px #123b5233)}
+#game .ttt-mark{position:absolute;bottom:5px;right:8px;font:600 clamp(24px,5vw,42px) Fredoka;line-height:1}
+#game .ttt-empty{font:400 30px Fredoka;color:#648c88;opacity:.6}
+#game .ttt button.win{background:radial-gradient(ellipse at top,#fff9ba,#ffd37b)!important;outline:3px solid #fff2b0}
+#game .mem{gap:10px;padding:9px;border-radius:22px;background:linear-gradient(130deg,#195f77,#267f8b);border:2px solid #f2d596}
+#game .mem button{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;aspect-ratio:3/4;border-radius:14px!important;min-height:0}
+#game .mem button img{width:92%;height:78%;object-fit:contain;filter:drop-shadow(0 3px 2px #17435833)}
+#game .mem button>span{font:600 clamp(12px,2vw,18px) Fredoka;line-height:1.15;color:#174358}
+#game .mem button.up,#game .mem button.done{background:linear-gradient(140deg,#fffce4,#b8ede2)!important;border:2px solid #ffe1a1!important;opacity:1}
+#game .mem button.done{box-shadow:inset 0 0 0 3px #58ad89!important}
+#game .mem button.done:after{content:'✓';position:absolute;top:4px;right:4px;background:#176f58;color:white;border-radius:50%;font:700 14px Nunito;width:19px;height:19px}
+#game .mem .memory-seal{position:absolute;bottom:7px;color:#fff5d3;letter-spacing:2px;font-size:10px;text-shadow:0 1px #194962}
+#game .chk>div{background:#f9e9bd!important}
+#game .chk>div.d{background:linear-gradient(145deg,#288993,#1a657d)!important}
+#game .chk>div.from{box-shadow:inset 0 0 0 4px #ffd473!important}
+#game .chk>div.can:after{background:#fff5b1!important;box-shadow:0 0 0 3px #e8c366,0 0 12px #fff3a5}
+#game .chk .pc.r{background-color:#e48782}
+#game .chk .pc.b{background-color:#84d5e6}
+#game .chk .pc.k:after{content:'♛';border:1px solid #946829;position:absolute;right:0;bottom:0;font-size:clamp(14px,3vw,26px)}
+@media(max-width:550px){#game-head .table-players{flex:1 0 100%}#game-head .table-player{gap:4px}#game-head .table-name{font-size:13px}#game-head .table-player b{font-size:17px}#game .mem{gap:7px;padding:7px}}
 .preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{top:var(--preview-toolbar,60px);height:calc(100dvh - var(--preview-toolbar,60px));max-width:none;width:100%;margin:0} </style>
 </head>
 <body>
@@ -1689,13 +1720,17 @@ function renderGameChat(st, g) {
 
   if(turnSummary){gameHead.append(turnSummary);const last=st.history?.at(-1);let summary=turnSummary.querySelector('.compact-last-play');if(summary)summary.remove();if(g.type==='words'&&last&&Number.isFinite(last.score)){summary=document.createElement('span');summary.className='compact-last-play';summary.textContent=nameOf(last.p)+': '+(last.words?.map(w=>w.word).join(', ')||last.note||'Last play')+' · '+(last.score>0?'+':'')+last.score+' points';turnSummary.querySelector('div')?.append(summary);}}
 
-  gameHead.classList.toggle('score-turn-header',['words','handfoot'].includes(g.type));gameHead.classList.toggle('word-toolbar',g.type==='words');if(g.type==='words'&&wordStatus)gameHead.append(wordStatus);
+  gameHead.classList.add('score-turn-header');gameHead.dataset.game=g.type;gameHead.classList.toggle('word-toolbar',g.type==='words');if(g.type==='words'&&wordStatus)gameHead.append(wordStatus);
   if(g.type==='handfoot')compactHandFootHeader();
+  if(!['words','handfoot'].includes(g.type)){
+    const strip=document.createElement('div');strip.className='table-players';strip.setAttribute('aria-label','Players and current turn');
+    strip.innerHTML=g.players.map((p,i)=>{const active=g.status==='playing'&&turnId===p;const value=st.scores?.[p];const pieces=g.type==='checkers'?st.board.filter(c=>c&&c.toLowerCase()===(i===0?'r':'b')).length:null;const detail=g.type==='tictac'?(i===0?'X':'O'):pieces!==null?pieces+' pieces':value!==undefined?value+' points':'';return `<span class="table-player ${active?'active':''}"><span class="table-avatar">${avOf(p)}</span><span class="table-name">${esc(nameOf(p))}</span><b>${detail}</b>${active?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`;}).join('');gameHead.append(strip);
+  }
   const savedWidth=previewStorage.getItem('ohana_wide_board');const wide=true;$('#game').classList.toggle('wide-board',wide);
   if(g.type!=='handfoot'){const help=document.createElement('button');help.id='game-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Game rules and help');help.onclick=()=>showTableHelp(g.type);gameHead.append(help);}
 
   bp.innerHTML = `<div class="gb-inner" role="region" aria-label="Game chat">
-    ${!['words','handfoot','mahjong'].includes(g.type) ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
+
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
       const emojiOnly = isEmoji(m.text);
@@ -1745,7 +1780,7 @@ async function sendGameChat(gameId, text) {
 
 // ----- Tic-tac-toe -----
 function renderTTT(st, g, myTurn) {
-  $('#board').innerHTML = `<div class="scrawl" style="top:45%">Ohana means family</div><div class="ttt">${st.board.map((v, i) => `<button class="${v || ''} ${st.line?.includes(i) ? 'win' : ''}" data-i="${i}" ${v || !myTurn ? 'disabled' : ''}>${v || ''}</button>`).join('')}</div>`;
+  $('#board').innerHTML = `<div class="scrawl" style="top:45%">Ohana means family</div><div class="ttt">${st.board.map((v, i) => `<button class="${v || ''} ${st.line?.includes(i) ? 'win' : ''}" data-i="${i}" ${v || !myTurn ? 'disabled' : ''}>${v ? `<img src="${v==='X'?'/honu.webp':'/buddy-splash.webp'}" alt=""><span class="ttt-mark">${v}</span>` : '<span class="ttt-empty" aria-hidden="true">＋</span>'}</button>`).join('')}</div>`;
   $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
 }
 // ----- Memory -----
@@ -1770,7 +1805,7 @@ function renderMahjong(st,g,myTurn){
   const live=st.tiles.filter(t=>!t.removed),free=live.filter(t=>mjFree(st.tiles,t));
   const pair=free.flatMap((a,i)=>free.slice(i+1).filter(b=>a.face===b.face).map(b=>[a,b]))[0];
   if(S.mjGame!==g.id||S.mjRevision!==st.revision){S.mjPick=null;S.mjHint=[];S.mjGame=g.id;S.mjRevision=st.revision;}
-  $('#board').innerHTML=`<section class="mj-room"><div class="mj-heading"><div><small>THE LITTLE ISLAND COLLECTION</small><h3>A match made in Ohana</h3></div><span class="mj-count">${live.length/2}<small>pairs left</small></span></div><div class="mj-progress" role="progressbar" aria-valuemin="0" aria-valuemax="36" aria-valuenow="${st.pairs}" aria-label="${st.pairs} of 36 pairs collected"><i style="width:${st.pairs/36*100}%"></i></div><p class="mj-guide">Match two identical treasures. Each needs a clear top and a free left or right edge.</p><div class="mj-table" role="group" aria-label="Stacked Ohana Mahjong tiles">${live.map(t=>`<button type="button" class="mj-tile ${mjFree(st.tiles,t)?'free':'blocked'} ${S.mjPick===t.id?'picked':''} ${(S.mjHint||[]).includes(t.id)?'hinted':''}" style="--x:${t.x};--y:${t.y};--z:${t.z}" data-mj="${t.id}" aria-label="${MJ_NAMES[t.face]}, ${mjFree(st.tiles,t)?'free':'blocked'}, layer ${t.z+1}, row ${t.y+1}, column ${t.x+1}" aria-pressed="${S.mjPick===t.id}" ${!myTurn||!mjFree(st.tiles,t)?'disabled':''}>${mjArt(t.face)}<span>${MJ_NAMES[t.face]}</span></button>`).join('')}${!live.length?'<div class="mj-complete">🌺<h3>Every treasure found.</h3><p>Good games. Brighter people.</p></div>':''}</div><div class="mj-message" role="status" aria-live="polite">${!live.length?'Island complete! Start another from Your games.':!pair?'No open matches. Stir the sea for a fresh, solvable arrangement.':S.mjPick!==null?'Find another free '+MJ_NAMES[st.tiles.find(t=>t.id===S.mjPick).face]+'.':g.players.length===1?'Your little island escape. Take your time.':myTurn?'Your turn: find a pair for +10 points.':'Cheer them on. Your turn is coming.'}</div><div class="mj-tools"><button class="soft" id="mj-hint" ${!myTurn||!pair?'disabled':''}>✦ A little hint</button><button class="soft" id="mj-shuffle" ${!myTurn||!live.length?'disabled':''}>↻ Stir the sea</button></div><small class="mj-fair">10 points per pair · Hints & reshuffles are free${g.players.length>1?' · Take turns after each pair':''}</small><div class="mj-scores">${g.players.map(p=>`<span>${avOf(p)} ${esc(nameOf(p))} <b>${st.scores[p]} points</b></span>`).join('')}</div>${st.lastPair?`<div class="mj-last">${mjArt(st.lastPair.face)}<span>${esc(nameOf(st.lastPair.player))} found ${MJ_NAMES[st.lastPair.face]}<b>+10 points · ${st.pairs} pairs collected</b></span></div>`:''}</section>`;
+  $('#board').innerHTML=`<section class="mj-room"><div class="mj-heading"><div><small>THE LITTLE ISLAND COLLECTION</small><h3>A match made in Ohana</h3></div><span class="mj-count">${live.length/2}<small>pairs left</small></span></div><div class="mj-progress" role="progressbar" aria-valuemin="0" aria-valuemax="36" aria-valuenow="${st.pairs}" aria-label="${st.pairs} of 36 pairs collected"><i style="width:${st.pairs/36*100}%"></i></div><p class="mj-guide">Match two identical treasures. Each needs a clear top and a free left or right edge.</p><div class="mj-table" role="group" aria-label="Stacked Ohana Mahjong tiles">${live.map(t=>`<button type="button" class="mj-tile ${mjFree(st.tiles,t)?'free':'blocked'} ${S.mjPick===t.id?'picked':''} ${(S.mjHint||[]).includes(t.id)?'hinted':''}" style="--x:${t.x};--y:${t.y};--z:${t.z}" data-mj="${t.id}" aria-label="${MJ_NAMES[t.face]}, ${mjFree(st.tiles,t)?'free':'blocked'}, layer ${t.z+1}, row ${t.y+1}, column ${t.x+1}" aria-pressed="${S.mjPick===t.id}" ${!myTurn||!mjFree(st.tiles,t)?'disabled':''}>${mjArt(t.face)}<span>${MJ_NAMES[t.face]}</span></button>`).join('')}${!live.length?'<div class="mj-complete">🌺<h3>Every treasure found.</h3><p>Good games. Brighter people.</p></div>':''}</div><div class="mj-message" role="status" aria-live="polite">${!live.length?'Island complete! Start another from Your games.':!pair?'No open matches. Stir the sea for a fresh, solvable arrangement.':S.mjPick!==null?'Find another free '+MJ_NAMES[st.tiles.find(t=>t.id===S.mjPick).face]+'.':g.players.length===1?'Your little island escape. Take your time.':myTurn?'Your turn: find a pair for +10 points.':'Cheer them on. Your turn is coming.'}</div><div class="mj-tools"><button class="soft" id="mj-hint" ${!myTurn||!pair?'disabled':''}>✦ A little hint</button><button class="soft" id="mj-shuffle" ${!myTurn||!live.length?'disabled':''}>↻ Stir the sea</button></div><small class="mj-fair">10 points per pair · Hints & reshuffles are free${g.players.length>1?' · Take turns after each pair':''}</small>${st.lastPair?`<div class="mj-last">${mjArt(st.lastPair.face)}<span>${esc(nameOf(st.lastPair.player))} found ${MJ_NAMES[st.lastPair.face]}<b>+10 points · ${st.pairs} pairs collected</b></span></div>`:''}</section>`;
   let busy=false;
   const send=async m=>{if(busy||S.movePending)return;busy=true;S.movePending=true;$('#board').querySelectorAll('button').forEach(b=>b.disabled=true);try{await api(`/api/game/${g.id}/move`,{...m,revision:st.revision});S.mjPick=null;await loadGame();AudioSys.beep(660,.12,.25);setTimeout(()=>AudioSys.beep(880,.15,.25),130);if(m.action==='match')announceCharacter(st.pairs===35?'win':'match',10,MJ_NAMES[st.tiles.find(t=>t.id===m.ids[0]).face]);else announceCharacter('shuffle');}catch(e){toast(e.message);await loadGame();renderGame();}finally{busy=false;S.movePending=false;}};
   $('#board').querySelectorAll('[data-mj]').forEach(b=>b.onclick=()=>{const id=+b.dataset.mj,t=st.tiles.find(t=>t.id===id);if(S.mjPick===id){S.mjPick=null;renderMahjong(st,g,myTurn);return;}if(S.mjPick!==null){const first=st.tiles.find(t=>t.id===S.mjPick);if(first.face===t.face){send({action:'match',ids:[first.id,id]});return;}toast('Different treasures. Try another '+MJ_NAMES[first.face]+'.');}S.mjPick=id;S.mjHint=[];AudioSys.beep(440,.07,.12);renderMahjong(st,g,myTurn);});
@@ -1778,9 +1813,17 @@ function renderMahjong(st,g,myTurn){
   $('#mj-shuffle').onclick=()=>send({action:'shuffle'});
 }
 
+const MEMORY_FRIENDS={
+ '🐶':['Koa','koa'],'🐱':['Milo','milo'],'🐸':['Kiko','kiko'],'🦊':['Rosie','rosie'],
+ '🐢':['Honu',null],'🐙':['Inky','inky'],'🦋':['Flutter','flutter'],'🌈':['Lulu','lulu'],
+ '🍕':['Otto','otto'],'🍦':['Pippa','pippa'],'🚀':['Eddie','eddie'],'⭐':['Sunny','sunny'],
+ '🌺':['Flora','flora'],'🐬':['Splash','splash'],'🦄':['Pebble','pebble'],'🍉':['Mango','mango']
+};
+function memoryFace(c){const f=MEMORY_FRIENDS[c];return f?`<img src="${f[1]?'/buddy-'+f[1]+'.webp':'/honu.webp'}" alt=""><span>${f[0]}</span>`:esc(c||'');}
+function memoryName(c){return MEMORY_FRIENDS[c]?.[0]||c;}
 function renderMem(st, g, myTurn) {
   const up = i => st.matched[i] || st.open.includes(i) || st.pending.includes(i);
-  $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn ? 'disabled' : ''}>${up(i) ? c : ''}</button>`).join('')}</div><p style="text-align:center;font-size:14px;color:rgba(246,231,200,.7)">Find a pair and you go again.</p>`;
+  $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn ? 'disabled' : ''}>${up(i) ? memoryFace(c) : '<span class="memory-seal" aria-hidden="true">OHANA</span>'}</button>`).join('')}</div><p style="text-align:center;font-size:14px;color:rgba(246,231,200,.7)">Find a pair and you go again.</p>`;
   $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
 }
 // ----- Checkers -----
@@ -2196,7 +2239,7 @@ function enhanceGameAccess(st,g,myTurn){
   board.querySelectorAll('.ttt button').forEach(e=>{const i=+e.dataset.i;e.setAttribute('aria-label',`Row ${Math.floor(i/3)+1}, column ${i%3+1}: ${st.board[i]||'empty'}`);});accessibleBoard(board.querySelector('.ttt'),3,'Tic-Tac-Toe board');
  }
  if(g.type==='memory'){
-  board.querySelectorAll('.mem button').forEach(e=>{const i=+e.dataset.i,up=st.matched[i]||st.open.includes(i)||st.pending.includes(i);e.setAttribute('aria-label',`Card ${i+1}, row ${Math.floor(i/4)+1}, column ${i%4+1}: ${up?st.cards[i]+(st.matched[i]?', matched':', face up'):'face down'}`);});accessibleBoard(board.querySelector('.mem'),4,'Memory cards');
+  board.querySelectorAll('.mem button').forEach(e=>{const i=+e.dataset.i,up=st.matched[i]||st.open.includes(i)||st.pending.includes(i);e.setAttribute('aria-label',`Card ${i+1}, row ${Math.floor(i/4)+1}, column ${i%4+1}: ${up?memoryName(st.cards[i])+(st.matched[i]?', matched':', face up'):'face down'}`);});accessibleBoard(board.querySelector('.mem'),4,'Memory cards');
  }
  if(g.type==='handfoot'){
   const cardName=c=>({J:'Jack',Q:'Queen',K:'King',A:'Ace'}[c.rank]||c.rank)+(c.suit?' of '+({'♥':'hearts','♦':'diamonds','♣':'clubs','♠':'spades'}[c.suit]||c.suit):'')+(['2','Joker'].includes(c.rank)?', wild':'');
