@@ -616,7 +616,7 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
         try{hfMove(structuredClone(st),players,turn,m);options.push(m);}catch{}
       }
     }
-    const batch={action:'melds',melds:Object.entries(groups).filter(([rank,cards])=>cards.length>=3).map(([rank,cards])=>({rank,cardIds:cards.slice(0,7).map(c=>c.id)}))};
+    const batch={action:'melds',melds:Object.entries(groups).filter(([rank,cards])=>cards.length>=3).map(([rank,cards])=>({rank,cardIds:cards.map(c=>c.id)}))};
     if(batch.melds.length>1)try{hfMove(structuredClone(st),players,turn,batch);options.push({...batch,cardIds:batch.melds.flatMap(m=>m.cardIds)});}catch{}
     if(options.length&&(hard||medium||random()<.65)){
       if(hard)options.sort((a,b)=>b.cardIds.length-a.cardIds.length);
@@ -828,10 +828,9 @@ function hfMoveApply(st, players, turnIdx, move) {
       for(const id of group.cardIds){const i=remaining.findIndex(c=>c.id===id);if(i<0)throw new Error('A card is missing or used in two groups.');cards.push(remaining.splice(i,1)[0]);}
       const rank=group.rank;if(!['A','4','5','6','7','8','9','10','J','Q','K'].includes(rank))throw new Error('Threes cannot meld; twos and jokers must join natural cards.');
       if(cards.some(c=>!hfIsWild(c)&&c.rank!==rank))throw new Error('Keep each rank in its own group. Stage aces and tens separately, then play them together.');
-      let meld=proposed.find(m=>m.rank===rank&&m.cards.length<7);
+      let meld=proposed.find(m=>m.rank===rank);
       if(!meld){if(cards.length<3)throw new Error('Each new group needs at least three cards, including at least two natural cards.');meld={rank,cards:[]};proposed.push(meld);}
       const all=[...meld.cards,...cards],wild=all.filter(hfIsWild).length;
-      if(all.length>7)throw new Error('A book holds seven cards. Finish it before starting another group of this rank.');
       if(wild>3||wild>=all.length-wild)throw new Error('Use more natural cards than wild cards, with at most three wilds.');
       meld.cards=all;points+=cards.reduce((n,c)=>n+hfCardVal(c),0);
     }
