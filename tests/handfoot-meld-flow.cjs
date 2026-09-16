@@ -11,5 +11,12 @@ w.submit=async payload=>{requests.push(payload);server.hfMove(state,[1,2],0,JSON
  setup(['Q','Q','4','4','2','Joker','A']);for(let i=100;i<106;i++)click('[data-cid="'+i+'"]');click('#hf-submit');await w.pending;assert.equal(state.melds[1].length,2);assert(state.melds[1].every(m=>m.cards.length===3));assert.equal(state.hands[1].length,1);
  setup(['Q','Q','Q','4','4','4','A']);for(let i=100;i<106;i++)click('[data-cid="'+i+'"]');click('#hf-submit');await w.pending;assert.equal(state.melds[1].length,0,'combined 45 points cannot open');
  setup(['Q','Q','Q','4','4','4','4','K']);for(let i=100;i<107;i++)click('[data-cid="'+i+'"]');click('#hf-submit');await w.pending;assert.equal(state.melds[1].length,2);assert.equal(state.hands[1].length,1);
+ setup(['A','A','A','4']);
+ state.melds[2]=[{rank:'Q',cards:Array.from({length:7},(_,i)=>({id:800+i,rank:'Q',suit:'♥'}))},{rank:'4',cards:[{id:820,rank:'4',suit:'♣'},{id:821,rank:'4',suit:'♦'},{id:822,rank:'2',suit:'♠'}]}];
+ state.red3s[2]=[{id:830,rank:'3',suit:'♥'}];
+ const publicView=server.hfView(state,1);assert.equal(typeof publicView.hands[2],'number');assert.equal(typeof publicView.feet[2],'number');
+ w.run('S.gstate.state='+JSON.stringify(publicView)+';renderHandFoot(S.gstate.state,S.gstate,true);');
+ const table=w.document.querySelector('.hf-public-table');assert(table);assert.equal(table.querySelectorAll('.hf-card').length,11);assert(table.textContent.includes('11 cards laid down'));assert(table.textContent.includes('1 clean / 0 wild books'));assert(table.textContent.includes('Red threes'));assert.equal(table.querySelectorAll('button[data-cid],button[data-mi]').length,0,'opponent cards cannot be played');
+ assert.equal(w.document.querySelectorAll('.hf-hand [data-cid]').length,4,'only own unplayed cards rendered');
  console.log('PASS: select cards → Meld sends directly; two groups open together; wild cards are assigned automatically across selected ranks; failed opening keeps cards selected.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>w.close());
