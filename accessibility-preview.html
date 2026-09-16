@@ -700,6 +700,96 @@ body :is(.acts,.hf-acts) button:disabled{opacity:.55!important;filter:saturate(.
 .wbwrap{position:relative}
 .board-name-watermark{position:absolute;z-index:3;left:4%;right:4%;top:42%;text-align:center;pointer-events:none;user-select:none;font:600 clamp(28px,7vw,90px) Fredoka,sans-serif;color:#124453;opacity:.09;text-shadow:0 2px 0 #fff;transform:rotate(-12deg)}
 @media(max-width:550px){#game-head .word-status{flex-wrap:wrap!important;gap:2px 5px}#game-head .word-status>span{display:none}#game-head .compact-player{font-size:11px!important}#game-head .compact-player>span:nth-child(2){max-width:75px}#game-head .compact-player .character-avatar{width:20px!important;height:20px!important}#game-head .compact-player b{font-size:16px!important}#game-head.word-toolbar{gap:3px!important}#game-head.word-toolbar>button{min-width:32px!important;width:32px!important;padding:3px!important}#game-head.word-toolbar #gb-leave{width:auto!important}}
+
+/* Ohana jewel controls: compact enamel, layered metallic bezel, legible labels. */
+body :is(nav.tabs,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog,.setup-choices,.gcard,.join,.compose,.gchat-input-row) button:not(.buddy-choice):not([data-av]):not(.hf-card):not(.rt):not([data-react]),
+#game-head>button:not(.voice-toggle),#game .game-tray .acts button,#game .hf-acts button,
+#game .replay-moment,body :is(#inviteb,#joinb,#startb,#rename,#out,#install,#save-character){
+ --jewel:#155b74;--jewel-deep:#082f45;
+ color:#fff3cc!important;border:3px solid transparent!important;border-radius:12px!important;
+ background:radial-gradient(ellipse at 30% 0%,#ffffff45,transparent 54%) padding-box,linear-gradient(135deg,var(--jewel),var(--jewel-deep) 76%) padding-box,linear-gradient(135deg,#72501c 0%,#ffeab0 12%,#ad7728 24%,#ffe6a0 40%,#9d6520 53%,#f4cc70 68%,#fff1bd 82%,#88531b 100%) border-box!important;
+ box-shadow:inset 0 0 0 1px #361f12,inset 0 0 0 2px #f4cc7777,inset 0 3px 3px #fff1ae55,inset 0 -4px 6px #0005,0 2px 0 #68451d,0 4px 6px #001e3b55!important;
+ font:800 14px Nunito,sans-serif!important;letter-spacing:.15px;text-shadow:0 1px 2px #0009;
+ min-height:44px;padding:6px 11px!important;transition:filter .15s,transform .15s;
+}
+body #play,body #hf-submit,body .setup-start,body #joinb{--jewel:#207c57!important;--jewel-deep:#093e34!important}
+body #next-game{--jewel:#a36d1e!important;--jewel-deep:#5d3710!important;color:#fff3c2!important}
+body #gb-leave,body #hf-discard,body #pass{--jewel:#9f374c!important;--jewel-deep:#4c162b!important}
+body #shuf,body #hf-clear,body #game-help,body #hf-help{--jewel:#674b91!important;--jewel-deep:#2d224f!important}
+body nav.tabs button[data-tab=games]{--jewel:#185d8b;--jewel-deep:#092d54}
+body nav.tabs button[data-tab=chat]{--jewel:#7650a0;--jewel-deep:#37214e}
+body nav.tabs button[data-tab=family]{--jewel:#ac475a;--jewel-deep:#581d34}
+body nav.tabs button[data-tab=rooms]{--jewel:#247a60;--jewel-deep:#0c4039}
+body nav.tabs button[data-tab=settings]{--jewel:#437582;--jewel-deep:#173c4c}
+body nav.tabs button{font-size:15px!important;min-height:54px!important;padding:5px 6px!important}
+body nav.tabs button.on{outline:1px solid #ffecb5;outline-offset:2px;filter:brightness(1.12)}
+body nav.tabs button.on:after{background:#ffdf85;box-shadow:0 0 7px #ffe49e}
+body .island-icon{filter:drop-shadow(0 1px 0 #fff6) drop-shadow(0 2px 1px #0008)}
+body nav.tabs .island-icon{width:29px;height:29px}
+#game .game-tray .acts button:not(:disabled) .island-icon{filter:drop-shadow(0 1px 0 #fff6) drop-shadow(0 2px 1px #0008)}
+#game .replay-moment{min-width:42px!important;width:42px!important;height:42px!important;padding:3px!important}
+#game .replay-moment:after{color:#ffe5a1!important}
+#game-head>button:not(.voice-toggle){padding:5px!important}
+#game-head .voice-toggle,#game-head .voice-toggle[aria-pressed=true]{background:none!important;border:0!important;box-shadow:none!important;color:#d7f5ee!important}
+body :is(.acts,.hf-acts,.mj-tools,.game-setup,.settings-tools,nav.tabs) button:not(:disabled):hover{filter:brightness(1.12)}
+body :is(.acts,.hf-acts,.mj-tools,.game-setup,.settings-tools,nav.tabs) button:not(:disabled):active{transform:translateY(2px);filter:brightness(.95)}
+@media(max-width:550px){body nav.tabs button{font-size:12px!important;padding:4px!important}#game .game-tray .acts button{font-size:12px!important;padding:5px 6px!important}}
+@media(prefers-reduced-motion:reduce){body button{transition:none!important}}
+
+/* Ohana island toybox: bright sculpted controls, readable faces, character-led tables. */
+body :is(nav.tabs,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog,.setup-choices,.gcard,.join,.compose,.gchat-input-row) button:not(.buddy-choice):not([data-av]):not(.hf-card):not(.rt):not([data-react]),
+#game-head>button:not(.voice-toggle),#game .game-tray .acts button,#game .hf-acts button,#game .replay-moment{
+ --jewel:#bceef4;--jewel-deep:#61c7dc;
+ color:#113e55!important;text-shadow:0 1px 0 #fff8!important;
+ background:radial-gradient(ellipse at 35% 0%,#ffffffb0,transparent 58%) padding-box,linear-gradient(155deg,var(--jewel),var(--jewel-deep)) padding-box,linear-gradient(140deg,#fff0bf,#e6b765 25%,#fff7d0 48%,#aa7637 72%,#f5d48d) border-box!important;
+ box-shadow:inset 0 0 0 1px #175671,inset 0 2px 0 #ffffffbc,inset 0 -4px 0 #12486635,0 3px 0 #174b67,0 5px 8px #032d4a40!important;
+ border-radius:14px 11px 14px 11px!important;font:600 15px Fredoka,Nunito,sans-serif!important;letter-spacing:.15px;
+}
+body #play,body #hf-submit,body .setup-start,body #joinb{--jewel:#d0f6b2!important;--jewel-deep:#7bcfa9!important}
+body #next-game{--jewel:#fff2ad!important;--jewel-deep:#ffc658!important;color:#423317!important}
+body #gb-leave,body #hf-discard,body #pass{--jewel:#ffdebf!important;--jewel-deep:#f89885!important}
+body #shuf,body #hf-clear,body #game-help,body #hf-help{--jewel:#edddff!important;--jewel-deep:#b89be5!important}
+body nav.tabs button[data-tab=games]{--jewel:#c5f3ff;--jewel-deep:#6fc9e5}
+body nav.tabs button[data-tab=chat]{--jewel:#f0dfff;--jewel-deep:#c3a4e5}
+body nav.tabs button[data-tab=family]{--jewel:#ffe0d1;--jewel-deep:#f49fa4}
+body nav.tabs button[data-tab=rooms]{--jewel:#d1f3cf;--jewel-deep:#7dd4b0}
+body nav.tabs button[data-tab=settings]{--jewel:#d5ebff;--jewel-deep:#9fc0e6}
+body nav.tabs button{font-size:15px!important}
+#game-head #gb-leave{color:#573040!important}
+#game .replay-moment:after{color:#164f68!important}
+#game .game-tray .acts button:disabled{opacity:.72!important;color:#355565!important;filter:saturate(.4)!important}
+#game .game-tray .acts button{font-size:15px!important;gap:6px}
+#game .game-tray .acts .island-icon{width:25px;height:25px;flex-basis:25px}
+#game .compact-player b,#game-head .hf-player strong{font:600 22px Fredoka,sans-serif!important;font-variant-numeric:tabular-nums;color:#083e58!important}
+#game .compact-player{font-size:14px!important}
+#game .rack .rt{font-family:Fredoka,sans-serif!important;font-weight:600!important;color:#103c51!important;background:linear-gradient(145deg,#fffcde,#ffe4a7)!important;box-shadow:inset 0 2px #fff,0 3px #99713b!important}
+#game .rack .rt i{font:800 15px Nunito,sans-serif!important;color:#922a42!important;bottom:3px;right:4px}
+#game .c .t{font-weight:600!important;color:#103c51!important}
+#game .c .t i{color:#922a42!important;font-weight:900!important}
+#game .hf-corner{font-weight:700!important;color:#123d59}
+#game .hf-card.red .hf-corner{color:#a1274d}
+#game .hf-card{background:linear-gradient(140deg,#fffef1,#fff0cf)!important;border-color:#b3a171!important;box-shadow:inset 0 2px #fff,0 3px #99885f!important}
+#game .hf-card.wild{background:linear-gradient(140deg,#fbf3ff,#d8c4f4)!important}
+#game .hf-card.sel{outline:3px solid #176b96!important;box-shadow:0 0 0 5px #f9dc83,0 5px #185772!important}
+#game .hf-felt{background:radial-gradient(ellipse at top,#ecfae4,#c5eee8 65%,#b5e2eb)!important;border-color:#f4d597!important}
+#game .hf-public-group h4{color:#184963;font-size:18px}
+#game .hf-hand-title{font-size:22px}
+#game .mj-tile{box-shadow:inset 0 2px #fff,0 3px 0 #d7bb7d,0 5px 0 #477d86,0 7px 8px #092f4855!important}
+#game .mj-tile.picked{outline:3px solid #146f96;outline-offset:2px}
+#game .ttt button{border-radius:22px!important;background:radial-gradient(ellipse at top,#fffef0,#e2f5dd)!important;border-color:#fff1bd!important}
+#game .ttt button.X{color:#bc355e;text-shadow:0 3px #f8b7c4}
+#game .ttt button.O{color:#127899;text-shadow:0 3px #95dce9}
+#game .mem button.back{background:url('/honu.webp') center/60% 82% no-repeat,radial-gradient(ellipse at top,#adefe5,#459ebb)!important;border-color:#ffe3a0!important}
+#game .chk{border:4px solid #f0d394;border-radius:15px;overflow:hidden;box-shadow:0 5px #276379}
+#game .chk .pc{box-shadow:inset 0 3px #fff8,inset 0 -5px #0003,0 4px 3px #082b4766!important}
+.game-nook .nook-card{background:linear-gradient(130deg,#f9f9da,#d7f3e9)!important;border:2px solid #7ec6d0!important;box-shadow:0 3px #256c7c33!important}
+.game-nook .nook-card .t>b{color:#124963!important;font:600 21px Fredoka!important}
+.turn-check{background:#136850!important;color:#fff9d4!important}
+@media(max-width:550px){#game .game-tray .acts button{font-size:13px!important}#game .game-tray .acts .island-icon{width:22px;height:22px;flex-basis:22px}body nav.tabs button{font-size:13px!important}#game .compact-player b{font-size:19px!important}}
+#game-head #gb-leave{background:radial-gradient(ellipse at top,#ffe9cf,#f5a58f) padding-box,linear-gradient(135deg,#ffeec0,#a67538,#ffefb4) border-box!important;color:#512338!important;text-shadow:none!important}
+#game-head:not(.score-turn-header) .turn-greeting{order:4;flex:1 0 100%!important}
+#game .mj-scores{font-size:15px!important}
+#game .mj-scores b{font:600 21px Fredoka,sans-serif!important;color:#12485c}
 .preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{top:var(--preview-toolbar,60px);height:calc(100dvh - var(--preview-toolbar,60px));max-width:none;width:100%;margin:0} </style>
 </head>
 <body>
@@ -1605,7 +1695,7 @@ function renderGameChat(st, g) {
   if(g.type!=='handfoot'){const help=document.createElement('button');help.id='game-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Game rules and help');help.onclick=()=>showTableHelp(g.type);gameHead.append(help);}
 
   bp.innerHTML = `<div class="gb-inner" role="region" aria-label="Game chat">
-    ${!['words','handfoot'].includes(g.type) ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
+    ${!['words','handfoot','mahjong'].includes(g.type) ? `<div class="gb-scores">${scoresHtml}</div>` : ''}
     <div class="gchat-msgs" id="gchat-msgs">${chat.length ? chat.slice(-25).map(m => {
       const mine = m.p === meId;
       const emojiOnly = isEmoji(m.text);

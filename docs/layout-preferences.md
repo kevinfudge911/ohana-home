@@ -1,3 +1,5 @@
 # Kevin’s Ohana layout requirements
 
 Use content-sized score labels and controls. Never stretch small amounts of information into wide empty boxes. Put turn indication next to the player score, without a separate banner. Combine controls and players above the board where space permits. Keep touch targets usable, wrapping only when needed. No resize control. Ohana Words is a subtle board watermark, not a toolbar title. Sound is a standalone speaker with a red slash when muted, without a box or visible text. Help stays under ?. Preserve character art and accessibility. Await Kevin’s new button reference before further aesthetic redesign.
+
+The emergency-app reference demonstrates craftsmanship, not a medical or uniformly gold theme. Ohana must remain a high-end cartoon island: welcoming family characters, joyful varied colors, strongly readable numerals and labels, and compact controls. Prioritize low-vision readability over decorative complexity. Preserve all live game state during visual work.
