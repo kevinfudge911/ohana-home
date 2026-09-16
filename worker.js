@@ -612,6 +612,8 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
         try{hfMove(structuredClone(st),players,turn,m);options.push(m);}catch{}
       }
     }
+    const batch={action:'melds',melds:Object.entries(groups).filter(([rank,cards])=>cards.length>=3).map(([rank,cards])=>({rank,cardIds:cards.slice(0,7).map(c=>c.id)}))};
+    if(batch.melds.length>1)try{hfMove(structuredClone(st),players,turn,batch);options.push({...batch,cardIds:batch.melds.flatMap(m=>m.cardIds)});}catch{}
     if(options.length&&(hard||medium||random()<.65)){
       if(hard)options.sort((a,b)=>b.cardIds.length-a.cardIds.length);
       return hard?options[0]:pick(options);
@@ -649,7 +651,7 @@ function hfCardVal(card) {
   if (card.rank === '3' && (card.suit === '♥' || card.suit === '♦')) return 100;
   if (card.rank === '3') return 5;
   if (card.rank === 'A') return 20;
-  if (['K','Q','J','10'].includes(card.rank)) return 10;
+  if (['K','Q','J','10','9','8'].includes(card.rank)) return 10;
   return 5;
 }
 __name(hfCardVal, "hfCardVal");
@@ -688,7 +690,7 @@ __name(hfMakeDeck, "hfMakeDeck");
 
 function hfInit(players, seed) {
   const r = rng(seed);
-  const numDecks = players.length <= 2 ? 4 : 5;
+  const numDecks = players.length + 1;
   const deck = hfMakeDeck(numDecks);
   shuffle(deck, r);
   deck.forEach((c, i) => c.id = i);
@@ -719,9 +721,10 @@ function hfInit(players, seed) {
     }
   }
 
+  let initialDiscard=deck.shift();while(hfIsRed3(initialDiscard)||hfIsWild(initialDiscard)){deck.push(initialDiscard);initialDiscard=deck.shift();}
   return {
-    drawPile: deck, discardPile: [], hands, feet, melds, red3s, scores,
-    inFoot: {}, round: 1, roundScores: [], hasDrawn: false, history: [], goOutApproval: null
+    drawPile: deck, discardPile: [initialDiscard], hands, feet, melds, red3s, scores,
+    rulesVersion:2, inFoot: {}, round: 1, roundScores: [], hasDrawn: false, history: [], goOutApproval: null
   };
 }
 __name(hfInit, "hfInit");
@@ -761,19 +764,20 @@ function hfScoreHand(melds, red3s, handCards) {
 }
 __name(hfScoreHand, "hfScoreHand");
 
-function hfMove(st, players, turnIdx, move) {
+function hfOpening(st,p){return st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeld(st.scores[p]);}
+function hfOpenFoot(st,p){
+ st.inFoot[p]=true;st.history.push({p,note:'Picked up their foot!'});
+ for(let i=0;i<st.feet[p].length;i++)if(hfIsRed3(st.feet[p][i])){st.red3s[p].push(st.feet[p].splice(i,1)[0]);if(st.drawPile.length)st.feet[p].push(st.drawPile.shift());i--;}
+}
+// Failed actions never partially change hands, melds, draw state or scores.
+function hfMove(st,players,turnIdx,move){const trial=structuredClone(st);const result=hfMoveApply(trial,players,turnIdx,move);Object.assign(st,trial);return result;}
+function hfMoveApply(st, players, turnIdx, move) {
   const p = players[turnIdx];
   const hand = st.inFoot[p] ? st.feet[p] : st.hands[p];
 
   if (move.action === 'draw') {
     if (st.hasDrawn) throw new Error("You already drew this turn.");
-    if (st.drawPile.length < 2) {
-      if (st.discardPile.length > 1) {
-        const top = st.discardPile.pop();
-        st.drawPile = shuffle([...st.discardPile], Math.random);
-        st.discardPile = [top];
-      }
-    }
+    if(st.drawPile.length<2)return hfEndRound(st,players,null);
     const drawn = [];
     for (let i = 0; i < 2 && st.drawPile.length; i++) {
       const c = st.drawPile.shift();
@@ -797,84 +801,44 @@ function hfMove(st, players, turnIdx, move) {
     if (hfIsWild(topCard)) throw new Error("Can't pick up the pile when a wild is on top.");
     const topRank = topCard.rank;
     const naturalInHand = hand.filter(c => c.rank === topRank && !hfIsWild(c)).length;
-    const existingMeld = st.melds[p].find(m => m.rank === topRank);
-    if (!existingMeld && naturalInHand < 2) {
-      throw new Error("You need at least 2 cards of that rank in your hand to pick up the pile.");
-    }
-    const pile = st.discardPile.splice(0);
-    for (const c of pile) {
-      if (hfIsRed3(c)) { st.red3s[p].push(c); }
-      else { hand.push(c); }
-    }
-    st.hasDrawn = true;
-    return { over: false, next: turnIdx, pickedUp: pile.length };
+    if(naturalInHand<2)throw new Error('Hold two natural cards matching the top discard to pick up.');
+    const matching=hand.filter(c=>c.rank===topRank&&!hfIsWild(c)).slice(0,2);
+    const extra=Array.isArray(move.melds)?move.melds:[];
+    const same=extra.filter(m=>m.rank===topRank).flatMap(m=>m.cardIds||[]);
+    const openingGroups=[{rank:topRank,cardIds:[...new Set([...matching.map(c=>c.id),topCard.id,...same])]},...extra.filter(m=>m.rank!==topRank)];
+    st.discardPile.pop();hand.push(topCard);st.hasDrawn=true;
+    hfMoveApply(st,players,turnIdx,{action:'melds',melds:openingGroups,pickingUp:true});
+    const pile=st.discardPile.splice(Math.max(0,st.discardPile.length-6));
+    const current=st.inFoot[p]?st.feet[p]:st.hands[p];
+    for(const card of pile){if(hfIsRed3(card)){st.red3s[p].push(card);while(st.drawPile.length){const replacement=st.drawPile.shift();if(hfIsRed3(replacement))st.red3s[p].push(replacement);else{current.push(replacement);break;}}}else current.push(card);}
+    return {over:false,next:turnIdx,pickedUp:pile.length+1};
   }
 
-  if (move.action === 'meld') {
-    if (!st.hasDrawn) throw new Error("Draw first!");
-    const cardIds = move.cardIds || [];
-    if (cardIds.length < 1) throw new Error("Select cards to meld.");
-    const targetRank = move.rank;
-    const cards = [];
-    const handCopy = [...hand];
-    for (const id of cardIds) {
-      const idx = handCopy.findIndex(c => c.id === id);
-      if (idx < 0) throw new Error("You don't have that card.");
-      cards.push(handCopy.splice(idx, 1)[0]);
+  if(move.action==='meld'||move.action==='melds'){
+    if(!st.hasDrawn)throw new Error('Draw first!');
+    const groups=move.action==='melds'?move.melds:[move];
+    if(!Array.isArray(groups)||!groups.length)throw new Error('Choose one or more meld groups.');
+    const remaining=[...hand],proposed=structuredClone(st.melds[p]);let points=0;
+    for(const group of groups){
+      const cards=[];if(!Array.isArray(group.cardIds)||!group.cardIds.length)throw new Error('Choose cards for each meld.');
+      for(const id of group.cardIds){const i=remaining.findIndex(c=>c.id===id);if(i<0)throw new Error('A card is missing or used in two groups.');cards.push(remaining.splice(i,1)[0]);}
+      const rank=group.rank;if(!['A','4','5','6','7','8','9','10','J','Q','K'].includes(rank))throw new Error('Threes cannot meld; twos and jokers must join natural cards.');
+      if(cards.some(c=>!hfIsWild(c)&&c.rank!==rank))throw new Error('Keep each rank in its own group. Stage aces and tens separately, then play them together.');
+      let meld=proposed.find(m=>m.rank===rank&&m.cards.length<7);
+      if(!meld){if(cards.length<3)throw new Error('Each new group needs at least three cards, including at least two natural cards.');meld={rank,cards:[]};proposed.push(meld);}
+      const all=[...meld.cards,...cards],wild=all.filter(hfIsWild).length;
+      if(all.length>7)throw new Error('A book holds seven cards. Finish it before starting another group of this rank.');
+      if(wild>3||wild>=all.length-wild)throw new Error('Use more natural cards than wild cards, with at most three wilds.');
+      meld.cards=all;points+=cards.reduce((n,c)=>n+hfCardVal(c),0);
     }
-    const naturals = cards.filter(c => !hfIsWild(c));
-    const wilds = cards.filter(c => hfIsWild(c));
-    let existingMeld = st.melds[p].find(m => m.rank === targetRank);
-    if (existingMeld) {
-      for (const c of naturals) {
-        if (c.rank !== targetRank) throw new Error(`${c.rank} doesn't match the ${targetRank} meld.`);
-      }
-      const totalWilds = existingMeld.cards.filter(c => hfIsWild(c)).length + wilds.length;
-      const totalCards = existingMeld.cards.length + cards.length;
-      if (totalWilds > 3) throw new Error("A meld can't have more than 3 wild cards.");
-      if (totalWilds >= totalCards - totalWilds && totalCards > 1) throw new Error("A meld needs more natural cards than wilds.");
-      existingMeld.cards.push(...cards);
-    } else {
-      if (cards.length < 3) throw new Error("A new meld needs at least 3 cards.");
-      for (const c of naturals) {
-        if (c.rank !== targetRank) throw new Error(`All natural cards must be the same rank.`);
-      }
-      if (targetRank === '3') throw new Error("Black 3s can only be discarded.");
-      if (targetRank === 'Joker' || targetRank === '2') throw new Error("Can't make a meld of wilds.");
-      if (wilds.length >= naturals.length) throw new Error("A meld needs more natural cards than wilds.");
-      if (wilds.length > 3) throw new Error("A meld can't have more than 3 wild cards.");
-      const hasAnyMelds = st.melds[p].length > 0;
-      if (!hasAnyMelds) {
-        const meldTotal = cards.reduce((sum, c) => sum + hfCardVal(c), 0);
-        const minReq = hfMinMeld(st.scores[p]);
-        if (meldTotal < minReq) throw new Error(`First meld of the round needs at least ${minReq} points. These cards are worth ${meldTotal}.`);
-      }
-      st.melds[p].push({ rank: targetRank, cards });
-    }
-    if(handCopy.length<=1&&st.inFoot[p]){
-      const {clean,dirty}=hfCountCanastas(st.melds[p]);
-      if(clean<1||dirty<1)throw new Error('Keep two cards so you can discard without going out, until you have one clean and one wild-card canasta.');
-    }
-    for (const id of cardIds) {
-      const idx = hand.findIndex(c => c.id === id);
-      if (idx >= 0) hand.splice(idx, 1);
-    }
-    if (hand.length === 0 && !st.inFoot[p]) {
-      st.inFoot[p] = true;
-      st.history.push({ p, note: `Picked up their foot!` });
-      let foundRed = true;
-      while (foundRed) {
-        foundRed = false;
-        for (let i = st.feet[p].length - 1; i >= 0; i--) {
-          if (hfIsRed3(st.feet[p][i])) {
-            st.red3s[p].push(st.feet[p].splice(i, 1)[0]);
-            foundRed = true;
-          }
-        }
-      }
-    }
-    if(hand.length===0&&st.inFoot[p]&&st.feet[p].length===0)return hfEndRound(st,players,p);
-    return { over: false, next: turnIdx };
+    const minimum=hfOpening(st,p);
+    if(!st.melds[p].length&&points<minimum)throw new Error('Your opening groups together need '+minimum+' points; you selected '+points+'. Stage another valid group.');
+    if(st.inFoot[p]&&remaining.length===0)throw new Error('Keep your final foot card to discard.');
+    if(st.inFoot[p]&&remaining.length===1){const books=hfCountCanastas(proposed);if(!books.clean||!books.dirty)throw new Error('Keep two cards until you have a clean and a dirty book.');}
+    st.melds[p]=proposed;hand.splice(0,hand.length,...remaining);
+    st.history.push({p,note:'Melded '+groups.length+' group(s)',points});
+    if(!hand.length&&!st.inFoot[p])hfOpenFoot(st,p);
+    return {over:false,next:turnIdx};
   }
 
   if (move.action === 'discard') {
@@ -886,19 +850,8 @@ function hfMove(st, players, turnIdx, move) {
     st.discardPile.push(card);
     st.hasDrawn = false;
     if (hand.length === 0 && !st.inFoot[p]) {
-      st.inFoot[p] = true;
-      st.history.push({ p, note: `Picked up their foot!` });
-      let foundRed = true;
-      while (foundRed) {
-        foundRed = false;
-        for (let i = st.feet[p].length - 1; i >= 0; i--) {
-          if (hfIsRed3(st.feet[p][i])) {
-            st.red3s[p].push(st.feet[p].splice(i, 1)[0]);
-            foundRed = true;
-          }
-        }
-      }
-      return { over: false, next: turnIdx };
+      hfOpenFoot(st,p);
+      return { over:false,next:(turnIdx+1)%players.length };
     }
     if (hand.length === 0 && st.inFoot[p]) {
       const { clean, dirty } = hfCountCanastas(st.melds[p]);
@@ -934,6 +887,7 @@ function hfEndRound(st, players, goOutPlayer) {
     st.scores[p] += roundScore + goOutBonus;
   }
   st.roundScores.push(Object.fromEntries(players.map(p => [p, st.scores[p]])));
+  if(st.rulesVersion===2&&(st.round||1)<4){const scores={...st.scores},roundScores=[...st.roundScores],round=st.round+1,bot=st.bot,chat=st.chat;Object.assign(st,hfInit(players,Date.now()));Object.assign(st,{scores,roundScores,round,chat});if(bot)st.bot=bot;return {over:false,next:(round-1)%players.length};}
   let best = null, tie = false;
   for (const p of players) {
     if (best === null || st.scores[p] > st.scores[best]) { best = p; tie = false; }
