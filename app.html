@@ -1850,8 +1850,21 @@ async function shareInvite(inviteCode, gameName) {
 })();
 
 // ----- Hand & Foot -----
+function autoHandFootMelds(cards,melds,target=null){
+ const wild=c=>c.rank==='2'||c.rank==='Joker',wilds=cards.filter(wild),natural=cards.filter(c=>!wild(c));
+ if(natural.some(c=>c.rank==='3'))throw Error('Threes cannot be melded. Deselect the threes.');
+ let ranks=[...new Set(natural.map(c=>c.rank))];
+ if(!ranks.length)ranks=target?[target]:[...new Set(melds.filter(m=>m.cards.length<7).map(m=>m.rank))];
+ const groups=ranks.map(rank=>{const existing=melds.find(m=>m.rank===rank&&m.cards.length<7)?.cards||[],selected=natural.filter(c=>c.rank===rank),all=[...existing,...selected],n=all.filter(c=>!wild(c)).length,w=all.length-n;return {rank,selected,min:Math.max(0,3-all.length),max:Math.min(3-w,n-w-1,7-all.length),n};});
+ const memo=new Set();
+ function assign(i,left){if(i===groups.length)return left===0?[]:null;const key=i+':'+left;if(memo.has(key))return null;const g=groups[i];if(g.n>=2)for(let count=g.min;count<=Math.min(g.max,left);count++){const rest=assign(i+1,left-count);if(rest)return [count,...rest];}memo.add(key);return null;}
+ const allocation=assign(0,wilds.length);
+ if(!allocation)throw Error('These cards do not make legal melds yet. Each new meld needs at least three cards, including two natural cards, more naturals than wilds, and at most seven cards.');
+ let offset=0;return groups.map((g,i)=>{const ids=[...g.selected,...wilds.slice(offset,offset+=allocation[i])].map(c=>c.id);return {rank:g.rank,cardIds:ids};}).filter(g=>g.cardIds.length);
+}
 function renderHandFoot(st,g,myTurn){
  const me=S.me.id,inFoot=!!st.inFoot?.[me],hand=Array.isArray(inFoot?st.feet[me]:st.hands[me])?[...(inFoot?st.feet[me]:st.hands[me])]:[];
+ S.hfSel=[...new Set([...(S.hfSel||[]),...(S.hfQueue||[]).flatMap(g=>g.cardIds)])];S.hfQueue=[];
  S.hfSel=(S.hfSel||[]).filter(id=>hand.some(c=>c.id===id));
  if(S.hfMeldTarget===undefined)S.hfMeldTarget=null;
  S.hfQueue=(S.hfQueue||[]).filter(group=>group.cardIds.every(id=>hand.some(c=>c.id===id)));
@@ -1872,8 +1885,8 @@ function renderHandFoot(st,g,myTurn){
  <div class="hf-progress"><span class="${books.cl?'complete':''}">${books.cl} clean book</span><span class="${books.di?'complete':''}">${books.di} wild-card book</span><span>${inFoot?'Your foot is open':counts(st.feet[me])+' cards in your foot'}</span></div>
  <div class="hf-meld-heading"><h3>Your melds</h3><small>${melds.length?'Choose a meld to add matching cards':'Opening meld: '+opening+' points across your groups'}</small></div><div class="hf-melds">${melds.length?melds.map((m,i)=>`<button type="button" class="hf-meld ${m.cards.length>=7?'book':''}" data-mi="${i}" aria-pressed="${S.hfMeldTarget===i}" ${!myTurn?'disabled':''}><b>${esc(m.rank)}</b><span>${m.cards.length} cards</span><small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></button>`).join(''):''}</div>
  <h3 class="hf-hand-title">Your ${inFoot?'foot':'hand'} <small>${hand.length} cards · ${S.hfSel.length} selected</small></h3><div class="hf-hand">${hand.map(c=>`<button type="button" class="hf-card ${red(c)?'red':'blk'} ${wild(c)?'wild':''} ${S.hfSel.includes(c.id)?'sel':''}" data-cid="${c.id}" aria-label="${esc(c.rank+' '+(c.suit||'wild'))}" aria-pressed="${S.hfSel.includes(c.id)}" ${!myTurn||queuedIds.has(c.id)?'disabled':''}>${face(c)}</button>`).join('')}</div>
- <div class="hf-staged" aria-live="polite">${S.hfQueue.length?S.hfQueue.map(group=>esc(group.rank)+' × '+group.cardIds.length).join(' · ')+' — '+queuePoints+' points ready.':(!st.hasDrawn?'Draw 2 first.':!myTurn?'Waiting for your turn.':'Select cards, then Meld. Add group saves a group while you choose another.')}</div><div class="hf-acts"><button type="button" id="hf-submit" ${!myTurn||!st.hasDrawn||(!S.hfQueue.length&&!S.hfSel.length)?'disabled':''}>Meld${queuePoints+selectedPoints?' ('+(queuePoints+selectedPoints)+' pts)':''}</button><button type="button" id="hf-meld" ${!myTurn||!st.hasDrawn||S.hfSel.length<(S.hfMeldTarget!==null?1:3)?'disabled':''}>${S.hfMeldTarget!==null?'Add to '+esc(melds[S.hfMeldTarget].rank):'Add group'}</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfQueue.length&&!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear selection</button></div></div>
- <details class="hf-guide" hidden><summary>How this table plays</summary><p>Ohana individual-play rules (no partnerships). ${st.rulesVersion===2?'Round '+st.round+' of 4; opening requirements 50, 90, 120, 150.':'Existing table: original score-based opening requirement.'} Draw two, then build groups of matching ranks. A book has exactly seven cards. Discard-pile pickup requires two matching natural cards and an immediate valid meld; take at most seven cards. A clean book has no wilds; a wild-card book contains twos or jokers. Each meld needs more natural cards than wilds, with at most three wilds.</p><p>You have a separate face-down foot. Meld your last hand card to play the foot immediately; discard your last hand card to play the foot on your next turn. You need one clean and one wild-card book to go out. Discarding ends your turn. Opening groups together: ${opening} points. Each new group needs at least three cards. Select matching cards and press Meld. You can select multiple complete natural groups together. To assign wild cards to different groups, select one group and press Add group, then choose the next group and press Meld. All opening groups count together. Clean books earn 500; wild-card books earn 300, plus card values. Scores settle when the round ends.</p></details>
+ <div class="hf-staged" aria-live="polite">${S.hfQueue.length?S.hfQueue.map(group=>esc(group.rank)+' × '+group.cardIds.length).join(' · ')+' — '+queuePoints+' points ready.':(!st.hasDrawn?'Draw 2 first.':!myTurn?'Waiting for your turn.':'Select any matching sets, then Meld. Wild cards fit automatically.')}</div><div class="hf-acts"><button type="button" id="hf-submit" ${!myTurn||!st.hasDrawn||(!S.hfQueue.length&&!S.hfSel.length)?'disabled':''}>Meld${queuePoints+selectedPoints?' ('+(queuePoints+selectedPoints)+' pts)':''}</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfQueue.length&&!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear selection</button></div></div>
+ <details class="hf-guide" hidden><summary>How this table plays</summary><p>Ohana individual-play rules (no partnerships). ${st.rulesVersion===2?'Round '+st.round+' of 4; opening requirements 50, 90, 120, 150.':'Existing table: original score-based opening requirement.'} Draw two, then build groups of matching ranks. A book has exactly seven cards. Discard-pile pickup requires two matching natural cards and an immediate valid meld; take at most seven cards. A clean book has no wilds; a wild-card book contains twos or jokers. Each meld needs more natural cards than wilds, with at most three wilds.</p><p>You have a separate face-down foot. Meld your last hand card to play the foot immediately; discard your last hand card to play the foot on your next turn. You need one clean and one wild-card book to go out. Discarding ends your turn. Opening groups together: ${opening} points. Each new group needs at least three cards. Select all the cards you want to meld and press Meld once. Matching ranks are sorted automatically, including legal wild-card placement. All selected melds count together toward your opening requirement. To add only wild cards to a particular existing meld, select that meld first. Clean books earn 500; wild-card books earn 300, plus card values. Scores settle when the round ends.</p></details>
  <details class="hf-guide" hidden><summary>Around the card table</summary>${g.players.filter(p=>p!==me).map(p=>`<p><b>${esc(nameOf(p))}</b> · ${(st.melds?.[p]||[]).map(m=>esc(m.rank)+' × '+m.cards.length).join(' · ')||'No melds yet'}</p>`).join('')}<p>Your red threes: ${st.red3s?.[me]?.length||0}</p></details></section>`;
  compactHandFootHeader();
  const clear=()=>{S.hfQueue=[];S.hfSel=[];S.hfMeldTarget=null;};
@@ -1883,16 +1896,10 @@ function renderHandFoot(st,g,myTurn){
  root.querySelector('#hf-pickup-btn').onclick=()=>move({action:'pickup',melds:S.hfQueue},clear);
  root.querySelector('#hf-discard').onclick=()=>move({action:'discard',cardId:S.hfSel[0]},clear);
  root.querySelector('#hf-clear').onclick=()=>{clear();renderHandFoot(st,g,myTurn);};
- const selectedGroups=()=>{
- if(!S.hfSel.length)return [];
- const cards=hand.filter(c=>S.hfSel.includes(c.id));const ranks=[...new Set(cards.filter(c=>!wild(c)).map(c=>c.rank))];
- if(ranks.length>1&&cards.some(wild)){showPlayError('Select one rank with its wild cards, press Add group, then select the next group and press Meld.');return null;}
- const groups=ranks.length>1?ranks.map(rank=>({rank,cardIds:cards.filter(c=>c.rank===rank).map(c=>c.id)})):[{rank:melds[S.hfMeldTarget]?.rank||ranks[0],cardIds:cards.map(c=>c.id)}];
- for(const group of groups){const existing=melds.find(m=>m.rank===group.rank&&m.cards.length<7);if(!group.rank||group.rank==='3'||(!existing&&group.cardIds.length<3)){showPlayError('Each new group needs at least three cards. Two jacks need another jack or a wild card. You can add one or two cards to an existing meld.');return null;}}
- return groups;
+ root.querySelector('#hf-submit').onclick=()=>{
+ try{const groups=autoHandFootMelds(hand.filter(c=>S.hfSel.includes(c.id)),melds,melds[S.hfMeldTarget]?.rank);if(groups.length)move({action:'melds',melds:groups},clear);}catch(e){showPlayError(e.message);}
  };
- root.querySelector('#hf-submit').onclick=()=>{const groups=selectedGroups();if(groups===null)return;move({action:'melds',melds:[...S.hfQueue,...groups]},clear);};
- root.querySelector('#hf-meld').onclick=()=>{const groups=selectedGroups();if(groups===null)return;S.hfQueue.push(...groups);S.hfSel=[];S.hfMeldTarget=null;renderHandFoot(st,g,myTurn);};
+
 
 }
 
