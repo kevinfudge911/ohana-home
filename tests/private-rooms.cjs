@@ -4,7 +4,7 @@ sql.exec(`CREATE TABLE members(id INTEGER PRIMARY KEY,name TEXT UNIQUE,pin TEXT,
 sql.exec(fs.readFileSync('migrations/0002_score_reviews.sql','utf8'));sql.exec(fs.readFileSync('migrations/0003_private_rooms.sql','utf8'));
 sql.exec(fs.readFileSync('migrations/0004_game_invitations.sql','utf8'));
 let beforeWrite=null;
-function prepare(q){let args=[];return {bind(...a){args=a;return this},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){if(beforeWrite&&q.startsWith("UPDATE games SET state=")){const hook=beforeWrite;beforeWrite=null;hook(q,args);}const r=sql.prepare(q).run(...args);return {meta:{last_row_id:Number(r.lastInsertRowid),changes:Number(r.changes)}}}}};
+function prepare(q){let args=[];return {bind(...a){args=a;return this},async first(){return sql.prepare(q).get(...args)||null},async all(){return {results:sql.prepare(q).all(...args)}},async run(){if(beforeWrite&&(q.startsWith("UPDATE games SET ")||q.startsWith("DELETE FROM games "))){const hook=beforeWrite;beforeWrite=null;hook(q,args);}const r=sql.prepare(q).run(...args);return {meta:{last_row_id:Number(r.lastInsertRowid),changes:Number(r.changes)}}}}};
 const DB={prepare,async batch(stmts){sql.exec('BEGIN');try{const out=[];for(const s of stmts)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
 let source=fs.readFileSync('worker.js','utf8').replace(/^import (\w+) from .*;$/gm,'const $1=null;').replace(/^import .*;$/gm,'').replace(/export\s*\{[\s\S]*?\};\s*$/,'');
 const c=vm.createContext({console,URL,Response,Request,crypto:webcrypto,TextEncoder,Uint8Array,btoa,atob,structuredClone});vm.runInContext(fs.readFileSync('mahjong.js','utf8').replaceAll('export function','function')+'\n'+source,c);
@@ -75,6 +75,13 @@ let persisted=JSON.parse(sql.prepare('SELECT state FROM games WHERE id=?').get(r
 sql.prepare("UPDATE games SET state=?,turn=0,status='playing' WHERE id=?").run(JSON.stringify(raceState),raceId);
 beforeWrite=()=>{const state={...raceState,board:[...raceState.board]};state.board[4]='X';sql.prepare('UPDATE games SET state=?,turn=1 WHERE id=?').run(JSON.stringify(state),raceId);};
 const moveRace=await api('/api/game/'+raceId+'/move','host',1,{i:0});assert.equal(moveRace.status,400);assert.match(moveRace.data.error,/table changed/i);persisted=JSON.parse(sql.prepare('SELECT state FROM games WHERE id=?').get(raceId).state);assert.equal(persisted.board[4],'X');assert.equal(persisted.board[0],null);
+// Starting or canceling a waiting table cannot race a newly started game.
+for(const action of ['start','leave']){
+ sql.prepare("UPDATE games SET status='waiting',state=NULL,players='[1,2]',created_by=1 WHERE id=?").run(raceId);
+ beforeWrite=()=>sql.prepare("UPDATE games SET status='playing',state=? WHERE id=?").run(JSON.stringify({board:['X'],chat:[]}),raceId);
+ const result=await api('/api/game/'+raceId+'/'+action,'host',1,{});assert.equal(result.status,400);
+ const row=sql.prepare('SELECT status,state FROM games WHERE id=?').get(raceId);assert.equal(row.status,'playing');assert.equal(JSON.parse(row.state).board[0],'X');
+}
 console.log('PASS: concurrent chat preserves the newer board; stale moves cannot overwrite a committed turn.');
 console.log('PASS: migration preserves family; private signup, room/game/chat/member isolation, guessed-ID rejection on every game action, scoped notifications, all-room overview, guest-created rooms, invitation rotation, signed-in joins and private game chat.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>sql.close());
