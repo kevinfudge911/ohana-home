@@ -1025,6 +1025,8 @@ async function auth(req, env) {
 __name(auth, "auth");
 function gameRow(g, me) {
   const players = JSON.parse(g.players);
+  const state = g.state ? JSON.parse(g.state) : {};
+  const lastWordPlay = g.type === "words" ? state.history?.at(-1) : null;
   return {
     id: g.id,
     room_id: g.room_id || 1,
@@ -1038,7 +1040,9 @@ function gameRow(g, me) {
     winner: g.winner,
     created_by: g.created_by,
     updated_at: g.updated_at,
-    last_play: g.state ? JSON.parse(g.state).lastPlay || null : null,
+    last_play: state.lastPlay || null,
+    scores: state.scores ? Object.fromEntries(players.map(id => [id, Number(state.scores[id]) || 0])) : null,
+    last_score: lastWordPlay && Number.isFinite(lastWordPlay.score) ? {p:lastWordPlay.p,score:lastWordPlay.score} : null,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
     bot: g.state ? JSON.parse(g.state).bot || null : null,
