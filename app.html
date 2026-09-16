@@ -683,6 +683,23 @@ body :is(.acts,.hf-acts) button:disabled{opacity:.55!important;filter:saturate(.
 #game-head .hf-player{flex:0 1 auto!important}
 #game-head #gb-leave{background:linear-gradient(145deg,#ab6265,#733c50)!important;color:#fff5de!important}
 #game .game-tray .acts button:not(:disabled) .island-icon{filter:brightness(1.6) saturate(.75)}
+
+#game-head{display:flex!important;flex-wrap:wrap;gap:4px 7px!important}
+#game-head>button{flex:none;order:2}
+#game-head #gb-back{order:0}
+#game-head h2{flex:0 1 auto!important;margin-right:auto}
+#game-head.word-toolbar h2{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#game-head .word-status,#game-head .hf-players{order:1;flex:0 1 auto!important;width:auto!important;margin:0!important;padding:0!important;gap:6px}
+#game-head .compact-scores{flex:0 1 auto!important;gap:5px;flex-wrap:wrap}
+#game-head .compact-player,#game-head .hf-player{flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:3px 6px!important;border-radius:8px!important}
+#game-head .compact-player>span:nth-child(2){max-width:110px}
+#game-head .word-status>span{font-size:11px}
+#game-head .hf-player>div{flex:none}
+#game-head .voice-toggle,#game-head .voice-toggle[aria-pressed=true]{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:#d7f5ee!important;width:36px!important;min-width:36px!important;padding:5px!important}
+#game-head .voice-toggle .game-control-icon{width:27px;height:27px;filter:drop-shadow(0 1px 1px #002c43)}
+.wbwrap{position:relative}
+.board-name-watermark{position:absolute;z-index:3;left:4%;right:4%;top:42%;text-align:center;pointer-events:none;user-select:none;font:600 clamp(28px,7vw,90px) Fredoka,sans-serif;color:#124453;opacity:.09;text-shadow:0 2px 0 #fff;transform:rotate(-12deg)}
+@media(max-width:550px){#game-head .word-status{flex-wrap:wrap!important;gap:2px 5px}#game-head .word-status>span{display:none}#game-head .compact-player{font-size:11px!important}#game-head .compact-player>span:nth-child(2){max-width:75px}#game-head .compact-player .character-avatar{width:20px!important;height:20px!important}#game-head .compact-player b{font-size:16px!important}#game-head.word-toolbar{gap:3px!important}#game-head.word-toolbar>button{min-width:32px!important;width:32px!important;padding:3px!important}#game-head.word-toolbar #gb-leave{width:auto!important}}
 </style>
 </head>
 <body>
@@ -1157,7 +1174,7 @@ function showCharacterMoment(text,points=null,a=speakingCharacter()){
 }
 function announceCharacter(event,points=null,detail=''){showCharacterMoment(characterDialogue(event,points||0,detail),points);}
 function gameControlIcon(kind){
- const paths={sound:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M16 8q5 4 0 8m3-11q8 7 0 14"/>',muted:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="m16 9 6 6m0-6-6 6"/>',back:'<path d="m14 5-7 7 7 7M7 12h14"/>',fit:'<path d="M3 9h6V3m6 0v6h6M3 15h6v6m6 0v-6h6"/>',wide:'<path d="M9 3H3v6m12-6h6v6M3 15v6h6m6 0h6v-6"/>'};
+ const paths={sound:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M16 8q5 4 0 8m3-11q8 7 0 14"/>',muted:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M4 3 21 21" stroke="#ff6969" stroke-width="2.8"/>',back:'<path d="m14 5-7 7 7 7M7 12h14"/>',fit:'<path d="M3 9h6V3m6 0v6h6M3 15h6v6m6 0v-6h6"/>',wide:'<path d="M9 3H3v6m12-6h6v6M3 15v6h6m6 0h6v-6"/>'};
  return '<svg class="game-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[kind]+'</svg>';
 }
 function setGameMuted(muted){
@@ -1411,7 +1428,7 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `<div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
+  bd.innerHTML = `<div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="board-name-watermark" aria-hidden="true">Ohana Words</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
 
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
@@ -1426,6 +1443,7 @@ function renderWords(st, g, myTurn) {
     tray.innerHTML = rackHtml;positionWordTray();
   } else if (tray) { tray.remove(); }
   bd.querySelector('.wbwrap').insertAdjacentHTML('beforebegin',renderPlayBreakdown(st));
+  const existingHead=document.querySelector('#game-head.word-toolbar');if(existingHead){existingHead.querySelector('.word-status')?.remove();existingHead.append(bd.querySelector('.word-status'));}
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
   const rerender = () => renderWords(st, g, myTurn);
 
@@ -1571,6 +1589,7 @@ function renderGameChat(st, g) {
   let gameHead = $('#game-head');
   if (!gameHead) { gameHead = document.createElement('div'); gameHead.id = 'game-head'; gameHead.className = 'game-head'; $('#game').prepend(gameHead); }
   const turnSummary=document.querySelector('#game .body .turn-greeting')||gameHead.querySelector('.turn-greeting');
+  const wordStatus=document.querySelector('#board .word-status')||gameHead.querySelector('.word-status');
   const hfPlayers=gameHead.querySelector('.hf-players');
   gameHead.innerHTML = navHtml;
   const backControl=gameHead.querySelector('#gb-back');backControl.innerHTML=gameControlIcon('back');backControl.setAttribute('aria-label','Back to games');backControl.title='Back to games';
@@ -1580,10 +1599,9 @@ function renderGameChat(st, g) {
 
   if(turnSummary){gameHead.append(turnSummary);const last=st.history?.at(-1);let summary=turnSummary.querySelector('.compact-last-play');if(summary)summary.remove();if(g.type==='words'&&last&&Number.isFinite(last.score)){summary=document.createElement('span');summary.className='compact-last-play';summary.textContent=nameOf(last.p)+': '+(last.words?.map(w=>w.word).join(', ')||last.note||'Last play')+' · '+(last.score>0?'+':'')+last.score+' points';turnSummary.querySelector('div')?.append(summary);}}
 
-  gameHead.classList.toggle('score-turn-header',['words','handfoot'].includes(g.type));
+  gameHead.classList.toggle('score-turn-header',['words','handfoot'].includes(g.type));gameHead.classList.toggle('word-toolbar',g.type==='words');if(g.type==='words'&&wordStatus)gameHead.append(wordStatus);
   if(g.type==='handfoot')compactHandFootHeader();
-  const savedWidth=localStorage.getItem('ohana_wide_board');const wide=savedWidth!=='false';$('#game').classList.toggle('wide-board',wide);
-  const widthButton=document.createElement('button');widthButton.id='game-width';widthButton.type='button';widthButton.innerHTML=gameControlIcon(wide?'fit':'wide');widthButton.title=wide?'Fit board':'Full-width board';widthButton.setAttribute('aria-label',wide?'Use a compact game board':'Use the full screen width for the board');widthButton.setAttribute('aria-pressed',String(wide));widthButton.onclick=()=>{localStorage.setItem('ohana_wide_board',String(!wide));renderGameChat(st,g);positionWordTray();};gameHead.append(widthButton);
+  const savedWidth=localStorage.getItem('ohana_wide_board');const wide=true;$('#game').classList.toggle('wide-board',wide);
   if(g.type!=='handfoot'){const help=document.createElement('button');help.id='game-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Game rules and help');help.onclick=()=>showTableHelp(g.type);gameHead.append(help);}
 
   bp.innerHTML = `<div class="gb-inner" role="region" aria-label="Game chat">
