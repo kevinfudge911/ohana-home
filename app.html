@@ -464,7 +464,9 @@ body{background:linear-gradient(#0d526a88,#0c4868c9),url('/ohana-island.webp') c
 @media(max-width:600px){.nook-heading{min-height:118px;padding:10px!important}.nook-heading>img{width:56px;height:83px}.nook-heading h2{font-size:24px!important}.nook-lantern{display:none}.game-nook{padding:10px!important}.game-shelf-tabs button{font-size:12px;flex-basis:40%;min-width:0}.game-nook .nook-card{grid-template-columns:58px minmax(0,1fr) auto;gap:8px;min-height:134px}.nook-illustration{width:55px;height:80px}.nook-illustration>img{width:62px;height:79px}.game-nook .nook-card .t>b{font-size:17px!important}}
 
 .nook-scores{display:flex;flex-wrap:wrap;gap:4px 9px;margin:6px 0 3px;font:11px Nunito;color:#204d59}.nook-scores>span{background:#ffffffaa;border:1px solid #7eafb3;border-radius:9px;padding:3px 6px}.nook-scores strong{font:600 16px Fredoka;color:#134d61;margin-left:3px}.nook-last-score{display:block;font:11px Nunito;color:#31575e;line-height:1.4;margin:3px 0}.nook-last-score b{color:#124c54}
-.nook-card .t .nook-scores>span{color:#204d59!important;font:11px Nunito!important}.nook-card .t .nook-last-score b{display:inline!important;font:800 11px Nunito!important;color:#124c54!important}</style>
+.nook-card .t .nook-scores>span{color:#204d59!important;font:11px Nunito!important}.nook-card .t .nook-last-score b{display:inline!important;font:800 11px Nunito!important;color:#124c54!important}
+#next-game{background:linear-gradient(#fff0af,#ffc96e)!important;color:#173f50!important;border:2px solid #b58a40!important;box-shadow:0 3px #92703d!important;white-space:nowrap;font-weight:800!important;min-height:44px}.game-tray .acts #next-game{flex:0 0 auto}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -831,6 +833,7 @@ function renderGame() {
   const myTurn = g.status === 'playing' && turnId === meId;
   ({ mahjong: renderMahjong, words: renderWords, tictac: renderTTT, memory: renderMem, checkers: renderChk, handfoot: renderHandFoot })[g.type](st, g, myTurn);
   renderGameChat(st, g);
+  addNextGameControl();
   const host=$('.honu-host');if(host){const ch=CHARACTERS[speakingCharacter()];host.setAttribute('aria-label','Talk to '+ch.name);host.querySelector('img').src=ch.file;host.querySelector('img').alt=ch.name+', your Ohana buddy';host.onclick=()=>announceCharacter(myTurn?'turn':'hello');}
   if ($('#gchat-in')) { $('#gchat-in').value = draft; if (hadChatFocus) $('#gchat-in').focus({preventScroll:true}); }
   gameEl.scrollTop = gameScroll;
@@ -1227,6 +1230,7 @@ function renderWords(st, g, myTurn) {
   initDragDrop(st, g, myTurn, rack, rerender);
 
   const on = (id, fn) => { const e = $('#' + id); if (e) e.onclick = fn; };
+  addNextGameControl();
   on('recall', () => { S.placed = []; S.sel = null; rerender(); });
   on('shuf', () => { if (S.placed.length) return; for (let i = rack.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rack[i], rack[j]] = [rack[j], rack[i]]; } rerender(); });
   on('swap', () => { S.swapMode = true; S.swapSel = []; S.placed = []; S.sel = null; rerender(); });
@@ -1811,8 +1815,8 @@ function addNextGameControl(){
  const board=document.getElementById('board');if(!board)return;
  let controls=document.querySelector('.game-tray .acts')||board.querySelector('.hf-acts,.mj-tools,.next-game-controls');
  if(!controls){controls=document.createElement('div');controls.className='acts next-game-controls';board.append(controls);}
- if(controls.querySelector('#next-game'))return;
- const button=document.createElement('button');button.type='button';button.id='next-game';button.className='soft';button.textContent='Next game';button.setAttribute('aria-label','Next game waiting for your turn');button.disabled=!!S.nextGamePending;button.onclick=goToNextGame;controls.append(button);
+ if(controls.querySelector('#next-game')){if(controls.closest('.game-tray'))positionWordTray();return;}
+ const button=document.createElement('button');button.type='button';button.id='next-game';button.className='soft';button.textContent='Next game';button.setAttribute('aria-label','Next game waiting for your turn');button.disabled=!!S.nextGamePending;button.onclick=goToNextGame;const primary=controls.querySelector('#play,#hf-discard');if(primary)primary.after(button);else controls.prepend(button);
  if(controls.closest('.game-tray'))positionWordTray();
 }
 function enhanceGameAccess(st,g,myTurn){

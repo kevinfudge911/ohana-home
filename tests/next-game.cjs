@@ -3,7 +3,7 @@ const html=fs.readFileSync('app.html','utf8'),dom=new JSDOM(html,{url:'https://t
 w.matchMedia=()=>({matches:true});w.fetch=async()=>({ok:true,json:async()=>({})});
 w.eval([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x=>x[1]).join('\n')+'\n'+fs.readFileSync('tests/fixtures/words-ui.js','utf8')+'\nwindow.run=code=>eval(code);');
 (async()=>{
- const d=w.document;w.run('S.game=1;S.gstate=previewGame;S.room=1;renderGame()');assert(d.querySelector('.game-tray .acts #next-game'));
+ const d=w.document;w.run('S.game=1;S.gstate=previewGame;S.room=1;renderGame()');assert(d.querySelector('.game-tray .acts #next-game'));assert.equal(d.querySelector('#play').nextElementSibling.id,'next-game');w.run('previewGame.turn=1;renderGame()');assert(d.querySelector('.game-tray #next-game'));assert.equal(d.querySelectorAll('#next-game').length,1);w.run('previewGame.turn=0;renderGame()');
  w.run(`window.opened=[];enterRoom=async id=>{window.opened.push(['room',id]);S.room=id;};openGame=async id=>{window.opened.push(['game',id]);S.game=id;};api=async()=>({allGames:[{id:1,in_game:true,my_turn:true,status:'playing',room_id:1},{id:2,in_game:false,my_turn:true,status:'playing',room_id:1},{id:3,in_game:true,my_turn:true,status:'waiting',room_id:1},{id:4,in_game:true,my_turn:false,status:'playing',room_id:1},{id:5,in_game:true,my_turn:true,status:'playing',room_id:2}]});`);
  await w.run('goToNextGame()');assert.equal(JSON.stringify(w.opened),'[["room",2],["game",5]]');
  w.run('window.opened=[];api=async()=>({allGames:[]});');await w.run('goToNextGame()');assert.equal(w.opened.length,0);assert(d.querySelector('.toast').textContent.includes('caught up'));assert(!d.querySelector('#next-game').disabled);
