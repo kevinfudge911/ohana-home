@@ -653,6 +653,34 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ff
 #game .play-receipt .score-details{flex:1 1 160px;margin:0!important;padding:0!important}
 #game .play-receipt .score-details summary{padding:5px 0!important;font-size:12px!important}
 #game-head .compact-last-play{display:none}
+
+/* Turn belongs beside the score, rather than in a second banner. */
+#game-head.score-turn-header .turn-greeting{display:none!important}
+#game-head.score-turn-header .hf-players{grid-row:2}
+#game .access-jump[hidden]{display:none!important}
+.turn-check{display:inline-grid;place-items:center;width:22px;height:22px;flex:none;border-radius:50%;background:#177a68;color:#fff8d8;border:1px solid #b9ead9;font:bold 15px Nunito;box-shadow:0 0 8px #95f5dc55}
+#game .compact-player.current,#game-head .hf-player.current{border-color:#e1bd68!important;box-shadow:inset 0 0 0 1px #fff5c9,0 0 8px #5ddad433!important}
+/* Enamel faces, fine champagne rims and restrained depth across app controls. */
+body :is(nav.tabs,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog,.setup-choices,.gcard,.join,.compose,.gchat-input-row) button:not(.buddy-choice):not([data-av]):not(.hf-card):not(.rt):not([data-react]),
+#game-head>button,#game .game-tray .acts button,#game .hf-acts button{
+ --enamel:#16677d;--enamel-dark:#0b3b51;
+ background:linear-gradient(165deg,#ffffff30 0%,#ffffff08 42%,#00000012 43%,#00000000 100%),linear-gradient(135deg,var(--enamel),var(--enamel-dark))!important;
+ color:#fff4d9!important;border:1px solid #d7be83!important;border-radius:11px!important;
+ box-shadow:inset 0 0 0 1px #ffffff22,inset 0 2px 1px #ffffff35,inset 0 -2px 2px #00000020,0 3px 0 #082d3e,0 4px 7px #052f4233!important;
+ font-family:Nunito,sans-serif!important;font-weight:800!important;letter-spacing:.1px;text-shadow:0 1px 1px #001d3355;min-height:44px;
+}
+body :is(#play,#hf-submit,.setup-start,#joinb){--enamel:#27816b!important;--enamel-dark:#105344!important}
+body :is(#next-game){--enamel:#b08031!important;--enamel-dark:#73551f!important}
+body :is(#gb-leave,#hf-discard,#pass){--enamel:#ae6060!important;--enamel-dark:#723c52!important}
+body :is(#shuf,#hf-clear,.voice-toggle,#game-help,#hf-help){--enamel:#77629c!important;--enamel-dark:#483c72!important}
+body nav.tabs button[data-tab=chat]{--enamel:#7960a1;--enamel-dark:#4a386e}
+body nav.tabs button[data-tab=family]{--enamel:#a65d69;--enamel-dark:#693c55}
+body nav.tabs button[data-tab=rooms]{--enamel:#257f70;--enamel-dark:#125047}
+body nav.tabs button.on{outline:2px solid #f6d68e;outline-offset:1px}
+body :is(.acts,.hf-acts,nav.tabs,.settings-tools,.game-setup) button:not(:disabled):active,#game-head>button:active{transform:translateY(2px);box-shadow:inset 0 1px 4px #001b3344,0 1px #082d3e!important}
+body :is(.acts,.hf-acts) button:disabled{opacity:.55!important;filter:saturate(.45)}
+#game-head .voice-toggle[aria-pressed=true]{--enamel:#536a7e!important;--enamel-dark:#354757!important}
+#game-head .hf-player{flex:0 1 auto!important}
 .preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{top:var(--preview-toolbar,60px);height:calc(100dvh - var(--preview-toolbar,60px));max-width:none;width:100%;margin:0} </style>
 </head>
 <body>
@@ -1381,7 +1409,7 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `<div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div><div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
+  bd.innerHTML = `<div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
 
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
@@ -1499,7 +1527,9 @@ function openEmojiPicker(inputId){
 
 function showTableHelp(type){
  const notes={words:'Place connected letters in one row or column, then Play word. Select an unplayed tile to move it again. Letter bonuses apply to newly placed tiles; word bonuses multiply the word. Mystery squares reveal their effect after a valid play.',mahjong:'Match two identical treasures with nothing on top and a free left or right side. Each pair earns 10 points. Hint and reshuffle are free. Players take turns after each pair.',memory:'Turn over two cards. A matching pair scores and lets you play again. Unmatched cards turn back over.',checkers:'Select your piece, then a highlighted destination. Captures are required when available. Continue jumping with the same piece if another capture is possible. Kings can move both ways.',tictac:'Take turns placing your mark. Three in a row, column or diagonal wins.'};
- const previous=document.activeElement,d=document.createElement('dialog');d.className='compact-game-help';d.setAttribute('aria-labelledby','table-help-title');d.innerHTML='<h2 id="table-help-title">At this table</h2><button type="button">Close help</button><p>'+esc(notes[type]||'Choose a piece to begin.')+'</p><p>Sound toggles voices and effects. Wide board uses the screen width; Fit board makes it compact. Next game opens another table waiting for your turn. Accessibility and installation help are in Settings.</p>';d.querySelector('button').onclick=()=>d.close();d.onclose=()=>{d.remove();if(previous?.isConnected)previous.focus();};document.body.append(d);d.showModal();d.querySelector('button').focus();
+ const previous=document.activeElement,d=document.createElement('dialog');d.className='compact-game-help';d.setAttribute('aria-labelledby','table-help-title');d.innerHTML='<h2 id="table-help-title">At this table</h2><button type="button">Close help</button><p>'+esc(notes[type]||'Choose a piece to begin.')+'</p><p>Sound toggles voices and effects. Wide board uses the screen width; Fit board makes it compact. Next game opens another table waiting for your turn. Accessibility and installation help are in Settings.</p>';d.querySelector('button').onclick=()=>d.close();d.onclose=()=>{d.remove();if(previous?.isConnected)previous.focus();};const jump=type==='words'?document.querySelector('#board .access-jump'):null;
+ if(jump){const home=jump.parentNode;jump.hidden=false;jump.open=true;d.append(jump);const originalClose=d.onclose;d.onclose=()=>{jump.hidden=true;jump.open=false;home.prepend(jump);originalClose();};jump.querySelector('form').onsubmit=e=>{e.preventDefault();const f=e.currentTarget,i=(Number(f.elements.row.value)-1)*15+Number(f.elements.column.value)-1;d.close();document.querySelector('#board .c[data-i="'+i+'"]')?.focus();};}
+ document.body.append(d);d.showModal();d.querySelector('button').focus();
 }
 function compactHandFootHeader(){
  const head=$('#game-head'),players=$('#board .hf-players');if(!head||!players)return;
@@ -1548,6 +1578,7 @@ function renderGameChat(st, g) {
 
   if(turnSummary){gameHead.append(turnSummary);const last=st.history?.at(-1);let summary=turnSummary.querySelector('.compact-last-play');if(summary)summary.remove();if(g.type==='words'&&last&&Number.isFinite(last.score)){summary=document.createElement('span');summary.className='compact-last-play';summary.textContent=nameOf(last.p)+': '+(last.words?.map(w=>w.word).join(', ')||last.note||'Last play')+' · '+(last.score>0?'+':'')+last.score+' points';turnSummary.querySelector('div')?.append(summary);}}
 
+  gameHead.classList.toggle('score-turn-header',['words','handfoot'].includes(g.type));
   if(g.type==='handfoot')compactHandFootHeader();
   const savedWidth=previewStorage.getItem('ohana_wide_board');const wide=savedWidth!=='false';$('#game').classList.toggle('wide-board',wide);
   const widthButton=document.createElement('button');widthButton.id='game-width';widthButton.type='button';widthButton.innerHTML=gameControlIcon(wide?'fit':'wide');widthButton.title=wide?'Fit board':'Full-width board';widthButton.setAttribute('aria-label',wide?'Use a compact game board':'Use the full screen width for the board');widthButton.setAttribute('aria-pressed',String(wide));widthButton.onclick=()=>{previewStorage.setItem('ohana_wide_board',String(!wide));renderGameChat(st,g);positionWordTray();};gameHead.append(widthButton);
@@ -1911,7 +1942,7 @@ function renderHandFoot(st,g,myTurn){
   return `<section class="hf-public-table" aria-label="${esc(nameOf(p))} public cards"><header>${avOf(p)}<h3>${esc(nameOf(p))}’s table</h3><span>${laid.reduce((n,m)=>n+m.cards.length,0)+redThrees.length} cards laid down · ${bookCount.cl} clean / ${bookCount.di} wild books</span></header><div class="hf-public-groups">${laid.map(m=>`<section class="hf-public-group"><h4>${esc(m.rank)} · ${m.cards.length} cards <small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></h4><div class="hf-public-cards">${m.cards.map(c=>`<div class="hf-card ${red(c)?'red':'blk'} ${wild(c)?'wild':''}" aria-label="${esc(c.rank+' '+(c.suit||'wild'))}">${face(c)}</div>`).join('')}</div></section>`).join('')}${redThrees.length?`<section class="hf-public-group"><h4>Red threes · ${redThrees.length}</h4><div class="hf-public-cards">${redThrees.map(c=>`<div class="hf-card red" aria-label="${esc(c.rank+' '+c.suit)}">${face(c)}</div>`).join('')}</div></section>`:''}${!laid.length&&!redThrees.length?'<span>No cards laid down yet.</span>':''}</div></section>`;
  }).join('');
  const root=$('#board');root.innerHTML=`<section class="hf-area">
- <div class="hf-players" aria-label="Player scores">${g.players.map(p=>`<div class="hf-player ${g.players[g.turn]===p?'current':''}">${avOf(p)}<div><b>${esc(nameOf(p))}${p===me?' · you':''}</b><small>${counts(st.inFoot?.[p]?st.feet[p]:st.hands[p])} cards · ${st.inFoot?.[p]?'Playing foot':'Playing hand'}</small></div><strong>${st.scores?.[p]||0}<small>points</small></strong></div>`).join('')}</div>
+ <div class="hf-players" aria-label="Player scores">${g.players.map(p=>`<div class="hf-player ${g.players[g.turn]===p?'current':''}">${avOf(p)}<div><b>${esc(nameOf(p))}${p===me?' · you':''}</b><small>${counts(st.inFoot?.[p]?st.feet[p]:st.hands[p])} cards · ${st.inFoot?.[p]?'Playing foot':'Playing hand'}</small></div><strong>${st.scores?.[p]||0}<small>points</small></strong>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</div>`).join('')}</div>
  <div class="hf-felt">${publicTables}<div class="hf-decks"><div class="hf-foot-pile" aria-label="Your separate foot pile"><img src="/honu.webp" alt=""><b>Your foot</b><span>${inFoot?'Now playing':counts(st.feet[me])+' cards · face down'}</span><small>${inFoot?'Finish these cards to go out.':'Opens after your hand is empty.'}</small></div><button type="button" class="hf-deck" id="hf-draw-btn" ${!myTurn||st.hasDrawn?'disabled':''}><span class="hf-deck-art" aria-hidden="true"><img src="/honu.webp" alt=""><span>OHANA</span></span><b>Draw 2</b><small>${st.drawPile} left</small></button><div class="hf-discard-stack"><button type="button" id="hf-pickup-btn" class="hf-card ${top&&red(top)?'red':'blk'} ${top&&wild(top)?'wild':''}" aria-label="Pick up the entire discard pile" ${!myTurn||st.hasDrawn||!top?'disabled':''}>${top?face(top):'<span>Empty</span>'}</button><small>Pick up all · ${st.discardCount||0} cards</small></div></div>
  <div class="hf-progress"><span class="${books.cl?'complete':''}">${books.cl} clean book</span><span class="${books.di?'complete':''}">${books.di} wild-card book</span><span>${inFoot?'Your foot is open':counts(st.feet[me])+' cards in your foot'}</span></div>
  <div class="hf-meld-heading"><h3>Your melds</h3><small>${melds.length?'Choose a meld to add matching cards':'Opening meld: '+opening+' points across your groups'}</small></div><div class="hf-melds">${melds.length?melds.map((m,i)=>`<button type="button" class="hf-meld ${m.cards.length>=7?'book':''}" data-mi="${i}" aria-pressed="${S.hfMeldTarget===i}" ${!myTurn?'disabled':''}><b>${esc(m.rank)}</b><span>${m.cards.length} cards</span><small>${m.cards.length>=7?(m.cards.some(wild)?'Wild-card book':'Clean book'):(7-m.cards.length)+' to a book'}</small></button>`).join(''):''}</div>
@@ -2045,7 +2076,7 @@ function enhanceGameAccess(st,g,myTurn){
   });accessibleBoard(board.querySelector('.wb-plane'),15,'Word board');
   document.querySelectorAll('.game-tray .rt').forEach(e=>{const k=+e.dataset.r,l=st.racks[S.me.id][k],placed=S.placed.some(p=>p.rackIdx===k);e.setAttribute('aria-label',`${l==='?'?'Blank tile':l}, ${LV[l]||0} points${placed?', on board':''}`);e.setAttribute('aria-pressed',String(S.sel===k||S.swapSel.includes(k)));e.disabled=placed;});
   const tray=document.querySelector('.game-tray');if(tray){tray.setAttribute('role','region');tray.setAttribute('aria-label','Your letters and play actions');}
-  const jump=document.createElement('details');jump.className='access-jump';jump.innerHTML='<summary>Jump to square · keyboard help</summary><p>Select a rack letter, then choose a square. Arrow keys explore the board. Enter or Space selects; Tab leaves.</p><form><label>Row <input name="row" type="number" min="1" max="15" value="8" required></label><label>Column <input name="column" type="number" min="1" max="15" value="8" required></label><button type="submit">Go to square</button></form>';board.prepend(jump);
+  const jump=document.createElement('details');jump.className='access-jump';jump.hidden=true;jump.innerHTML='<summary>Jump to square · keyboard help</summary><p>Select a rack letter, then choose a square. Arrow keys explore the board. Enter or Space selects; Tab leaves.</p><form><label>Row <input name="row" type="number" min="1" max="15" value="8" required></label><label>Column <input name="column" type="number" min="1" max="15" value="8" required></label><button type="submit">Go to square</button></form>';board.prepend(jump);
   jump.querySelector('form').onsubmit=e=>{e.preventDefault();const f=e.currentTarget,i=(Number(f.elements.row.value)-1)*15+Number(f.elements.column.value)-1;board.querySelector('.c[data-i="'+i+'"]')?.focus();};
  }
  if(g.type==='checkers'){

@@ -1,10 +1,14 @@
 const fs=require('fs'),assert=require('assert'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('app.html','utf8'),dom=new JSDOM(html,{url:'https://test',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.onclose?.()};
 w.matchMedia=()=>({matches:true});w.fetch=async()=>({ok:true,json:async()=>({})});
 w.eval([...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x=>x[1]).join('\n')+'\n'+fs.readFileSync('tests/fixtures/words-ui.js','utf8')+'\nwindow.run=code=>eval(code);');
 (async()=>{
  const d=w.document;
  w.run('S.game=1;S.gstate=previewGame;renderGame()');assert.equal(d.querySelectorAll(".wb .c").length,225);assert.equal(d.querySelectorAll('.game-tray .rt').length,7);assert.equal(d.querySelector('.game-tray').parentElement,d.body);
+ const jump=d.querySelector('.access-jump');assert(jump.hidden,'keyboard tools hidden until requested');assert.equal(d.querySelectorAll('.compact-player .turn-check').length,1);assert(d.querySelector('#game-head').classList.contains('score-turn-header'));
+ d.querySelector('#game-help').click();const help=d.querySelector('.compact-game-help');assert(help.contains(jump));assert(!jump.hidden);help.querySelector('button').click();assert(jump.hidden);assert(d.querySelector('#board').contains(jump));
+ const sound=d.querySelector('.voice-toggle');sound.click();assert(sound.querySelector('svg'));assert.equal(sound.textContent,'');assert(sound.getAttribute('aria-label').includes('game sounds'));
  const viewport=new w.EventTarget();Object.assign(viewport,{scale:2,width:195,height:350,offsetLeft:80,offsetTop:110});Object.defineProperty(w,'visualViewport',{value:viewport,configurable:true});Object.defineProperty(d.querySelector('.game-tray'),'offsetHeight',{value:140});w.run('positionWordTray()');assert.equal(d.querySelector('.game-tray').style.left,'80px');assert.equal(d.querySelector('.game-tray').style.top,'390px');assert.equal(d.querySelector('.game-tray').style.transform,'scale(0.5)');
  w.run(`S.gstate={id:8,type:'handfoot',name:'Hand & Foot',status:'playing',in_game:true,players:[1,2],turn:0,names:{1:{name:'Alex',avatar:'@hon'},2:{name:'Jamie',avatar:'@eag'}},state:{hands:{1:[],2:9},feet:{1:[{id:30,rank:'K',suit:'♥'},{id:31,rank:'K',suit:'♣'}],2:11},inFoot:{1:true},melds:{1:[{rank:'K',cards:[{rank:'K'},{rank:'K'},{rank:'K'}]}],2:[]},red3s:{1:[],2:[]},scores:{1:0,2:0},drawPile:80,discardPile:[{rank:'6',suit:'♥'}],discardCount:3,hasDrawn:true}};S.game=8;S.hfSel=[];S.hfMeldTarget=null;renderGame();`);
  const wasWide=d.querySelector('#game').classList.contains('wide-board');d.querySelector('#game-width').click();assert.equal(d.querySelector('#game').classList.contains('wide-board'),!wasWide);assert.equal(w.localStorage.getItem('ohana_wide_board'),String(!wasWide));assert(d.querySelector('#hf-help'));
