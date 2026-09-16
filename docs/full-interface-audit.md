@@ -49,3 +49,12 @@ locally pending explicit destination authorization and final live visual review.
 The prior shared style revision is deployed as f713b54c-4278-46c0-a6ea-8d4486c74d95.
 No real screen-reader device test or exhaustive real-device viewport test has been
 performed; the browser preview and automated checks do not establish those claims.
+
+## Approved deployment — 2026-09-16
+User explicitly approved the pending GitHub push and Cloudflare deployment.
+Revision f81e46c is on main and deployed at 100% as Worker version
+17883149-6dcb-4ff8-9bac-68d6388847fd.
+Live fictional Hand & Foot preview visually checked: cards measured 116×174px;
+rank/suit artwork and action row remain readable. Wide/Fit persistence passed
+the DOM interaction test; cloud browser click/keypress delivery timed out, so
+that specific live click is not claimed as verified.
