@@ -618,6 +618,41 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ff
 #game .hf-public-cards .hf-corner-bottom{left:auto;top:auto;right:4px;bottom:4px}
 #game .hf-public-cards .hf-card-picture{inset:24px 10px 20px}
 #game .hf-public-cards .hf-card-label{font-size:7px;bottom:5px}
+
+/* One compact toolbar, followed by turn and player information. */
+#game-head{display:grid!important;grid-template-columns:44px minmax(70px,1fr) 44px 44px 44px auto;gap:4px 6px!important;padding:6px 8px!important;align-items:center}
+#game-head h2{grid-column:2;grid-row:1;font-size:clamp(15px,2vw,21px)!important;line-height:1.1;overflow-wrap:normal}
+#game-head #gb-back{grid-column:1;grid-row:1}
+#game-head .voice-toggle{grid-column:3;grid-row:1;margin:0!important}
+#game-head #game-width{grid-column:4;grid-row:1}
+#game-head #game-help,#game-head #hf-help{grid-column:5;grid-row:1;order:0}
+#game-head #gb-leave{grid-column:6;grid-row:1;font-size:11px!important;padding:5px!important}
+#game-head>button{width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:8px!important;border-radius:12px!important;border:1px solid #a8e4df!important;background:linear-gradient(145deg,#d8f8ed,#77ced9)!important;color:#124c60!important;box-shadow:inset 0 1px #fff9,0 2px 0 #1a687a!important;display:inline-flex!important;align-items:center;justify-content:center}
+#game-head #gb-leave{background:linear-gradient(145deg,#ffe4d5,#f8baa7)!important;width:auto!important}
+#game-head .voice-toggle[aria-pressed=true]{background:linear-gradient(145deg,#ebe3fa,#c6b6df)!important}
+#game-head .game-control-icon{display:block;width:24px;height:24px;flex:none}
+#game-head .turn-greeting{grid-column:1/-1;grid-row:2;order:0;gap:6px;padding:0!important;min-height:32px!important}
+#game-head .turn-greeting .honu-host,#game-head .honu-host img{width:32px!important;height:34px!important;min-width:32px!important;min-height:32px!important}
+#game-head .turn-greeting b{font-size:14px!important}
+#game-head .turn-leaf{display:none}
+#game-head .compact-last-play{font-size:12px;display:inline;margin:0 0 0 8px}
+#game-head .hf-players{grid-column:1/-1;grid-row:3;display:flex;flex-wrap:wrap;gap:4px}
+#game-head .hf-player{padding:3px 7px!important;border-radius:10px!important;flex:1 1 140px}
+#game .word-status{margin:0;padding:4px 2px;gap:7px;font-size:12px}
+#game .compact-player{padding:3px 7px!important;border-radius:10px!important;gap:5px}
+#game .compact-player b{font-size:18px!important}
+#game .compact-player .character-avatar{width:25px!important;height:25px!important}
+#game .access-jump{margin:0 0 3px!important;font-size:12px!important;padding:2px!important}
+#game .access-jump summary{min-height:24px}
+#game .game-tray .acts button,#game .hf-acts button{border-radius:12px!important;box-shadow:inset 0 1px #fff9,0 2px 0 #27677a!important;border-width:1px!important;min-height:44px;padding:6px 10px!important}
+@media(max-width:370px){#game-head{grid-template-columns:40px minmax(54px,1fr) 40px 40px 40px 42px;gap:3px!important;padding:5px!important}#game-head>button{width:40px!important;min-width:40px!important}#game-head h2{font-size:14px!important}}
+#game .play-receipt{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;margin:3px 0 5px!important;padding:3px 8px!important;border-radius:10px!important;box-shadow:none!important;font-size:12px}
+#game .play-receipt .moment-stage{padding:0!important;gap:5px;min-height:0!important;background:none!important;flex:0 0 auto}
+#game .play-receipt .moment-copy{gap:5px!important}
+#game .play-receipt .moment-points{font-size:19px!important}
+#game .play-receipt .score-details{flex:1 1 160px;margin:0!important;padding:0!important}
+#game .play-receipt .score-details summary{padding:5px 0!important;font-size:12px!important}
+#game-head .compact-last-play{display:none}
 .preview-switcher{padding:10px;background:#103842;color:#fff1ce;position:relative;z-index:90}.preview-switcher label{display:inline-block;margin-left:14px}.preview-switcher select{background:#17464d;color:#fff1ce}#game{top:var(--preview-toolbar,60px);height:calc(100dvh - var(--preview-toolbar,60px));max-width:none;width:100%;margin:0} </style>
 </head>
 <body>
@@ -1091,10 +1126,14 @@ function showCharacterMoment(text,points=null,a=speakingCharacter()){
   speechSynthesis.speak(u);characterSpeechTimer=setTimeout(finish,25000);
 }
 function announceCharacter(event,points=null,detail=''){showCharacterMoment(characterDialogue(event,points||0,detail),points);}
+function gameControlIcon(kind){
+ const paths={sound:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M16 8q5 4 0 8m3-11q8 7 0 14"/>',muted:'<path d="M3 9h4l5-4v14l-5-4H3z"/><path d="m16 9 6 6m0-6-6 6"/>',back:'<path d="m14 5-7 7 7 7M7 12h14"/>',fit:'<path d="M3 9h6V3m6 0v6h6M3 15h6v6m6 0v-6h6"/>',wide:'<path d="M9 3H3v6m12-6h6v6M3 15v6h6m6 0h6v-6"/>'};
+ return '<svg class="game-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[kind]+'</svg>';
+}
 function setGameMuted(muted){
   AudioSys.muted=muted;previewStorage.setItem('ohana_muted',String(muted));
   if(muted){stopCharacterSpeech(false);AudioSys.ctx?.suspend();const box=document.querySelector('.character-pop');if(box)characterSpeechTimer=setTimeout(()=>box.remove(),7000);}else AudioSys.ctx?.resume();
-  document.querySelectorAll('.voice-toggle').forEach(b=>{b.textContent=muted?'🔇 Sound off':'🔊 Sound on';b.setAttribute('aria-label',muted?'Unmute game sounds and voices':'Mute game sounds and voices');b.setAttribute('aria-pressed',String(muted));});
+  document.querySelectorAll('.voice-toggle').forEach(b=>{b.innerHTML=gameControlIcon(muted?'muted':'sound');b.title=muted?'Sound off — turn on':'Sound on — mute';b.setAttribute('aria-label',muted?'Unmute game sounds and voices':'Mute game sounds and voices');b.setAttribute('aria-pressed',String(muted));});
 }
 
 function getTaunt(myScore, theirBest, pts, isMine) {
@@ -1342,8 +1381,8 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `<div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
-    <div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div>
+  bd.innerHTML = `<div class="word-status"><span>${st.bag} tiles left</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b></span>`).join('')}</div></div><div class="wbwrap"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
+
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
     `;
@@ -1356,7 +1395,7 @@ function renderWords(st, g, myTurn) {
     if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.body.appendChild(tray); }
     tray.innerHTML = rackHtml;positionWordTray();
   } else if (tray) { tray.remove(); }
-  bd.insertAdjacentHTML("beforeend",renderPlayBreakdown(st));
+  bd.querySelector('.wbwrap').insertAdjacentHTML('beforebegin',renderPlayBreakdown(st));
   const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
   const rerender = () => renderWords(st, g, myTurn);
 
@@ -1502,15 +1541,16 @@ function renderGameChat(st, g) {
   const turnSummary=document.querySelector('#game .body .turn-greeting')||gameHead.querySelector('.turn-greeting');
   const hfPlayers=gameHead.querySelector('.hf-players');
   gameHead.innerHTML = navHtml;
+  const backControl=gameHead.querySelector('#gb-back');backControl.innerHTML=gameControlIcon('back');backControl.setAttribute('aria-label','Back to games');backControl.title='Back to games';
   if(hfPlayers&&!$('#board .hf-players'))$('#board .hf-area')?.prepend(hfPlayers);
   const voice=document.createElement('button');voice.className='ghost voice-toggle';voice.textContent=AudioSys.muted?'🔇 Voice off':'🔊 Voice on';voice.setAttribute('aria-label','Toggle game voices and sounds');voice.setAttribute('aria-pressed',String(!AudioSys.muted));
-  voice.onclick=()=>setGameMuted(!AudioSys.muted);gameHead.insertBefore(voice,gameHead.lastElementChild);voice.textContent=AudioSys.muted?'🔇 Sound off':'🔊 Sound on';voice.setAttribute('aria-label',AudioSys.muted?'Unmute game sounds and voices':'Mute game sounds and voices');voice.setAttribute('aria-pressed',String(AudioSys.muted));
+  voice.onclick=()=>setGameMuted(!AudioSys.muted);gameHead.insertBefore(voice,gameHead.lastElementChild);voice.innerHTML=gameControlIcon(AudioSys.muted?'muted':'sound');voice.title=AudioSys.muted?'Sound off — turn on':'Sound on — mute';voice.setAttribute('aria-label',AudioSys.muted?'Unmute game sounds and voices':'Mute game sounds and voices');voice.setAttribute('aria-pressed',String(AudioSys.muted));
 
   if(turnSummary){gameHead.append(turnSummary);const last=st.history?.at(-1);let summary=turnSummary.querySelector('.compact-last-play');if(summary)summary.remove();if(g.type==='words'&&last&&Number.isFinite(last.score)){summary=document.createElement('span');summary.className='compact-last-play';summary.textContent=nameOf(last.p)+': '+(last.words?.map(w=>w.word).join(', ')||last.note||'Last play')+' · '+(last.score>0?'+':'')+last.score+' points';turnSummary.querySelector('div')?.append(summary);}}
 
   if(g.type==='handfoot')compactHandFootHeader();
   const savedWidth=previewStorage.getItem('ohana_wide_board');const wide=savedWidth!=='false';$('#game').classList.toggle('wide-board',wide);
-  const widthButton=document.createElement('button');widthButton.id='game-width';widthButton.type='button';widthButton.textContent=wide?'Fit board':'Wide board';widthButton.setAttribute('aria-label',wide?'Use a compact game board':'Use the full screen width for the board');widthButton.setAttribute('aria-pressed',String(wide));widthButton.onclick=()=>{previewStorage.setItem('ohana_wide_board',String(!wide));renderGameChat(st,g);positionWordTray();};gameHead.append(widthButton);
+  const widthButton=document.createElement('button');widthButton.id='game-width';widthButton.type='button';widthButton.innerHTML=gameControlIcon(wide?'fit':'wide');widthButton.title=wide?'Fit board':'Full-width board';widthButton.setAttribute('aria-label',wide?'Use a compact game board':'Use the full screen width for the board');widthButton.setAttribute('aria-pressed',String(wide));widthButton.onclick=()=>{previewStorage.setItem('ohana_wide_board',String(!wide));renderGameChat(st,g);positionWordTray();};gameHead.append(widthButton);
   if(g.type!=='handfoot'){const help=document.createElement('button');help.id='game-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Game rules and help');help.onclick=()=>showTableHelp(g.type);gameHead.append(help);}
 
   bp.innerHTML = `<div class="gb-inner" role="region" aria-label="Game chat">
