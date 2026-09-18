@@ -1,0 +1,74 @@
+/* Shared illustrated materials, individual island settings. */
+html.ohana-world{--room-scene:url('/ohana-world-scene.webp');--game-jewel:#079ea9;--game-light:#6de8df;background-image:var(--room-scene)!important}
+html.ohana-world[data-ohana-scene=garden]{--room-scene:url('/ohana-garden-v1.webp')}
+html.ohana-world[data-ohana-scene=cove]{--room-scene:url('/ohana-cove-v1.webp')}
+html[data-ohana-game=words]{--game-jewel:#6844a6;--game-light:#c6a5ff}
+html[data-ohana-game=handfoot]{--game-jewel:#037c92;--game-light:#58d5e4}
+html[data-ohana-game=ohana10]{--game-jewel:#bd3158;--game-light:#ff94ad}
+html[data-ohana-game=memory]{--game-jewel:#237639;--game-light:#a7e266}
+html[data-ohana-game=mahjong]{--game-jewel:#116b5d;--game-light:#72d3a3}
+html[data-ohana-game=checkers]{--game-jewel:#a84620;--game-light:#ffb969}
+html[data-ohana-game=tictac]{--game-jewel:#007fa4;--game-light:#8be4fa}
+#world-garden-edge{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+#world-garden-edge>img{position:absolute;width:clamp(110px,18vw,280px);left:-6%;bottom:-10%;filter:drop-shadow(0 4px 4px #16382055);pointer-events:none}
+#world-garden-edge>img+img{left:auto;right:-7%;transform:scaleX(-1)}
+.world-home-table::after{content:'';position:absolute;right:4%;top:8%;width:150px;height:150px;background:url('/ohana-flowers-v1.webp') center/contain no-repeat;pointer-events:none}
+.world-home-table.world-catalog::after{display:none}
+html.ohana-world .world-table-crest{display:table;position:relative;margin:0 auto 20px;padding:8px 28px;border:3px solid #ffcc73;border-radius:15px;color:#fff5d3;background:linear-gradient(#55270c44,#57270ba6),var(--ohana-wood) center/300px;box-shadow:inset 0 0 0 2px #fff4c47a,0 4px #774516;text-shadow:0 2px #53300b;font-size:22px}
+.world-table-crest::before{content:'';position:absolute;left:-38px;bottom:-15px;width:70px;height:70px;background:url('/ohana-flowers-v1.webp') center/contain no-repeat;pointer-events:none}
+.world-portrait{position:relative;isolation:isolate;background:var(--room-scene) center 36%/340% auto;border-width:5px;box-shadow:inset 0 0 0 2px #fff4cf,0 4px #895016,0 7px 10px #1e352955}
+.world-portrait::after{content:'';position:absolute;right:-21px;bottom:-7px;width:58px;height:58px;z-index:2;background:url('/ohana-flowers-v1.webp') center/contain no-repeat;pointer-events:none}
+.world-portrait img.world-flower-avatar{width:90%!important;height:90%!important;object-fit:contain;transform:rotate(-18deg)}
+.world-nameplate{z-index:4;border-width:3px;border-radius:15px;font-size:20px;min-height:38px}
+.world-card-fan{position:absolute;inset:-20px -15px auto;height:110px;z-index:-1}
+.world-card-fan i{display:block;position:absolute;bottom:0;left:calc(50% - 32px);width:64px;height:90px;transform:rotate(calc((var(--fan) - 2)*17deg)) translateY(-13px);transform-origin:50% 120%;border-radius:7px;border:2px solid #ffe3a0;box-shadow:inset 0 0 0 3px #073f62, inset 0 0 0 4px #efce8555,0 2px 3px #04384b; background:radial-gradient(ellipse at center,#8ef0ed44,transparent 65%),linear-gradient(45deg,var(--game-jewel),#063e5b)}
+.world-card-fan i::after{content:'✦';position:absolute;inset:20px 0;text-align:center;font-size:29px;color:#ffda83;text-shadow:0 2px #103e52}
+#world-scoreboard{position:absolute;left:max(8px,calc((100% - 1300px)/2));top:240px;z-index:4;width:155px;border:4px solid #eaba67;border-radius:22px;background:linear-gradient(#76401855,#4c230d88),var(--ohana-wood) center/400px;box-shadow:inset 0 0 0 2px #ffedab88,0 5px #713b19,0 10px 15px #24363266;padding:10px;color:#fff4d4;text-align:center}
+#world-scoreboard::after{content:'';position:absolute;right:-35px;top:-38px;width:90px;height:90px;background:url('/ohana-flowers-v1.webp') center/contain no-repeat;pointer-events:none}
+.world-score-heading{font:600 16px Fredoka,Nunito,sans-serif;padding:5px 0 7px;border-bottom:1px solid #ffdc9477}
+.world-score-entry{display:flex;flex-direction:column;align-items:center;padding:8px 0;border-bottom:1px solid #ffd98766}
+.world-score-entry:last-child{border:0}.world-score-entry>span{font:600 17px Fredoka,Nunito,sans-serif;overflow-wrap:anywhere}.world-score-entry>strong{font:700 37px/1.1 Fredoka,Nunito,sans-serif;text-shadow:0 3px #4b230b}.world-score-entry>small{font:700 12px Nunito,sans-serif}
+.world-score-entry.active>span{color:#ffe489}.world-score-entry.active>span::before{content:'◆ ';font-size:11px}
+html.ohana-world #game .world-seat>.world-score{display:none}
+html.ohana-world #game #board{max-width:1050px!important}
+html.ohana-world #game #world-game-top{margin-top:28px;margin-bottom:-40px}
+html.ohana-world #game .world-hand{padding-inline:11%!important}
+html.ohana-world #game #board .world-own-seat{margin-top:45px}
+html.ohana-world #game .world-own-seat .world-portrait{width:145px;height:146px}
+html.ohana-world #game .world-own-seat .world-portrait img{width:137px!important;height:153px!important}
+html.ohana-world #game .world-own-seat .world-nameplate{min-width:170px;font-size:22px}
+html.ohana-world #game .world-own-seat::before{content:'';position:absolute;width:270px;height:75px;top:105px;z-index:-1;border:5px solid #efb350;border-radius:50% 50% 15px 15px;background:linear-gradient(#a76e2977,#74401388),var(--ohana-wood) center/400px;box-shadow:inset 0 0 0 2px #ffe7a3,0 4px #65370e}
+html.ohana-world body #game #game-head>h2{font-size:38px!important;color:#ffdb77!important;text-shadow:1px 0 #51320f,-1px 0 #51320f,0 2px #51320f,0 4px #794319,0 6px 4px #052f42!important}
+html.ohana-world body #game #game-head>#world-help{background:linear-gradient(#6f3d1355,#48210588),var(--ohana-wood) center/320px!important;color:#fff7d5!important;border:3px solid #f9c974!important}
+/* Jewel buttons have distinct roles; game pieces keep their original faces. */
+html.ohana-world body #app #world-start,html.ohana-world body #app .world-game-ticket>button,html.ohana-world body #game #hf-submit,html.ohana-world body #game #o10-meld,html.ohana-world body #game #play{background:linear-gradient(#ff9aac,#f04b71 50%,#b61949)!important;border:3px solid #ffd58d!important;color:#fff8e7!important;box-shadow:inset 0 0 0 2px #fff7,0 4px #7e2540,0 7px 10px #17394666!important}
+html.ohana-world body #app #world-room-chat,html.ohana-world body #game #unified-chat-button{background:linear-gradient(#78dfff,#16a8e3 50%,#00689e)!important;border:3px solid #ffe6a7!important;color:white!important}
+html.ohana-world body #app #world-start::before{content:'';display:inline-block;width:27px;height:27px;vertical-align:middle;margin-right:5px;background:url('/ohana-flowers-v1.webp') center/contain no-repeat}
+html.ohana-world body #game .hf-meld{border:3px solid #efc87e!important;box-shadow:inset 0 0 0 2px #fff5ce,0 4px #7c4e22,0 7px 7px #00455866!important}
+html.ohana-world body #game .world-hand .hf-hand,html.ohana-world body #game .world-hand .o10-hand{padding:15px 0 22px!important}
+html.ohana-world #app .room-card{position:relative;overflow:hidden;padding-top:170px!important}
+html.ohana-world #app .room-card::before{content:'';position:absolute;top:0;left:0;right:0;height:155px;background:url('/ohana-cove-v1.webp') center 42%/cover;border-bottom:4px solid #dfb16b}
+html.ohana-world #app .room-card[data-world-room=home]::before{background-image:url('/ohana-world-scene.webp')}
+html.ohana-world #app .room-card[data-world-room=garden]::before{background-image:url('/ohana-garden-v1.webp')}
+html.ohana-world #app .room-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px}
+html.ohana-world #game .o10-arrange{background:linear-gradient(#b34161,#79223f)!important;border-color:#ffd78c!important}
+html.ohana-world[data-ohana-game=mahjong] #game .mj-table{background:#075f4c55!important;border-radius:25px!important}
+html.ohana-world[data-ohana-game=words] #game .wb{border-color:#d8b2ed!important;box-shadow:0 5px 0 #603b70,0 7px 14px #132340!important}
+html.ohana-world[data-ohana-game=checkers] #game .chk{border:8px solid #ddae64!important;box-shadow:0 5px #6f3218,0 10px 15px #1d223b77!important}
+html.ohana-world[data-ohana-game=memory] #game .mem{padding:12px;background:#0d5d3f66;border:3px solid #ddb669;border-radius:20px}
+@media(min-width:1100px){html.ohana-world #game .world-hand .hf-hand>.hf-card,html.ohana-world #game .world-hand .o10-hand>.o10-card{transform:rotate(var(--deal-angle));transform-origin:center bottom;transition:transform .18s}html.ohana-world #game .world-hand .hf-hand>.hf-card:hover,html.ohana-world #game .world-hand .o10-hand>.o10-card:hover{transform:translateY(-9px) rotate(var(--deal-angle))}html.ohana-world #game .world-hand .hf-hand>.hf-card.sel,html.ohana-world #game .world-hand .o10-hand>.o10-card[aria-pressed=true]{transform:translateY(-14px) rotate(var(--deal-angle))}}
+@media(max-width:1200px){#world-scoreboard{position:relative;left:auto;top:auto;max-width:650px;width:calc(100% - 40px);margin:0 auto 18px;padding:6px 18px;border-radius:18px}#world-scoreboard::after{width:65px;height:65px;right:-16px;top:-25px}.world-score-heading{border:0;padding:0;font-size:14px}.world-score-entries{display:flex;justify-content:space-around;gap:12px}.world-score-entry{border:0;padding:4px 0;display:grid;grid-template-columns:auto auto;column-gap:8px}.world-score-entry>span{grid-column:1/-1;font-size:15px}.world-score-entry>strong{font-size:27px}.world-score-entry>small{align-self:center}.world-score-entry+.world-score-entry{border-left:1px solid #ffdc9455;padding-left:14px}html.ohana-world #game #world-game-top{margin-bottom:8px}html.ohana-world #game .hf-felt,html.ohana-world #game .o10-table-layout{padding-top:50px!important}}
+@media(max-width:650px){#world-garden-edge>img{width:105px;bottom:52px;left:-65px;opacity:.95}#world-garden-edge>img+img{right:-65px;left:auto}.world-home-table::after{width:75px;height:75px;right:1%;top:6%}html.ohana-world .world-table-crest{font-size:17px;padding:6px 14px;max-width:85%;margin-bottom:15px}.world-table-crest::before{width:52px;height:52px;left:-25px}.world-portrait::after{width:40px;height:40px;right:-10px;bottom:-5px}.world-nameplate{font-size:16px}.world-card-fan{inset:-6px -5px auto;height:70px}.world-card-fan i{width:46px;height:65px;left:calc(50% - 23px);transform:rotate(calc((var(--fan) - 2)*15deg)) translateY(-5px)}.world-card-fan i::after{font-size:21px;inset:16px 0}html.ohana-world #game #world-game-top{margin-top:20px;min-height:110px;padding-inline:20px}html.ohana-world #game .world-hand{padding-inline:10px!important}html.ohana-world #game .world-own-seat .world-portrait{width:110px;height:112px}html.ohana-world #game .world-own-seat .world-portrait img{width:104px!important;height:120px!important}html.ohana-world #game .world-own-seat::before{width:215px;height:58px;top:78px}html.ohana-world #game .world-own-seat .world-nameplate{font-size:20px;min-width:156px}html.ohana-world body #game #game-head>h2{font-size:28px!important}#world-scoreboard{width:calc(100% - 28px);margin-bottom:-5px;padding:6px 10px;z-index:4}#world-scoreboard::after{right:-9px;width:55px;height:55px}.world-score-entry>strong{font-size:25px}.world-score-entry>span{font-size:14px}.world-score-entry>small{font-size:12px}.world-score-entry+.world-score-entry{padding-left:8px}.world-score-entries{gap:5px}html.ohana-world #app .room-doors{grid-template-columns:1fr}html.ohana-world #game .hf-felt,html.ohana-world #game .o10-table-layout{padding-top:42px!important}}
+@media(prefers-reduced-motion:reduce){html.ohana-world #game .world-hand .hf-card,html.ohana-world #game .world-hand .o10-card{transition:none!important}}
+html.ohana-world body #app nav.tabs .in button[data-tab=games].ohana-button.ohana-button{background:linear-gradient(#69e5df,#09a5b7 55%,#04748c)!important}
+html.ohana-world body #app nav.tabs .in button[data-tab=chat].ohana-button.ohana-button{background:linear-gradient(#75d6ff,#139edf 55%,#075f9c)!important}
+html.ohana-world body #app nav.tabs .in button[data-tab=family].ohana-button.ohana-button{background:linear-gradient(#9cde81,#43a858 55%,#216d45)!important}
+html.ohana-world body #app nav.tabs .in button[data-tab=rooms].ohana-button.ohana-button{background:linear-gradient(#ffacb7,#e9537e 55%,#a62351)!important}
+html.ohana-world body #app nav.tabs .in button[data-tab=settings].ohana-button.ohana-button{background:linear-gradient(#d4b5ff,#9671c9 55%,#644591)!important}
+html.ohana-world body #app .world-home-table .world-game-ticket>button.ohana-button.ohana-button.ohana-button{background:linear-gradient(#ff9aac,#e74b76 55%,#ab2551)!important;color:#fff5df!important}
+html.ohana-world body #game #hf-submit.ohana-button.ohana-button.ohana-button,html.ohana-world body #game #o10-meld.ohana-button.ohana-button.ohana-button,html.ohana-world body #game #play.ohana-button.ohana-button.ohana-button{background:linear-gradient(#ff9aac,#e74b76 55%,#ab2551)!important;color:#fff5df!important}
+html.ohana-world #world-scoreboard .world-score-heading{background:linear-gradient(#ffffff22,transparent),var(--game-jewel);border:1px solid #ffe2a588;border-radius:10px;box-shadow:inset 0 1px #fff6;padding:4px 6px}
+html.ohana-world #game .world-own-seat .world-portrait{outline:3px solid var(--game-light);outline-offset:2px}
+html.ohana-world body #game #game-head.word-toolbar>h2{position:relative!important;clip-path:none!important;overflow:visible!important;height:auto!important;width:auto!important}
+html.ohana-world body #game #board[data-type=words] .game-tray{position:relative!important;inset:auto!important;left:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:720px!important;margin:20px auto 0!important;padding:10px!important;background:linear-gradient(#95581d55,#66300f77),var(--ohana-wood) center/500px!important;border:3px solid #f5c679!important;border-radius:18px!important;box-shadow:inset 0 0 0 1px #fff3c6,0 5px #75431c!important}
+html.ohana-world body #game #board[data-type=words] .world-own-seat{margin-top:30px!important}

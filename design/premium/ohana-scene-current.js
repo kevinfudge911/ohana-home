@@ -31,7 +31,14 @@
       this.onReduced=()=>{this.paused=this.reduced.matches||localStorage.getItem('ohana_less_motion')==='true';sync();};this.reduced.addEventListener('change',this.onReduced);window.addEventListener('ohana-motion-change',this.onReduced);
       this.visible=true;this.observer=new IntersectionObserver(e=>this.visible=e[0].isIntersecting);this.observer.observe(this);
       this.images={};this.buffer=document.createElement('canvas');this.buffer.width=960;this.buffer.height=640;
-      const im=new Image();im.src=this.hasAttribute('world')?'/ohana-world-scene.webp':'/ohana-island.webp?v=premium1';im.decode().then(()=>{this.images.island=im;if(this.isConnected)this.tick();}).catch(()=>{const fallback=document.createElement('img');fallback.src=this.hasAttribute('world')?'/ohana-world-scene.webp':'/ohana-island.webp?v=premium1';fallback.alt='Illustrated Ohana island game table';fallback.style.cssText='width:100%;height:100%;object-fit:cover';this.canvas.replaceWith(fallback);});
+      this.loadWorldArt();
+    }
+    static get observedAttributes(){return ['world-theme'];}
+    attributeChangedCallback(){if(this.ctx)this.loadWorldArt();}
+    loadWorldArt(){
+      const url=this.hasAttribute('world')?({garden:'/ohana-garden-v1.webp',cove:'/ohana-cove-v1.webp'}[this.getAttribute('world-theme')]||'/ohana-world-scene.webp'):'/ohana-island.webp?v=premium1';
+      if(url===this.artUrl)return;this.artUrl=url;const im=new Image();im.src=url;
+      im.decode().then(()=>{if(this.artUrl!==url)return;this.images.island=im;clearTimeout(this.timer);if(this.isConnected)this.tick();}).catch(()=>{if(!this.images.island){this.style.background='url("'+url+'") center/cover';this.canvas.style.opacity='0';}});
     }
     disconnectedCallback(){window.removeEventListener('ohana-motion-change',this.onReduced);clearTimeout(this.timer);this.observer?.disconnect();this.reduced?.removeEventListener('change',this.onReduced);}
     tick(){
@@ -40,6 +47,7 @@
       this.timer=setTimeout(()=>this.tick(),this.paused?1000:66);
     }
     paint(date){
+      if(!this.images.island)return;
       const c=this.ctx,b=this.buffer.getContext('2d'),{day,night}=lighting(date);
       const clock=date.getTime()/1000;if(!this.paused||this.motionTime===undefined)this.motionTime=clock;
       const t=this.motionTime;
