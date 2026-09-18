@@ -29,4 +29,6 @@ Edit ONLY the cream pillow on the left coral sofa. Add the user's explicitly app
 
 ## Publication status of lettering
 
-The family-home release with the unlettered pillow was published. Verification was interrupted by an environment policy block on api.cloudflare.com. The subsequent approved-lettering artwork is prepared locally and saved in source, but has NOT been published. Do not claim the live pillow has the approved text until a later authorized publication succeeds.
+Published and verified on 2026-09-18. The live pillow reads exactly: “nobody gets left behind or forgotten”. Public HTML references ohana-family-home-v2.webp, and the public image bytes match the approved production asset. All 73 live Worker modules match the prepared package. Version a565bb8c-19ec-4cf9-8c99-528285724fbc is active at 100%, deployment af40b182-3312-4ac1-b294-2c302e345a3f.
+
+This publication changes only the home artwork and its references; all game source remains unchanged. The old v1 asset route also serves the approved image for cached clients. The prior publication blocker was resolved through a normal authorized retry after the user renewed the instruction to publish using the saved Drive key.
