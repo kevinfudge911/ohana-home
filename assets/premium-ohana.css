@@ -1,0 +1,81 @@
+/* Approved Ohana Home brand. Presentation only: no game or card geometry changes. */
+:root{--brand-sea:#087e9b;--brand-ink:#15495a;--brand-honey:#efb451;--brand-paper:#fff8e5;--brand-coral:#e53a69;--brand-shadow:#986126}
+html{background:#8ddde8!important}
+body{background:linear-gradient(#d1f8ff30,#82dfe255),url('/ohana-island.webp?v=premium1') center/cover fixed!important}
+#app{background:linear-gradient(180deg,#f6fffcf2,#e3faf5f2)!important;color:var(--brand-ink);border-inline:2px solid #fff4d6;box-shadow:0 0 65px #06495d3b}
+header,.game-head{background:linear-gradient(180deg,#fff0b9,#f5ce7d 55%,#ecae53)!important;color:#4e351d!important;border-bottom:3px solid #bf802f!important;box-shadow:inset 0 2px #fff7da,0 4px 12px #84633025!important}
+header h1{color:#674018!important;text-shadow:0 2px #fff4d7;font-family:Fredoka,Nunito,sans-serif!important;font-weight:700!important}
+header small{color:#674018!important}
+#app .shelf,#app>main>h3,.room-welcome h2,.room-create h3{color:#15546a!important;font-family:Fredoka,Nunito,sans-serif!important}
+.shelf small,.empty,.room-help,.room-welcome p{color:#476e75!important}
+#app .gcard,#app .room-card,#app .room-create,#app .settings-tools,#app .profile-settings,#app .fam,#app .buddy-welcome,#app .invite-card{background:linear-gradient(130deg,#fffdf2,#e0f9f3)!important;color:#194b5b!important;border:2px solid #d9b86d!important;box-shadow:inset 0 2px #fff,0 4px 0 #b0874340,0 8px 18px #0c6f7d12!important}
+#app .gcard .t b,#app .room-card h3,#app .settings-tools h3{color:#16556a!important}
+#app .gcard .t span,#app .gcard small,#app .room-card small,#app .room-create small,#app .fam small,#app .buddy-welcome small,#app .profile-settings small{color:#416874!important}
+#app input,#app textarea,#app select,dialog input,dialog textarea,dialog select{background:#fffdf3!important;color:#214d5b!important;border:2px solid #70bec5!important;box-shadow:inset 0 2px 4px #247a8712}
+#app input::placeholder,#app textarea::placeholder,dialog input::placeholder{color:#57747c!important;opacity:1}
+#app label,#app .join label{color:#31545e!important}
+/* Only interface buttons get the new finish; playable pieces retain their own styles. */
+#app:not(:has(#game)) button:not(.buddy-choice):not(.home-mark),.game-head>button,.dock-tools>button,.acts>button,.hf-acts>button,.mj-tools>button,.o10-acts>button,dialog button:not(.emoji-choice){--island-face:#40d6df;--island-shadow:#087e9b;background:linear-gradient(180deg,#85f2ed 0%,#23c7d9 48%,#0e9abc 100%)!important;color:#073b52!important;border:2px solid #c0fff5!important;box-shadow:inset 0 2px #fff9,0 3px 0 #086f8b,0 5px 10px #07577924!important;text-shadow:0 1px #d8fff8;font-family:Fredoka,Nunito,sans-serif!important;font-weight:600!important}
+#app:not(:has(#game)) button.ghost{background:linear-gradient(#fffdf2,#fbe7bc)!important;color:#5b421f!important;border-color:#e3bd70!important;box-shadow:inset 0 2px #fff,0 3px #b18b45!important}
+#app:not(:has(#game)) button[aria-pressed=true],#app .setup-start,#app .gcard.turn>button{background:linear-gradient(#ffafbe,#fa6587 50%,#df3768)!important;border-color:#ffd2db!important;color:#442138!important;text-shadow:0 1px #ffc7d6;box-shadow:inset 0 2px #fff8,0 3px #a82052,0 5px 10px #aa285b22!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #142f76!important;outline-offset:3px!important}
+#app .game-shelf-tabs{padding:9px 0!important;gap:9px!important;background:transparent!important}
+#app .game-nook{background:linear-gradient(140deg,#d6faf3,#bceef1)!important;border:2px solid #79ccd1!important;box-shadow:inset 0 2px #fff,0 5px #529aa733!important}
+#app .nook-heading{background:linear-gradient(90deg,#087b94f5,#0788a9d9 65%,#20bfc299),url('/ohana-island.webp?v=premium1') center 35%/cover!important;border:2px solid #fcdda0!important;box-shadow:inset 0 2px #fff5}
+#app .nook-heading h2{color:#fff6d9!important;text-shadow:0 2px #07607c}
+#app .nook-heading .room-conversation{background:#fff2dcee!important;border-color:#e6b65b!important;color:#15495a!important}
+#app .nook-grid .nook-card{background:linear-gradient(140deg,#fffff7,#fff2cf)!important;border-color:#e5c275!important;box-shadow:inset 0 2px white,0 4px #b68b4240!important}
+#app .nook-grid .nook-card.turn{background:linear-gradient(140deg,#fffae8,#dbfbef)!important;border-color:#40bdb2!important}
+.nook-foot,.game-nook .nook-empty{color:#235869!important}
+#app .nook-illustration{background:linear-gradient(#a3f4ea,#3dbed1)!important;border-color:#ffe4a3!important}
+.room-current{color:#20566a!important}
+.room-card.current{outline:2px solid #28a9b5;outline-offset:2px}
+.room-card.room-theme-flower{background:linear-gradient(125deg,#fff3fa,#ffdfdf)!important}
+#app .room-name{color:#19536a!important;text-shadow:none!important}
+#app .settings-tools summary,#app .profile-settings label,#app .buddy-more summary,#app .more-character-roster summary{color:#205369!important}
+nav.tabs{background:linear-gradient(#fff0c2,#efbd69)!important;border-top:3px solid #fff6d5!important;box-shadow:0 -5px 20px #226f7924!important}
+nav.tabs button{background:linear-gradient(#e4fff9,#8de5e3)!important;color:#145266!important;border:2px solid #fff8d4!important;box-shadow:inset 0 2px #fff,0 3px #4c9fae!important;text-shadow:none!important}
+nav.tabs button.on{background:linear-gradient(#ffa7bd,#f35d8d)!important;color:#4b173c!important;border-color:#ffe1bb!important;box-shadow:inset 0 2px #fff9,0 3px #a72b5c!important}
+#game{background:linear-gradient(145deg,#e3fbf5f2,#a9e5edf5),url('/ohana-island.webp?v=premium1') center/cover fixed!important;color:#15495a!important}
+#game-head h2,#game-head .turn-greeting b{color:#583d20!important;text-shadow:0 1px #fff5dc!important}
+#game .status,#game .compact-last-play,#game .hf-welcome,#game .hf-welcome h3,#game .hf-welcome p{color:#19566b!important}
+#game .hf-felt,#game .o10-table,#game .mj-table{background:radial-gradient(ellipse at top,#8ceae0,#2cb2c2)!important;border-color:#efc371!important;box-shadow:inset 0 0 0 2px #fff1b0,0 4px #b08036!important}
+#game .hf-player,#game .compact-player,#game .sc,#game .o10-player{background:linear-gradient(#fffdf0,#ffebba)!important;border-color:#d9ae58!important;color:#194c5a!important}
+#game .hf-player small,#game .compact-player small,#game .sc small{color:#45686f!important}
+#game .hf-player.current,#game .compact-player.current,#game .sc.turn{border-color:#e43b75!important;box-shadow:0 0 0 2px #ffd0dc!important}
+#game .hf-player strong,#game .sc .p{color:#08768a!important}
+#game .hf-hand-title,#game .hf-meld-heading,#game .hf-staged,#game .hf-progress,#game .hf-guide{color:#134b5b!important}
+#game .hf-hand-card{--card-face:#fff3cc!important}
+#game .hf-foot-card{--card-face:#d9fff0!important}
+/* Hand/foot SVG paths and Ohana 10 circular border radii are deliberately untouched. */
+#game .o10-card{box-shadow:inset 0 0 0 2px #ae772f,inset 0 0 0 5px #fff3c4,0 5px 0 #287c8a,0 8px 12px #277f8130!important}
+#game .o10-journey,#game .hf-guide{background:linear-gradient(120deg,#fff3c9,#effff5)!important;border-color:#e5b354!important}
+#game .game-tray,#game .game-bottom{background:linear-gradient(#eafff9,#b7e8e7)!important;border-color:#e6bc6b!important;color:#15495a!important}
+#game .rack{background:linear-gradient(#ffedb9,#e6b363)!important;border-color:#fff5d9!important;box-shadow:0 3px #a57539!important}
+#game .table-blessing,#game .table-chat-title b{color:#265c69!important}
+dialog,#ohana-chat-dialog{background:linear-gradient(140deg,#fff9e6,#d9f9f2)!important;color:#184c5c!important;border-color:#ebbd67!important;box-shadow:0 20px 70px #07536566!important}
+dialog h2,dialog h3,dialog p,dialog label,dialog summary{color:#194d60!important}
+dialog::backdrop{background:#07506588;backdrop-filter:blur(4px)}
+.uc-conversation{background:#fff9e8!important;color:#204c5e!important;border-color:#c8dfd4!important}
+.uc-conversation[aria-pressed=true]{border-color:#128ba1!important}
+.join{background:linear-gradient(#fff8e7ed,#dcfff6ed)!important;color:#214e5d!important;border:2px solid #fff5d2!important}
+.join h1{color:#725022!important;text-shadow:0 2px #fff4c9!important;font-family:Fredoka,Nunito,sans-serif!important}
+.join .tag{color:#326576!important}
+@media(max-width:600px){#app{border-inline:0}.game-shelf-tabs button{font-size:14px!important}nav.tabs button{font-size:13px!important}body{background-attachment:scroll!important}}
+/* Keep the animated porch welcoming without pushing the game list off tablets. */
+#app ohana-scene{max-width:720px;margin:0 auto 14px}
+#app>header h1{color:#65411e!important;text-shadow:0 2px #fff8df!important}
+#app .nook-heading .room-conversation .room-name{color:#164f61!important}
+#app .nook-grid .nook-card>button{max-width:none!important;min-width:88px;font-size:14px!important}
+#app .nook-grid .nook-card .t>b{font-size:20px!important}
+#game .hf-hand.playing-hand .hf-card{--card-face:#fff3cc!important}
+#game .hf-hand.playing-foot .hf-card{--card-face:#d9fff0!important}
+html body #app nav.tabs .in button{font-size:14px!important;letter-spacing:0!important;min-width:0!important;padding-inline:3px!important}
+html body #app .game-shelf-tabs button{font-size:15px!important;line-height:1.25!important}
+html body #app .room-conversation .room-name,html body #app .room-conversation .room-name>span{color:#194f61!important;text-shadow:none!important}
+html body #app .more-character-roster summary,html body #app .buddy-more summary{background:linear-gradient(#dcfff5,#aee9e3)!important;color:#164d60!important;border:2px solid #62b7bf!important}
+html body #game .game-tray{background:linear-gradient(#c9f5ee,#73cdd9)!important}
+#game #game-head>button:not(.voice-toggle),#game .o10-actions>button{background:linear-gradient(#85f2ed,#23c7d9 48%,#0e9abc)!important;color:#073b52!important;border:2px solid #c0fff5!important;box-shadow:inset 0 2px #fff9,0 3px #086f8b!important;text-shadow:0 1px #d8fff8}
+#game .o10{background:linear-gradient(#77d8dc,#c1f2e6)!important;color:#174d60!important}
+#game .o10-hand{background:#e6fff044!important}
+#game .o10-hand-count{color:#184e60!important}
