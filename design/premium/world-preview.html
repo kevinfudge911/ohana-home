@@ -2977,33 +2977,6 @@ async function shareInvite(inviteCode, gameName) {
   try { await navigator.clipboard.writeText(link); toast('Invite link copied!'); } catch(e) { prompt('Copy this invite link:', link); }
 }
 
-// On load: check for invite URL
-(async () => {
-  const doorway=location.pathname.match(/^\/room\/([a-f0-9]{32})$/);
-  if(doorway){await renderRoomInvite(doorway[1]);return;}
-  const invCode = getInviteCode();
-  if (invCode) {
-    // If already logged in, try to join directly
-    if (S.token) {
-      try {
-        const info = await fetch(`/api/invite/${invCode}`).then(r => r.json());
-        if (info.status === 'waiting') {
-          // Already a member — join the game directly
-          try {
-            const d = await api(`/api/invite/${invCode}/join`, { name: localStorage.getItem('ohana_name') || 'Friend', pin: '0000', avatar: S.av });
-            history.replaceState(null, '', '/');
-            await enterRoom(d.room_id); openGame(d.game_id); return;
-          } catch(e) { /* PIN mismatch or full — show invite screen */ }
-        }
-      } catch(e) {}
-    }
-    renderInvite(invCode);
-  } else {
-    render(); if (S.token) { await sync(); render(); setupPush(); }
-  }
-})();
-
-
 // ----- Ohana 10 -----
 const O10_JOURNEYS_UI=[
  ['Beach Buddies','Three different pairs of matching numbers'],['Family Rainbow','Four of the same number, one in each color'],['Lei & Luau','A same-color trail of 4 and a family of 3'],['Island Mosaic','Two cards from each of the four island colors'],['Double Canoe','Four consecutive numbers, with a pair of each'],['Shell Stepping Stones','The six even numbers: 2, 4, 6, 8, 10 and 12'],['Cousin Caravan','Three different families of 3 matching numbers'],['Rainbow Trail','A trail of 6 using at least three island colors'],['Sunset Picnic','A family of 4 and four cards of one color'],['Homecoming','A same-color trail of 5 and a family of 5']
@@ -3362,6 +3335,38 @@ const visibleToast=toast;toast=(message,ms)=>{accessibleAnnounce(message);return
 enhancePageAccess();
 
 </script>
-<script src="/ohana-scene.js"></script>
+
+<script>
+clearTimeout(pollTimer); schedulePoll = () => {};
+S.token='local-preview';S.me={id:1,name:'Pe-Paw',avatar:'@hon',is_admin:false};S._pushAsked=true;
+const previewMembers=[S.me,{id:2,name:'Me-Maw',avatar:'🌺',online:true},{id:3,name:'Riley',avatar:'🦊',online:false}];
+const previewTypes={words:{name:'Ohana Words',max:4,desc:'Build words. Find surprises. Make memories.'},tictac:{name:'Tic-Tac-Toe',max:2,desc:'A quick little game for a big smile.'},memory:{name:'Memory Match',max:2,desc:'Flip a card. Find a pair. Play together.'},checkers:{name:'Checkers',max:2,desc:'A family favorite, one clever move at a time.'}};
+let previewGame={id:1,type:'words',name:'Ohana Words',status:'playing',in_game:true,my_turn:true,players:[1,2],turn:0,max_players:2,updated_at:1,mode:'classic',state:{board:Array(225).fill(null),bonus:Array(225).fill(''),racks:{1:['F','A','M','I','L','Y','S']},scores:{1:48,2:36},bag:64,lastMove:[],foundSurprises:{},surprises:[],chat:[{p:2,text:'Always room for one more game. ❤️'}],history:[]}};
+for(let i=0;i<225;i++){if(i%37===0)previewGame.state.bonus[i]='TW';else if(i%17===0)previewGame.state.bonus[i]='DL';else if(i%23===0)previewGame.state.bonus[i]='DW';}
+'HOME'.split('').forEach((l,i)=>previewGame.state.board[110+i]={l,v:LV[l]});
+const previewWords=JSON.parse(JSON.stringify(previewGame.state));
+const previewSync=()=>({me:S.me,familyName:'Our family, together',members:previewMembers,games:[previewGame],types:previewTypes,messages:[],roomId:1,rooms:[{id:1,name:'Ohana Home'},{id:2,name:'Flower',owner_id:1}],invitations:[]});
+api=async (path,body)=>{
+ if(path.includes('chat')||path.includes('children'))return {conversations:[],messages:[],children:[]};
+ if(path.startsWith('/api/sync'))return previewSync();
+ if(path.endsWith('/chat')){previewGame.state.chat.push({p:1,text:body.text});return {};}
+ if(path==='/api/game/create'){
+  previewGame={...previewGame,type:body.type,name:previewTypes[body.type].name,turn:0};
+  if(body.type==='words')previewGame.state=JSON.parse(JSON.stringify(previewWords));
+  if(body.type==='checkers')previewGame.state={board:Array.from({length:64},(_,i)=>(Math.floor(i/8)+i%8)%2===1?(i<24?'b':i>39?'r':null):null),mustContinue:null,chat:[]};
+  if(body.type==='tictac')previewGame.state={board:Array(9).fill(null),chat:[]};
+  if(body.type==='memory')previewGame.state={cards:['🐢','🐢','🌺','🌺','🦊','🦊','⭐','⭐','🐱','🐱','🐸','🐸','🌞','🌞','🍀','🍀'],matched:[],open:[],pending:[],scores:{1:0,2:0},chat:[]};
+  return {id:1};
+ }
+ if(path.endsWith('/move')){toast('Design preview only — game results are not saved.');if(previewGame.type==='tictac'){previewGame.state.board[body.i]='X';previewGame.turn=1;}return {};}
+ if(path==='/api/message'){S.msgs.push({id:Date.now(),member_id:1,text:body.text,created_at:Date.now()});return {};}
+ if(path==='/api/game/1')return JSON.parse(JSON.stringify(previewGame));
+ throw new Error('Preview only: this action does not change a real account.');
+};
+S.sync=previewSync();
+render();
+
+window.previewRun=code=>eval(code);
+</script><script src="/ohana-scene.js"></script>
 <script src="/island-icons.js"></script></body>
 </html>
