@@ -1,0 +1,152 @@
+/* Ohana's illustrated island: gold-rimmed wood, jewel controls and readable cards.
+   Material tokens are embedded by apply-visual-v2.py. Game logic is unchanged. */
+:root{--ohana-wood:WOOD_ASSET;--ohana-logo:LOGO_ASSET;--felt:#087c89;--cream:#fff4d3;--gold:#ffd47b;--ink:#173e4c}
+html{background:#087f9b!important}
+body{background:url('/ohana-island.webp?v=premium1') center/cover fixed!important;color:var(--cream)}
+#app{background:linear-gradient(#04465010,#074b4b88),url('/ohana-island.webp?v=premium1') center top/auto 100vh fixed!important;max-width:1100px!important;border:0!important;box-shadow:0 0 70px #002d4355}
+#app>header{background:linear-gradient(#3c18064d,#54270482),var(--ohana-wood) center/600px!important;min-height:100px;padding:10px 20px!important;border:2px solid #ffd180!important;border-bottom:4px solid #ffd180!important;box-shadow:inset 0 0 0 2px #925422,0 4px 8px #00384266;gap:12px}
+#app>header>div{flex:1;min-width:0}
+#app>header h1{font:700 36px/1.1 Fredoka,sans-serif!important;color:#ffe8a5!important;text-shadow:0 2px #62340d,0 3px 2px #482809!important;letter-spacing:-.02em}
+#app>header small{color:#fff5da!important;font:600 15px/1.3 Nunito,sans-serif!important;text-shadow:0 1px 2px #492703;margin-top:4px}
+#app>header .header-buddy{width:62px;height:70px;flex:0 0 62px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(#3bd4d7,#047d97);border:3px solid #ffcd6d;box-shadow:inset 0 0 0 2px #fff3c6,0 2px 3px #351a06}
+#app>header .header-buddy img{width:58px;height:65px;object-fit:contain;max-width:none;max-height:none}
+#app>main{padding:14px 18px 108px!important}
+#app main>ohana-scene{margin:0 -18px 10px!important;width:calc(100% + 36px);max-width:none;border:0!important;border-radius:0!important;box-shadow:none!important}
+#app .game-shelf-tabs{gap:8px!important;padding:10px 0 14px!important;background:none!important}
+:root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button.ohana-button.ohana-button,
+:root body .game-settings-menu>summary{background:linear-gradient(#ffffff75 0%,#ffffff00 40%),linear-gradient(#20cbd4,#008fac 65%,#037295)!important;color:#fff9e5!important;border:2px solid #ffdc8b!important;box-shadow:inset 0 0 0 2px #ffffff66,inset 0 -4px 2px #004f7366,0 3px 0 #69411f,0 5px 8px #002c4555!important;text-shadow:0 2px 1px #00506d!important;border-radius:17px!important;font-family:Fredoka,Nunito,sans-serif!important;font-weight:600!important;letter-spacing:0!important}
+:root body #app .game-shelf-tabs button{min-height:52px!important;font-size:15px!important;line-height:1.2!important;padding:8px 5px!important;min-width:0}
+:root body #app .game-shelf-tabs button[aria-pressed=true],:root body #app .setup-start,:root body #app .nook-card.turn>button{background:linear-gradient(#ffffff65,transparent 40%),linear-gradient(#ff7994,#e63062 70%,#b51a48)!important;color:white!important;text-shadow:0 2px #89163e!important;border-color:#ffe5a2!important}
+#app .game-nook{padding:10px!important;border:3px solid #ffd27a!important;border-radius:26px!important;background:linear-gradient(#874a1722,#6e361a33),var(--ohana-wood) center/600px!important;box-shadow:inset 0 0 0 2px #95521d,0 5px 0 #794716,0 10px 22px #003f4966!important}
+#app .nook-heading{margin:0 0 10px!important;border:2px solid #f7ca73!important;border-radius:18px!important;background:radial-gradient(at top,#139fa4,#076273)!important;padding:12px!important;box-shadow:inset 0 1px #91eff4,0 3px #713d16!important;color:#fff5d5!important}
+#app .nook-heading h2{font:600 26px/1.1 Fredoka!important;color:#fff5d5!important;text-shadow:0 2px #034959}
+#app .nook-heading>img{width:56px!important;height:62px!important;object-fit:contain}
+#app .nook-heading .nook-count{background:#fff2c5!important;color:#174855!important;font-size:14px}
+#app .nook-heading .room-conversation{background:#003f5066!important;border:1px solid #ffe3a377!important;border-radius:10px!important;padding:5px 8px!important;gap:5px}
+#app .room-conversation .room-name,#app .room-conversation .room-name>span{color:#fff8dd!important;text-shadow:0 1px #033d4b!important;font-size:14px!important}
+#app .nook-grid{gap:12px!important}
+body #app .game-nook .nook-card{grid-template-columns:74px minmax(0,1fr)!important;background:radial-gradient(at 35% 0,#199ca3,#086578)!important;border:2px solid #fdd38a!important;border-radius:20px!important;padding:14px 12px!important;box-shadow:inset 0 0 0 2px #c8f9dc22,0 3px #7e4b24!important;gap:8px 12px!important;color:#fff9de!important}
+body #app .game-nook .nook-card .nook-illustration{width:74px!important;height:92px!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;overflow:visible}
+body #app .game-nook .nook-card .nook-illustration>img{width:74px!important;height:92px!important;object-fit:contain;filter:drop-shadow(0 3px 2px #003841)}
+#app .nook-card .t>b{font:600 24px/1.1 Fredoka!important;color:#fff3cf!important;text-shadow:0 2px #004b5e}
+#app .nook-card .t>span,#app .nook-card .t>small,#app .nook-card .t .nook-room{color:#e3fff9!important;font-size:14px!important;line-height:1.35}
+#app .nook-card .nook-turn-label{color:#ffde7c!important;font-weight:800}
+body #app .game-nook .nook-card>button{grid-column:2!important;grid-row:2!important;justify-self:start;max-width:none!important;font-size:17px!important;min-height:44px!important;padding:8px 20px!important}
+#app .nook-foot,#app .nook-empty{color:#fff9df!important;text-shadow:0 1px 2px #62370f;font-size:15px!important}
+#app .shelf,#app main>h3{color:#fff5d2!important;text-shadow:0 2px 3px #184e47;font-family:Fredoka,sans-serif}
+#app .shelf small{color:#fff5d2!important}
+#app .room-card,#app .room-create,#app .settings-tools,#app .profile-settings,#app .fam,#app .invite-card,#app .buddy-welcome{background:linear-gradient(135deg,#fff9e9f7,#ffe4b5f7)!important;color:#244953!important;border:3px solid #e8b560!important;box-shadow:inset 0 1px white,0 4px 0 #795024,0 7px 14px #043a4544!important;border-radius:20px!important}
+#app .room-card h3,#app .room-card small,#app .room-create h3,#app .room-create small,#app .settings-tools h3,#app .settings-tools summary,#app .profile-settings label,#app .fam small,#app .buddy-welcome small,#app .buddy-welcome b{color:#214b58!important}
+#app .room-welcome{background:#08647cd9;border:2px solid #edc980;border-radius:18px;padding:14px;color:#fff4d4}
+#app .room-welcome h2,#app .room-welcome p,#app .room-help,#app .empty{color:#fff6dc!important}
+#app input,#app textarea,#app select,dialog input,dialog textarea,dialog select{background:#fffdf1!important;color:#143b4a!important;border:2px solid #458f9a!important;box-shadow:inset 0 2px 4px #34535618;font-size:16px!important}
+#app input::placeholder,#app textarea::placeholder,dialog input::placeholder{color:#567178!important;opacity:1}
+nav.tabs{background:linear-gradient(#68370c33,#58240766),var(--ohana-wood) center/600px!important;border-top:3px solid #ffe4a0!important;box-shadow:0 -4px 15px #00485955!important;padding:8px 8px max(10px,env(safe-area-inset-bottom))!important}
+nav.tabs .in{gap:7px;max-width:800px!important}
+html body #app nav.tabs .in button{min-width:0!important;font-size:13px!important;line-height:1.1!important;padding:7px 1px!important;gap:4px!important;min-height:57px!important;border-radius:15px!important}
+html body #app nav.tabs .in button.on{background:linear-gradient(#ffad9a,#e44765 65%,#bc224c)!important;color:white!important;text-shadow:0 1px #852146!important}
+nav.tabs button .ic{font-size:23px!important}
+#game{max-width:1100px!important;background:linear-gradient(#023e4b33,#02647644),url('/ohana-island.webp?v=premium1') center/cover fixed!important;color:#fff6db!important}
+#game #game-head{background:linear-gradient(#60311166,#51260999),var(--ohana-wood) center/600px!important;border-bottom:3px solid #ffd988!important;box-shadow:0 4px 12px #002e4555;padding:8px 12px!important;gap:8px!important}
+#game-head h2,#game-head .turn-greeting b{color:#fff2c5!important;text-shadow:0 2px #59320e!important;font:600 22px/1.2 Fredoka,sans-serif!important}
+#game .table-player,#game .hf-player,#game .compact-player,#game .sc,#game .o10-player{background:linear-gradient(#fff8e7,#ffe1a6)!important;color:#164454!important;border:2px solid #d59b3e!important;box-shadow:inset 0 1px white,0 2px #72431b;border-radius:14px}
+#game .table-player.current,#game .hf-player.current,#game .compact-player.current,#game .sc.turn{border-color:#fff0a5!important;box-shadow:0 0 0 2px #087983,0 3px #643e18!important}
+#game .table-player small,#game .hf-player small,#game .compact-player small,#game .sc small{color:#365b62!important}
+#game .table-player strong,#game .hf-player strong,#game .sc .p{color:#006477!important}
+#game .hf-felt,#game .o10,#game .mj-table{background:radial-gradient(ellipse at 30% 0,#169da5,#087a8a 60%,#07546b)!important;border:7px solid #e9b658!important;outline:2px solid #75451c;outline-offset:-1px;box-shadow:inset 0 0 0 2px #fff1b5,inset 0 0 28px #02405266,0 4px #82481a,0 9px 15px #00394a77!important;border-radius:30px!important;color:#fff7de!important}
+#game .hf-felt{padding:16px!important}
+#game .o10{padding:14px!important}
+#game .o10-table{background:#00435455!important;border:2px solid #e5b55c!important;box-shadow:inset 0 0 12px #00283c44!important;border-radius:22px!important}
+#game .hf-public-table>header{background:linear-gradient(#75411644,#43210b77),var(--ohana-wood) center/500px!important;border:2px solid #f1c97e!important;border-radius:14px;color:#fff3cf!important;padding:10px!important}
+#game .hf-public-table>header h3,#game .hf-public-table>header span{color:#fff3cf!important;text-shadow:0 1px #4b280e}
+#game .hf-hand-title,#game .hf-meld-heading,#game .hf-staged,#game .hf-empty,#game .hf-public-groups>span,#game .hf-foot-pile,#game .hf-discard-stack>small,#game .o10-hand-count,#game .o10-arrange,#game .o10-status{color:#fff7df!important;text-shadow:0 1px #035365}
+#game .hf-hand-title small,#game .hf-meld-heading small{color:#dcfff9!important;font-size:14px!important}
+#game .hf-progress span{background:#003e5077!important;color:#fff3d4!important;border:1px solid #73cad0!important;font-size:12px!important}
+#game .hf-guide,#game .o10-phase-content{background:linear-gradient(#fff6db,#ffe4b6)!important;color:#204957!important;border:2px solid #dea953!important;box-shadow:0 3px #8a551e!important}
+#game .hf-guide summary,#game .hf-guide p{color:#204957!important}
+#game .game-tray,#game .game-bottom{background:linear-gradient(#73421255,#5b2d1188),var(--ohana-wood) center/600px!important;border-top:3px solid #f6c976!important;color:#fff5dd!important}
+#game .table-blessing,#game .table-chat-title b{color:#fff5dd!important}
+#game .rack{background:var(--ohana-wood) center/500px!important;border:3px solid #ffda8e!important;box-shadow:inset 0 2px 5px #5a3211,0 4px #68401c!important}
+/* Card faces: opaque, high contrast, unchanged silhouettes and original artwork. */
+html body #game .hf-hand .hf-card,html body #game .hf-shaped{--card-face:#fff9e9!important;opacity:1!important}
+html body #game .hf-hand .hf-card.wild,html body #game .hf-shaped.wild{--card-face:#efe4ff!important}
+html body #game .hf-hand.playing-foot .hf-card{--card-face:#eafff6!important}
+html body #game .hf-hand .hf-card-picture{inset:30% 8% 23% 12%!important;overflow:visible!important}
+html body #game .hf-hand.playing-foot .hf-card-picture{inset:30% 14% 25% 11%!important}
+html body #game .hf-card-picture img{border-radius:0!important;opacity:1!important;filter:none!important;object-fit:contain!important}
+html body #game .hf-area .hf-hand .hf-corner{color:#102b3c!important;font-family:Arial,sans-serif!important;font-weight:900!important;font-size:clamp(30px,3.5vw,42px)!important;text-shadow:none!important;bottom:5%!important;letter-spacing:-1px}
+html body #game .hf-area .hf-hand .red .hf-corner{color:#aa1638!important}
+html body #game .hf-public-cards .hf-corner,html body #game #hf-pickup-btn .hf-corner{color:#102b3c!important;font:900 23px/1 Arial,sans-serif!important;top:auto!important;bottom:5%;left:12%;right:12%;text-align:center;text-shadow:none!important}
+html body #game .hf-public-cards .red .hf-corner,html body #game #hf-pickup-btn.red .hf-corner{color:#aa1638!important}
+html body #game #hf-pickup-btn .hf-card-picture{inset:30% 10% 25%!important}
+html body #game #hf-pickup-btn .hf-card-label{display:none}
+html body #game .o10-hand{gap:14px 9px!important;padding:14px 2px!important;justify-content:center}
+html body #game .o10-hand>.o10-card{margin:0!important;top:0!important;flex:0 0 calc((100% - 27px)/4)!important;width:calc((100% - 27px)/4)!important;max-width:145px;opacity:1!important}
+html body #game .o10-card .o10-character{top:12%!important;left:10%!important;width:80%!important;height:58%!important;filter:none!important;opacity:1!important}
+html body #game .o10-card .o10-value{bottom:7%!important;min-width:1.2em;line-height:1!important;font-family:Arial,sans-serif!important;font-weight:900!important;font-size:clamp(30px,4vw,48px)!important;color:#fffef4!important;text-shadow:0 2px 0 #143745,1px 0 #143745,-1px 0 #143745!important;z-index:2}
+html body #game .o10-card.sun .o10-value{color:#173747!important;text-shadow:0 1px #fff9c9!important}
+html body #game .o10-card small{display:none!important}
+html body #game .o10-seat .o10-value{font-size:25px!important}
+html body #game .o10-card{box-shadow:inset 0 0 0 2px #93601d,inset 0 0 0 4px #ffe5a8,0 4px 0 #004255,0 6px 8px #00445777!important}
+html body #game .o10-card.sel{outline:4px solid #fff3b3!important;box-shadow:0 0 0 7px #a51b68,0 8px 8px #00445788!important}
+#app .join{background:linear-gradient(#fff7e9f5,#ffedc5fa)!important;border:3px solid #f0c773!important;color:#204657!important;box-shadow:0 8px 24px #00384966}
+#app .join::before{display:none}
+#app .join h1{color:#704415!important;font:600 34px/1.15 Fredoka!important}
+#app .join .tag,#app .join label,#app .join p{color:#224b58!important}
+#app .buddy-more summary,#app .more-character-roster summary{background:#0b7184!important;color:#fff6de!important;border:2px solid #e8bd6c!important}
+dialog,#ohana-chat-dialog{background:linear-gradient(#fff8e5,#ffebc2)!important;color:#244951!important;border:4px solid #e9b55d!important;box-shadow:0 15px 60px #00354699!important}
+dialog h2,dialog h3,dialog p,dialog label,dialog summary{color:#244951!important}
+dialog::backdrop{background:#023d5077;backdrop-filter:blur(4px)}
+.uc-conversation{background:#fffaf0!important;color:#173d4a!important;border-color:#c9a469!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #172960!important;outline-offset:3px!important}
+@media(max-width:600px){#app>header{min-height:88px;padding:8px 12px!important;gap:8px}#app>header h1{font-size:29px!important}#app>header small{font-size:13px!important}#app>header .header-buddy{width:49px;height:58px;flex-basis:49px}#app>header .header-buddy img{width:46px;height:55px}#app>main{padding:8px 10px 100px!important}#app main>ohana-scene{width:calc(100% + 20px);margin:0 -10px 8px!important}#game .hf-felt{padding:10px!important;border-width:5px!important}#game .o10{padding:8px!important;border-width:5px!important}#game .body{padding:10px 8px 16px!important}#game .hf-hand{gap:14px 6px!important}#game .o10-hand>.o10-card{flex-basis:calc((100% - 18px)/3)!important;width:calc((100% - 18px)/3)!important;max-width:135px}#game .o10-card .o10-value{font-size:34px!important}}
+/* Illustrated brand title remains an accessible heading. */
+html body #app>header h1{position:relative;height:74px;max-width:460px;width:100%;font-size:0!important;color:transparent!important;text-shadow:none!important;background:var(--ohana-logo) left center/contain no-repeat}
+html body #app>header small{margin-top:0!important}
+html body #app .game-nook .nook-heading{display:grid!important;grid-template-columns:48px minmax(0,1fr) auto!important;gap:5px 8px!important;align-items:center!important;padding:9px!important;min-height:0!important}
+html body #app .game-nook .nook-heading>img{width:45px!important;height:51px!important;margin:0!important;grid-column:1;grid-row:1}
+html body #app .game-nook .nook-heading>h2{grid-column:2;grid-row:1;font-size:25px!important}
+html body #app .game-nook .nook-heading>.nook-count{grid-column:3;grid-row:1}
+html body #app .game-nook .nook-heading>.room-conversation{grid-column:1/-1!important;display:flex!important;flex-wrap:nowrap!important;align-items:center;justify-content:space-between;min-width:0;width:100%;margin:0!important}
+html body #app .game-nook .room-conversation>span{min-width:0;flex:1}
+html body #app .game-nook .room-conversation button{font-size:14px!important;min-height:40px!important;padding:6px 9px!important;white-space:nowrap}
+html body #app .game-nook .nook-card .t>.nook-turn-label{font-size:17px!important;color:#ffe294!important}
+html body #app .game-nook .nook-card .t>span,html body #app .game-nook .nook-card .t>small,html body #app .game-nook .nook-card .t .room-name,html body #app .game-nook .nook-card .t .room-name>span{color:#effff9!important}
+html body #app .game-shelf-tabs button{height:auto!important;min-height:54px!important;font-size:14px!important;padding:7px 3px!important;flex:1!important}
+html body #game #game-head .table-players{display:flex!important;flex-wrap:wrap!important;gap:6px!important;width:100%;flex:1 0 100%!important;order:6!important;justify-content:center!important}
+html body #game #game-head .table-player{margin-left:0!important;flex:1 1 120px!important;min-width:0!important;padding:6px 6px 6px 37px!important;max-width:230px}
+html body #game #game-head .table-player>.table-avatar{left:3px!important;width:30px!important;height:40px!important}
+html body #game #game-head .table-player .table-name{font-size:14px!important}
+html body #game #game-head .table-player b{font-size:13px!important;white-space:normal}
+html body #game #game-head h2{font-size:18px!important;flex:1!important}
+html body #game #game-head .game-settings-menu{margin-left:0!important}
+@media(max-width:600px){html body #app>header h1{height:61px;max-width:none}html body #app>header{flex-wrap:wrap;gap:3px 8px!important;min-height:90px!important}html body #app>header .header-buddy{display:none!important}html body #app>header>div{flex:1!important}html body #app>header small{font-size:12px!important}html body #app>header button{font-size:14px!important;padding:6px 9px!important}html body #app .game-nook .nook-heading>h2{font-size:23px!important}html body #game #game-head>button.ohana-button{font-size:14px!important;padding:6px 9px!important;min-height:40px!important}html body #game #game-head>#next-game{min-width:90px!important}html body #game #game-head .game-settings-menu>summary{width:40px!important;min-height:40px!important}html body #game #game-head .table-player{padding-left:32px!important}html body #game #game-head .table-player>.table-avatar{width:26px!important}}
+html body #app>header h1{background-size:100% auto!important}
+:root body #app .game-shelf-tabs button.ohana-button.ohana-button.ohana-button{min-height:54px!important;height:54px!important;font-size:14px!important;line-height:1.15!important;padding:4px 3px!important;border-radius:14px!important}
+html body #app .game-nook .nook-card.turn .t>.nook-turn-label,html body #app .game-nook .nook-card .t>.nook-turn-label{color:#ffe18b!important}
+html body #app .game-nook .nook-card .t .who,html body #app .game-nook .nook-card .t .who span,html body #app .game-nook .nook-card .t>span{color:#e6fff8!important}
+html body #game #game-head .hf-players{display:flex!important;flex-wrap:nowrap!important;flex:1 0 100%!important;order:6!important;width:100%!important;gap:6px!important;margin:0!important}
+html body #game #game-head .hf-player{flex:1 1 0!important;min-width:0!important;padding:5px!important;font-size:13px!important;gap:3px!important}
+html body #game #game-head .hf-player small{font-size:11px!important}
+html body #game #game-head .hf-player .character-avatar{width:26px!important;height:35px!important}
+html body #game .hf-decks{gap:16px!important;margin-bottom:12px!important}
+html body #game .hf-foot-pile{width:76px!important}
+html body #game .hf-public-table{margin-bottom:12px!important}
+html body #game #hf-pickup-btn .hf-corner{display:flex!important;align-items:center;justify-content:center;gap:2px}
+html body #game #hf-pickup-btn .hf-corner small{font-size:15px!important}
+html body #game #hf-pickup-btn .hf-card-picture{inset:31% 10% 30%!important}
+@media(max-width:600px){html body #game .hf-area .hf-hand .hf-corner{font-size:30px!important}html body #game .o10-hand>.o10-card{flex-basis:calc((100% - 18px)/3)!important;width:calc((100% - 18px)/3)!important}}
+/* Long wild labels fit inside the palm, below the character. */
+html body #game .hf-area .hf-hand .hf-card.wild .hf-corner{flex-direction:column!important;gap:0!important;font-size:27px!important;bottom:5%!important;line-height:1!important;letter-spacing:0!important}
+html body #game .hf-area .hf-hand .hf-card.wild .hf-corner small{font:800 11px/1.1 Arial,sans-serif!important;white-space:nowrap!important;letter-spacing:0!important}
+html body #game .hf-area .hf-hand .hf-card.wild .hf-card-picture{bottom:30%!important}
+html body #app .game-nook .nook-card .who small{color:#e5fff8!important}
+html body #app .buddy-choice small{color:#214957!important;text-shadow:none!important;font-weight:800!important;font-size:14px!important}
+html body #app .profile-settings label small{color:#456971!important}
+html body #game #game-head h2{order:-1!important;flex:1 0 100%!important;width:100%;text-align:center;line-height:1.1!important}
+html body #game #game-head .hf-player{margin-left:0!important;position:relative!important;padding:6px 6px 6px 28px!important;max-width:50%!important}
+html body #game #game-head .hf-player>.ohana-buddy{left:3px!important;width:22px!important}
+html body #game #game-head .hf-player>div{flex:1!important;min-width:0!important;line-height:1.15}
+html body #game #game-head .hf-player strong{font-size:20px!important;flex:none!important}
+html body #game #game-head .hf-player .turn-check{width:18px!important;height:18px!important;font-size:14px!important;flex:none}
+html body #game .hf-area .hf-hand .hf-card.wild .hf-corner small{font-size:10px!important}
