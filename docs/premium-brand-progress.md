@@ -1,3 +1,5 @@
+> Correction, September 18, 2026: Kevin explicitly rejected the pillow phrase "Good Games Brighter People". Any approval claim below is an erroneous historical assistant claim, not a user instruction. Follow OHANA-DESIGN-MASTER.md.
+
 # Ohana Home premium cartoon branding — first implementation
 
 Approved reference: bright Ohana Spades cartoon beach concept. Preserve hand/foot silhouettes, round Ohana 10 cards, house rules, shared chats, voices, notifications, characters, scene motion, and scripture.

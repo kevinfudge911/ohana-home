@@ -33,6 +33,7 @@ function mountWorldHome(){
  else{table.classList.add('world-catalog');const items=[...m.children].filter(el=>el!==tabs&&!el.classList.contains('invite-card'));items.forEach(el=>table.append(el));}
  table.insertAdjacentHTML('afterbegin','<div class="world-table-crest">'+esc(S.sync?.familyName||'Ohana Home')+'</div>');
  m.append(table);
+ mountFamilyWelcome(m,table,nook);
  const rail=document.createElement('div');rail.className='world-home-rail';rail.innerHTML=worldPortrait(S.me.id)+'<div class="world-home-actions"><button id="world-start">Start a game</button><button id="world-room-chat">Room chat</button></div>';
  m.append(rail);rail.querySelector('#world-start').onclick=()=>{S.gameShelf='new';renderGames();};rail.querySelector('#world-room-chat').onclick=()=>{S.tab='chat';render();};
  m.insertAdjacentHTML('beforeend','<p class="world-blessing">✝ Let all that you do be done with love.<br><small>1 Corinthians 16:14 NKJV</small></p>');
@@ -79,4 +80,15 @@ function mountWorldDetails(g,st,top){
 }
 function decorateWorldRooms(){
  document.querySelectorAll('.room-card').forEach(card=>{const id=Number(card.querySelector('[data-room]')?.dataset.room),room=S.sync?.rooms?.find(r=>Number(r.id)===id),kind=/flower|rose|bloom/i.test(room?.name||'')?'garden':id===1?'home':['cove','garden','home'][Math.abs(id)%3];card.dataset.worldRoom=kind;});
+}
+
+function mountFamilyWelcome(main,table,nook){
+ const greeting=document.createElement('p');greeting.className='ohana-home-welcome';greeting.textContent="There’s always a place for you.";main.prepend(greeting);
+ if(!nook)return;
+ const members=(S.sync?.members||[]).filter(p=>Number(p.id)>0&&Number(p.id)!==Number(S.me.id));
+ const family=document.createElement('section');family.className='ohana-family-seats';family.setAttribute('aria-label','Your Ohana in this room');
+ family.innerHTML='<div class="ohana-family-heading"><h2>Our Ohana</h2><button type="button" id="ohana-see-everyone">See everyone</button></div><div class="ohana-family-faces">'+members.slice(0,5).map(m=>'<button type="button" class="ohana-family-person" data-family-seat="'+Number(m.id)+'" aria-label="Invite '+esc(m.name)+' to a game">'+worldPortrait(m.id)+'<small>Save a seat</small></button>').join('')+(members.length?'':'<p>Your family and friends belong here.</p>')+'</div>';
+ table.prepend(family);
+ family.querySelector('#ohana-see-everyone').onclick=()=>{S.tab='family';render();};
+ family.querySelectorAll('[data-family-seat]').forEach(b=>b.onclick=()=>openOhanaInvite(Number(b.dataset.familySeat)));
 }

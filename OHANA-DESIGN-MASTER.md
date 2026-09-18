@@ -36,3 +36,17 @@ Kevin rejected the initial branding pass and its follow-up as small cosmetic tou
 Compare actual rendered working screens with this exact illustration. Show real implementation screenshots, clearly distinguishing them from generated concepts. Verify number/character clarity at actual phone size, all special card silhouettes, selection states and game interactions. Do not claim the complete redesign is finished based only on asset generation, CSS changes or successful deployment.
 
 This is a durable project design record; it does not imply a platform-wide memory setting was changed.
+
+## Family direction and explicit correction — September 18, 2026
+
+Ohana means FAMILY. The island is a setting for a welcoming family home, not a substitute for the family theme. Keep familiar people at the center and preserve different rooms within the same coherent home.
+
+Kevin explicitly states that he NEVER approved the pillow wording "Good Games Brighter People" and had already said he disliked it. Previous assistant notes claiming approval are wrong. Do not reuse that phrase, promote it as his slogan, or infer approval from an image being supplied. He wants the other/original pillow saying restored. Searches recovered his corrections but not the exact replacement wording; this detail remains unresolved. The interim cream pillow has a flower without lettering. Do not invent a new saying or conflate the general header "There’s always a place for you" with a pillow instruction.
+
+Kevin also reiterated that he did not ask work to stop. Continue implementation and testing of authorized rebuild tasks instead of replying only with promises or seeking repeated approval. Do not claim the whole rebuild complete while known details remain unresolved.
+
+## Pillow wording resolved — explicit user approval, September 18, 2026
+
+Kevin supplied: "nobody gets left behind or forgotten this can be on pillow".
+
+The approved pillow text is exactly **nobody gets left behind or forgotten**. Use it instead of the interim unlettered pillow. This resolves the earlier missing-wording note above. Never restore "Good Games Brighter People". The approved artwork is assets/ohana-family-home-v2.webp.

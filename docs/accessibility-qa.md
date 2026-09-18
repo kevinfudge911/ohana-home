@@ -1,3 +1,5 @@
+> Correction, September 18, 2026: Kevin explicitly rejected the pillow phrase "Good Games Brighter People". Any approval claim below is an erroneous historical assistant claim, not a user instruction. Follow OHANA-DESIGN-MASTER.md.
+
 # Accessibility and regression audit — September 15, 2026
 
 Implemented keyboard word placement and repositioning, square coordinates and bonuses, checkers selection and destinations, named Tic-Tac-Toe and Memory squares, readable Hand & Foot ranks/suits, focus restoration after rendering, named chat controls, new-message announcements, and a named Mahjong progress indicator. Hidden Memory faces remain undisclosed. Existing scoring, card state, room permissions and session storage were not migrated.

@@ -1,3 +1,5 @@
+> Correction, September 18, 2026: Kevin explicitly rejected the pillow phrase "Good Games Brighter People". Any approval claim below is an erroneous historical assistant claim, not a user instruction. Follow OHANA-DESIGN-MASTER.md.
+
 # Island design and expanded chat
 
 The September 14 redesign coordinates the welcome form, Game Nook, rooms, game setup, Words and Mahjong tables, game chat, score receipts, and navigation. Ocean blue, mint, coral, lavender and warm sand replace dark enamel and heavy gold edges. Text uses dark ink on light controls. Original character portraits lead game setup and the signed-in header. Reduced-motion support remains, including a static alternative to the turn diamond glint.

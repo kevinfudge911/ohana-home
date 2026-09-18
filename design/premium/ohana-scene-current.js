@@ -22,7 +22,7 @@
  .verse{font-size:clamp(11px,1.9vw,14px);padding:8px 5px;background:linear-gradient(transparent,#093e4bd9)}
  @media(min-width:700px){section{aspect-ratio:3/1}}
  :host([world]){width:100%;height:100%;contain:strict}:host([world]) section{width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0;background:#1296ba}:host([world]) canvas{width:100%;height:100%;object-fit:cover}:host([world]) .title,:host([world]) .saying,:host([world]) .verse,:host([world]) .pause{display:none}
-</style><section aria-label="Ohana Home ocean porch with two wicker chairs, a family game, soda glasses, and the Good Games Brighter People pillow"><canvas width="960" height="640" aria-hidden="true"></canvas><h2 class="title">Ohana Home · Our family, together</h2><p class="saying">There's always a place for you.</p><p class="verse">Let all that you do be done with love. — 1 Corinthians 16:14 NKJV</p><button class="pause" type="button" aria-label="Pause scene motion" title="Pause scene motion">Ⅱ</button></section>`;
+</style><section aria-label="Ohana family home with a sofa, two wicker chairs, soda glasses, and a flower pillow"><canvas width="960" height="640" aria-hidden="true"></canvas><h2 class="title">Ohana Home · Our family, together</h2><p class="saying">There's always a place for you.</p><p class="verse">Let all that you do be done with love. — 1 Corinthians 16:14 NKJV</p><button class="pause" type="button" aria-label="Pause scene motion" title="Pause scene motion">Ⅱ</button></section>`;
       this.canvas=root.querySelector('canvas');this.ctx=this.canvas.getContext('2d');
       this.reduced=matchMedia('(prefers-reduced-motion: reduce)');this.paused=this.reduced.matches||localStorage.getItem('ohana_less_motion')==='true';
       const button=root.querySelector('button');
@@ -36,7 +36,7 @@
     static get observedAttributes(){return ['world-theme'];}
     attributeChangedCallback(){if(this.ctx)this.loadWorldArt();}
     loadWorldArt(){
-      const url=this.hasAttribute('world')?({garden:'/ohana-garden-v1.webp',cove:'/ohana-cove-v1.webp'}[this.getAttribute('world-theme')]||'/ohana-world-scene.webp'):'/ohana-island.webp?v=premium1';
+      const url=this.hasAttribute('world')?({garden:'/ohana-garden-v1.webp',cove:'/ohana-cove-v1.webp'}[this.getAttribute('world-theme')]||'/ohana-family-home-v2.webp'):'/ohana-family-home-v2.webp';
       if(url===this.artUrl)return;this.artUrl=url;const im=new Image();im.src=url;
       im.decode().then(()=>{if(this.artUrl!==url)return;this.images.island=im;clearTimeout(this.timer);if(this.isConnected)this.tick();}).catch(()=>{if(!this.images.island){this.style.background='url("'+url+'") center/cover';this.canvas.style.opacity='0';}});
     }
@@ -59,7 +59,7 @@
       const dusk=(1-day)*(1-night);b.save();
       const tint=b.createLinearGradient(0,0,0,350);tint.addColorStop(0,`rgba(183,111,181,${dusk*.3})`);tint.addColorStop(1,`rgba(255,174,106,${dusk*.38})`);b.fillStyle=tint;b.fillRect(0,0,960,350);b.restore();
       c.drawImage(this.buffer,0,0);
-      if(this.hasAttribute('world')){c.save();c.beginPath();c.rect(185,112,585,76);c.clip();for(let y=112;y<188;y+=2){const dx=Math.sin(y*.19+t*.7)*1.3+Math.sin(y*.07-t*.43)*.8;c.drawImage(this.buffer,0,y,960,2,dx,y,960,2);}c.restore();}else{
+      if(this.hasAttribute('world')){c.save();c.beginPath();if(this.getAttribute('world-theme')==='home')c.rect(350,112,275,110);else c.rect(185,112,585,76);c.clip();for(let y=112;y<188;y+=2){const dx=Math.sin(y*.19+t*.7)*1.3+Math.sin(y*.07-t*.43)*.8;c.drawImage(this.buffer,0,y,960,2,dx,y,960,2);}c.restore();}else{
       // Refraction follows the open ocean in the new illustration only.
       c.save();c.beginPath();c.moveTo(220,257);c.lineTo(805,239);c.lineTo(799,274);c.lineTo(706,334);c.lineTo(343,333);c.closePath();c.clip();
       for(let y=238;y<338;y+=2){const dx=Math.sin(y*.19+t*.7)*1.3+Math.sin(y*.07-t*.43)*.8;c.drawImage(this.buffer,0,y,960,2,dx,y,960,2);}c.restore();
