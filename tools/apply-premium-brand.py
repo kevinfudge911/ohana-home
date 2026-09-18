@@ -23,4 +23,9 @@ asset_backup=target/'ohana-island.before-premium.webp'
 if asset.exists() and not asset_backup.exists():shutil.copy2(asset,asset_backup)
 app.write_text(s)
 shutil.copy2(root/'assets/ohana-premium-island.webp',asset)
-print('Applied presentation only; all script blocks preserved. No deploy performed.')
+for name in ['ohana-scene.js', 'ohana-scene.js.txt']:
+ scene=target/name
+ if scene.exists():
+  text=scene.read_text().replace('/ohana-island.webp\'', '/ohana-island.webp?v=premium1\'')
+  scene.write_text(text)
+print('Applied presentation only; all app script blocks preserved. No deploy performed.')

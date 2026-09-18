@@ -1,0 +1,13 @@
+{
+  "deployment_version": "e792c4ac-b165-4e1e-ac8e-38e924f9616f",
+  "url": "https://ohanahome.app/",
+  "worker_sha256": "ae7d1e574d445d251ada607479639a96ef010b59bcd3a8acbf9f0b11aa62e833",
+  "files": {
+    "app.html": "4decce267f59ddd00229a3feb1df806c6b38cb8a15b2df87dcd995cbb920c3f2",
+    "ohana-island.webp": "ed069dd39fff99e7dcbca9b94f55e01c3613ff87097ebc365dc86d2f87b2ce5c",
+    "ohana-scene.js": "aa5be02452d23a9b2e083d23e54199798537205c11083e7a80665a895e69c6ec"
+  },
+  "database_binding_preserved": true,
+  "game_logic_changed": false,
+  "spades_implemented": false
+}

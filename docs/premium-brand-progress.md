@@ -10,4 +10,8 @@ Apply tools/apply-premium-brand.py only against the matching current source afte
 
 Validation: exact byte comparison confirms all production script blocks and existing markup preserved before CSS insertion. Local Chromium screenshots exercised home, Rooms, Settings and Words at 390px; those views had no document-level horizontal overflow. This is visual/fixture QA, not live multiplayer, notifications or complete game-engine testing. Spades gameplay is not implemented by this branding patch.
 
-Blocked: automatic approval review rejected using the Drive Cloudflare all-project master token to read the current Worker and settings, citing broad credential scope and insufficient specific authorization. No Cloudflare change or deployment attempted after rejection. User approval needed for that specific Ohana-only access and publishing workflow.
+Published after Kevin explicitly authorized the saved key for Ohana Home only. Recovered the exact active multipart Worker and settings; changed only app.html, the island image, and the scene image URL for cache refresh. Worker module SHA-256 remained unchanged. Original D1 binding preserved; no database changes.
+
+Active version: e792c4ac-b165-4e1e-ac8e-38e924f9616f (100%). Live HTML, WebP and scene script matched local tested bytes after publishing. Public live page loaded in Chromium at 390px with no page errors or horizontal overflow. Local fixtures also verified distinct hand/foot paths, round card shape, and round-card selection.
+
+Raw recovered backend contains deployment credentials and must not be added to GitHub. Keep the frontend patch separate; future deployments must recover and preserve the matching live Worker. This patch does not add Spades gameplay.
