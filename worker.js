@@ -94,7 +94,8 @@ var GAME_TYPES = {
   tictac: { name: "Tic-Tac-Toe", min: 2, max: 2, tag: "Little ones", desc: "Three in a row wins. Quick and easy." },
   memory: { name: "Memory Match", min: 2, max: 2, tag: "Little ones", desc: "Flip two cards. Find the pairs. Most pairs wins." },
   checkers: { name: "Checkers", min: 2, max: 2, tag: "Everybody", desc: "Jump your way across the board. Kings move both ways." },
-  handfoot: { name: "Hand & Foot", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Canasta-style card game. Build melds, make canastas, play your hand then your foot!" }
+  handfoot: { name: "Hand & Foot", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Canasta-style card game. Build melds, make canastas, play your hand then your foot!" },
+  spades: { name: "Ohana Spades", min: 4, max: 4, tag: "Grown-ups & big kids", desc: "Honey-gold Spades table with Ohana card suits, team tricks, and a friendly island computer table." }
 };
 var DIST = { A: [9, 1], B: [2, 3], C: [2, 3], D: [4, 2], E: [12, 1], F: [2, 4], G: [3, 2], H: [2, 4], I: [9, 1], J: [1, 8], K: [1, 5], L: [4, 1], M: [2, 3], N: [6, 1], O: [8, 1], P: [2, 3], Q: [1, 10], R: [6, 1], S: [4, 1], T: [6, 1], U: [4, 1], V: [2, 4], W: [2, 4], X: [1, 8], Y: [2, 4], Z: [1, 10], "?": [2, 0] };
 var LETTER_VALUES = Object.fromEntries(Object.entries(DIST).map(([k, v]) => [k, v[1]]));
@@ -552,6 +553,21 @@ function hardCheckers(st,players,turn,moves){
 }
 async function chooseBotMove(type,st,players,turn,db,random=Math.random){
   const pick=a=>a[Math.floor(random()*a.length)],hard=st.bot.difficulty==='hard',medium=st.bot.difficulty==='medium';
+  if(type==='spades'){
+    const player=players[turn],playable=spadesPlayable(st,player);
+    if(!playable.length)return null;
+    if(hard||medium){
+      const lead=st.trick[0]?.card.suit;
+      const sorted=[...playable].sort((a,b)=>a.value-b.value);
+      if(lead){
+        const winning=spadesTrickWinner([...st.trick,{p:player,card:sorted[0]}]);
+        const beaters=sorted.filter(card=>spadesTrickWinner([...st.trick,{p:player,card}]).p===player);
+        if(beaterNeedsHelp(winning,player)&&beaters.length)return {action:'play',cardId:beaters[0].id};
+      }
+      return {action:'play',cardId:sorted[0].id};
+    }
+    return {action:'play',cardId:pick(playable).id};
+  }
   if(type==='tictac'){
     const empty=st.board.flatMap((v,i)=>v?[]:[i]);
     if(hard)return {i:hardTicTac(st.board,turn===0?'X':'O')};
@@ -628,12 +644,14 @@ async function chooseBotMove(type,st,players,turn,db,random=Math.random){
   }
   throw new Error('No computer player for this game.');
 }
+function beaterNeedsHelp(winning,player){return winning.p!==player;}
+__name(beaterNeedsHelp, "beaterNeedsHelp");
 async function advanceBot(env,id){
   const db=env.DB;
   for(let step=0;step<50;step++){
     const g=await db.prepare('SELECT * FROM games WHERE id=?').bind(id).first();
     if(!g||g.status!=='playing')return;
-    const players=JSON.parse(g.players);if(players[g.turn]!==BOT_ID)return;
+    const players=JSON.parse(g.players);if(players[g.turn]>=0)return;
     const st=JSON.parse(g.state);if(!st.bot)return;
     const move=await chooseBotMove(g.type,st,players,g.turn,db);
     if(!move)throw new Error('Computer player has no legal move.');
@@ -925,6 +943,103 @@ function hfView(st, viewer) {
 __name(hfView, "hfView");
 // ========== END HAND & FOOT ==========
 
+// ========== OHANA SPADES ==========
+const SPADES_BOTS = {
+  [-1]: { id: -1, name: "Island Bot", avatar: "@hon" },
+  [-2]: { id: -2, name: "Me-Maw", avatar: "@flo" },
+  [-3]: { id: -3, name: "Island Bot", avatar: "@spl" }
+};
+function spadesTeamForIndex(i) {
+  return i % 2 === 0 ? "our" : "their";
+}
+__name(spadesTeamForIndex, "spadesTeamForIndex");
+function spadesDeck() {
+  const suits = ["S", "H", "C", "D"];
+  const ranks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+  const values = { A: 14, K: 13, Q: 12, J: 11, "10": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2 };
+  const deck = [];
+  for (const suit of suits) for (const rank of ranks) deck.push({ id: deck.length + 1, rank, suit, value: values[rank] });
+  return deck;
+}
+__name(spadesDeck, "spadesDeck");
+function spadesInit(players, seed) {
+  const r = rng(seed);
+  const deck = shuffle(spadesDeck(), r);
+  const hands = {};
+  for (const p of players) hands[p] = [];
+  for (let i = 0; i < 28; i++) hands[players[i % players.length]].push(deck.shift());
+  const order = { S: 0, H: 1, C: 2, D: 3 };
+  for (const p of players) hands[p].sort((a, b) => order[a.suit] - order[b.suit] || b.value - a.value);
+  return {
+    hands,
+    trick: [],
+    leader: 0,
+    round: 1,
+    spadesBroken: false,
+    teamBid: { our: 3, their: 3 },
+    tricks: { our: 0, their: 0 },
+    scores: { our: 120, their: 90 },
+    history: []
+  };
+}
+__name(spadesInit, "spadesInit");
+function spadesPlayable(st, player) {
+  const hand = st.hands[player] || [];
+  if (!st.trick.length) return hand;
+  const lead = st.trick[0].card.suit;
+  const follow = hand.filter(c => c.suit === lead);
+  return follow.length ? follow : hand;
+}
+__name(spadesPlayable, "spadesPlayable");
+function spadesCardName(card) {
+  return `${card.rank} of ${({ S: "wave spades", H: "hibiscus hearts", C: "leaf clubs", D: "flame diamonds" })[card.suit]}`;
+}
+__name(spadesCardName, "spadesCardName");
+function spadesTrickWinner(trick) {
+  const spades = trick.filter(t => t.card.suit === "S");
+  const pool = spades.length ? spades : trick.filter(t => t.card.suit === trick[0].card.suit);
+  return pool.reduce((best, t) => t.card.value > best.card.value ? t : best, pool[0]);
+}
+__name(spadesTrickWinner, "spadesTrickWinner");
+function spadesMove(st, players, turnIdx, move) {
+  if (move.action !== "play") throw new Error("Choose a card to play.");
+  const player = players[turnIdx];
+  const hand = st.hands[player] || [];
+  const cardId = Number(move.cardId);
+  const cardIndex = hand.findIndex(c => c.id === cardId);
+  if (cardIndex < 0) throw new Error("That card is not in your hand.");
+  const playable = spadesPlayable(st, player);
+  if (!playable.some(c => c.id === cardId)) throw new Error("Follow the island lead suit when you can.");
+  const [card] = hand.splice(cardIndex, 1);
+  if (card.suit === "S" && st.trick.length && st.trick[0].card.suit !== "S") st.spadesBroken = true;
+  st.trick.push({ p: player, card });
+  st.lastPlay = { p: player, card, at: Date.now() };
+  if (st.trick.length < players.length) return { over: false, next: (turnIdx + 1) % players.length };
+  const winner = spadesTrickWinner(st.trick);
+  const winnerIndex = players.indexOf(winner.p);
+  const team = spadesTeamForIndex(winnerIndex);
+  st.tricks[team]++;
+  st.history.push({ winner: winner.p, team, cards: st.trick, label: spadesCardName(winner.card) });
+  st.trick = [];
+  st.leader = winnerIndex;
+  const roundOver = players.every(p => !st.hands[p]?.length);
+  if (roundOver) {
+    for (const t of ["our", "their"]) st.scores[t] += st.tricks[t] >= st.teamBid[t] ? st.tricks[t] * 10 : -st.teamBid[t] * 10;
+    const winnerTeam = st.scores.our === st.scores.their ? "tie" : st.scores.our > st.scores.their ? players[0] : players[1];
+    st.roundOver = true;
+    return { over: true, winner: winnerTeam, next: winnerIndex };
+  }
+  return { over: false, next: winnerIndex };
+}
+__name(spadesMove, "spadesMove");
+function spadesView(st, viewer) {
+  const hands = {};
+  for (const p in st.hands) hands[p] = String(p) === String(viewer) ? st.hands[p] : st.hands[p].length;
+  return { ...st, hands };
+}
+__name(spadesView, "spadesView");
+// ========== END OHANA SPADES ==========
+
 function initState(type, players, seed, mode) {
   if (type === "mahjong") return mahjongInit(players, rng(seed));
   if (type === "words") return wordsInit(players, seed, mode);
@@ -932,6 +1047,7 @@ function initState(type, players, seed, mode) {
   if (type === "memory") return memInit(players, seed);
   if (type === "checkers") return chkInit();
   if (type === "handfoot") return hfInit(players, seed);
+  if (type === "spades") return spadesInit(players, seed);
   throw new Error("Unknown game");
 }
 __name(initState, "initState");
@@ -942,12 +1058,14 @@ async function applyMove(type, st, players, turnIdx, move, db) {
   if (type === "memory") return memMove(st, players, turnIdx, move);
   if (type === "checkers") return chkMove(st, players, turnIdx, move);
   if (type === "handfoot") return hfMove(st, players, turnIdx, move);
+  if (type === "spades") return spadesMove(st, players, turnIdx, move);
   throw new Error("Unknown game");
 }
 __name(applyMove, "applyMove");
 function viewState(type, st, viewer) {
   if (type === "words") return wordsView(st, viewer);
   if (type === "handfoot") return hfView(st, viewer);
+  if (type === "spades") return spadesView(st, viewer);
   if(type === "memory"){const visible=new Set([...(st.open||[]),...(st.pending||[])]);const safe={...st,cards:st.cards.map((card,i)=>st.matched[i]||visible.has(i)?card:null)};if(st.bot){const {memory,...bot}=st.bot;safe.bot=bot;}return safe;}
   return st;
 }
@@ -986,6 +1104,7 @@ function gameRow(g, me) {
   const players = JSON.parse(g.players);
   const state = g.state ? JSON.parse(g.state) : {};
   const lastWordPlay = g.type === "words" ? state.history?.at(-1) : null;
+  const summaryScores = g.type === "spades" && state.scores ? { [players[0]]: Number(state.scores.our) || 0, [players[1]]: Number(state.scores.their) || 0 } : state.scores ? Object.fromEntries(players.map(id => [id, Number(state.scores[id]) || 0])) : null;
   return {
     id: g.id,
     room_id: g.room_id || 1,
@@ -1000,7 +1119,7 @@ function gameRow(g, me) {
     created_by: g.created_by,
     updated_at: g.updated_at,
     last_play: state.lastPlay || null,
-    scores: state.scores ? Object.fromEntries(players.map(id => [id, Number(state.scores[id]) || 0])) : null,
+    scores: summaryScores,
     last_score: lastWordPlay && Number.isFinite(lastWordPlay.score) ? {p:lastWordPlay.p,score:lastWordPlay.score} : null,
     my_turn: g.status === "playing" && players[g.turn] === me,
     in_game: players.includes(me),
@@ -1509,12 +1628,12 @@ async function api2(req, env, url) {
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
     const withBot=body.opponent==='bot';
-    const max = withBot?2:Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const max = withBot ? (type === "spades" ? 4 : 2) : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === 'words' && body.mode === 'random' ? 'random' : 'classic';
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode,roomId).run();
     if (max === 1 || withBot) {
-      const players=withBot?[me.id,BOT_ID]:[me.id];
+      const players=withBot ? (type === "spades" ? [me.id, BOT_ID, -2, -3] : [me.id,BOT_ID]) : [me.id];
       const st=initState(type,players,now(),mode);
       if(withBot)st.bot={id:BOT_ID,name:'Honu',avatar:'@hon',difficulty:['easy','medium','hard'].includes(body.difficulty)?body.difficulty:'easy',memory:{},moves:0};
       if(withBot)await db.prepare('UPDATE games SET players=? WHERE id=?').bind(JSON.stringify(players),r.meta.last_row_id).run();
@@ -1533,9 +1652,9 @@ async function api2(req, env, url) {
     const players = JSON.parse(g.players);
     const names = {};
     for (const m of (await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=?").bind(g.room_id).all()).results) names[m.id] = m;
-    if(players.includes(BOT_ID))names[BOT_ID]={id:BOT_ID,name:'Honu · computer',avatar:'@hon'};
+    for(const p of players)if(p<0)names[p]=SPADES_BOTS[p]||{id:p,name:'Honu · computer',avatar:'@hon'};
     if (!action) {
-      if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]===BOT_ID)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
+      if(players.includes(me.id)&&g.status==='playing'&&players[g.turn]<0)env.ctx?.waitUntil?.(advanceBot(env,id).catch(e=>console.error('Computer move failed',e.message)));
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       const invited_members=players.includes(me.id)&&g.status==='waiting'?(await db.prepare("SELECT member_id FROM game_invitations WHERE game_id=? AND status='pending'").bind(id).all()).results.map(i=>i.member_id):[];
       return json({ ...gameRow(g, me.id), state: st, names, invited_members });
