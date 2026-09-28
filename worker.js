@@ -95,7 +95,7 @@ var GAME_TYPES = {
   memory: { name: "Memory Match", min: 2, max: 2, tag: "Little ones", desc: "Flip two cards. Find the pairs. Most pairs wins." },
   checkers: { name: "Checkers", min: 2, max: 2, tag: "Everybody", desc: "Jump your way across the board. Kings move both ways." },
   handfoot: { name: "Hand & Foot", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Canasta-style card game. Build melds, make canastas, play your hand then your foot!" },
-  spades: { name: "Ohana Spades", min: 4, max: 4, tag: "Grown-ups & big kids", desc: "Honey-gold Spades table with Ohana card suits, team tricks, and a friendly island computer table." }
+  spades: { name: "Ohana Mike's (spades)", min: 4, max: 4, tag: "Grown-ups & big kids", desc: "Honey-gold Spades table with Ohana card suits, team tricks, and a friendly island computer table." }
 };
 var DIST = { A: [9, 1], B: [2, 3], C: [2, 3], D: [4, 2], E: [12, 1], F: [2, 4], G: [3, 2], H: [2, 4], I: [9, 1], J: [1, 8], K: [1, 5], L: [4, 1], M: [2, 3], N: [6, 1], O: [8, 1], P: [2, 3], Q: [1, 10], R: [6, 1], S: [4, 1], T: [6, 1], U: [4, 1], V: [2, 4], W: [2, 4], X: [1, 8], Y: [2, 4], Z: [1, 10], "?": [2, 0] };
 var LETTER_VALUES = Object.fromEntries(Object.entries(DIST).map(([k, v]) => [k, v[1]]));
