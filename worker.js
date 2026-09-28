@@ -1861,6 +1861,17 @@ self.addEventListener('notificationclick', function(event) {
 
 self.addEventListener('fetch', e => {});
 `;
+class PuzzleRoom {
+  constructor(state, env) {
+    this.state = state;
+    this.env = env;
+  }
+  async fetch() {
+    return new Response("PuzzleRoom compatibility object is inactive.", { status: 410 });
+  }
+}
+__name(PuzzleRoom, "PuzzleRoom");
 export {
+  PuzzleRoom,
   worker_default as default
 };
