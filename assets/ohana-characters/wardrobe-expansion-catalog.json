@@ -1,0 +1,90 @@
+{
+  "@w00": {
+    "name": "Bandit",
+    "base": "@bnd",
+    "outfit": "Doctor",
+    "file": "/wardrobe-bandit-doctor-v1.webp",
+    "still": true,
+    "line": "Bandit brings a little kindness to the Ohana."
+  },
+  "@w01": {
+    "name": "Bandit",
+    "base": "@bnd",
+    "outfit": "Chef",
+    "file": "/wardrobe-bandit-chef-v1.webp",
+    "still": true,
+    "line": "Bandit brings a little kindness to the Ohana."
+  },
+  "@w02": {
+    "name": "Bandit",
+    "base": "@bnd",
+    "outfit": "Everyday",
+    "file": "/wardrobe-bandit-everyday-v1.webp",
+    "still": true,
+    "line": "Bandit brings a little kindness to the Ohana."
+  },
+  "@w03": {
+    "name": "Bandit",
+    "base": "@bnd",
+    "outfit": "Explorer",
+    "file": "/wardrobe-bandit-explorer-v1.webp",
+    "still": true,
+    "line": "Bandit brings a little kindness to the Ohana."
+  },
+  "@w04": {
+    "name": "Honu",
+    "base": "@hon",
+    "outfit": "Police",
+    "file": "/wardrobe-honu-police-v1.webp",
+    "still": true,
+    "line": "Honu brings a little kindness to the Ohana."
+  },
+  "@w05": {
+    "name": "Honu",
+    "base": "@hon",
+    "outfit": "Nurse",
+    "file": "/wardrobe-honu-nurse-v1.webp",
+    "still": true,
+    "line": "Honu brings a little kindness to the Ohana."
+  },
+  "@w06": {
+    "name": "Honu",
+    "base": "@hon",
+    "outfit": "Firefighter",
+    "file": "/wardrobe-honu-firefighter-v1.webp",
+    "still": true,
+    "line": "Honu brings a little kindness to the Ohana."
+  },
+  "@w08": {
+    "name": "Eddie",
+    "base": "@eag",
+    "outfit": "Police",
+    "file": "/wardrobe-eddie-police-v1.webp",
+    "still": true,
+    "line": "Eddie brings a little kindness to the Ohana."
+  },
+  "@w09": {
+    "name": "Eddie",
+    "base": "@eag",
+    "outfit": "Nurse",
+    "file": "/wardrobe-eddie-nurse-v1.webp",
+    "still": true,
+    "line": "Eddie brings a little kindness to the Ohana."
+  },
+  "@w10": {
+    "name": "Eddie",
+    "base": "@eag",
+    "outfit": "Firefighter",
+    "file": "/wardrobe-eddie-firefighter-v1.webp",
+    "still": true,
+    "line": "Eddie brings a little kindness to the Ohana."
+  },
+  "@w11": {
+    "name": "Eddie",
+    "base": "@eag",
+    "outfit": "Chef",
+    "file": "/wardrobe-eddie-chef-v1.webp",
+    "still": true,
+    "line": "Eddie brings a little kindness to the Ohana."
+  }
+}
