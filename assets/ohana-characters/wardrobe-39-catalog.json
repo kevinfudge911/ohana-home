@@ -1,0 +1,314 @@
+{
+  "@c00": {
+    "name": "Splash",
+    "file": "/ohana-c00-v1.webp",
+    "still": true,
+    "line": "Splash brings a little kindness to the Ohana.",
+    "base": "@spl",
+    "outfit": "Lifeguard"
+  },
+  "@c01": {
+    "name": "Kiko",
+    "file": "/ohana-c01-v1.webp",
+    "still": true,
+    "line": "Kiko brings a little kindness to the Ohana.",
+    "base": "@kik",
+    "outfit": "Explorer"
+  },
+  "@c02": {
+    "name": "Pebble",
+    "file": "/ohana-c02-v1.webp",
+    "still": true,
+    "line": "Pebble brings a little kindness to the Ohana.",
+    "base": "@peb",
+    "outfit": "Sailor"
+  },
+  "@c03": {
+    "name": "Mango",
+    "file": "/ohana-c03-v1.webp",
+    "still": true,
+    "line": "Mango brings a little kindness to the Ohana.",
+    "base": "@man",
+    "outfit": "Pilot"
+  },
+  "@c04": {
+    "name": "Sunny",
+    "file": "/ohana-c04-v1.webp",
+    "still": true,
+    "line": "Sunny brings a little kindness to the Ohana.",
+    "base": "@sun",
+    "outfit": "Chef"
+  },
+  "@c05": {
+    "name": "Otto",
+    "file": "/ohana-c05-v1.webp",
+    "still": true,
+    "line": "Otto brings a little kindness to the Ohana.",
+    "base": "@ott",
+    "outfit": "Builder"
+  },
+  "@c06": {
+    "name": "Pippa",
+    "file": "/ohana-c06-v1.webp",
+    "still": true,
+    "line": "Pippa brings a little kindness to the Ohana.",
+    "base": "@pip",
+    "outfit": "Paramedic"
+  },
+  "@c07": {
+    "name": "Lulu",
+    "file": "/ohana-c07-v1.webp",
+    "still": true,
+    "line": "Lulu brings a little kindness to the Ohana.",
+    "base": "@lul",
+    "outfit": "Nurse"
+  },
+  "@c08": {
+    "name": "Hoot",
+    "file": "/ohana-c08-v1.webp",
+    "still": true,
+    "line": "Hoot brings a little kindness to the Ohana.",
+    "base": "@hoo",
+    "outfit": "Professor"
+  },
+  "@c09": {
+    "name": "Flutter",
+    "file": "/ohana-c09-v1.webp",
+    "still": true,
+    "line": "Flutter brings a little kindness to the Ohana.",
+    "base": "@flu",
+    "outfit": "Garden party"
+  },
+  "@c10": {
+    "name": "Rosie",
+    "file": "/ohana-c10-v1.webp",
+    "still": true,
+    "line": "Rosie brings a little kindness to the Ohana.",
+    "base": "@ros",
+    "outfit": "Baker"
+  },
+  "@c11": {
+    "name": "Koa",
+    "file": "/ohana-c11-v1.webp",
+    "still": true,
+    "line": "Koa brings a little kindness to the Ohana.",
+    "base": "@koa",
+    "outfit": "Firefighter"
+  },
+  "@c12": {
+    "name": "Milo",
+    "file": "/ohana-c12-v1.webp",
+    "still": true,
+    "line": "Milo brings a little kindness to the Ohana.",
+    "base": "@mil",
+    "outfit": "Detective"
+  },
+  "@c13": {
+    "name": "Bamboo",
+    "file": "/ohana-c13-v1.webp",
+    "still": true,
+    "line": "Bamboo brings a little kindness to the Ohana.",
+    "base": "@bam",
+    "outfit": "Doctor"
+  },
+  "@c14": {
+    "name": "Coco",
+    "file": "/ohana-c14-v1.webp",
+    "still": true,
+    "line": "Coco brings a little kindness to the Ohana.",
+    "base": "@coc",
+    "outfit": "Gardener"
+  },
+  "@c15": {
+    "name": "Finn",
+    "file": "/ohana-c15-v1.webp",
+    "still": true,
+    "line": "Finn brings a little kindness to the Ohana.",
+    "base": "@fin",
+    "outfit": "Coast guard"
+  },
+  "@c16": {
+    "name": "Inky",
+    "file": "/ohana-c16-v1.webp",
+    "still": true,
+    "line": "Inky brings a little kindness to the Ohana.",
+    "base": "@ink",
+    "outfit": "Artist"
+  },
+  "@c17": {
+    "name": "Kai",
+    "file": "/ohana-c17-v1.webp",
+    "still": true,
+    "line": "Kai brings a little kindness to the Ohana.",
+    "base": "@kai",
+    "outfit": "Royal cape"
+  },
+  "@c18": {
+    "name": "Flora",
+    "file": "/ohana-c18-v1.webp",
+    "still": true,
+    "line": "Flora brings a little kindness to the Ohana.",
+    "base": "@flo",
+    "outfit": "Ballet"
+  },
+  "@c19": {
+    "name": "Reef",
+    "file": "/ohana-c19-v1.webp",
+    "still": true,
+    "line": "Reef brings a little kindness to the Ohana.",
+    "base": "@ree",
+    "outfit": "Astronaut"
+  },
+  "@c20": {
+    "name": "Pip",
+    "file": "/ohana-c20-v1.webp",
+    "still": true,
+    "line": "Pip brings a little kindness to the Ohana.",
+    "base": "@n01",
+    "outfit": "Mail carrier"
+  },
+  "@c21": {
+    "name": "Maple",
+    "file": "/ohana-c21-v1.webp",
+    "still": true,
+    "line": "Maple brings a little kindness to the Ohana.",
+    "base": "@n02",
+    "outfit": "Park ranger"
+  },
+  "@c22": {
+    "name": "Biscuit",
+    "file": "/ohana-c22-v1.webp",
+    "still": true,
+    "line": "Biscuit brings a little kindness to the Ohana.",
+    "base": "@n03",
+    "outfit": "Mechanic"
+  },
+  "@c23": {
+    "name": "Waffles",
+    "file": "/ohana-c23-v1.webp",
+    "still": true,
+    "line": "Waffles brings a little kindness to the Ohana.",
+    "base": "@n04",
+    "outfit": "Chef"
+  },
+  "@c24": {
+    "name": "Mochi",
+    "file": "/ohana-c24-v1.webp",
+    "still": true,
+    "line": "Mochi brings a little kindness to the Ohana.",
+    "base": "@n05",
+    "outfit": "Cozy day"
+  },
+  "@c25": {
+    "name": "Nibbles",
+    "file": "/ohana-c25-v1.webp",
+    "still": true,
+    "line": "Nibbles brings a little kindness to the Ohana.",
+    "base": "@n06",
+    "outfit": "Builder"
+  },
+  "@c26": {
+    "name": "Kanga",
+    "file": "/ohana-c26-v1.webp",
+    "still": true,
+    "line": "Kanga brings a little kindness to the Ohana.",
+    "base": "@n07",
+    "outfit": "Firefighter"
+  },
+  "@c28": {
+    "name": "Tater",
+    "file": "/ohana-c28-v1.webp",
+    "still": true,
+    "line": "Tater brings a little kindness to the Ohana.",
+    "base": "@n09",
+    "outfit": "Farmer"
+  },
+  "@c29": {
+    "name": "Patches",
+    "file": "/ohana-c29-v1.webp",
+    "still": true,
+    "line": "Patches brings a little kindness to the Ohana.",
+    "base": "@n11",
+    "outfit": "Doctor"
+  },
+  "@c30": {
+    "name": "Poppy",
+    "file": "/ohana-c30-v1.webp",
+    "still": true,
+    "line": "Poppy brings a little kindness to the Ohana.",
+    "base": "@n13",
+    "outfit": "Gardener"
+  },
+  "@c31": {
+    "name": "Lemon",
+    "file": "/ohana-c31-v1.webp",
+    "still": true,
+    "line": "Lemon brings a little kindness to the Ohana.",
+    "base": "@n15",
+    "outfit": "Rainy day"
+  },
+  "@c32": {
+    "name": "Coral",
+    "file": "/ohana-c32-v1.webp",
+    "still": true,
+    "line": "Coral brings a little kindness to the Ohana.",
+    "base": "@n16",
+    "outfit": "Marine scientist"
+  },
+  "@c33": {
+    "name": "Tango",
+    "file": "/ohana-c33-v1.webp",
+    "still": true,
+    "line": "Tango brings a little kindness to the Ohana.",
+    "base": "@n17",
+    "outfit": "Pilot"
+  },
+  "@c34": {
+    "name": "Ziggy",
+    "file": "/ohana-c34-v1.webp",
+    "still": true,
+    "line": "Ziggy brings a little kindness to the Ohana.",
+    "base": "@n18",
+    "outfit": "Sporty"
+  },
+  "@c35": {
+    "name": "Pebbles",
+    "file": "/ohana-c35-v1.webp",
+    "still": true,
+    "line": "Pebbles brings a little kindness to the Ohana.",
+    "base": "@n19",
+    "outfit": "Firefighter"
+  },
+  "@c36": {
+    "name": "Bubbles",
+    "file": "/ohana-c36-v1.webp",
+    "still": true,
+    "line": "Bubbles brings a little kindness to the Ohana.",
+    "base": "@n20",
+    "outfit": "Lifeguard"
+  },
+  "@c37": {
+    "name": "Daisy",
+    "file": "/ohana-c37-v1.webp",
+    "still": true,
+    "line": "Daisy brings a little kindness to the Ohana.",
+    "base": "@n21",
+    "outfit": "Farmer"
+  },
+  "@c38": {
+    "name": "Skippy",
+    "file": "/ohana-c38-v1.webp",
+    "still": true,
+    "line": "Skippy brings a little kindness to the Ohana.",
+    "base": "@n23",
+    "outfit": "Explorer"
+  },
+  "@c39": {
+    "name": "Nova",
+    "file": "/ohana-c39-v1.webp",
+    "still": true,
+    "line": "Nova brings a little kindness to the Ohana.",
+    "base": "@n24",
+    "outfit": "Winter adventure"
+  }
+}
