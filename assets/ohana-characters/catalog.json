@@ -1,0 +1,135 @@
+{
+  "@bnd": {
+    "name": "Bandit",
+    "file": "/buddy-bandit-v1.webp",
+    "line": "A big-hearted pug with a curly tail and a whole lot of love."
+  },
+  "@n01": {
+    "name": "Pip",
+    "file": "/buddy-pip-v1.webp",
+    "line": "Your cheerful red squirrel friend. There is always a seat for you."
+  },
+  "@n02": {
+    "name": "Maple",
+    "file": "/buddy-maple-v1.webp",
+    "line": "Your cheerful red fox friend. There is always a seat for you."
+  },
+  "@n03": {
+    "name": "Biscuit",
+    "file": "/buddy-biscuit-v1.webp",
+    "line": "Your cheerful raccoon friend. There is always a seat for you."
+  },
+  "@n04": {
+    "name": "Waffles",
+    "file": "/buddy-waffles-v1.webp",
+    "line": "Your cheerful hedgehog friend. There is always a seat for you."
+  },
+  "@n05": {
+    "name": "Mochi",
+    "file": "/buddy-mochi-v1.webp",
+    "line": "Your cheerful chinchilla friend. There is always a seat for you."
+  },
+  "@n06": {
+    "name": "Nibbles",
+    "file": "/buddy-nibbles-v1.webp",
+    "line": "Your cheerful beaver friend. There is always a seat for you."
+  },
+  "@n07": {
+    "name": "Pogo",
+    "file": "/buddy-pogo-v1.webp",
+    "line": "Your cheerful kangaroo friend. There is always a seat for you."
+  },
+  "@n08": {
+    "name": "Clover",
+    "file": "/buddy-clover-v1.webp",
+    "line": "Your cheerful baby deer friend. There is always a seat for you."
+  },
+  "@n09": {
+    "name": "Tater",
+    "file": "/buddy-tater-v1.webp",
+    "line": "Your cheerful capybara friend. There is always a seat for you."
+  },
+  "@n11": {
+    "name": "Patches",
+    "file": "/buddy-patches-v1.webp",
+    "line": "Your cheerful calico kitten friend. There is always a seat for you."
+  },
+  "@n13": {
+    "name": "Poppy",
+    "file": "/buddy-poppy-v1.webp",
+    "line": "Your cheerful alpaca friend. There is always a seat for you."
+  },
+  "@n15": {
+    "name": "Lemon",
+    "file": "/buddy-lemon-v1.webp",
+    "line": "Your cheerful yellow duckling friend. There is always a seat for you."
+  },
+  "@n16": {
+    "name": "Coral",
+    "file": "/buddy-coral-v1.webp",
+    "line": "Your cheerful pink axolotl friend. There is always a seat for you."
+  },
+  "@n17": {
+    "name": "Tango",
+    "file": "/buddy-tango-v1.webp",
+    "line": "Your cheerful toucan friend. There is always a seat for you."
+  },
+  "@n18": {
+    "name": "Ziggy",
+    "file": "/buddy-ziggy-v1.webp",
+    "line": "Your cheerful baby zebra friend. There is always a seat for you."
+  },
+  "@n19": {
+    "name": "Pebbles",
+    "file": "/buddy-pebbles-v1.webp",
+    "line": "Your cheerful baby elephant friend. There is always a seat for you."
+  },
+  "@n20": {
+    "name": "Bubbles",
+    "file": "/buddy-bubbles-v1.webp",
+    "line": "Your cheerful baby hippo friend. There is always a seat for you."
+  },
+  "@n21": {
+    "name": "Daisy",
+    "file": "/buddy-daisy-v1.webp",
+    "line": "Your cheerful Holstein calf friend. There is always a seat for you."
+  },
+  "@n23": {
+    "name": "Skippy",
+    "file": "/buddy-skippy-v1.webp",
+    "line": "Your cheerful baby goat friend. There is always a seat for you."
+  },
+  "@n24": {
+    "name": "Nova",
+    "file": "/buddy-nova-v1.webp",
+    "line": "Your cheerful snow leopard cub friend. There is always a seat for you."
+  },
+  "@bp1": {
+    "name": "Bandit",
+    "file": "/buddy-bandit-police-v1.webp",
+    "line": "Bandit is ready to help his Ohana.",
+    "base": "@bnd",
+    "outfit": "Police"
+  },
+  "@bn1": {
+    "name": "Bandit",
+    "file": "/buddy-bandit-nurse-v1.webp",
+    "line": "Bandit is ready to help his Ohana.",
+    "base": "@bnd",
+    "outfit": "Nurse"
+  },
+  "@bf1": {
+    "name": "Bandit",
+    "file": "/buddy-bandit-firefighter-v1.webp",
+    "line": "Bandit is ready to help his Ohana.",
+    "base": "@bnd",
+    "outfit": "Firefighter"
+  },
+  "@ba1": {
+    "name": "Bandit",
+    "file": "/buddy-bandit-aloha-v1.webp",
+    "line": "Bandit is ready to bring a little island sunshine.",
+    "base": "@bnd",
+    "outfit": "Aloha"
+  }
+}
