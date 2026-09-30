@@ -1,0 +1,18 @@
+--- a/app.html
++++ b/app.html
+@@ -4750,6 +4750,15 @@
+ :root body dialog.ohana-warning button .island-icon,:root body dialog#play-error button .island-icon{display:none!important}
+ :root body dialog.ohana-warning button:focus-visible,:root body dialog#play-error button:focus-visible{outline:3px solid #ffe8ac!important;outline-offset:3px}
+ </style>
++<style id="freestanding-characters-outside-games">
++/* Approved family display: transparent character, plain name below. Game seats are excluded. */
++html.ohana-world body #app .world-seat:not(#game *){display:flex!important;flex-direction:column!important;align-items:center!important;gap:7px!important}
++html.ohana-world body :is(.world-portrait,.fam .av,.uc-avatar,.pz-person>.ohana-buddy):not(#game *){background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;overflow:visible!important;clip-path:none!important}
++html.ohana-world body .world-portrait:not(#game *)::before,html.ohana-world body .world-portrait:not(#game *)::after{content:none!important;display:none!important}
++html.ohana-world body #app .world-nameplate:not(#game *){display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:5px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;min-height:0!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important}
++html.ohana-world body #app .world-nameplate:not(#game *) b{white-space:normal!important;overflow-wrap:anywhere;max-width:100%;text-align:center}
++html.ohana-world body .character-avatar:not(#game *){background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;object-fit:contain!important;clip-path:none!important}
++</style>
+ </head>
+ <body>
+ <div id="app"></div>
