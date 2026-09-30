@@ -1,0 +1,21 @@
+--- a/app.html
++++ b/app.html
+@@ -4636,9 +4636,6 @@
+ html.ohana-world body #game #game-controls-dock .dock-side>button.ohana-button.ohana-button.ohana-button,
+ html.ohana-world body #game #game-controls-dock .dock-left .dock-say{font-size:32px!important;line-height:1.15!important;height:auto!important;min-height:46px!important;padding:4px!important}
+ html.ohana-world body #game #game-controls-dock .dock-side svg{width:30px!important;height:30px!important}
+-html.ohana-world body #game #game-controls-dock .dock-player .world-nameplate b{font-size:30px!important;max-width:180px!important;white-space:normal!important;overflow-wrap:anywhere}
+-html.ohana-world body #game #game-controls-dock .dock-player .world-plate-score{font-size:32px!important;max-width:none!important;overflow:visible!important}
+-html.ohana-world body #game #game-controls-dock .dock-player .world-turn{font-size:20px!important}
+ html.ohana-world body #game #game-controls-dock .dock-guide>strong{font-size:36px!important;line-height:1.15}
+ html.ohana-world body #game #game-controls-dock .dock-guide>span{font-size:28px!important;line-height:1.2}
+ html.ohana-world body #game #game-controls-dock .dock-gear-menu{position:fixed;left:10px;bottom:72px;max-width:calc(100vw - 20px);max-height:60dvh;overflow:auto;z-index:10}
+@@ -4659,8 +4656,6 @@
+  html.ohana-world body #game #game-controls-dock .dock-actions button,html.ohana-world body #game #game-controls-dock .dock-actions button.ohana-button.ohana-button.ohana-button{font-size:30px!important;min-height:44px!important}
+  html.ohana-world body #game #game-controls-dock[data-game-type=words] .dock-actions button,html.ohana-world body #game #game-controls-dock[data-game-type=words] .dock-actions button.ohana-button.ohana-button.ohana-button{font-size:clamp(26px,7.3vw,32px)!important}
+  html.ohana-world body #game #game-controls-dock .dock-side>button,html.ohana-world body #game #game-controls-dock .dock-side>button.ohana-button.ohana-button.ohana-button,html.ohana-world body #game #game-controls-dock .dock-left .dock-say{font-size:28px!important;min-height:44px!important}
+- html.ohana-world body #game #game-controls-dock .dock-player .world-nameplate b{font-size:24px!important;max-width:110px!important}
+- html.ohana-world body #game #game-controls-dock .dock-player .world-plate-score{font-size:26px!important}
+  html.ohana-world body #game #game-controls-dock .dock-guide>strong{font-size:34px!important}
+  html.ohana-world body #game #game-controls-dock .dock-guide>span{font-size:26px!important}
+ }
