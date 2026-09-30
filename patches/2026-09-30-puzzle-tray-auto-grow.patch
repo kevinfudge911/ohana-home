@@ -1,0 +1,37 @@
+--- a/app.html
++++ b/app.html
+@@ -4734,6 +4734,14 @@
+   }
+ }
+ </style>
++<style id="puzzle-tray-auto-grow">
++/* Sorting trays gain rows as pieces arrive; scrolling begins at the table limit. */
++#pz-board .pz-float-tray,
++#pz-board .pz-float-tray.expanded{height:auto;min-height:0;max-height:calc(100% - 8px);max-height:min(65%,calc(100% - 8px));box-sizing:border-box}
++#pz-board .pz-float-head{flex:0 0 auto}
++#pz-board .pz-float-tray .pz-float-pieces{flex:0 1 auto;min-height:0;display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#e9c17d #653615;touch-action:pan-y}
++#pz-board .pz-float-tray .pz-float-pieces:empty{min-height:48px}
++</style>
+ </head>
+ <body>
+ <div id="app"></div>
+@@ -5724,15 +5732,18 @@
+ function pzTrayAt(x,y){const el=document.elementFromPoint(x,y)?.closest('.pz-float-tray');return el&&!el.hidden?+el.dataset.tray:null;}
+ function pzPaintTrays(){const layer=$('#pz-float-layer'),dock=$('#pz-tray-dock'),add=$('#pz-tray-add');if(!layer||!dock||!PZ.data)return;
+  const stage=layer.parentElement;add.disabled=PZ.trays.length>=5;add.title=add.disabled?'Five trays maximum':'Add a movable puzzle tray';
++ const scrollPositions=new Map([...layer.querySelectorAll('.pz-float-tray')].map(el=>[+el.dataset.tray,el.querySelector('.pz-float-pieces')?.scrollTop||0]));
+  layer.innerHTML='';dock.innerHTML='';
+  for(const tray of PZ.trays){const pieces=PZ.data.pieces.filter(q=>q.tray===tray.id&&!q.l);
+   if(tray.docked){const chip=document.createElement('button');chip.textContent=tray.name+' · '+pieces.length;chip.title='Open '+tray.name;chip.onclick=()=>pzSend({t:'tray-update',id:tray.id,docked:false});dock.append(chip);continue;}
+   const expanded=PZ_TRAY_EXPANDED.has(tray.id),zoom=PZ_TRAY_ZOOM.get(tray.id)||1,pieceSize=Math.round((expanded?112:48)*zoom);
+-  const el=document.createElement('section');el.className='pz-float-tray'+(expanded?' expanded':'');el.dataset.tray=tray.id;el.style.setProperty('--tray-color',tray.color||PZ_TRAY_COLORS[0]);el.style.setProperty('--pz-tray-piece',pieceSize+'px');if(!expanded)el.style.height=Math.min(230,pieceSize+30)+'px';el.setAttribute('aria-label',tray.name+' puzzle tray');
++  const el=document.createElement('section');el.className='pz-float-tray'+(expanded?' expanded':'');el.dataset.tray=tray.id;el.style.setProperty('--tray-color',tray.color||PZ_TRAY_COLORS[0]);el.style.setProperty('--pz-tray-piece',pieceSize+'px');el.setAttribute('aria-label',tray.name+' puzzle tray');
+   el.innerHTML='<div class="pz-float-head"><strong>'+esc(tray.name)+'</strong><button data-act="zoom-out" data-icon="−" title="Zoom out pieces" aria-label="Zoom out '+esc(tray.name)+' pieces" '+(zoom===1?'disabled':'')+'></button><button data-act="zoom-in" data-icon="+" title="Zoom in pieces" aria-label="Zoom in '+esc(tray.name)+' pieces" '+(zoom===2.5?'disabled':'')+'></button><button data-act="expand" data-icon="'+(expanded?'↙':'⤢')+'" title="'+(expanded?'Shrink':'Enlarge')+' tray" aria-label="'+(expanded?'Shrink':'Enlarge')+' '+esc(tray.name)+' tray"></button><button data-act="rename" data-icon="✎" title="Rename tray" aria-label="Rename '+esc(tray.name)+'"></button><button data-act="color" data-icon="◉" title="Change tray color" aria-label="Change tray color"></button><button data-act="dock" data-icon="↘" title="Move tray to side" aria-label="Dock '+esc(tray.name)+'"></button><button data-act="delete" data-icon="×" title="Remove empty tray" aria-label="Remove '+esc(tray.name)+'"></button></div><div class="pz-float-pieces"></div>';
+   layer.append(el);const place=()=>{el.style.left=Math.max(4,Math.min(stage.clientWidth-el.offsetWidth-4,stage.clientWidth*tray.x))+'px';el.style.top=Math.max(4,Math.min(stage.clientHeight-el.offsetHeight-4,stage.clientHeight*tray.y))+'px';};place();
+   const body=el.querySelector('.pz-float-pieces');
+   for(const pc of pieces){const btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Place piece '+(pc.i+1)+' from '+tray.name+' on the table');btn.dataset.piece=pc.i;const cv=document.createElement('canvas'),sz=Math.max(90,Math.round(pieceSize*1.5));cv.width=sz;cv.height=sz;btn.append(cv);body.append(btn);const spr=pzSprite(pc.i);if(spr){const sw=spr.width,sh=spr.height,k=Math.min((sz-4)/sw,(sz-4)/sh);cv.getContext('2d').drawImage(spr,(sz-sw*k)/2,(sz-sh*k)/2,sw*k,sh*k);}pzBindTrayPiece(btn,pc.i,tray.id);}
++  // Size from wrapped rows before keeping the whole tray inside the table.
++  place();body.scrollTop=scrollPositions.get(tray.id)||0;
+   for(const [act,dir] of [['zoom-in',1],['zoom-out',-1]])el.querySelector('[data-act="'+act+'"]').onclick=()=>{const i=PZ_TRAY_ZOOM_STEPS.indexOf(zoom),next=PZ_TRAY_ZOOM_STEPS[Math.max(0,Math.min(PZ_TRAY_ZOOM_STEPS.length-1,i+dir))];PZ_TRAY_ZOOM.set(tray.id,next);pzPaintTrays();};
+   el.querySelector('[data-act="expand"]').onclick=()=>{if(PZ_TRAY_EXPANDED.has(tray.id))PZ_TRAY_EXPANDED.delete(tray.id);else PZ_TRAY_EXPANDED.add(tray.id);pzPaintTrays();};
+   el.querySelector('[data-act="rename"]').onclick=()=>{const name=prompt('Name this tray (for example, Blue or Shirt)',tray.name);if(name!==null)pzSend({t:'tray-update',id:tray.id,name});};
