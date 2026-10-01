@@ -1,0 +1,35 @@
+/* Scope all layout corrections to the Puzzle Room, including global button overrides. */
+html body #app #main:has(.pz-hero){width:100%!important;max-width:1120px!important;box-sizing:border-box;padding:12px 14px 130px!important}
+html body #app #main.pz-picture-lobby .pz-hero{min-height:150px!important;max-height:220px;margin-bottom:16px}
+html body #app #main.pz-picture-lobby :is(.setup-field,.setup-footer){display:block!important;width:100%;box-sizing:border-box}
+html body #app #main.pz-picture-lobby :is(.pz-setup,.pz-tables-row){display:block!important;width:100%;padding:14px!important;margin:12px 0!important}
+html body #app #main.pz-picture-lobby :is(.pz-pics,.pz-styles,.pz-album-grid,.pz-tables-row .setup-choices){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;width:100%!important}
+html body #app #main.pz-picture-lobby :is(.pz-pic,.pz-style,[data-pz-room]){display:flex!important;flex-direction:column!important;gap:6px!important;width:100%!important;max-width:none!important;min-width:0!important;height:auto!important;padding:6px!important;border:2px solid #dbb56b!important;border-radius:14px!important;box-sizing:border-box;overflow:hidden!important;background:#075763!important;color:#fff5db!important;text-shadow:none!important}
+html body #app #main.pz-picture-lobby :is(.pz-pic,[data-pz-room]) img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:4/3;object-fit:cover!important;border-radius:9px}
+html body #app #main.pz-picture-lobby :is(.pz-pic,.pz-style,[data-pz-room]) b{font:700 16px/1.25 Nunito,sans-serif!important;color:#fff5db!important}
+html body #app #main.pz-picture-lobby [aria-pressed=true]{outline:3px solid #ffe1a1!important;outline-offset:1px;box-shadow:0 0 0 5px #71400d!important}
+html body #app #main.pz-picture-lobby :is(.setup-hint,.setup-footer>small,.setup-field>small){color:#fff4d5!important;opacity:1!important;text-shadow:0 1px 2px #341907;line-height:1.5!important}
+html body #app #main.pz-picture-lobby .setup-field>small{display:block;font-size:17px!important;font-weight:800;margin:16px 0 10px}
+html body #app #main.pz-picture-lobby :is(.pz-builder,.pz-album-section){margin:18px 0;border:2px solid #d7ad63;border-radius:15px;background:#613710d9;padding:12px}
+html body #app #main.pz-picture-lobby summary{cursor:pointer;min-height:44px;color:#fff5d8;font:700 21px/1.3 Nunito,sans-serif}
+html body #app #main.pz-picture-lobby summary span{display:block;font:600 14px/1.4 Nunito,sans-serif;margin-top:4px}
+html body #app #main.pz-picture-lobby :is(.pz-table-card,.pz-album-card){display:block!important;padding:0!important;min-width:0!important;overflow:hidden!important;background:#fff5db!important}
+html body #app #main.pz-picture-lobby .pz-album-pic{display:flex!important;flex-direction:column!important;width:100%!important;aspect-ratio:auto!important;min-height:0!important;max-width:none!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:#075763!important;box-shadow:none!important}
+html body #app #main.pz-picture-lobby .pz-album-pic::before,html body #app #main.pz-picture-lobby .pz-album-pic::after{display:none!important}
+html body #app #main.pz-picture-lobby .pz-album-pic>img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+html body #app #main.pz-picture-lobby .pz-album-band{position:static!important;background:#075763!important;padding:10px!important;text-align:left;width:100%;box-sizing:border-box}
+html body #app #main.pz-picture-lobby .pz-album-band :is(b,span){color:#fff7df!important;white-space:normal!important;line-height:1.4!important;display:block;font-size:14px!important}
+html body #app #main.pz-picture-lobby :is(.pz-album-foot,.pz-table-body){color:#183f48!important;padding:12px!important}
+html body #app #main.pz-picture-lobby :is(.pz-helpers,.pz-album-foot small,.pz-seats small){color:#183f48!important;font-size:13px!important;line-height:1.5;overflow-wrap:anywhere}
+html body #app #main.pz-picture-lobby .pz-album-options summary{font-size:14px!important;color:#183f48!important;min-height:44px;padding-top:10px}
+html body #app #main.pz-picture-lobby .pz-style canvas{display:block;width:100%;height:80px;object-fit:contain}
+html body #app #main.pz-picture-lobby .pz-sizes{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important}
+.pz-density{display:block;width:44px;height:28px;margin:2px auto 5px;background-color:#35c6c0;background-image:linear-gradient(#fff9 1px,transparent 1px),linear-gradient(90deg,#fff9 1px,transparent 1px);background-size:calc(100% / var(--grid)) calc(100% / var(--grid));border:1px solid #ffe4a0}
+.pz-selection-preview{margin:18px 0;background:#075763;border-radius:14px;padding:10px;color:#fff5db}.pz-selection-preview>div{position:relative}.pz-selection-preview img{width:100%;max-height:260px;object-fit:contain;display:block}.pz-selection-preview i{position:absolute;inset:0;background-image:linear-gradient(#fff6 1px,transparent 1px),linear-gradient(90deg,#fff6 1px,transparent 1px);background-size:calc(100% / var(--cuts)) calc(150% / var(--cuts));pointer-events:none}.pz-selection-preview figcaption{padding-top:8px;font-weight:700}
+html body #app #main.pz-picture-lobby .pz-photo-icon{display:block!important;height:auto!important;width:100%}
+html body #app #main.pz-picture-lobby .pz-photo:focus-within{outline:3px solid #fff5b0}
+html body #app #main.pz-picture-lobby .setup-start{width:100%!important;margin-top:10px!important;min-height:48px!important}
+@media(min-width:700px){html body #app #main.pz-picture-lobby :is(.pz-pics,.pz-styles){grid-template-columns:repeat(4,minmax(0,1fr))!important}html body #app #main.pz-picture-lobby .pz-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}html body #app #main.pz-picture-lobby .pz-album-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+
+.pz-builder>summary>img{float:left;width:76px;height:54px;object-fit:cover;border-radius:8px;margin-right:12px}.pz-builder>summary{min-height:58px!important}
+html body #app #main.pz-picture-lobby .shelf .room-name,html body #app #main.pz-picture-lobby .shelf .room-name span{color:#fff5db!important;text-shadow:0 1px 2px #311a0b}
