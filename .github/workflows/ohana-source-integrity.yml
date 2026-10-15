@@ -1,0 +1,17 @@
+name: Ohana source integrity — no deployment
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  source-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require complete, release-locked Cloudflare source
+        run: node tools/verify-ohana-source.cjs
+# This workflow cannot deploy. Cloudflare native GitHub Builds integration
+# will publish only AFTER a current live-source sync and verified cutover.
