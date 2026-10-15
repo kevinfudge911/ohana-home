@@ -27,16 +27,17 @@ fallthrough = true
 pattern = "ohanahome.app"
 custom_domain = true
 
-# Existing production Durable Object binding and already-applied migration.
+# Existing production Durable Object binding; preserve its SQLite namespace.
 [[durable_objects.bindings]]
 name = "PUZZLE"
 class_name = "PuzzleRoom"
 
-[[migrations]]
-tag = "v1-puzzle"
-new_sqlite_classes = ["PuzzleRoom"]
+[exports.PuzzleRoom]
+type = "durable-object"
+storage = "sqlite"
 
 [[rules]]
 type = "ESModule"
 globs = ["**/*.js"]
 fallthrough = true
+
