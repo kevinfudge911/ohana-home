@@ -1,3 +1,5 @@
+import AUDIT_APP_HTML from "./audit-app.html";
+import AUDIT_MEMORIES_HTML from "./audit-memories.html";
 import ACTION_BOWLS from "./ohana-action-bowls-v1.webp";
 import CARDINAL_CONTROL from "./ohana-cardinal-control-v1.webp";
 import { seniorRoute } from "./senior-access.js";
@@ -10692,6 +10694,7 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    if(req.method==='GET'&&(p==='/audit'||p==='/audit-memories'))return new Response(p==='/audit'?AUDIT_APP_HTML:AUDIT_MEMORIES_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
@@ -12053,7 +12056,33 @@ async function memoriesApi(req, env, url) {
   if(!cols.some(c=>c.name==='album_id')){try{await db.prepare("ALTER TABLE ohana_memories ADD COLUMN album_id TEXT NOT NULL DEFAULT '0'").run();}catch(e){const check=(await db.prepare('PRAGMA table_info(ohana_memories)').all()).results;if(!check.some(c=>c.name==='album_id'))throw e;}}
   const validAlbum=async id=>id==='0'||!!(await db.prepare('SELECT id FROM ohana_memory_albums WHERE id=? AND room_id=?').bind(id,room).first());
   const path=url.pathname;
+  if(path==='/api/memories/family-original'&&req.method==='GET'){
+    const original=APP_HTML.match(/const GR_FAMILY_MEMORY=['"]data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)/);
+    if(!original)return reply({error:'The original family photograph is unavailable.'},404);
+    return new Response(Uint8Array.from(atob(original[2]),c=>c.charCodeAt(0)),{headers:{...headers,'content-type':original[1]}});
+  }
+  // The photo album and porch slideshow share one room-scoped collection.
+  // Uploaded originals are photographs; built-in illustrated puzzle scenes stay in Journey history.
+  if(path==='/api/memories/gallery'&&req.method==='GET'){
+    await ensureJourneyMemories(db);
+    const album=url.searchParams.get('album');
+    if(album&&!await validAlbum(album))return reply({error:'This album is not in your family room.'},404);
+    const uploaded=(await db.prepare('SELECT p.id,p.member_id,p.caption,p.created_at,p.album_id,m.name AS author FROM ohana_memories p JOIN members m ON m.id=p.member_id WHERE p.room_id=? AND p.hidden=0'+(album?' AND p.album_id=?':'')+' ORDER BY p.created_at DESC LIMIT 1000').bind(...(album?[room,album]:[room])).all()).results;
+    let photos=uploaded.map(p=>({...p,image_url:'/api/memories/photo/'+p.id,thumbnail_url:'/api/memories/photo/'+p.id+'?thumbnail=1'}));
+    if(!album){
+      const journeys=(await db.prepare("SELECT puzzle_id,name,finished_at FROM ohana_journey_memories WHERE room_id=? AND image LIKE 'data:image/%' ORDER BY finished_at DESC LIMIT 1000").bind(room).all()).results;
+      const earlier=(await db.prepare("SELECT a.id,a.name,a.finished_at,a.saved_at FROM puzzle_album a WHERE a.room_id=? AND a.image LIKE 'data:image/%' AND NOT EXISTS(SELECT 1 FROM ohana_journey_memories j WHERE j.room_id=a.room_id AND j.image=a.image AND j.name=a.name) ORDER BY a.saved_at DESC LIMIT 1000").bind(room).all()).results;
+      photos.push(...journeys.map(p=>({id:'journey-'+p.puzzle_id,caption:p.name,created_at:p.finished_at,author:'Our Ohana',read_only:true,image_url:'/api/memories/journeys/'+p.puzzle_id+'/image'})),...earlier.map(p=>({id:'album-'+p.id,caption:p.name,created_at:p.finished_at||p.saved_at,author:'Our Ohana',read_only:true,image_url:'/api/album/'+p.id+'/image'})));
+      // Retain the real Mike photograph already displayed on the porch.
+      photos.push({id:'mike-birthday',caption:'Mike',created_at:0,author:'Our Ohana',read_only:true,image_url:'/mike-birthday.webp'},{id:'granny-family-original',caption:'Granny’s family photograph',created_at:0,author:'Our Ohana',read_only:true,image_url:'/api/memories/family-original'});
+    }
+    photos.sort((a,b)=>b.created_at-a.created_at||b.id.localeCompare(a.id));
+    const before=Number(url.searchParams.get('before')),beforeId=url.searchParams.get('beforeId');
+    if(beforeId)photos=photos.filter(p=>p.created_at<before||(p.created_at===before&&p.id<beforeId));
+    return reply({photos:photos.slice(0,30),more:photos.length>30});
+  }
   if(path==='/api/memories/journeys'&&req.method==='GET'){
+
     await ensureJourneyMemories(db);
     const journeys=(await db.prepare('SELECT puzzle_id,name,pieces,helpers,finished_at FROM ohana_journey_memories WHERE room_id=? ORDER BY finished_at DESC LIMIT 100').bind(room).all()).results;
     return reply({journeys});
