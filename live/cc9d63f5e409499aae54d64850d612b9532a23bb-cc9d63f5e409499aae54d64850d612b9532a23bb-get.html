@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Get Ohana Home</title>
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="/ohana-icon-192-v2.png"><link rel="apple-touch-icon" href="/ohana-icon-192-v2.png"><meta name="theme-color" content="#0E3B47">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font:600 20px/1.45 Nunito,sans-serif;color:#173f50;background:linear-gradient(#59c7e0,#0e6f8a 60%,#0E3B47);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:28px 18px 40px;text-align:center}
+.card{width:100%;max-width:460px;background:#fff8e6;border:4px solid #eaba67;border-radius:28px;padding:26px 20px 24px;box-shadow:0 10px 30px #00203070}
+img.icon{width:120px;height:120px;border-radius:28px;box-shadow:0 8px 20px #00304060}
+h1{font:700 34px/1.1 Fredoka,sans-serif;margin:14px 0 6px}p{margin:8px 0}
+.big{display:block;width:100%;margin:18px 0 8px;padding:20px 16px;border:0;border-radius:20px;background:linear-gradient(#78dfff,#16a8e3 50%,#00689e);color:#fff;font:700 28px/1.1 Fredoka,sans-serif;box-shadow:0 6px 0 #024a6e,0 10px 20px #00203060;cursor:pointer;text-decoration:none}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 #024a6e}
+.step{display:flex;gap:14px;align-items:center;text-align:left;background:#e8f6f4;border:2px solid #9ad0cc;border-radius:18px;padding:12px 14px;margin:10px 0}
+.step b{flex:none;width:44px;height:44px;border-radius:50%;background:#16a8e3;color:#fff;display:grid;place-items:center;font:700 24px Fredoka,sans-serif}
+.step span{font-size:19px}.step i{font-style:normal;display:inline-block;padding:2px 8px;border-radius:8px;background:#fff;border:1px solid #9ad0cc;font-weight:800}
+small{display:block;margin-top:14px;font-size:15px;color:#3f5f66}
+[hidden]{display:none!important}
+</style></head><body>
+<div class="card">
+<img class="icon" src="/ohana-icon-512-v2.png" alt="Ohana Home">
+<h1>Ohana Home</h1>
+<p>Our family game table. One tap puts it on your phone like an app.</p>
+<div id="android"><button class="big" id="install">Put Ohana Home on my phone</button><small>A little box will pop up — tap <b>Install</b>.</small></div>
+<div id="iphone" hidden>
+<p><b>On iPhone it's 3 taps:</b></p>
+<div class="step"><b>1</b><span>Tap the <i>Share</i> button at the bottom of Safari (the square with the arrow pointing up ⬆).</span></div>
+<div class="step"><b>2</b><span>Scroll down and tap <i>Add to Home Screen</i>.</span></div>
+<div class="step"><b>3</b><span>Tap <i>Add</i>. Ohana Home is now on your home screen.</span></div>
+<small>If you're not in Safari, open this link in Safari first.</small>
+</div>
+<div id="other" hidden><a class="big" href="/">Open Ohana Home</a><small>On a phone, this page adds it as an app. On a computer, just use the button.</small></div>
+<div id="done" hidden><p style="font-size:24px">🌺 All set! Look for the Ohana Home icon on your home screen.</p><a class="big" href="/">Open Ohana Home</a></div>
+<div id="fallback" hidden><p><b>Nearly there:</b> tap the ⋮ menu in the top corner of Chrome, then tap <i style="font-style:normal;font-weight:800">Add to Home screen</i> (or <i style="font-style:normal;font-weight:800">Install app</i>), then <b>Install</b>.</p><a class="big" href="/">Or just open Ohana Home</a></div>
+</div>
+<script>
+const ua=navigator.userAgent;const isIOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);const isAndroid=/Android/.test(ua);
+const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+const show=id=>{for(const x of ['android','iphone','other','done','fallback'])document.getElementById(x).hidden=x!==id;};
+if(standalone)show('done');else if(isIOS)show('iphone');else if(!isAndroid)show('other');
+let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;show('android');});
+window.addEventListener('appinstalled',()=>show('done'));
+document.getElementById('install').onclick=async()=>{if(deferred){deferred.prompt();const r=await deferred.userChoice;if(r.outcome==='accepted')show('done');deferred=null;}else show('fallback');};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script></body></html>

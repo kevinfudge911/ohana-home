@@ -1,5 +1,10 @@
 name = "ohana-home"
-main = "worker.js"
+# Current source: unchanged Cloudflare release 3702bf24-826c-4407-b731-f2241041c4f7.
+# Archived production timestamp: 2026-10-14 15:51:29 America/Chicago.
+# Older root-level source is retained for history; it is not the configured entrypoint.
+main = "live/worker.js"
+base_dir = "live"
+no_bundle = true
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
@@ -10,7 +15,7 @@ database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
 
 [[rules]]
 type = "Text"
-globs = ["**/*.html", "**/*.js.txt"]
+globs = ["**/*.html", "**/*.js.txt", "**/*.svg"]
 fallthrough = true
 
 [[rules]]
@@ -21,3 +26,17 @@ fallthrough = true
 [[routes]]
 pattern = "ohanahome.app"
 custom_domain = true
+
+# Existing production Durable Object binding and already-applied migration.
+[[durable_objects.bindings]]
+name = "PUZZLE"
+class_name = "PuzzleRoom"
+
+[[migrations]]
+tag = "v1-puzzle"
+new_sqlite_classes = ["PuzzleRoom"]
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.js"]
+fallthrough = true
