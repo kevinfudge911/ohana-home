@@ -1,3 +1,4 @@
+import OHANA_FAMILY_BIBLE_TABLE from "./ohana-family-bible-table-v1.webp";
 import JOURNEY_COLORING_CHARACTER from "./journey-coloring-character-v1.webp";
 import JOURNEY_COLORING_ENTRANCE from "./ohana-journey-entrance-v1.webp";
 import OHANA_BLESSINGS_SIGN from "./ohana-blessings-prayer-sign-v1.webp";
@@ -10764,6 +10765,7 @@ var worker_default = {
     if (req.method === "GET" && p === "/ohana-splash-fish-v1.webp") return new Response(OHANA_SPLASH_FISH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-chess-beach-v3.webp") return new Response(OHANA_CHESS_BEACH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-tictac-beach-v3.webp") return new Response(OHANA_TICTAC_BEACH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
+    if(req.method==='GET'&&p==='/ohana-family-bible-table-v1.webp')return new Response(OHANA_FAMILY_BIBLE_TABLE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/journey-coloring-character-v1.webp')return new Response(JOURNEY_COLORING_CHARACTER,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-journey-entrance-v1.webp')return new Response(JOURNEY_COLORING_ENTRANCE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if (req.method === "GET" && p === "/ohana-coloring-beach-v1.webp") return new Response(b64ToBytesColoring(OHANA_COLORING_BEACH_B64), { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
