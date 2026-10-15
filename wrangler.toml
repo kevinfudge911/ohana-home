@@ -8,6 +8,14 @@ binding = "DB"
 database_name = "ohana-home"
 database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
 
+[[durable_objects.bindings]]
+name = "PUZZLE"
+class_name = "PuzzleRoom"
+
+[[migrations]]
+tag = "v1-puzzle"
+new_sqlite_classes = ["PuzzleRoom"]
+
 [[rules]]
 type = "Text"
 globs = ["**/*.html", "**/*.js.txt"]
