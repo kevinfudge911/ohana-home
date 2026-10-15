@@ -10318,7 +10318,7 @@ var PuzzleRoom = class {
       }
       const sizes = {};
       for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
-      const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1);
+      const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1 && puzzleOnTable(this.meta,pc));
       // Mix before laying out: array/solution index must never reveal the picture.
       for(let i=singles.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[singles[i],singles[j]]=[singles[j],singles[i]];}
       puzzleTidyAround(this.meta,P,singles);
