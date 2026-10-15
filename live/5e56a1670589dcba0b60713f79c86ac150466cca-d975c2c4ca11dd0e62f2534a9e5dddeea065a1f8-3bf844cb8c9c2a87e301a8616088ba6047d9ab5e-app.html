@@ -7004,7 +7004,7 @@ function pzPaintChat(){const e=$('#pz-log');if(!e||!PZ.data)return;const c=PZ.da
 // --- pointer handling ---
 function pzToBoard(cv,e){const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)*PZ.dpr*(cv.width/PZ.dpr/r.width),sy=(e.clientY-r.top)*PZ.dpr*(cv.height/PZ.dpr/r.height);return [(sx-PZ.view.x)/PZ.view.s,(sy-PZ.view.y)/PZ.view.s,sx,sy];}
 function pzIsEdge(pc){const m=PZ.data.meta;return pc.r===0||pc.c===0||pc.r===m.rows-1||pc.c===m.cols-1;}
-function pzHit(bx,by){const P=PZ.data.pieces,{pw,ph}=PZ.geo;const order=PZ.order||(PZ.order=P.map(p=>p.i));for(let k=order.length-1;k>=0;k--){const pc=P[order[k]];if(pc.l||pc.tray||(!PZ.trayHidden&&PZ.strip?.set?.has(pc.i)))continue;if(PZ.edges&&!pzIsEdge(pc))continue;if(bx>=pc.x-pw*0.12&&bx<=pc.x+pw*1.12&&by>=pc.y-ph*0.12&&by<=pc.y+ph*1.12)return pc;}return null;}
+function pzHit(bx,by){const P=PZ.data.pieces,{pw,ph}=PZ.geo;const order=PZ.order||(PZ.order=P.map(p=>p.i));for(let k=order.length-1;k>=0;k--){const pc=P[order[k]];if(pc.l||pc.tray)continue;if(PZ.edges&&!pzIsEdge(pc))continue;if(bx>=pc.x-pw*0.12&&bx<=pc.x+pw*1.12&&by>=pc.y-ph*0.12&&by<=pc.y+ph*1.12)return pc;}return null;}
 function pzLocalSnap(pc){
  // Predict the same snap the server will do, right away, so a piece dropped near home
  // lands instantly instead of waiting on a round trip (feels laggy / "fighting into place").
@@ -7103,13 +7103,18 @@ function pzStripPieces(){
   if(q.l||q.tray||PZ.strip.lift===q.i||seen.has(q.g))continue;
   if(pzHeldByOther(q))continue;
   const mem=membersOf[q.g]||[q];
-  if(mem.some(p=>p.onTable||p.h===S.me?.id))continue;
-  if(!mem.every(offBoard))continue; // a build straddling the frame edge stays on the table
+  if(mem.some(p=>p.h===S.me?.id))continue;
+  // Off-picture and table groups share one main-tray catalog entry and one piece identity.
   seen.add(q.g);out.push(q);
  }
  // Order the tray by where each piece actually sits, so Shuffle jumbles the tray,
  // Tidy lines it up, and Sort-by-color groups it — the tray follows the table.
- out.sort((a,b)=>a.y-b.y||a.x-b.x||a.i-b.i);
+ // Stable catalog order must not follow Tidy's new board coordinates.
+ if(!PZ.strip.catalogOrder){let saved=[];try{saved=JSON.parse(localStorage.getItem('ohana_pz_catalog_'+PZ.id)||'[]');}catch{}PZ.strip.catalogOrder=Array.isArray(saved)?saved:[];}
+ const order=PZ.strip.catalogOrder;
+ for(const q of out.slice().sort((a,b)=>a.y-b.y||a.x-b.x||a.i-b.i))if(!order.includes(q.i))order.push(q.i);
+ out.sort((a,b)=>order.indexOf(a.i)-order.indexOf(b.i));
+ try{localStorage.setItem('ohana_pz_catalog_'+PZ.id,JSON.stringify(order));}catch{}
  return out;
 }
 function pzStripCell(){return PZ_STRIP_CELL*(PZ.trayZoom||1);}
@@ -7332,7 +7337,7 @@ function pzDraw(){const cv=$('#pz-canvas');const d=PZ.data;if(!cv||!d||!PZ.sprit
  const meId=S.me?.id;
  pzPaintHeldOverlay();const lifted=P[PZ.drag?.p??PZ.carry?.p??PZ.strip?.lift];
  const inTray=PZ.strip&&PZ.strip.set||null;
- for(const i of PZ.order){const pc=P[i];if(pc.l||pc.tray||(lifted&&pc.g===lifted.g))continue;if(!PZ.trayHidden&&inTray&&inTray.has(i))continue;if(pc.x+pw+m<vx0||pc.x-m>vx1||pc.y+ph+m<vy0||pc.y-m>vy1)continue;
+ for(const i of PZ.order){const pc=P[i];if(pc.l||pc.tray||(lifted&&pc.g===lifted.g))continue;/* Main tray is a catalog of the same board pieces; it never hides board artwork. */if(pc.x+pw+m<vx0||pc.x-m>vx1||pc.y+ph+m<vy0||pc.y-m>vy1)continue;
   const held=pzHeldByOther(pc);const dim=PZ.edges&&!pzIsEdge(pc);
   if(dim)x.globalAlpha=0.22;
   if(pc.h===meId||held){x.shadowColor='rgba(0,0,0,.5)';x.shadowBlur=16;x.shadowOffsetY=6;}
