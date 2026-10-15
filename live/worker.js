@@ -10206,6 +10206,7 @@ var PuzzleRoom = class {
         if(q.h!==me.id){q._pzOriginX=q.x;q._pzOriginY=q.y;}
         q.h = me.id;
         q.ht = now2;
+        q.catalogReady = false;
       }
       this.broadcast({ t: "grab", p: m.p, g: pc.g, by: me.id }, ws);
       return null;
@@ -10220,6 +10221,7 @@ var PuzzleRoom = class {
         q.x += dx;
         q.y += dy;
         q.onTable = true;
+        q.catalogReady = false;
         q.ht = now2;
       }
       this.broadcast({ t: "move", p: m.p, x: pc.x, y: pc.y, g: pc.g, by: me.id }, ws);
@@ -10237,6 +10239,7 @@ var PuzzleRoom = class {
         q.x += dx;
         q.y += dy;
         q.onTable = true;
+        q.catalogReady = false;
         q.h = null;
         q.ht = null;
       }
@@ -10322,8 +10325,9 @@ var PuzzleRoom = class {
       // Mix before laying out: array/solution index must never reveal the picture.
       for(let i=singles.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[singles[i],singles[j]]=[singles[j],singles[i]];}
       puzzleTidyAround(this.meta,P,singles);
+      for(const q of singles)q.catalogReady=true;
       this.scheduleSave();
-      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true });
+      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true, catalogReady:true });
       return null;
     }
     if (m.t === "shuffle") {

@@ -6725,20 +6725,20 @@ function pzHandle(m,echo){const d=PZ.data;if(!d)return;const P=d.pieces;const me
  if(m.t==='init'){const changed=m.meta&&(m.meta.cols!==d.meta.cols||m.meta.rows!==d.meta.rows||m.meta.w!==d.meta.w||m.meta.h!==d.meta.h||JSON.stringify(m.meta.edges)!==JSON.stringify(d.meta.edges));if(m.meta)d.meta=m.meta;d.pieces=m.pieces;PZ.drag=null;PZ.carry=null;PZ.pan=null;PZ.pinch=null;PZ.strip.lift=null;PZ.trays=m.trays||[];for(const pc of d.pieces)if(pc.g===undefined)pc.g=pc.i;if(changed){PZ.nextBuild=0;PZ.colors={};pzPrepare();}PZ.stats=m.stats||PZ.stats;d.chat=m.chat;PZ.people={};for(const p of m.people)PZ.people[p.id]=p;if(m.seq)PZ.since=m.seq;PZ.doneDrawn=new Set();if(PZ.doneLayer)PZ.doneLayer.getContext('2d').clearRect(0,0,PZ.doneLayer.width,PZ.doneLayer.height);for(const pc of d.pieces)if(pc.l)pzStamp(pc);PZ.order=null;pzPaintPeople();pzPaintChat();pzProgress();pzPaintTrays();pzStatus('');PZ.needDraw=true;return;}
  if(m.t==='tray-update'){const k=PZ.trays.findIndex(t=>t.id===m.tray.id);if(k<0)PZ.trays.push(m.tray);else PZ.trays[k]=m.tray;pzPaintTrays();return;}
  if(m.t==='tray-delete'){PZ.trays=PZ.trays.filter(t=>t.id!==m.id);pzPaintTrays();return;}
- if(m.t==='tray-piece'){for(const i of m.ids||[]){const q=P[i];if(q){q.tray=m.tray;q.h=null;if(m.tray===null)q.onTable=true;const pos=(m.pieces||[]).find(p=>p[0]===i);if(pos){q.x=pos[1];q.y=pos[2];}}}PZ.needDraw=true;pzPaintStrip();pzPaintTrays();return;}
+ if(m.t==='tray-piece'){for(const i of m.ids||[]){const q=P[i];if(q){q.tray=m.tray;q.h=null;if(m.tray===null){q.onTable=true;q.catalogReady=false;}const pos=(m.pieces||[]).find(p=>p[0]===i);if(pos){q.x=pos[1];q.y=pos[2];}}}PZ.needDraw=true;pzPaintStrip();pzPaintTrays();return;}
  if(m.t==='tray-deny'){pzToast(m.text||'Could not move that piece.');return;}
  if(m.t==='join'){const known=!!PZ.people[m.p.id];PZ.people[m.p.id]=m.p;if(m.p.id!==meId&&!known)pzToast(m.p.name+' pulled up a chair');pzPaintPeople();return;}
  if(m.t==='leave'){if(m.people){PZ.people={};for(const p of m.people)PZ.people[p.id]=p;}else delete PZ.people[m.id];delete PZ.cursors[m.id];pzPaintPeople();PZ.needDraw=true;return;}
  if(m.t==='pong'){const previous=PZ.people;PZ.people={};for(const p of m.people){PZ.people[p.id]=p;if(p.id!==meId&&!previous[p.id])pzToast(p.name+' pulled up a chair');}pzPaintPeople();return;}
  if(m.t==='cursor'){if(m.id===meId)return;PZ.cursors[m.id]={x:m.x,y:m.y,at:Date.now()};PZ.needDraw=true;return;}
- if(m.t==='grab'){if(m.by===meId)return;const g=m.g??P[m.p].g;const t=Date.now();for(const q of P)if(q.g===g&&!q.l){q.h=m.by;q.ht=t;pzRaise(q.i);}PZ.needDraw=true;return;}
+ if(m.t==='grab'){if(m.by===meId)return;const g=m.g??P[m.p].g;const t=Date.now();for(const q of P)if(q.g===g&&!q.l){q.h=m.by;q.ht=t;q.catalogReady=false;pzRaise(q.i);}PZ.needDraw=true;return;}
  if(m.t==='release'){const g=m.g??P[m.p]?.g;for(const q of P)if(q.g===g&&!(PZ.drag&&P[PZ.drag.p].g===g))q.h=null;PZ.needDraw=true;return;}
- if(m.t==='move'){if(m.by===meId)return;const pc=P[m.p];if(!pc||(PZ.drag&&P[PZ.drag.p].g===pc.g))return;const dx=m.x-pc.x,dy=m.y-pc.y;for(const q of P)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;q.onTable=true;q.h=m.by;q.ht=Date.now();}pzPaintStrip();PZ.needDraw=true;return;}
+ if(m.t==='move'){if(m.by===meId)return;const pc=P[m.p];if(!pc||(PZ.drag&&P[PZ.drag.p].g===pc.g))return;const dx=m.x-pc.x,dy=m.y-pc.y;for(const q of P)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;q.onTable=true;q.catalogReady=false;q.h=m.by;q.ht=Date.now();}pzPaintStrip();PZ.needDraw=true;return;}
  if(m.t==='stage-denied'){for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.by===meId){PZ.carry=null;pzToast('That space filled up — the piece is back in the tray.');}PZ.needDraw=true;pzPaintStrip();return;}
  if(m.t==='drop-blocked'){const pc=P[m.p];if(!pc)return;for(const [i,x,y] of m.pieces||[]){const q=P[i];if(q){q.x=x;q.y=y;q.onTable=true;q.h=m.by;q.ht=Date.now();}}if(m.by===meId){PZ.carry={p:m.p};pzToast('Move to an open spot, or tap the piece to let go.');}PZ.needDraw=true;return;}
- if(m.t==='drop'){const pc=P[m.p];if(!pc)return;const active=PZ.drag?.p??PZ.carry?.p??PZ.strip.lift;if(!m.l&&m.by===meId&&active!=null&&P[active]?.g===pc.g)return;const list=m.pieces||[[m.p,m.x,m.y]];for(const [i,x,y] of list){const q=P[i];if(!q)continue;q.x=x;q.y=y;q.onTable=true;q.h=null;q.g=m.g??q.g;if(m.l){q.l=true;pzStamp(q);}}if(PZ.drag&&P[PZ.drag.p].g===pc.g)PZ.drag=null;if(m.l||m.joined){pzSparkle(pc);if(m.by===meId)pzFeedback(m.l?'lock':'join');else if(m.l&&list.length>1)pzToast(m.byName+' fit a chunk of '+list.length+' into the picture');}if(m.stats)PZ.stats=m.stats;pzProgress(m.locked);pzPaintPeople();PZ.needDraw=true;return;}
+ if(m.t==='drop'){const pc=P[m.p];if(!pc)return;const active=PZ.drag?.p??PZ.carry?.p??PZ.strip.lift;if(!m.l&&m.by===meId&&active!=null&&P[active]?.g===pc.g)return;const list=m.pieces||[[m.p,m.x,m.y]];for(const [i,x,y] of list){const q=P[i];if(!q)continue;q.x=x;q.y=y;q.onTable=true;q.catalogReady=false;q.h=null;q.g=m.g??q.g;if(m.l){q.l=true;pzStamp(q);}}if(PZ.drag&&P[PZ.drag.p].g===pc.g)PZ.drag=null;if(m.l||m.joined){pzSparkle(pc);if(m.by===meId)pzFeedback(m.l?'lock':'join');else if(m.l&&list.length>1)pzToast(m.byName+' fit a chunk of '+list.length+' into the picture');}if(m.stats)PZ.stats=m.stats;pzProgress(m.locked);pzPaintPeople();PZ.needDraw=true;return;}
  if(m.t==='tray-return'){for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.by===meId){PZ.carry=null;PZ.drag=null;PZ.strip.lift=null;}PZ.needDraw=true;pzPaintStrip();pzPaintTrays();return;}
- if(m.t==='tidy'){for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&!(PZ.drag&&PZ.drag.p===i)){pc.x=x;pc.y=y;pc.onTable=!!m.tabled;}}if(m.tabled&&m.by===S.me?.name){pzFitTidiedPieces();}pzPaintStrip();if(!m.rows)pzToast((m.by===S.me?.name?'You':m.by)+(m.recall?' recalled every loose piece to the pile':m.shuffle?' shuffled the loose pieces up':m.edges?' pulled the edge pieces out onto the table':m.sorted?' sorted the loose pieces by color':' tidied the loose pieces'));PZ.needDraw=true;return;}
+ if(m.t==='tidy'){for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&!(PZ.drag&&PZ.drag.p===i)){pc.x=x;pc.y=y;pc.onTable=!!m.tabled;if(m.catalogReady)pc.catalogReady=true;}}if(m.tabled&&m.by===S.me?.name){pzFitTidiedPieces();}pzPaintStrip();if(!m.rows)pzToast((m.by===S.me?.name?'You':m.by)+(m.recall?' recalled every loose piece to the pile':m.shuffle?' shuffled the loose pieces up':m.edges?' pulled the edge pieces out onto the table':m.sorted?' sorted the loose pieces by color':' tidied the loose pieces'));PZ.needDraw=true;return;}
  if(m.t==='deny'){pzCancelHeldPiece(m.p,false);for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.people)pzHandle({t:'pong',people:m.people});const holder=PZ.people[P[m.p]?.h];pzToast(holder?holder.name+' has that piece.':'Someone else has that piece.');PZ.needDraw=true;pzPaintStrip();return;}
  if(m.t==='done'){if(m.stats)PZ.stats=m.stats;pzCelebrate(m.by);pzPaintPeople();return;}
  if(m.t==='typing'){if(m.id===meId)return;PZ.typing[m.id]=m.on?Date.now():0;pzPaintPeople();return;}
@@ -7026,7 +7026,7 @@ function pzLocalSnap(pc){
  }
  return joined;
 }
-function pzRememberPickup(pc){for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q._pzOriginX=q.x;q._pzOriginY=q.y;}}
+function pzRememberPickup(pc){for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q._pzOriginX=q.x;q._pzOriginY=q.y;q.catalogReady=false;}}
 function pzBindPointer(cv){const pts=new Map();
  cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const [bx,by,sx,sy]=pzToBoard(cv,e);pts.set(e.pointerId,{sx,sy});
   if(pts.size===2){if(PZ.drag)pzCancelHeldPiece(PZ.drag.p,true);else if(PZ.carry)pzCancelHeldPiece(PZ.carry.p,true);PZ.pan=null;const a=[...pts.values()];PZ.pinch={d:Math.hypot(a[0].sx-a[1].sx,a[0].sy-a[1].sy)||1,s:PZ.view.s,cx:(a[0].sx+a[1].sx)/2,cy:(a[0].sy+a[1].sy)/2,vx:PZ.view.x,vy:PZ.view.y};return;}
@@ -7104,7 +7104,7 @@ function pzStripPieces(){
   if(q.l||q.tray||PZ.strip.lift===q.i||seen.has(q.g))continue;
   if(pzHeldByOther(q))continue;
   const mem=membersOf[q.g]||[q];
-  if(mem.some(p=>p.h===S.me?.id))continue;
+  if(mem.some(p=>p.h===S.me?.id||(p.onTable&&!p.catalogReady)))continue;
   // Off-picture and table groups share one main-tray catalog entry and one piece identity.
   seen.add(q.g);out.push(q);
  }
