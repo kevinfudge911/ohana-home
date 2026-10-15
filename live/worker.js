@@ -1,3 +1,6 @@
+import OHANA_BRIDGE_RECORD from "./ohana-hub-record-player-v1.webp";
+import OHANA_BRIDGE_PORTRAIT from "./ohana-bridge-setting-portrait-v1.webp";
+import OHANA_BRIDGE_LANDSCAPE from "./ohana-bridge-setting-v1.webp";
 import OHANA_FAMILY_BIBLE_TABLE from "./ohana-family-bible-table-v1.webp";
 import JOURNEY_COLORING_CHARACTER from "./journey-coloring-character-v1.webp";
 import JOURNEY_COLORING_ENTRANCE from "./ohana-journey-entrance-v1.webp";
@@ -10729,6 +10732,9 @@ var worker_default = {
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
+    if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(OHANA_BRIDGE_LANDSCAPE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+    if(req.method==='GET'&&p==='/ohana-bridge-setting-portrait-v1.webp')return new Response(OHANA_BRIDGE_PORTRAIT,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+    if(req.method==='GET'&&p==='/ohana-hub-record-player-v1.webp')return new Response(OHANA_BRIDGE_RECORD,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
     try{const senior=await seniorRoute(req,env222222,url,{auth,childPolicy,grannyApi,unifiedChat,page:APP_HTML,setup:SENIOR_SETUP_HTML,api:api2,grannyWordCheck,wardrobeApi,memoriesApi,memoriesPage:MEMORIES_HTML,puzzleWs,puzzlePoll,ctx});if(senior)return senior;}catch(e){return Response.json({error:'Could not open this invitation. Please try again.'},{status:500,headers:{'cache-control':'no-store'}});}
@@ -11020,9 +11026,15 @@ __name22(chatImport, "chatImport");
 __name222(chatImport, "chatImport");
 __name2222(chatImport, "chatImport");
 __name22222(chatImport, "chatImport");
+
+const OHANA_CHAT_REACTIONS=new Set(['like','love','laugh','wow','sad','pray','hug','ohana:honu-love','ohana:eddie-cheer','ohana:honu-hug']);
+async function ensureChatReactions(db){await db.prepare('CREATE TABLE IF NOT EXISTS chat_reactions(message_id INTEGER NOT NULL,member_id INTEGER NOT NULL,reaction TEXT,updated_at INTEGER NOT NULL,PRIMARY KEY(message_id,member_id))').run();}
+async function readChatReactions(db,conversation,ids,memberId){const result=[];ids=[...new Set(ids)];for(let offset=0;offset<ids.length;offset+=80){const chunk=ids.slice(offset,offset+80),marks=chunk.map(()=>'?').join(',');result.push(...(await db.prepare('SELECT r.message_id,r.reaction AS id,COUNT(*) AS count,MAX(CASE WHEN r.member_id=? THEN 1 ELSE 0 END) AS mine FROM chat_reactions r JOIN chat_messages m ON m.id=r.message_id WHERE m.conversation=? AND r.message_id IN ('+marks+') AND r.reaction IS NOT NULL GROUP BY r.message_id,r.reaction').bind(memberId,conversation,...chunk).all()).results);}return result;}
+
 async function unifiedChat(req, env222222, me, body, url) {
   const db = env222222.DB, { threads, ...rest } = await chatCatalog(db, me), catalog = { threads, ...rest };
   await chatImport(db, catalog);
+  await ensureChatReactions(db);
   const started = Number((await db.prepare("SELECT value FROM settings WHERE key='chat_started'").first())?.value) || 0;
   if (req.method === "POST" && body.action === "start") {
     const target = Number(body.memberId), room = [...threads.values()].find((t) => t.kind === "room" && t.people.some((p) => p.id === target));
@@ -11035,9 +11047,18 @@ async function unifiedChat(req, env222222, me, body, url) {
   if (key && !thread) return err("This conversation is not available to you.", 403);
   if (req.method === "POST") {
     if (!thread) return err("Choose a conversation.", 400);
+    if(body.action==='react'){
+      const messageId=Number(body.messageId),reaction=String(body.reaction??'');
+      if(!Number.isSafeInteger(messageId)||messageId<1||reaction&&!OHANA_CHAT_REACTIONS.has(reaction))return err('Choose a valid message reaction.',400);
+      const message=await db.prepare('SELECT id FROM chat_messages WHERE id=? AND conversation=?').bind(messageId,key).first();
+      if(!message)return err('This message is not available in this conversation.',404);
+      await db.prepare('INSERT INTO chat_reactions(message_id,member_id,reaction,updated_at) VALUES(?,?,?,?) ON CONFLICT(message_id,member_id) DO UPDATE SET reaction=excluded.reaction,updated_at=excluded.updated_at').bind(messageId,me.id,reaction||null,now()).run();
+      return json({ok:true});
+    }
     if (body.action === "delete") {
       if (thread.kind === "room") return err("Room chats stay put \u2014 they belong to the whole room.", 400);
       await db.batch([
+        db.prepare("DELETE FROM chat_reactions WHERE message_id IN (SELECT id FROM chat_messages WHERE conversation=?)").bind(key),
         db.prepare("DELETE FROM chat_messages WHERE conversation=?").bind(key),
         db.prepare("DELETE FROM chat_threads WHERE conversation=?").bind(key),
         db.prepare("DELETE FROM chat_reads WHERE conversation=?").bind(key),
@@ -11071,9 +11092,11 @@ async function unifiedChat(req, env222222, me, body, url) {
     }
     return json({ ok: true });
   }
+  if(thread&&url.searchParams.get('reactionsOnly')==='1'){const ids=String(url.searchParams.get('ids')||'').split(',').map(Number).filter(n=>Number.isSafeInteger(n)&&n>0).slice(0,1000);return json({reactions:await readChatReactions(db,key,ids,me.id)});}
   if (thread) {
     const before = Math.max(0, Number(url.searchParams.get("before")) || 0);
     const rows = (await db.prepare("SELECT id,sender,text,image,created_at FROM chat_messages WHERE conversation=? AND (?=0 OR id<?) ORDER BY id DESC LIMIT 100").bind(key, before, before).all()).results.reverse();
+    const reactions=await readChatReactions(db,key,rows.map(m=>m.id),me.id);for(const message of rows)message.reactions=reactions.filter(r=>r.message_id===message.id).map(r=>({id:r.id,count:Number(r.count),mine:!!r.mine}));
     return json({ thread, messages: rows, more: rows.length === 100 });
   }
   const keys = [...threads.keys()];
