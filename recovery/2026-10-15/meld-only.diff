@@ -1,0 +1,82 @@
+--- a/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html
++++ b/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html
+@@ -5697,6 +5697,15 @@
+ #board .hf-felt .hf-table-foot>svg{width:44px!important;height:62px!important;flex:none!important}
+ #board .hf-felt .hf-table-foot>small{font:700 20px/1.2 Fredoka,sans-serif!important;color:#fff4d3!important}
+ }</style>
++
++<style id="ohana10-meld-help-repair-20261015">
++#game-controls-dock.ohana-workstation[data-game-type="ohana10"] .dock-right.has-meld-help{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:4px!important;min-width:54px!important;max-width:100%!important}
++#game-controls-dock.ohana-workstation[data-game-type="ohana10"] .dock-right .meld-help-push{position:relative!important;display:inline-flex!important;flex:0 0 auto!important;min-width:54px!important;min-height:44px!important;width:auto!important;padding:4px!important;z-index:3!important;text-decoration:underline!important;text-underline-offset:3px!important}
++#game-controls-dock.ohana-workstation[data-game-type="ohana10"] .dock-guide:empty{display:none!important}
++#meld-help-dialog.o10-meld-help-dialog .meld-help-heading{position:sticky;top:0;z-index:10;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:0 0 12px}
++#meld-help-dialog.o10-meld-help-dialog .meld-help-heading h2{flex:1;min-width:0;margin:0}
++#meld-help-dialog.o10-meld-help-dialog .meld-help-heading .meld-help-close{flex:0 0 44px;min-width:44px!important;min-height:44px!important;margin:0!important;padding:4px!important;color:#fff6df!important;text-shadow:0 1px 3px #24130a!important;font-size:26px!important;background:none!important;border:0!important;box-shadow:none!important}
++</style>
+ </head>
+ <body>
+ <div id="app"></div>
+@@ -11309,7 +11318,7 @@
+  const placePrompt=document.querySelector('#board .domino-place-prompt')||dock.querySelector('.domino-place-prompt');
+  const actions=document.createElement('div'),left=document.createElement('div'),center=document.createElement('div'),right=document.createElement('div'),gear=document.createElement('div'),guide=document.createElement('div');
+  actions.className='dock-actions';actions.setAttribute('aria-label','Game actions');left.className='dock-side dock-left';center.className='dock-player';right.className='dock-side dock-right';
+- gear.className='dock-gear';guide.className='dock-guide';const showMeldGuide=g?.type==='ohana10'&&!st?.completed?.[S.me?.id];dock.classList.toggle('has-meld-guide',showMeldGuide);
++ gear.className='dock-gear';guide.className='dock-guide';const showMeldGuide=g?.type==='ohana10';dock.classList.remove('has-meld-guide');
+  const commands=document.createElement('div');commands.className='dock-command-row';commands.append(left,actions,right);
+  dock.replaceChildren(commands,center,gear,guide);
+  if(g?.type==='domino'&&placePrompt)guide.append(placePrompt);
+@@ -11335,7 +11344,7 @@
+  if(g?.type==='chess'){const options=document.createElement('button');options.type='button';options.textContent='Chess settings';options.onclick=()=>messengerGo('chess-options');menu.prepend(options);}
+  gear.append(settings,menu);
+  if(keep['#next-game'])right.append(keep['#next-game']);
+- if(showMeldGuide){const journey=st.journeys?.[S.me.id]||0;guide.setAttribute('aria-label','Meld '+Math.min(10,journey+1)+': '+O10_JOURNEYS_UI[journey][1]);guide.innerHTML='<p class="o10-guide-copy">'+esc(O10_JOURNEYS_UI[journey][1])+'</p>'+o10JourneyExample(journey);}
++ if(showMeldGuide){guide.setAttribute('aria-label','Meld help');guide.innerHTML=ohana10MeldHelpContents(g,st);}
+  if(g?.type==='handfoot'&&S.me){
+   const me=S.me.id,hand=st.inFoot?.[me]?st.feet?.[me]:st.hands?.[me];
+   const value=c=>c.rank==='Joker'?50:['A','2'].includes(c.rank)?20:['8','9','10','J','Q','K'].includes(c.rank)?10:5;
+@@ -11347,28 +11356,38 @@
+   const helpContents=guide.innerHTML||(g.type==='ohana10'?'<p>Your opening meld is complete. Select cards that extend an existing meld, then choose Meld.</p>':'<p>Build groups of at least three cards of the same rank. Wild cards must be fewer than natural cards, with no more than three wild cards per group.</p>');
+   const help=document.createElement('button');help.type='button';help.className='meld-help-push';help.textContent='Meld';help.setAttribute('aria-label','Show meld requirement and examples');help.setAttribute('aria-haspopup','dialog');
+   help.dataset.meldHelp='true';help.dataset.meldHelpContents=helpContents;help.dataset.meldHelpTitle=g.type==='ohana10'?'Ohana 10 meld help':'Hand & Foot meld help';
+-  guide.replaceChildren(help);for(const [property,value] of Object.entries({position:'static',width:'auto',display:'flex',padding:'0',margin:'0',transform:'none'}))guide.style.setProperty(property,value,'important');guide.setAttribute('aria-label','Meld help');
++  if(g.type==='ohana10'){guide.replaceChildren();right.prepend(help);right.classList.add('has-meld-help');}else{guide.replaceChildren(help);for(const [property,value] of Object.entries({position:'static',width:'auto',display:'flex',padding:'0',margin:'0',transform:'none'}))guide.style.setProperty(property,value,'important');guide.setAttribute('aria-label','Meld help');}
+  }
+  if(g?.type==='spades'){if(actions.querySelector('[data-bid]')){const compact=document.createElement('div');compact.className='sp-compact-bid';const choose=document.createElement('select');choose.setAttribute('aria-label','Choose your bid');choose.innerHTML=Array.from({length:13},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');choose.value=String(S.spBidChoice||1);choose.onchange=()=>{S.spBidChoice=+choose.value;};const submit=document.createElement('button');submit.type='button';submit.textContent='Bid';submit.onclick=()=>actions.querySelector('[data-bid="'+choose.value+'"]')?.click();const nil=document.createElement('button');nil.type='button';nil.textContent='Nil';nil.setAttribute('aria-label','Bid Nil: win no tricks');nil.onclick=()=>actions.querySelector('[data-nil]')?.click();compact.append(choose,submit,nil);actions.append(compact);}const bidding=document.querySelector('#board .sp-bidding');if(bidding){bidding.querySelector('.sp-bid-prompt')?.remove();bidding.querySelector('.sp-nil-hint')?.remove();}guide.textContent=st?.phase==='bidding'?'Bid: how many tricks? Nil = none.':st?.phase==='playing'?(st.currentTrick?.length?'Follow suit when you can.':'Lead one card.') : ''; }
+  if(g?.type==='chess'){const status=document.getElementById('statusText');if(status){guide.append(status);status.parentElement===guide&&status.setAttribute('role','status');}}
+  if(g?.type==='mahjong'&&st?.mode!=='family'&&g.players.length>1)guide.textContent='Legacy matching game · finish this table; new multiplayer games use draw and discard.';
+  if(g?.type==='mahjong'&&st?.mode==='family'){const cue=document.querySelector('#board .fm-next-move');if(cue)guide.append(cue);const examples=document.querySelector('#board .fm-goal-pictures');if(examples)guide.prepend(examples);}
+- const tools=document.createElement("div");tools.className="dock-bottom-tools";tools.append(gear);if(['ohana10','handfoot'].includes(g?.type)){tools.append(guide);tools.classList.add('compact-meld-tools');for(const [property,value] of Object.entries({width:'144px','min-width':'144px',display:'flex','padding-left':'44px','box-sizing':'border-box',gap:'4px'}))tools.style.setProperty(property,value,'important');for(const child of [gear,guide]){child.style.setProperty('flex','0 0 44px','important');child.style.setProperty('min-width','44px','important');}}dock.append(tools);
++ const tools=document.createElement("div");tools.className="dock-bottom-tools";tools.append(gear);if(g?.type==='handfoot'){tools.append(guide);tools.classList.add('compact-meld-tools');for(const [property,value] of Object.entries({width:'144px','min-width':'144px',display:'flex','padding-left':'44px','box-sizing':'border-box',gap:'4px'}))tools.style.setProperty(property,value,'important');for(const child of [gear,guide]){child.style.setProperty('flex','0 0 44px','important');child.style.setProperty('min-width','44px','important');}}dock.append(tools);
+  observeGameRail(dock);
+  if(typeof maybeShowGameReleaseNews==='function')maybeShowGameReleaseNews(g);
+  addNextGameControl();
+  updateNextGameAlert();
+ }
++function ohana10MeldHelpContents(g,st){
++ const member=g.players?.find(id=>String(id)===String(S.me?.id)),player=member??g.players?.[g.turn]??g.players?.[0];
++ const journey=Math.max(0,Math.min(O10_JOURNEYS_UI.length-1,Number(st.journeys?.[player])||0));
++ const completed=!!st.completed?.[player],label=member==null?esc(nameOf(player))+': ':'';
++ return '<p class="o10-guide-copy">'+label+'Meld '+(journey+1)+': '+esc(O10_JOURNEYS_UI[journey][1])+'</p>'+o10JourneyExample(journey)+(completed?'<p>This meld is complete. You can add cards that fit a meld already on the table. Select your cards and the group, then use the separate Meld play button.</p>':'<p>Match this pattern using cards from your hand.</p>');
++}
+ function showMeldHelp(contents,title,trigger){
+  document.getElementById('meld-help-dialog')?.close();
+  const d=document.createElement('dialog');d.id='meld-help-dialog';d.setAttribute('aria-labelledby','meld-help-title');
+- d.innerHTML='<h2 id="meld-help-title" tabindex="-1">'+esc(title)+'</h2><div class="meld-help-content">'+contents+'</div><button type="button" class="meld-help-close">Close</button>';
++ if(S.gstate?.type==='ohana10'){
++  d.classList.add('o10-meld-help-dialog');
++  contents=ohana10MeldHelpContents(S.gstate,S.gstate.state);
++  d.innerHTML='<div class="meld-help-heading"><h2 id="meld-help-title" tabindex="-1">'+esc(title)+'</h2><button type="button" class="meld-help-close" aria-label="Close meld help">×</button></div><div class="meld-help-content">'+contents+'</div>';
++ }else{d.innerHTML='<h2 id="meld-help-title" tabindex="-1">'+esc(title)+'</h2><div class="meld-help-content">'+contents+'</div><button type="button" class="meld-help-close">Close</button>';}
+  d.querySelector('.meld-help-close').onclick=()=>d.close();
+  d.addEventListener('click',e=>{if(e.target!==d)return;const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();});
+- d.addEventListener('close',()=>{d.remove();if(trigger?.isConnected)trigger.focus();},{once:true});
+- document.body.append(d);d.showModal();d.querySelector('h2').focus();
+-}
+-document.addEventListener('click',e=>{const control=e.target.closest?.('[data-meld-help]');if(control)showMeldHelp(control.dataset.meldHelpContents,control.dataset.meldHelpTitle,control);},true);
++ d.addEventListener('close',()=>{d.remove();if(trigger?.isConnected)trigger.focus({preventScroll:true});},{once:true});
++ document.body.append(d);d.showModal();d.querySelector('h2').focus({preventScroll:true});
++}
++document.addEventListener('click',e=>{const control=e.target.closest?.('[data-meld-help]');if(control){if(S.gstate?.type==='ohana10'){e.preventDefault();e.stopImmediatePropagation();}showMeldHelp(control.dataset.meldHelpContents,control.dataset.meldHelpTitle,control);}},true);
+ let gameRailObserver;
+ function observeGameRail(dock,spaceProperty='--game-rail-space'){
+  gameRailObserver?.disconnect();
