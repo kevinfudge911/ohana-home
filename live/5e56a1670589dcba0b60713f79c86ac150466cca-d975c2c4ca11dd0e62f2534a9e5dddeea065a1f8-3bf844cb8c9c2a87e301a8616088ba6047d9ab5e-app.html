@@ -5706,6 +5706,76 @@ html[data-ohana-game=ohana10] #gb{padding:0!important;background:none!important}
 #meld-help-dialog.o10-meld-help-dialog .meld-help-heading h2{flex:1;min-width:0;margin:0}
 #meld-help-dialog.o10-meld-help-dialog .meld-help-heading .meld-help-close{flex:0 0 44px;min-width:44px!important;min-height:44px!important;margin:0!important;padding:4px!important;color:#fff6df!important;text-shadow:0 1px 3px #24130a!important;font-size:26px!important;background:none!important;border:0!important;box-shadow:none!important}
 </style>
+<style id="ohana-entry-bible-style">
+.world-home-table .ohana-entry-bible{display:grid;grid-template-columns:1fr 1fr;width:min(560px,94%);margin:26px auto 32px;filter:drop-shadow(0 8px 7px #24130880);color:#51351f;isolation:isolate;background:none;border:0;padding:0;box-shadow:none;transform:rotate(-1deg)}
+.ohana-entry-bible .ohana-bible-page{box-sizing:border-box;min-width:0;min-height:170px;padding:24px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(100deg,#eedbb1,#fff5dc 72%,#d8bd86);border-bottom:5px solid #895333;font-family:Nunito,system-ui;gap:8px}
+.ohana-entry-bible .ohana-bible-left{border-radius:40% 9px 4px 8px / 12px 4px 4px 8px;transform:skewY(-3deg);border-right:1px solid #b39563}
+.ohana-entry-bible .ohana-bible-right{border-radius:9px 40% 8px 4px / 4px 12px 8px 4px;transform:skewY(3deg);background:linear-gradient(80deg,#d8bd86,#fff5dc 18%,#eedbb1)}
+.ohana-entry-bible strong{font:600 clamp(19px,3vw,26px)/1.2 Fredoka,Nunito,system-ui}.ohana-entry-bible span{font-size:28px;color:#946726}.ohana-entry-bible small{font-size:14px}.ohana-entry-bible blockquote{font:700 clamp(17px,2.6vw,23px)/1.5 Nunito,system-ui;margin:0;padding:0;color:#51351f;border:0;background:none}
+@media(max-width:450px){.ohana-entry-bible .ohana-bible-page{padding:18px 12px;min-height:165px}}
+</style><style id="ohana-persistent-hub-style">
+#ohana-persistent-hub::before{display:none;content:'';position:absolute;inset:10px 0 0;z-index:-1;background:linear-gradient(4deg,#643115,#b97131 45%,#8b431b 48%,#c17a39);border-top:3px solid #e7b574;box-shadow:0 -3px 6px #32170855}
+#ohana-persistent-hub::after{content:'Chat';position:absolute;left:24px;bottom:2px;color:#fff3ce;font:700 16px/1.1 Fredoka,Nunito,system-ui;text-shadow:0 2px #4c210d;pointer-events:none}
+</style><style id="ohana-puzzle-sorting-trays">
+#pz-board .pz-float-tray,#pz-board .pz-float-tray.expanded{width:min(var(--sorting-width,400px),calc(100% - 12px))!important;height:auto!important;min-height:230px!important;max-height:85%!important;padding:46px 48px 52px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;isolation:isolate;filter:drop-shadow(0 7px 6px #24130a80)}
+#pz-board .pz-float-tray::before{content:'';position:absolute;inset:0;z-index:-1;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x2%3D%220.8%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23be884a%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%238e542b%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23623619%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M18%2054%20Q8%2054%208%2067%20V136%20C8%20148%2068%20138%2068%20190%20C68%20242%208%20231%208%20244%20V371%20Q8%20390%2026%20390%20H220%20C235%20390%20217%20337%20300%20337%20C383%20337%20365%20390%20380%20390%20H574%20Q592%20390%20592%20371%20V244%20C592%20231%20532%20242%20532%20190%20C532%20138%20592%20148%20592%20136%20V67%20Q592%2054%20574%2054%20H380%20C365%2054%20383%208%20300%208%20C217%208%20235%2054%20220%2054%20Z%22%20fill%3D%22url(%23w)%22%20stroke%3D%22%23e3b471%22%20stroke-width%3D%227%22%2F%3E%3Cpath%20d%3D%22M25%2072%20H210%20M390%2072%20H574%20M25%20365%20H200%20M400%20365%20H574%22%20stroke%3D%22%23f7d39b%22%20stroke-width%3D%222%22%20opacity%3D%22.4%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat;pointer-events:none}
+#pz-board .pz-float-tray .pz-float-head{flex-wrap:wrap!important;justify-content:center!important;gap:2px!important;padding:0!important;background:none!important;min-height:44px!important;flex-shrink:0}
+#pz-board .pz-float-tray .pz-float-head strong{font:700 18px Fredoka,Nunito,system-ui!important;flex:1 0 100%!important;text-align:center}
+#pz-board .pz-float-tray .pz-float-head button{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;background:transparent!important;border:0!important;font-size:22px!important;color:#fff3d6!important}
+#pz-board .pz-float-tray .pz-float-pieces{display:flex!important;flex-wrap:wrap!important;gap:6px!important;padding:8px 0!important;min-height:calc(var(--pz-tray-piece,64px)*2 + 8px)!important;max-height:calc(var(--pz-tray-piece,64px)*var(--sorting-rows,2) + 24px);overflow:auto!important;flex:1 1 auto!important}
+#pz-board .pz-float-tray .pz-float-pieces button,#pz-board .pz-float-tray .pz-float-pieces canvas{width:var(--pz-tray-piece,64px)!important;height:var(--pz-tray-piece,64px)!important;min-width:var(--pz-tray-piece,64px)!important;min-height:var(--pz-tray-piece,64px)!important;flex:0 0 var(--pz-tray-piece,64px)!important}
+#pz-workstation #pz-tray-dock{width:100%;display:flex;flex-wrap:wrap;gap:6px}#pz-workstation #pz-tray-dock button{min-width:64px;min-height:44px;font:700 16px Fredoka,Nunito,system-ui;color:#fff3d6;background:transparent;border:0}
+@media(max-width:500px){#pz-board .pz-float-tray,#pz-board .pz-float-tray.expanded{padding:40px 32px!important;--pz-tray-piece:48px!important}}
+</style>
+<style id="ohana-journey-room-style">
+#ohana-journey-room{--journey-ink:#254f54;--journey-paper:#fff8e6;box-sizing:border-box;max-width:1200px;margin:0 auto;padding:12px 18px calc(var(--game-rail-space,180px) + 32px);color:var(--journey-ink);font-family:Nunito,sans-serif}
+#ohana-journey-room *,#ohana-journey-room *::before,#ohana-journey-room *::after{box-sizing:border-box}
+#ohana-journey-room .journey-room-heading{margin:0 0 14px;gap:16px;align-items:center}
+#ohana-journey-room .journey-room-heading h2{font:600 clamp(22px,3vw,34px) Fredoka,Nunito,sans-serif!important;color:#fff2cd!important;text-shadow:0 2px 3px #54280d;margin:0;overflow-wrap:anywhere}
+#ohana-journey-room .journey-room-heading>div{min-width:0}
+#ohana-journey-room .journey-room-label{display:block;color:#ffe5ad;font:700 14px Nunito;letter-spacing:.06em;margin-bottom:3px}
+#ohana-journey-room button,#ohana-journey-room input[type=color]{min-height:44px;touch-action:manipulation}
+#ohana-journey-room button:focus-visible,#ohana-journey-room input:focus-visible{outline:3px solid #fff4b8!important;outline-offset:4px;box-shadow:0 0 0 6px #18546b!important}
+#ohana-journey-room .journey-entrance{width:100%;max-width:1020px;margin:auto;overflow:hidden;border-radius:42% 42% 16px 16px/5% 5% 16px 16px;box-shadow:0 10px 24px #24160c65}
+#ohana-journey-room .journey-entrance img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain}
+#ohana-journey-room .cb-intro{font:600 clamp(22px,3vw,31px) Caveat,cursive;color:#fff2cb!important;margin:20px auto 4px;text-shadow:0 2px 3px #33200f}
+#ohana-journey-room .journey-save-note{font-size:15px;color:#fff0ce;text-align:center;margin:0 0 20px}
+#ohana-journey-room .journey-picture-library{padding:clamp(14px,3vw,32px);background:linear-gradient(100deg,#e6c38a44,transparent 20%,#fff9e5aa 50%,transparent 80%),#fff3d7;border-radius:12px 28px 28px 12px;box-shadow:inset 9px 0 12px #9a632c40,0 10px 24px #32190855;border-left:8px solid #976134}
+#ohana-journey-room .shelf{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;font:600 clamp(22px,2.5vw,29px) Fredoka,Nunito,sans-serif;color:#70421d!important;margin:30px 0 14px;border-bottom:1px solid #ad7c3d66;padding-bottom:10px}
+#ohana-journey-room .shelf small{font:600 16px Caveat,Nunito;color:#54716a}
+#ohana-journey-room .cb-surprise{width:auto;max-width:100%;margin:0 auto;padding:12px 22px!important;font:600 18px Fredoka!important;color:#fff1c5!important;background:linear-gradient(#965b2d,#683a1a)!important;border:1px solid #c8974f!important;border-radius:44% 44% 16px 16px/8% 8% 16px 16px!important;box-shadow:inset 0 2px #ffe8a64d,0 4px 0 #4c2816!important}
+#ohana-journey-room .journey-picture-library>.cb-hint{color:#4b6a64!important;margin:12px 0}
+#ohana-journey-room :is(.cb-buddies,.cb-adult,.cb-pages){display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:28px 22px}
+#ohana-journey-room .cb-buddies{grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+#ohana-journey-room :is(.cb-buddy,.cb-page){display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px 8px 12px!important;background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#365951!important;text-shadow:none!important;min-width:0!important;min-height:44px;width:100%;font:700 17px Nunito!important;gap:10px;transition:transform .15s}
+#ohana-journey-room :is(.cb-buddy,.cb-page):hover{transform:translateY(-3px)}
+#ohana-journey-room .cb-buddy img{width:min(100%,150px);height:150px;object-fit:contain;filter:drop-shadow(0 4px 3px #66502933)}
+#ohana-journey-room .cb-page :is(img,svg){display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;background:#fffdfa!important;border-radius:2px;box-shadow:1px 4px 7px #64422140;padding:8px;border:0;transform:rotate(-1deg)}
+#ohana-journey-room .cb-page:nth-child(even) :is(img,svg){transform:rotate(1deg)}
+#ohana-journey-room :is(.cb-page,.cb-buddy) small{color:#267c59;font:700 13px Nunito}
+#ohana-journey-room .cb-mine{display:flex;flex-wrap:wrap;gap:14px}
+#ohana-journey-room .cb-mine button{color:#365951!important;border:0!important;background:transparent!important;box-shadow:none!important;font-size:17px!important;text-decoration:underline;text-underline-offset:5px}
+#ohana-journey-room .journey-studio-layout{display:grid;grid-template-columns:minmax(140px,220px) minmax(0,1fr);gap:22px;align-items:start}
+#ohana-journey-room .journey-companion{position:sticky;top:16px;text-align:center;padding-top:30px;pointer-events:none}
+#ohana-journey-room .journey-companion img{display:block;width:100%;height:auto;max-height:420px;object-fit:contain}
+#ohana-journey-room .journey-companion p{font:700 28px Caveat,cursive;color:#fff0c3;text-shadow:0 2px 3px #4d2b17;margin:10px 0}
+#ohana-journey-room .journey-art-desk{min-width:0;padding:clamp(12px,2.4vw,26px);background:linear-gradient(#4c240e33,#4c240e33),url('/ohana-workstation-v103.webp') center/cover;border:3px solid #b27b37;border-radius:28px;box-shadow:inset 0 2px #ffdd9d66,0 10px 22px #24140966}
+#ohana-journey-room .cb-toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 16px;align-items:center}
+#ohana-journey-room .cb-tool{min-width:100px;min-height:48px;flex:1;padding:8px 12px!important;font-size:16px!important}
+#ohana-journey-room .cb-sizes{display:flex;gap:8px;padding:8px;border-radius:24px;background:#fff2d3;border:0;flex-wrap:wrap;justify-content:center}
+#ohana-journey-room .cb-size{width:44px;height:44px;min-width:44px!important;min-height:44px;padding:0!important}
+#ohana-journey-room .cb-palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:12px;background:#fff2d9;border:0;border-radius:20px;padding:14px;margin:0 0 20px;box-shadow:inset 0 2px 5px #965b2430}
+#ohana-journey-room .cb-swatch{width:44px!important;height:44px!important;min-height:44px!important;min-width:44px!important;justify-self:center;aspect-ratio:1;padding:0!important;transform:none}
+#ohana-journey-room .cb-swatch.on{outline:3px solid #204c58;outline-offset:3px}
+#ohana-journey-room #cb-canvas{width:100%;max-width:760px;background:#fffdf7!important;border:4px solid #ead3a1!important;border-radius:6px!important;padding:6px;box-shadow:0 2px 0 #fff2cf,0 5px 0 #debc80,0 8px 12px #29140988;margin:0 auto;touch-action:manipulation}
+#ohana-journey-room #cb-canvas>svg{display:block;width:100%;height:auto;border-radius:0!important}
+#ohana-journey-room #cb-canvas #cb-ink{border-radius:0!important}
+#ohana-journey-room #cb-status{font:700 16px Nunito;color:#fff3d6!important;margin:20px 4px 0;text-align:center;min-height:24px}
+.journey-room-entrance-card.setup-banner{height:auto!important;aspect-ratio:3/2!important}
+.journey-room-entrance-card.setup-banner img{width:100%!important;height:100%!important;object-fit:contain!important}
+@media(max-width:760px){#ohana-journey-room{padding:10px 8px calc(var(--game-rail-space,180px) + 30px)}#ohana-journey-room .journey-studio-layout{grid-template-columns:minmax(0,1fr);gap:12px}#ohana-journey-room .journey-companion{position:static;display:flex;align-items:center;justify-content:center;gap:12px;padding:0}#ohana-journey-room .journey-companion img{width:95px;max-height:142px}#ohana-journey-room .journey-companion p{font-size:26px}#ohana-journey-room .journey-art-desk{border-radius:18px;padding:12px}#ohana-journey-room .cb-sizes{width:100%}#ohana-journey-room .journey-picture-library{padding:16px 12px;border-left-width:5px}#ohana-journey-room :is(.cb-adult,.cb-pages){grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:22px 14px}#ohana-journey-room .cb-buddies{grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:20px 10px}}
+@media(prefers-reduced-motion:reduce){#ohana-journey-room :is(.cb-buddy,.cb-page){transition:none}#ohana-journey-room :is(.cb-buddy,.cb-page):hover{transform:none}}
+</style>
 </head>
 <body>
 <div id="app"></div>
@@ -5895,10 +5965,22 @@ function worldPortrait(id,g=null,st=null){
  const {score,unit,detail}=gamePlayerDisplay(id,g,st);
  const numericDetail=detail.match(/^\d+/)?.[0]||'';
  const meldMinimum=g?.type==='handfoot'?(st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeldFE(st.scores?.[id]||0)):undefined;
- const visibleDetail=g?.type==='handfoot'?String(meldMinimum):g?.type==='ohana10'?'':g?.type==='spades'?(st?.bids?.[id]?.nil?'0':String(st?.bids?.[id]?.amt??st?.bids?.[id]?.amount??'—'))+' · '+(st?.tricksWon?.[id]||0):numericDetail;
+ const visibleDetail=g?.type==='handfoot'?'':g?.type==='ohana10'?'':g?.type==='spades'?(st?.bids?.[id]?.nil?'0':String(st?.bids?.[id]?.amt??st?.bids?.[id]?.amount??'—'))+' · '+(st?.tricksWon?.[id]||0):numericDetail;
  return `<div class="world-seat ${me?'self':''} ${active?'current':''} ${avatar!=='🌺'&&!CHARACTERS[avatar]?'avatar-emoji':''}" data-player-id="${esc(id)}" aria-label="${esc(name+(score!==undefined?', '+score+' '+unit:'')+(detail?', '+detail:'')+(active?', current turn':''))}"${g?dmAttr(id):''}><div class="world-portrait">${avatar==='🌺'?'<img src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt="Hibiscus" class="world-flower-avatar">':avatarMarkup(avatar)}</div><div class="world-nameplate"><b>${esc(name)}</b>${score!==undefined?'<span class="world-plate-score" aria-label="'+esc(score+' '+unit)+'">'+esc(score)+'</span>':''}${active?'<span class="world-turn" aria-label="Current turn">◆</span>':''}</div>${visibleDetail?'<small aria-label="'+esc(g?.type==='handfoot'?'Opening meld '+meldMinimum+' points':detail)+'">'+esc(visibleDetail)+'</small>':''}</div>`;
 }
 
+let ohanaEntranceVerse=null,ohanaEntranceRoom=null,ohanaEntranceWasHome=false;
+function ohanaEntranceBible(){
+ const room=String(S.room||'home');
+ if(!ohanaEntranceVerse||ohanaEntranceRoom!==room||!ohanaEntranceWasHome){
+  let prior=-1;try{prior=Number(sessionStorage.getItem('ohana-entrance-verse')??-1);}catch{}
+  const choices=DEVOS.map((_,i)=>i).filter(i=>i!==prior);
+  const next=choices[Math.floor(Math.random()*choices.length)];ohanaEntranceVerse=DEVOS[next];ohanaEntranceRoom=room;
+  try{sessionStorage.setItem('ohana-entrance-verse',String(next));}catch{}
+ }
+ ohanaEntranceWasHome=true;const v=ohanaEntranceVerse;
+ return '<section class="ohana-entry-bible" aria-label="Inspirational scripture"><div class="ohana-bible-page ohana-bible-left"><span>✝</span><strong>'+esc(v.t)+'</strong><small>'+esc(v.r)+'</small></div><div class="ohana-bible-page ohana-bible-right"><blockquote>'+esc(v.v)+'</blockquote></div></section>';
+}
 function mountWorldHome(){
  ensureWorldScene();const m=$('#main');if(!m)return;m.classList.add('world-home');
  m.querySelector(':scope>ohana-scene')?.remove();
@@ -5915,7 +5997,7 @@ function mountWorldHome(){
  // Keep the entrance picture clear; game destinations live in the shared bottom workstation.
  const foyer=document.createElement('section');foyer.className='world-home-foyer ohana-entrance';foyer.setAttribute('aria-label','Welcome to your Ohana room');m.prepend(foyer);foyer.append(roomView);if(tabs)mountHomeWorkstation(m,tabs);const heading=document.querySelector('#app>header');if(heading){heading.classList.add('ohana-entrance-heading');foyer.prepend(heading);}
  mountFamilyWelcome(m,table,nook);
- table.insertAdjacentHTML('beforeend','<p class="world-blessing">✝ Let all that you do be done with love.<br><small>1 Corinthians 16:14 NKJV</small></p>');
+ table.insertAdjacentHTML('beforeend',ohanaEntranceBible());
  mountPuzzleInvite(m,null);
  mountPrayerInvite(m,null);
  mountGrannyInvite(m,null);
@@ -6187,8 +6269,8 @@ function ohanaFeatureShelf(m,before){
 }
 function mountPrayerInvite(m,before){
  if(m.querySelector('.pr-invite'))return;
- const card=document.createElement('section');card.className='pr-invite';card.setAttribute('aria-label','Open Ohana United prayer room');
- card.innerHTML=`<div class="ohana-feature-scene prayer-feature-scene"><img src="/ohana-prayer-sign-v4.webp?asset=ohana-v105-binary-repair-20261011" alt="Peaceful Ohana prayer corner beside the sea"><h3>Ohana United</h3></div><div class="ohana-feature-foot"><div class="pr-invite-status" aria-live="polite"></div><button type="button" class="pr-invite-go">Go</button></div>`;
+ const card=document.createElement('section');card.className='pr-invite';card.setAttribute('aria-label','Open Ohana Blessings prayer room');
+ card.innerHTML=`<div class="ohana-feature-scene prayer-feature-scene"><img src="/ohana-blessings-prayer-sign-v1.webp?asset=ohana-room-renames-20261015" alt="Peaceful Ohana prayer corner beside the sea"><h3>Ohana Blessings</h3></div><div class="ohana-feature-foot"><div class="pr-invite-status" aria-live="polite"></div><button type="button" class="pr-invite-go">Go</button></div>`;
  ohanaFeatureShelf(m,before).append(card);
  card.querySelector('.pr-invite-go').onclick=openPrayerRoom;
  api('/api/prayers').then(d=>{
@@ -6205,8 +6287,8 @@ function mountPrayerInvite(m,before){
 
 function mountPuzzleInvite(m,before){
  if(m.querySelector('.pz-invite'))return;
- const card=document.createElement('section');card.className='pz-invite';card.setAttribute('aria-label','Open Ohana Journey puzzle room');
- card.innerHTML=`<div class="ohana-feature-scene puzzle-feature-scene"><img src="/ohana-puzzle-sign-v3.webp?asset=ohana-v105-binary-repair-20261011" alt="Ohana puzzle pavilion with a family puzzle on the table"><h3>Ohana Journey</h3></div><div class="ohana-feature-foot"><div class="pz-invite-status" aria-live="polite"></div><button type="button" class="pz-invite-go" data-open-puzzles>Go</button></div>`;
+ const card=document.createElement('section');card.className='pz-invite';card.setAttribute('aria-label','Open Ohana United puzzle room');
+ card.innerHTML=`<div class="ohana-feature-scene puzzle-feature-scene"><img src="/ohana-united-puzzle-sign-v1.webp?asset=ohana-room-renames-20261015" alt="Ohana puzzle pavilion with a family puzzle on the table"><h3>Ohana United</h3></div><div class="ohana-feature-foot"><div class="pz-invite-status" aria-live="polite"></div><button type="button" class="pz-invite-go" data-open-puzzles>Go</button></div>`;
  ohanaFeatureShelf(m,before).append(card);
  card.querySelector('.pz-invite-go').onclick=()=>{if(card._puzzleId){PZ.lobby=false;openPuzzle(card._puzzleId);}else openPuzzleLobby();};
  // Live status: what is on the table right now.
@@ -6230,7 +6312,7 @@ function mountWorldGame(g=S.gstate,st=g?.state){
  if(g.type==='handfoot'){
   const area=board.querySelector('.hf-area'),felt=area?.querySelector('.hf-felt');if(!felt)return;
   if(!hand){hand=document.createElement('section');hand.className='world-hand';hand.setAttribute('aria-label','Your cards and actions');area.append(hand);}
-  for(const sel of ['.hf-staged','.wild-assignments','.hf-acts','.hf-hand-title','.hf-hand']){const el=felt.querySelector(sel);if(el)hand.append(el);}
+  for(const sel of ['.hf-staged','.wild-assignments','.hf-acts','.hf-hand-title','.hf-hand','.hf-selection-total']){const el=felt.querySelector(sel);if(el)hand.append(el);}
   felt.querySelectorAll(':scope>.hf-public-table').forEach(el=>{el.classList.add('hf-open');});
   board.querySelector('.hf-welcome')?.setAttribute('hidden','');
  }else if(g.type==='ohana10'){
@@ -6460,19 +6542,22 @@ function cbFillsOf(id){try{const d=JSON.parse(localStorage.getItem('ohana_color_
 function cbSvg(page,fills,forExport){const p=typeof page==='string'?CB_PAGES.find(x=>x.id===page):page;let i=0;const body=p.svg.replace(/<(rect|path|circle|ellipse)([^>]*?)class="r"([^>]*?)\/>/g,(m,tag,a,b)=>{const idx=i++;const fill=fills[idx]||'#ffffff';return `<${tag}${a}class="r"${b} data-cb="${idx}" fill="${fill}"/>`;});return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" stroke="#1d2a33" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="#ffffff" fill-rule="evenodd"${forExport?' style="background:#fff"':''}>${body}</svg>`;}
 function cbDrawStroke(x,st,scale){if(st.pts.length<1)return;x.save();x.globalCompositeOperation=st.erase?'destination-out':'source-over';x.strokeStyle=st.erase?'#000':st.color;x.lineWidth=st.size*scale;x.lineCap='round';x.lineJoin='round';x.beginPath();const p=st.pts;x.moveTo(p[0][0]*scale,p[0][1]*scale);if(p.length===1)x.lineTo(p[0][0]*scale+0.01,p[0][1]*scale);for(let i=1;i<p.length-1;i++){const mx=(p[i][0]+p[i+1][0])/2,my=(p[i][1]+p[i+1][1])/2;x.quadraticCurveTo(p[i][0]*scale,p[i][1]*scale,mx*scale,my*scale);}if(p.length>1){const l=p[p.length-1];x.lineTo(l[0]*scale,l[1]*scale);}x.stroke();x.restore();}
 function cbRedraw(){const c=$('#cb-ink');if(!c)return;const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);const sc=c.width/400;for(const st of CB.strokes)cbDrawStroke(x,st,sc);}
-async function openColorBook(page){leaveGrannyContext();S.colorBook=true;if(page){try{CB.pageObj=await cbResolve(page);}catch(e){toast(e.message);return;}CB.page=page;cbLoad();if(page.startsWith('gen:'))cbRemember(page,CB.pageObj.name);}else{CB.page=null;CB.pageObj=null;}render();}
+async function openColorBook(page){leaveGrannyContext();S.colorBook=true;if(page){try{CB.pageObj=await cbResolve(page);}catch(e){toast(e.message);return;}CB.page=page;cbLoad();if(page.startsWith('gen:'))cbRemember(page,CB.pageObj.name);}else{CB.page=null;CB.pageObj=null;}render();/* ohana-coloring-navigation-scroll */window.scrollTo({top:0,behavior:'instant'});}
 function cbSurprise(){openColorBook('gen:'+Math.floor(Math.random()*4294967295));}
 function closeColorBook(){S.colorBook=false;render();}
 function renderColorBook(){
  const m=$('#main');
  if(!CB.page){
   const mine=cbPageList();
-  m.innerHTML=`<div class="cb-head"><button class="soft" id="cb-back">‹ Back</button><h2>🎨 Ohana Journey</h2></div><p class="cb-intro">Journey’s coloring book, for the whole Ohana. Pick a picture. Tap to fill a part, or grab a marker and color it yourself. Pictures save on this device. Share one to the family chat when it’s done!</p>
+  m.innerHTML=`<section id="ohana-journey-room" class="journey-library" aria-label="Ohana Journey coloring room">
+<header class="cb-head journey-room-heading"><button class="soft" id="cb-back">‹ Back</button><h2>Ohana Journey</h2></header>
+<div class="journey-entrance"><img src="/ohana-journey-entrance-v1.webp" alt="Journey coloring beside her little plush friend on the Ohana ocean porch" fetchpriority="high"></div>
+<p class="cb-intro">A little color. A little wonder. A place for the whole Ohana.</p><p class="journey-save-note">Choose a picture below. Your coloring stays saved on this device.</p><div class="journey-picture-library">
   <button class="cb-surprise" id="cb-surprise">✨ Surprise me with a brand-new page</button><p class="cb-hint">Every tap makes a new picture with one of our Ohana buddies. It never runs out!</p>
   <h3 class="shelf">Our Ohana buddies<small>color your favorite friend</small></h3><div class="cb-buddies">${Object.entries(CB_BUDDIES).map(([k,n])=>`<button class="cb-buddy" data-cb-page="buddy:${k}" aria-label="Color ${n}"><img src="/${k==='honu'?'honu':'buddy-'+k}.webp?asset=ohana-v105-binary-repair-20261011&v=free1" alt=""><b>${n}</b>${cbHasWork('buddy:'+k)?'<small>✎</small>':''}</button>`).join('')}</div>
   <h3 class="shelf">Grown-ups & big kids<small>detailed pages to relax with</small></h3><div class="cb-adult">${Object.entries(CB_ADULT).map(([k,n])=>`<button class="cb-page cb-adult-page" data-cb-page="adult:${k}" aria-label="Color ${n}"><img src="/color/${k}.webp?asset=ohana-v105-binary-repair-20261011" alt="" loading="lazy"><b>${n}</b>${cbHasWork('adult:'+k)?'<small>✎ in progress</small>':''}</button>`).join('')}</div>
   ${mine.length?`<h3 class="shelf">My surprise pages<small>pick up where you left off</small></h3><div class="cb-mine">${mine.map(p=>`<button class="soft" data-cb-page="${p.id}">🖍 ${esc(p.name)}</button>`).join('')}</div>`:''}
-  <h3 class="shelf">Island pictures<small>classic pages</small></h3><div class="cb-pages">${CB_PAGES.map(p=>`<button class="cb-page" data-cb-page="${p.id}" aria-label="Color ${esc(p.name)}">${cbSvg(p.id,cbFillsOf(p.id))}<b>${esc(p.name)}</b>${cbHasWork(p.id)?'<small>✎ in progress</small>':''}</button>`).join('')}</div>`;
+  <h3 class="shelf">Island pictures<small>classic pages</small></h3><div class="cb-pages">${CB_PAGES.map(p=>`<button class="cb-page" data-cb-page="${p.id}" aria-label="Color ${esc(p.name)}">${cbSvg(p.id,cbFillsOf(p.id))}<b>${esc(p.name)}</b>${cbHasWork(p.id)?'<small>✎ in progress</small>':''}</button>`).join('')}</div></div></section>`;
   $('#cb-back').onclick=closeColorBook;$('#cb-surprise').onclick=cbSurprise;
   m.querySelectorAll('[data-cb-page]').forEach(b=>b.onclick=()=>{b.disabled=true;openColorBook(b.dataset.cbPage);});
   return;
@@ -6480,7 +6565,7 @@ function renderColorBook(){
  const p=CB.pageObj;
  const colorName=()=>CB_PALETTE.find(x=>x[0]===CB.color)?.[1].toLowerCase()||'your color';
  const hint=()=>CB.tool==='fill'?`Tap a part of the picture to fill it ${colorName()}.`:CB.tool==='erase'?'Rub over your marker lines to erase them.':`Draw on the picture with your ${CB_SIZES.find(s=>s[0]===CB.size)?.[1].toLowerCase()||''} ${colorName()} marker.`;
- m.innerHTML=`<div class="cb-head"><button class="soft" id="cb-back">‹ Pictures</button><h2>${esc(p.name)}</h2></div>
+ m.innerHTML=`<section id="ohana-journey-room" class="journey-painting" aria-label="Ohana Journey art studio"><header class="cb-head journey-room-heading"><button class="soft" id="cb-back">‹ Pictures</button><div><span class="journey-room-label">Ohana Journey</span><h2>${esc(p.name)}</h2></div></header><div class="journey-studio-layout"><aside class="journey-companion"><img src="/journey-coloring-character-v1.webp" alt="Journey coloring with her little plush friend"><p>Make it your own.</p></aside><div class="journey-art-desk">
  <div class="cb-toolbar" role="group" aria-label="Tools">
   <button class="cb-tool ${CB.tool==='fill'?'on':''}" data-cb-tool="fill" aria-pressed="${CB.tool==='fill'}">🪣 Fill</button>
   <button class="cb-tool ${CB.tool==='draw'?'on':''}" data-cb-tool="draw" aria-pressed="${CB.tool==='draw'}">🖍️ Marker</button>
@@ -6489,8 +6574,8 @@ function renderColorBook(){
  </div>
  <div class="cb-palette" role="group" aria-label="Colors">${CB_PALETTE.map(([c,n])=>`<button class="cb-swatch ${CB.color===c?'on':''}" data-cb-color="${c}" style="background:${c}!important;--island-face:${c};--island-shadow:${c}" aria-label="${n}" aria-pressed="${CB.color===c}"></button>`).join('')}<label class="cb-swatch cb-any ${CB_PALETTE.some(x=>x[0]===CB.color)?'':'on'}" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)!important" aria-label="Pick any color"><input type="color" id="cb-anycolor" value="${CB.color}"></label></div>
  <div class="cb-canvas ${CB.tool!=='fill'?'drawing':''}" id="cb-canvas">${cbSvg(p,CB.fills)}<canvas id="cb-ink" width="1200" height="1200"></canvas></div>
- <div id="cb-workstation" class="cb-tools ohana-workstation"><button class="soft" id="cb-undo" ${CB.history.length?'':'disabled'}>↶ Undo</button><button class="soft" id="cb-clear">🗑 Start over</button><button id="cb-share">💬 Share to family chat</button>${CB.page.startsWith('gen:')?'<button class="soft" id="cb-another">✨ Another surprise</button>':''}</div>
- <p class="cb-hint" id="cb-status" role="status">${hint()}</p>`;
+ <p class="cb-hint" id="cb-status" role="status">${hint()}</p></div></div><div id="cb-workstation" class="cb-tools ohana-workstation"><button class="soft" id="cb-undo" ${CB.history.length?'':'disabled'}>↶ Undo</button><button class="soft" id="cb-clear">🗑 Start over</button><button id="cb-share">💬 Share to family chat</button>${CB.page.startsWith('gen:')?'<button class="soft" id="cb-another">✨ Another surprise</button>':''}</div>
+ </section>`;
  cbRedraw();
  m.querySelector('.cb-tools').insertAdjacentHTML('beforeend','<div class="cb-workstation-player">'+worldPortrait(S.me.id)+'</div>');
  $('#cb-back').onclick=()=>openColorBook(null);const an=$('#cb-another');if(an)an.onclick=cbSurprise;
@@ -6789,10 +6874,10 @@ function pzPaintTrays(){const layer=$('#pz-float-layer'),dock=$('#pz-tray-dock')
  const scrollPositions=new Map([...layer.querySelectorAll('.pz-float-tray')].map(el=>[+el.dataset.tray,el.querySelector('.pz-float-pieces')?.scrollTop||0]));
  layer.innerHTML='';dock.innerHTML='';
  for(const tray of PZ.trays){const pieces=PZ.data.pieces.filter(q=>q.tray===tray.id&&!q.l);
-  if(tray.docked){const chip=document.createElement('button');chip.textContent=tray.name+' · '+pieces.length;chip.title='Open '+tray.name;chip.onclick=()=>pzSend({t:'tray-update',id:tray.id,docked:false});dock.append(chip);continue;}
-  const expanded=PZ_TRAY_EXPANDED.has(tray.id),zoom=PZ_TRAY_ZOOM.get(tray.id)||1,pieceSize=Math.round((expanded?112:48)*zoom);
-  const el=document.createElement('section');el.className='pz-float-tray'+(expanded?' expanded':'');el.dataset.tray=tray.id;el.style.setProperty('--tray-color',tray.color||PZ_TRAY_COLORS[0]);el.style.setProperty('--pz-tray-piece',pieceSize+'px');el.setAttribute('aria-label',tray.name+' puzzle tray');
-  el.innerHTML='<div class="pz-float-head"><strong>'+esc(tray.name)+'</strong><button data-act="zoom-out" data-icon="−" title="Zoom out pieces" aria-label="Zoom out '+esc(tray.name)+' pieces" '+(zoom===1?'disabled':'')+'></button><button data-act="zoom-in" data-icon="+" title="Zoom in pieces" aria-label="Zoom in '+esc(tray.name)+' pieces" '+(zoom===2.5?'disabled':'')+'></button><button data-act="expand" data-icon="'+(expanded?'↙':'⤢')+'" title="'+(expanded?'Shrink':'Enlarge')+' tray" aria-label="'+(expanded?'Shrink':'Enlarge')+' '+esc(tray.name)+' tray"></button><button data-act="rename" data-icon="✎" title="Rename tray" aria-label="Rename '+esc(tray.name)+'"></button><button data-act="color" data-icon="◉" title="Change tray color" aria-label="Change tray color"></button><button data-act="dock" data-icon="↘" title="Move tray to side" aria-label="Dock '+esc(tray.name)+'"></button><button data-act="delete" data-icon="×" title="Remove empty tray" aria-label="Remove '+esc(tray.name)+'"></button></div><div class="pz-float-pieces"></div>';
+  const number=PZ.trays.indexOf(tray)+1,chip=document.createElement('button');chip.textContent='Tray '+number+' · '+pieces.length;chip.title=tray.name;chip.setAttribute('aria-label',(tray.docked?'Open ':'Minimize ')+'Tray '+number+', '+pieces.length+' pieces');chip.setAttribute('aria-pressed',String(!tray.docked));chip.onclick=()=>pzSend({t:'tray-update',id:tray.id,docked:!tray.docked});dock.append(chip);if(tray.docked)continue;
+  const expanded=PZ_TRAY_EXPANDED.has(tray.id),zoom=PZ_TRAY_ZOOM.get(tray.id)||1,pieceSize=Math.round((expanded?88:64)*zoom);
+  const el=document.createElement('section');el.className='pz-float-tray'+(expanded?' expanded':'');el.dataset.tray=tray.id;el.style.setProperty('--tray-color',tray.color||PZ_TRAY_COLORS[0]);el.style.setProperty('--pz-tray-piece',pieceSize+'px');el.setAttribute('aria-label',tray.name+' puzzle tray');el.style.setProperty('--sorting-width',Math.min(640,Math.max(expanded?520:400,Math.ceil(Math.sqrt(Math.max(10,pieces.length)*1.7))*(pieceSize+8)+64))+'px');el.style.setProperty('--sorting-rows',String(Math.max(2,Math.ceil(pieces.length/5))));
+  el.innerHTML='<div class="pz-float-head"><strong>'+esc(tray.name)+'</strong><button data-act="zoom-out" data-icon="−" title="Zoom out pieces" aria-label="Zoom out '+esc(tray.name)+' pieces" '+(zoom===1?'disabled':'')+'></button><button data-act="zoom-in" data-icon="+" title="Zoom in pieces" aria-label="Zoom in '+esc(tray.name)+' pieces" '+(zoom===2.5?'disabled':'')+'></button><button data-act="expand" data-icon="'+(expanded?'↙':'⤢')+'" title="'+(expanded?'Shrink':'Enlarge')+' tray" aria-label="'+(expanded?'Shrink':'Enlarge')+' '+esc(tray.name)+' tray"></button><button data-act="rename" data-icon="✎" title="Rename tray" aria-label="Rename '+esc(tray.name)+'"></button><button data-act="color" data-icon="◉" title="Change tray color" aria-label="Change tray color"></button><button data-act="dock" data-icon="−" title="Minimize tray" aria-label="Minimize '+esc(tray.name)+'"></button><button data-act="delete" data-icon="×" title="Remove empty tray" aria-label="Remove '+esc(tray.name)+'"></button></div><div class="pz-float-pieces"></div>';
   layer.append(el);const place=()=>{el.style.left=Math.max(4,Math.min(stage.clientWidth-el.offsetWidth-4,stage.clientWidth*tray.x))+'px';el.style.top=Math.max(4,Math.min(stage.clientHeight-el.offsetHeight-4,stage.clientHeight*tray.y))+'px';};place();
   const body=el.querySelector('.pz-float-pieces');
   for(const pc of pieces){const btn=document.createElement('button');btn.type='button';btn.setAttribute('aria-label','Place piece '+(pc.i+1)+' from '+tray.name+' on the table');btn.dataset.piece=pc.i;const cv=document.createElement('canvas'),sz=Math.max(90,Math.round(pieceSize*1.5));cv.width=sz;cv.height=sz;btn.append(cv);body.append(btn);const spr=pzSprite(pc.i);if(spr){const sw=spr.width,sh=spr.height,k=Math.min((sz-4)/sw,(sz-4)/sh);cv.getContext('2d').drawImage(spr,(sz-sw*k)/2,(sz-sh*k)/2,sw*k,sh*k);}pzBindTrayPiece(btn,pc.i,tray.id);}
@@ -6845,6 +6930,7 @@ function pzHint(){const P=PZ.data.pieces,m=PZ.data.meta;const sizes={};for(const
  if(!best||bestScore<=0){pzToast('Nothing built yet — start with the corners and edges!');return;}
  PZ.hintPulse={p:best.i,at:Date.now()};const cv=$('#pz-canvas');const {pw,ph}=PZ.geo;const s=Math.max(PZ.view.s,Math.min(cv.width/(pw*8),cv.height/(ph*8)));PZ.view.s=s;PZ.view.x=cv.width/2-(best.x+pw/2)*s;PZ.view.y=cv.height/2-(best.y+ph/2)*s;pzClampView();PZ.needDraw=true;pzToast(best.l?'':'This one fits next to what’s already built');}
 function pzResize(){const cv=$('#pz-canvas');if(!cv)return;const stage=cv.parentElement,st={width:stage.clientWidth,height:stage.clientHeight};
+ const requestedDpr=Math.min(2,window.devicePixelRatio||1),resizeKey=[st.width,st.height,requestedDpr,!!PZ.trayHidden,PZ.trayRows||2,PZ.trayZoom||1].join(':');if(PZ.resizeCanvas===cv&&PZ.resizeKey===resizeKey)return;PZ.resizeCanvas=cv;PZ.resizeKey=resizeKey;
  const oldDpr=PZ.dpr||1,oldScale=PZ.view.s;
  const center=PZ.view.ready&&oldScale>0?[(cv.width/2-PZ.view.x)/oldScale,(cv.height/2-PZ.view.y)/oldScale]:null;
  const dpr=Math.min(2,window.devicePixelRatio||1);PZ.dpr=dpr;
@@ -6855,7 +6941,7 @@ function pzResize(){const cv=$('#pz-canvas');if(!cv)return;const stage=cv.parent
  PZ.strip.vert=false;stage.classList.toggle('pz-side',false);
  const board=stage.closest('.pz-board');if(board){board.classList.toggle('pz-wide',false);const people=$('#pz-people'),dock=$('#pz-tray-dock'),head=board.querySelector('.pz-head');
   if(people&&board.querySelector('.pz-bottom')&&people.parentElement!==board.querySelector('.pz-bottom'))board.querySelector('.pz-bottom').append(people);
-  if(dock&&head&&dock.previousElementSibling!==head)head.after(dock);}
+  const station=$('#pz-workstation');if(dock&&station&&dock.parentElement!==station)station.append(dock);}
  const room=Math.max(1,st.height-26),cell=pzStripCell();
  const trayH=PZ.trayHidden?0:Math.min(room*.60,(PZ.trayRows||2)*cell+8);
  const boardH=room-trayH;
@@ -6903,7 +6989,7 @@ function pzLocalSnap(pc){
    const nr=q.r+dr,nc=q.c+dc;if(nr<0||nc<0||nr>=rows||nc>=cols)continue;
    const nb=P[nr*cols+nc];if(!nb||nb.l||nb.tray||(!PZ.trayHidden&&!puzzleOnTable(d.meta,nb))||nb.g===q.g||P.some(p=>p.g===nb.g&&pzHeldByOther(p)))continue;
    const ex=nb.x-dc*pw,ey=nb.y-dr*ph;
-   if(Math.abs(q.x-ex)<tol&&Math.abs(q.y-ey)<tol){const sx=ex-q.x,sy=ey-q.y;for(const r2 of members){r2.x+=sx;r2.y+=sy;}merged=joined=true;break outer;}
+   if(Math.abs(q.x-ex)<tol&&Math.abs(q.y-ey)<tol){const sx=ex-q.x,sy=ey-q.y;for(const r2 of members){r2.x+=sx;r2.y+=sy;r2.g=nb.g;}members=P.filter(p=>p.g===nb.g&&!p.l);merged=joined=true;break outer;}
   }
   if(!merged)break;
  }
@@ -7026,7 +7112,10 @@ function pzTrayLanding(pc){
  const limits={x0:Math.max(-pw*2,-x/s)+pw*.2,y0:Math.max(-ph*2,-y/s)+ph*.2,x1:Math.min(d.meta.w+pw*2,(cv.width-x)/s)-pw*1.2,y1:Math.min(d.meta.h+ph*2,(bottom-y)/s)-ph*1.2};
  const tx=Math.max(limits.x0,Math.min(limits.x1,d.meta.w*.5-pw*.5)),ty=Math.max(limits.y0,Math.min(limits.y1,d.meta.h*.5-ph*.5));
  const members=d.pieces.filter(q=>q.g===pc.g&&!q.l);
- return puzzleFindSpot(d.meta,d.pieces,members,tx,ty,false,limits);
+ const visible=puzzleFindSpot(d.meta,d.pieces,members,tx,ty,false,limits);if(visible)return visible;
+ const spot=puzzleFindSpot(d.meta,d.pieces,members,tx,ty,false,puzzleWorkspace(d.meta));
+ if(spot){PZ.view.x=cv.width/2-(spot[0]+pw/2)*s;PZ.view.y=bottom/2-(spot[1]+ph/2)*s;PZ.needDraw=true;}
+ return spot;
 }
 function pzBindStrip(){
  const cv=$('#pz-strip');if(!cv)return;
@@ -7066,7 +7155,7 @@ function pzBindStrip(){
   if(s0.mode==='scroll'){pzPaintStrip();return;}
   if(s0.pc){
    const pc=s0.pc,spot=pzTrayLanding(pc);
-   if(!spot){pzToast('Make a little room near the picture, then tap again.');return;}
+   if(!spot){pzToast('The table is full. Return a loose piece to a sorting tray to make space.');return;}
    pzDropMine();pzRememberPickup(pc);
    const dx=spot[0]-pc.x,dy=spot[1]-pc.y;
    for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;q.onTable=true;q.h=S.me?.id;q.ht=Date.now();pzRaise(q.i);}
@@ -10664,10 +10753,38 @@ function openGranny(){
 function leaveGrannyContext(){if(!S.granny)return;grFlush();S.granny=false;GR.record=null;GR.dockObserver?.disconnect();document.body.classList.remove('granny-open');history.replaceState(null,'',location.pathname+location.search);}
 function closeGranny(){grFlush();S.granny=false;GR.record=null;document.body.classList.remove('granny-open');history.replaceState(null,'',location.pathname+location.search);goHomePorch();}
 
+async function ohanaStartMemorySlideshow(card,room){
+ const stage=card.querySelector('.memories-polaroid-stage'),urls=[];
+ let timer;const cleanup=()=>{clearTimeout(timer);urls.forEach(u=>URL.revokeObjectURL(u));observer.disconnect();};
+ const observer=new MutationObserver(()=>{if(!card.isConnected)cleanup();});
+ try{
+  let photos=[],before='';
+  do{const page=await api('/api/memories/gallery'+before,null,'GET',room);if(S.room!==room)return;photos.push(...page.photos);if(!page.more)break;const last=page.photos.at(-1);if(!last)break;before='?before='+last.created_at+'&beforeId='+encodeURIComponent(last.id);}while(photos.length<3000);
+  if(!card.isConnected||S.room!==room)return;
+  observer.observe(document.body,{childList:true,subtree:true});
+  let index=0,transition=0;
+  const show=async()=>{
+   if(!card.isConnected||S.room!==room){cleanup();return;}
+   if(!photos.length)return;
+   const p=photos[index++%photos.length];
+   try{
+    const response=await fetch(p.thumbnail_url||p.image_url,{headers:{authorization:'Bearer '+S.token,'x-ohana-room':String(room)}});
+    if(!response.ok)throw Error('Photo unavailable');
+    const url=URL.createObjectURL(await response.blob());urls.push(url);
+    if(!card.isConnected||S.room!==room){cleanup();return;}
+    const frame=document.createElement('span');frame.className='memory-polaroid real-memory-slide';frame.dataset.transition=String(transition++%3);frame.style.setProperty('--photo','url("'+url+'")');
+    const label=document.createElement('b');label.textContent=p.caption||'Our Ohana';frame.append(label);stage.replaceChildren(frame);
+    while(urls.length>2)URL.revokeObjectURL(urls.shift());
+   }catch(error){console.warn('Memory slideshow picture unavailable');}
+   timer=setTimeout(show,6500);
+  };show();
+ }catch(error){cleanup();}
+}
 function mountMemoriesInvite(m,before){
  if(m.querySelector('.memories-invite'))return;
  const card=document.createElement('section');card.className='gr-invite memories-invite';card.setAttribute('aria-label','Open Ohana Memories family photos');
- card.innerHTML=`<div class="ohana-feature-scene gr-feature-scene memories-feature-scene" role="button" tabindex="0"><img class="memories-room-art" src="/ohana-memories-room-v89.webp" alt="A detailed Ohana family album room with carved Memories sign"><div class="memories-polaroid-stage" aria-hidden="true"><span class="memory-polaroid memory-polaroid-one" style="--photo:url('/ohana-family-home-v2.webp?asset=ohana-v105-binary-repair-20261011')"><b>Family</b></span><span class="memory-polaroid memory-polaroid-two" style="--photo:url('/mike-birthday.webp?asset=ohana-v105-binary-repair-20261011')"><b>Laughs</b></span><span class="memory-polaroid memory-polaroid-three" style="--photo:url('/ohana-cove-v1.webp?asset=ohana-v105-binary-repair-20261011')"><b>Trips</b></span><span class="memory-polaroid memory-polaroid-four" style="--photo:url('/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011')"><b>Love</b></span></div><h3>Ohana Memories</h3><p class="memories-scene-line">Family photos that slide into the spotlight</p></div><div class="ohana-feature-foot"><span>Albums · Polaroids · Shared moments</span><button class="gr-go" type="button">Go</button></div>`;
+ card.innerHTML=`<div class="ohana-feature-scene gr-feature-scene memories-feature-scene" role="button" tabindex="0"><img class="memories-room-art" src="/ohana-memories-room-v89.webp" alt="A detailed Ohana family album room with carved Memories sign"><div class="memories-polaroid-stage" aria-hidden="true"></div><h3>Ohana Memories</h3><p class="memories-scene-line">Family photos that slide into the spotlight</p></div><div class="ohana-feature-foot"><span>Albums · Polaroids · Shared moments</span><button class="gr-go" type="button">Go</button></div>`;
+ ohanaStartMemorySlideshow(card,S.room);
  ohanaFeatureShelf(m,before).append(card);card.querySelector('button').onclick=()=>location.assign('/memories?room='+encodeURIComponent(S.room));card.querySelector('.gr-feature-scene').onclick=()=>location.assign('/memories?room='+encodeURIComponent(S.room));card.querySelector('.gr-feature-scene').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();location.assign('/memories?room='+encodeURIComponent(S.room));}};
 }
 
@@ -11110,7 +11227,7 @@ const NEWS=[
  {key:'domino-refresh-oct07',title:'OhanO DominO',sub:'Room for one more tile',blurb:'Drawn tiles appear right in your hand, with rows that keep every tile above the bottom controls. Island symbols, automatic scoring and room for a growing chain keep domino night welcoming.',img:'/ohana-domino-sign-v2.webp?asset=ohana-v105-binary-repair-20261011',tone:'reef',tag:'UPDATED',go:()=>{S.gameShelf='new';renderGames();}},
  {key:'board-games-refresh-oct07',title:'Chess, Checkers & Tic-Tac-Toe',sub:'A next move and another round',blurb:'Clearer bottom controls keep your next move close by. Review a finished board, find your results in History, and use Replay when you are ready for another game with Honu.',img:'/ohana-chess-sign-v2.webp?asset=ohana-v105-binary-repair-20261011',tone:'coral',tag:'UPDATED',go:()=>{S.gameShelf='new';renderGames();}},
  {key:'memory-coloring-refresh-oct07',title:'Memory & Coloring',sub:'Little moments of family fun',blurb:'Turn over familiar Ohana faces in Memory, or settle in with a coloring page. Coloring tools have a calm, readable background, with fill, marker, eraser and Undo ready beside your colors.',img:'/honu.webp?asset=ohana-v105-binary-repair-20261011',tone:'palm',tag:'UPDATED',go:()=>{S.gameShelf='new';renderGames();}},
- {key:'journey-refresh-oct07',title:'Ohana Journey',sub:'Every hand helps',blurb:'Loose pieces can rest on the table or wait in the tray. Drag them where you want them, open the full picture for a look, and find your tools in the bottom gear while the Ohana builds together.',img:'/honu.webp?asset=ohana-v105-binary-repair-20261011',tone:'mango',tag:'UPDATED',go:()=>{PZ.lobby=true;S.game=null;S.tab='games';render();}},
+ {key:'journey-refresh-oct07',title:'Ohana United',sub:'Every hand helps',blurb:'Loose pieces can rest on the table or wait in the tray. Drag them where you want them, open the full picture for a look, and find your tools in the bottom gear while the Ohana builds together.',img:'/honu.webp?asset=ohana-v105-binary-repair-20261011',tone:'mango',tag:'UPDATED',go:()=>{PZ.lobby=true;S.game=null;S.tab='games';render();}},
  {key:'domino-launch-oct05',title:'OhanO DominO',sub:'Family domino night is here!',blurb:'Match bright island symbols on cream dominoes. Play with Honu or gather 2–8 family players around a roomy shared table, with automatic scoring and pinch zoom.',img:'/ohana-domino-sign-v2.webp?asset=ohana-v105-binary-repair-20261011',tone:'reef',tag:'NEW GAME',go:()=>{S.gameShelf='new';renderGames();requestAnimationFrame(()=>{const card=document.querySelector('[data-setup-game="domino"]');if(card){card.querySelector('.setup-options').open=true;card.scrollIntoView({behavior:'smooth',block:'start'});}});}},
  {key:'bandit-pug-sep30',title:'Meet Bandit!',sub:'A little pug. A whole lot of heart.',blurb:'Welcome Bandit to our Ohana! With his curly tail, happy grin and gold heart, he is ready for family game night. Choose him in your wardrobe and try his first fitted outfits.',img:'/buddy-bandit-v1.webp?asset=ohana-v105-binary-repair-20261011',tone:'mango',tag:'NEW',go:()=>openWardrobe('@bnd')},
  {key:'new-friends-sep30',title:'20 new Ohana friends',sub:'Find a personality that feels like you',blurb:'From Pip the squirrel to Nova the snow leopard, 20 new animal friends have joined the family. Freestanding characters, friendly faces and a place for everyone.',img:'/buddy-maple-v1.webp?asset=ohana-v105-binary-repair-20261011',tone:'reef',tag:'NEW',go:()=>openWardrobe()},
@@ -11203,12 +11320,12 @@ function renderGames() {
   const goButton=btn=>btn.replace(/>[^<]*<\/button>/,'>Go</button>');
   const card = (g, btn) => g.type === 'spades' ? `<div class="gcard nook-card nook-spades ${g.my_turn ? 'turn' : ''}"><div class="sp-square-scene"><img class="sp-porch-image" src="/ohana-mikes-cards-v4.webp?asset=ohana-v105-binary-repair-20261011" alt="Ohana Mike’s Spades porch with character cards"><img class="sp-mike-eagle" src="/eddie-limo.webp?asset=ohana-v105-binary-repair-20261011" alt="Mike the limo eagle standing beside his game table"></div><div class="sp-square-info"><div class="sp-square-score" aria-label="Players and scores">${g.players.map(id=>`<span>${esc(person(g,id))} <strong>${Number(g.scores?.[id])||0}</strong></span>`).join('')}${gameLastPlayed(g)}</div>${goButton(btn)}</div></div>` : `<div class="gcard nook-card ohana-scene-ticket nook-${g.type} ${g.my_turn ? 'turn' : ''}"><div class="sp-square-scene"><img class="sp-porch-image" src="/${({chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3',handfoot:'ohana-handfoot-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103'})[g.type]||'ohana-'+g.type+'-sign-v2'}.webp?asset=ohana-v105-binary-repair-20261011" alt="${esc(g.name)} game room"><img class="scene-game-buddy" src="/${({words:'honu',handfoot:'buddy-eddie',mahjong:'ohana-splash-fish-v1',ohana10:'buddy-flora',chess:'buddy-flora',checkers:'buddy-mango',memory:'buddy-kiko',tictac:'buddy-sunny',domino:'buddy-reef'})[g.type]||'honu'}.webp?asset=ohana-v105-binary-repair-20261011" alt=""></div><div class="sp-square-info"><div class="sp-square-score" aria-label="Players and scores">${g.players.map(id=>`<span>${esc(person(g,id))} <strong>${Number(g.scores?.[id])||0}</strong></span>`).join('')}${gameLastPlayed(g)}</div>${goButton(btn)}</div></div>`;
   const shelves = [['Little ones', 'easy stuff for the grandkids', ['tictac', 'memory']], ['Everybody', 'all ages', ['chess', 'checkers', 'mahjong', 'ohana10', 'domino']], ['Grown-ups & big kids', 'bring your brain', ['words', 'handfoot', 'spades']]];
-  m.innerHTML = `${shelf==='mine'?newsBoard():''}<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['new','New game'],['mine','Your turn'],['all','All my games'],['history','History'],['others','Other games'],['invites','Invites · '+((sy.invitations||[]).length+(sy.sentInvitations||[]).length)]].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${sy.invitations?.length&&shelf!=='invites'?`<button type="button" class="invite-reminder" data-show-invites>${sy.invitations.length} game invitation${sy.invitations.length===1?'':'s'} waiting · View invites</button>`:''}${shelf==='history'?'<section class="game-history" aria-label="Finished game history"><h2>Game history</h2><p>Loading finished games…</p></section>':''}${shelf==='invites'?inviteHub():''}${shelf==='all'&&sy.invitations?.length?invitationCards():''}${['mine','all'].includes(shelf)?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="${shelf==='all'?'All my games':'Games waiting for my turn'}"><div class="nook-heading"><img src="/honu.webp?asset=ohana-v105-binary-repair-20261011" alt=""><h2>${shelf==='all'?'All my games':'Your turn'}</h2><span class="nook-count">${mine.filter(g=>g.my_turn).length} ready</span><div class="room-conversation"><span>${roomTitle(sy.familyName,sy.roomId)}</span><button id="nook-chat" class="soft" aria-label="Open chat for ${esc(sy.familyName)}">Room chat</button></div></div>${visibleGames.length?'<div class="nook-grid">'+visibleGames.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':(shelf==='all'?'<p class="nook-empty">You have no active games. Choose New game or browse Other games.</p>':'<p class="nook-empty">You’re all caught up! We’ll let you know when it’s your turn. Waiting tables are in All my games.</p>')}</section>
+  m.innerHTML = `${shelf==='mine'?newsBoard():''}<ohana-scene></ohana-scene><div class="game-shelf-tabs" role="group" aria-label="Game views">${[['new','New game'],['mine','Your turn'],['all','All my games'],['history','History'],['others','Other games'],['invites','Invites · '+((sy.invitations||[]).length+(sy.sentInvitations||[]).length)]].map(([id,label])=>`<button type="button" class="soft" data-game-shelf="${id}" aria-pressed="${shelf===id}">${label}</button>`).join('')}</div>${sy.invitations?.length&&shelf!=='invites'?`<button type="button" class="invite-reminder" data-show-invites>${sy.invitations.length} game invitation${sy.invitations.length===1?'':'s'} waiting · View invites</button>`:''}${shelf==='history'?'<section class="game-history" aria-label="Finished game history"><h2>Game history</h2><p>Loading finished games…</p></section>':''}${shelf==='invites'?inviteHub():''}${shelf==='all'&&sy.invitations?.length?invitationCards():''}${['mine','all'].includes(shelf)?`${sy.games.filter(g=>g.in_game&&g.score_review).map(renderScoreReview).join('')}<section class="game-nook" aria-label="${shelf==='all'?'All my games':'Games waiting for my turn'}"><div class="nook-heading"><img src="/honu.webp?asset=ohana-v105-binary-repair-20261011" alt=""><h2>${shelf==='all'?'All my games':'Your turn'}</h2><span class="nook-count">${mine.filter(g=>g.my_turn).length} ready</span><div class="room-conversation"><span>${roomTitle(sy.familyName,sy.roomId)}</span><button id="nook-chat" class="soft" aria-label="Open chat for ${esc(sy.familyName)}">Room chat</button></div></div>${visibleGames.length?'<div class="nook-grid">'+visibleGames.map(g => card(g, `<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">${g.status === 'waiting' ? 'Open' : g.my_turn ? 'Your move' : 'Visit'}</button>`)).join('')+'</div>':(shelf==='all'?'':'')}</section>
     `:''}
     ${shelf==='others'?`<h2 class="shelf">Other games<small>In rooms you belong to</small></h2><div class="nook-grid">${others.length?others.map(g=>card(g,g.status==='waiting'?`<button data-join="${g.id}" data-join-room="${g.room_id||sy.roomId||1}">Join</button>`:`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">View</button>`)).join(''):'<p>No other games are going on in your rooms right now.</p>'}</div>`:''}
     ${shelf==='new'?`
     <h2 class="sr-only">Choose a game</h2>
-    ${shelves.map(([t,sub,ids])=>`<h3 class="shelf game-category">${t}</h3>`+(t==='Little ones'?`<article class="gcard game-setup"><div class="setup-banner setup-scene-coloring"><img src="/ohana-coloring-beach-v1.webp?asset=ohana-v105-binary-repair-20261011" alt="Coloring game room"></div><div class="setup-wood"><button class="setup-start" data-open-colorbook>Go</button></div></article>`:'')+ids.filter(id=>sy.types[id]).map(id=>gameSetupCard(id,sy)).join('')).join('')}
+    ${shelves.map(([t,sub,ids])=>`<h3 class="shelf game-category">${t}</h3>`+(t==='Little ones'?`<article class="gcard game-setup"><div class="setup-banner setup-scene-coloring journey-room-entrance-card"><img src="/ohana-journey-entrance-v1.webp" alt="Ohana Journey coloring room with Journey coloring beside the ocean"></div><div class="setup-wood"><button class="setup-start" data-open-colorbook>Go</button></div></article>`:'')+ids.filter(id=>sy.types[id]).map(id=>gameSetupCard(id,sy)).join('')).join('')}
     `:''}`;
   m.querySelectorAll('[data-game-shelf]').forEach(b=>b.onclick=()=>{S.gameShelf=b.dataset.gameShelf;renderGames();$('#main').querySelector('[data-game-shelf="'+S.gameShelf+'"]')?.focus({preventScroll:true});});
   if(shelf==='history')loadGameHistory();
@@ -11350,17 +11467,30 @@ function mountGameControlDock(){
   const value=c=>c.rank==='Joker'?50:['A','2'].includes(c.rank)?20:['8','9','10','J','Q','K'].includes(c.rank)?10:5;
   const selected=(hand||[]).filter(c=>(S.hfSel||[]).includes(c.id)).reduce((sum,c)=>sum+value(c),0);
   const needed=st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeldFE(st.scores?.[me]||0);
-  const kings=Math.max(0,Math.ceil((needed-60)/10)),nk=kings?Math.max(3,kings):0;const sample=(rank,count,art)=>'<span class="hf-goal-group">'+Array.from({length:count},()=>'<span class="hf-demo-card" data-foot="'+!!st.inFoot?.[me]+'">'+hfCardShape(!!st.inFoot?.[me])+'<span class="hf-demo-art"><img src="/'+art+'.webp?asset=ohana-v105-binary-repair-20261011&v=free1" alt=""></span><span class="hf-demo-rank">'+rank+'</span></span>').join('')+'</span>';guide.innerHTML='<p>'+(st.melds?.[me]?.length?'Your opening meld is complete.':'Your opening meld requires '+needed+' points. Selected: '+selected+' points.')+'</p><p>Each new group needs at least three cards of the same rank. Wild cards must be fewer than natural cards, with no more than three wild cards per group.</p><div class="hf-goal-example" role="img" aria-label="Example initial meld: three aces'+(nk?' and '+nk+' kings':'')+', '+(60+nk*10)+' points">'+sample('A',3,O10_NUMBER_ART[0])+(nk?'<span>+</span>'+sample('K',nk,'buddy-koa'):'')+'</div>';
+  const kings=Math.max(0,Math.ceil((needed-60)/10)),nk=kings?Math.max(3,kings):0;const sample=(rank,count,art)=>'<span class="hf-goal-group">'+Array.from({length:count},()=>'<span class="hf-demo-card" data-foot="'+!!st.inFoot?.[me]+'">'+hfCardShape(!!st.inFoot?.[me])+'<span class="hf-demo-art"><img src="/'+art+'.webp?asset=ohana-v105-binary-repair-20261011&v=free1" alt=""></span><span class="hf-demo-rank">'+rank+'</span></span>').join('')+'</span>';guide.innerHTML='<p>'+(st.melds?.[me]?.length?'Your opening meld is complete.':'Your opening meld requires '+needed+' points.')+'</p><p>Each new group needs at least three cards of the same rank. Wild cards must be fewer than natural cards, with no more than three wild cards per group.</p><div class="hf-goal-example" role="img" aria-label="Example initial meld: three aces'+(nk?' and '+nk+' kings':'')+', '+(60+nk*10)+' points">'+sample('A',3,O10_NUMBER_ART[0])+(nk?'<span>+</span>'+sample('K',nk,'buddy-koa'):'')+'</div>';
  }
  if(['ohana10','handfoot'].includes(g?.type)){
-  const helpContents=guide.innerHTML||(g.type==='ohana10'?'<p>Your opening meld is complete. Select cards that extend an existing meld, then choose Meld.</p>':'<p>Build groups of at least three cards of the same rank. Wild cards must be fewer than natural cards, with no more than three wild cards per group.</p>');
-  const help=document.createElement('button');help.type='button';help.className='meld-help-push';help.textContent='Meld';help.setAttribute('aria-label','Show meld requirement and examples');help.setAttribute('aria-haspopup','dialog');
-  help.dataset.meldHelp='true';help.dataset.meldHelpContents=helpContents;help.dataset.meldHelpTitle=g.type==='ohana10'?'Ohana 10 meld help':'Hand & Foot meld help';
-  if(g.type==='ohana10'){guide.replaceChildren();right.prepend(help);right.classList.add('has-meld-help');}else{guide.replaceChildren(help);for(const [property,value] of Object.entries({position:'static',width:'auto',display:'flex',padding:'0',margin:'0',transform:'none'}))guide.style.setProperty(property,value,'important');guide.setAttribute('aria-label','Meld help');}
+  const me=S.me?.id,opened=g.type==='ohana10'?!!st.completed?.[me]:!!st.melds?.[me]?.length;
+  const table=document.querySelector(g.type==='ohana10'?'#board .o10-own-melds':'#board .hf-melds');
+  table?.querySelector('.meld-table-goal')?.remove();
+  if(table&&!opened){
+   const goal=document.createElement('section');goal.className='meld-table-goal';goal.setAttribute('aria-label','Your opening meld requirement and illustrated example');
+   goal.style.cssText='display:block!important;width:100%!important;max-width:850px!important;margin:8px auto!important;padding:12px 4px!important;color:#fff7df!important;text-align:center!important;font:700 20px/1.4 Nunito,system-ui!important';
+   goal.innerHTML=guide.innerHTML;
+   for(const row of goal.querySelectorAll('.o10-example,.hf-goal-example'))row.style.cssText='display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:8px!important;max-width:100%!important';
+   for(const group of goal.querySelectorAll('.o10-example-group,.hf-goal-group'))group.style.cssText='display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:4px!important;max-width:100%!important';
+   for(const card of goal.querySelectorAll('.o10-card,.hf-demo-card'))for(const [key,value] of Object.entries({position:'relative',display:'inline-block',width:'50px','min-width':'50px','max-width':'50px',height:'74px','min-height':'74px',flex:'0 0 50px',margin:'0',transform:'none'}))card.style.setProperty(key,value,'important');
+   for(const art of goal.querySelectorAll('.o10-character,.hf-demo-art'))art.style.cssText='position:absolute!important;left:10%!important;top:8%!important;width:80%!important;height:60%!important;object-fit:contain!important';
+   for(const image of goal.querySelectorAll('.hf-demo-art img'))image.style.cssText='display:block!important;width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain!important';
+   for(const shape of goal.querySelectorAll('.hf-demo-card>svg'))shape.style.cssText='position:absolute!important;inset:0!important;width:100%!important;height:100%!important';
+   for(const rank of goal.querySelectorAll('.o10-value,.hf-demo-rank'))rank.style.cssText='position:absolute!important;bottom:4px!important;left:0!important;width:100%!important;text-align:center!important;font:800 22px/1 Nunito,system-ui!important;color:#173a4d!important';
+   for(const label of goal.querySelectorAll('.o10-card small'))label.hidden=true;   table.append(goal);
+  }
+  guide.replaceChildren();
  }
  if(g?.type==='spades'){if(actions.querySelector('[data-bid]')){const compact=document.createElement('div');compact.className='sp-compact-bid';const choose=document.createElement('select');choose.setAttribute('aria-label','Choose your bid');choose.innerHTML=Array.from({length:13},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join('');choose.value=String(S.spBidChoice||1);choose.onchange=()=>{S.spBidChoice=+choose.value;};const submit=document.createElement('button');submit.type='button';submit.textContent='Bid';submit.onclick=()=>actions.querySelector('[data-bid="'+choose.value+'"]')?.click();const nil=document.createElement('button');nil.type='button';nil.textContent='Nil';nil.setAttribute('aria-label','Bid Nil: win no tricks');nil.onclick=()=>actions.querySelector('[data-nil]')?.click();compact.append(choose,submit,nil);actions.append(compact);}const bidding=document.querySelector('#board .sp-bidding');if(bidding){bidding.querySelector('.sp-bid-prompt')?.remove();bidding.querySelector('.sp-nil-hint')?.remove();}guide.textContent=st?.phase==='bidding'?'Bid: how many tricks? Nil = none.':st?.phase==='playing'?(st.currentTrick?.length?'Follow suit when you can.':'Lead one card.') : ''; }
  if(g?.type==='chess'){const status=document.getElementById('statusText');if(status){guide.append(status);status.parentElement===guide&&status.setAttribute('role','status');}}
- if(g?.type==='mahjong'&&st?.mode!=='family'&&g.players.length>1)guide.textContent='Legacy matching game · finish this table; new multiplayer games use draw and discard.';
+ // Keep implementation history out of the family workstation.
  if(g?.type==='mahjong'&&st?.mode==='family'){const cue=document.querySelector('#board .fm-next-move');if(cue)guide.append(cue);const examples=document.querySelector('#board .fm-goal-pictures');if(examples)guide.prepend(examples);}
  const tools=document.createElement("div");tools.className="dock-bottom-tools";tools.append(gear);if(g?.type==='handfoot'){tools.append(guide);tools.classList.add('compact-meld-tools');for(const [property,value] of Object.entries({width:'144px','min-width':'144px',display:'flex','padding-left':'44px','box-sizing':'border-box',gap:'4px'}))tools.style.setProperty(property,value,'important');for(const child of [gear,guide]){child.style.setProperty('flex','0 0 44px','important');child.style.setProperty('min-width','44px','important');}}dock.append(tools);
  observeGameRail(dock);
@@ -13730,16 +13860,16 @@ function renderHandFoot(st,g,myTurn){
  const counts=(v)=>Array.isArray(v)?v.length:v||0;
  const publicTables=g.players.filter(p=>String(p)!==String(me)).map(p=>{
   const laid=st.melds?.[p]||[],redThrees=st.red3s?.[p]||[],bookCount=countCanFE(laid);
-  if(!laid.length&&!redThrees.length)return '';
+  const openingForPlayer=st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeldFE(st.scores?.[p]||0);
   const foot=!!st.inFoot?.[p],shape=hfCardShape(foot),shapeClass=foot?'hf-foot-card':'hf-hand-card';
-  return `<section class="hf-public-table" aria-label="${esc(nameOf(p))} public cards"><div class="hf-public-groups">${sortMelds(laid).map(m=>renderPile(m,p,foot,canTargetOthers)).join('')}${redThrees.length?`<section class="hf-public-group" aria-label="${esc(nameOf(p))}: ${redThrees.length} red threes"><span class="hf-meld-label"><span>${redThrees.length}</span></span><div class="hf-public-cards">${redThrees.map(c=>`<div class="hf-card hf-shaped ${shapeClass} red" aria-label="${esc(c.rank+' '+c.suit)}">${shape}${face(c)}</div>`).join('')}</div></section>`:''}</div></section>`;
+  return `<section class="hf-public-table" aria-label="${esc(nameOf(p))} public cards"><div class="hf-public-groups">${!laid.length?'<p class="hf-table-opening" style="display:block!important;color:#fff4cf!important;font:700 24px/1.4 Fredoka,Nunito,sans-serif!important;margin:10px!important">'+esc(nameOf(p))+' · Opening meld: '+openingForPlayer+' points</p>':''}${sortMelds(laid).map(m=>renderPile(m,p,foot,canTargetOthers)).join('')}${redThrees.length?`<section class="hf-public-group" aria-label="${esc(nameOf(p))}: ${redThrees.length} red threes"><span class="hf-meld-label"><span>${redThrees.length}</span></span><div class="hf-public-cards">${redThrees.map(c=>`<div class="hf-card hf-shaped ${shapeClass} red" aria-label="${esc(c.rank+' '+c.suit)}">${shape}${face(c)}</div>`).join('')}</div></section>`:''}</div></section>`;
  }).join('');
  const root=$('#board');root.innerHTML=`<section class="hf-area">
  <div class="hf-players" aria-label="Player scores">${g.players.map(p=>`<div class="hf-player ${g.players[g.turn]===p?'current':''}"${dmAttr(p)}>${avOf(p)}<div><b>${esc(nameOf(p))}${p===me?' · you':''}</b><small>${counts(st.inFoot?.[p]?st.feet[p]:st.hands[p])} cards · ${st.inFoot?.[p]?'Playing foot':'Playing hand'}</small></div><strong>${st.scores?.[p]||0}<small>points</small></strong>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</div>`).join('')}</div>
  <div class="hf-felt">${publicTables}<div class="hf-decks"><button type="button" class="hf-deck oh-pile" id="hf-draw-btn" aria-label="Draw · ${st.drawPile} left" ${!myTurn||st.hasDrawn?'disabled':''}>${ohCard(false)}${ohNum(st.drawPile)}</button><div class="hf-discard-stack"><button type="button" id="hf-pickup-btn" class="hf-card ${top?'hf-shaped '+(discardFoot?'hf-foot-card':'hf-hand-card'):''} ${top&&red(top)?'red':'blk'} ${top&&wild(top)?'wild':''}" aria-label="Pick up the entire discard pile" ${!myTurn||st.hasDrawn||!top?'disabled':''}>${top?hfCardShape(discardFoot)+face(top):'<span>Empty</span>'}</button><small aria-label="${st.discardCount||0} cards in the discard pile">${st.discardCount||0}</small></div></div>
   <div class="hf-melds" aria-label="Your melds">${sortMelds(melds).map(m=>renderPile(m,me)).join('')}</div>
  <h3 class="hf-hand-title sr-only">Your ${inFoot?'foot':'hand'} <small>${hand.length} cards · ${S.hfSel.length} selected</small></h3><div class="hf-hand ${inFoot?'playing-foot':'playing-hand'}" aria-label="Your ${inFoot?'foot':'hand'}, ${hand.length} cards">${hand.map(c=>`<button type="button" class="hf-card ${red(c)?'red':'blk'} ${wild(c)?'wild':''} ${S.hfSel.includes(c.id)?'sel':''} ${freshCards.has(c.id)?'hf-fresh':''}" data-cid="${c.id}" aria-label="${esc(c.rank+' '+(c.suit||'wild'))}${freshCards.has(c.id)?', just drawn':''}" aria-pressed="${S.hfSel.includes(c.id)}" >${hfCardShape(inFoot)}${face(c)}</button>`).join('')}</div>
- <div class="wild-assignments">${wildChoiceTray(hand.filter(c=>S.hfSel.includes(c.id)),S.hfWild,'hf')}</div><div class="hf-staged${!S.hfQueue.length&&!S.hfSel.length?' hf-staged-empty':''}${(S.hfTipsHidden=S.hfTipsHidden||(()=>{try{return localStorage.getItem('ohana_hf_tips_hidden')==='1';}catch{return false;}})())?' hf-staged-off':''}" aria-live="polite">${S.hfTipsHidden?'':'<button type="button" class="hf-tip-x" aria-label="Hide these tips">✕</button>'}${S.hfQueue.length?S.hfQueue.map(group=>esc(group.rank)+' × '+group.cardIds.length).join(' · ')+' — '+queuePoints+' points ready.':(!st.hasDrawn?(melds.length?'Pick cards to meld, or Draw 2.':'Meld '+opening+' opening points, or Draw 2.'):!myTurn?'Waiting for your turn.':'Pick matching sets, then Meld. Your played cards and points stay on your side.')}</div><div class="hf-acts"><button type="button" id="hf-submit" ${!myTurn||(!S.hfQueue.length&&!S.hfSel.length)?'disabled':''}>Meld</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfQueue.length&&!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear</button></div></div>
+<output id="hf-selection-total" class="hf-selection-total" aria-live="polite" aria-atomic="true" style="display:block!important;width:100%!important;min-height:30px!important;margin:6px 0!important;text-align:center!important;color:#fff4cf!important;font:800 21px/1.4 Nunito,system-ui!important">${S.hfSel.length} selected · ${queuePoints+selectedPoints} points</output> <div class="wild-assignments">${wildChoiceTray(hand.filter(c=>S.hfSel.includes(c.id)),S.hfWild,'hf')}</div><div class="hf-staged${!S.hfQueue.length&&!S.hfSel.length?' hf-staged-empty':''}${(S.hfTipsHidden=S.hfTipsHidden||(()=>{try{return localStorage.getItem('ohana_hf_tips_hidden')==='1';}catch{return false;}})())?' hf-staged-off':''}" aria-live="polite">${S.hfTipsHidden?'':'<button type="button" class="hf-tip-x" aria-label="Hide these tips">✕</button>'}${S.hfQueue.length?S.hfQueue.map(group=>esc(group.rank)+' × '+group.cardIds.length).join(' · ')+' — '+queuePoints+' points ready.':(!st.hasDrawn?(melds.length?'Pick cards to meld, or Draw 2.':'Meld '+opening+' opening points, or Draw 2.'):!myTurn?'Waiting for your turn.':'Pick matching sets, then Meld. Your played cards and points stay on your side.')}</div><div class="hf-acts"><button type="button" id="hf-submit" ${!myTurn||(!S.hfQueue.length&&!S.hfSel.length)?'disabled':''}>Meld</button><button type="button" id="hf-discard" ${!myTurn||!st.hasDrawn||S.hfSel.length!==1?'disabled':''}>Discard</button><button type="button" id="hf-clear" ${!S.hfQueue.length&&!S.hfSel.length&&S.hfMeldTarget===null?'disabled':''}>Clear</button></div></div>
  <details class="hf-guide" hidden><summary>How this table plays</summary><p>Ohana individual-play rules (no partnerships). ${st.rulesVersion===2?'Round '+st.round+' of 4; opening requirements 50, 90, 120, 150.':'Existing table: original score-based opening requirement.'} Begin by drawing two or by taking the discard pile with an immediate valid meld. To open from the pile, the cards you lay from your hand must meet the opening points; cards from the pile do not count. Each joker is worth 50 points. Seven cards completes a pile; you can keep adding matching cards to that same pile. Discard-pile pickup requires two natural cards in your hand matching the top discard and an immediate valid meld. Select any additional opening groups from your hand, then press Meld &amp; take pile or tap the discard pile. Take the entire pile (our Ohana house rule). A clean pile has no wilds; a dirty pile contains twos or jokers. Each meld needs more natural cards than wilds, with at most three wilds. Ohana house rule: once you have opened on your own side, you may play off another player's matching pile during your normal turn. Your played cards stay on your side and their points belong to you. Only the cards on your side count toward your books.</p><p>You have a separate face-down foot. Meld your last hand card to play the foot immediately; discard your last hand card to play the foot on your next turn. You need one clean and one dirty pile to go out. Discarding ends your turn. Opening groups together: ${opening} points. Each new group needs at least three cards. Select all the cards you want to meld. Before drawing, press Meld &amp; take pile to open and collect the pile together; after drawing, press Meld. Matching ranks are sorted automatically, including legal wild-card placement. All selected melds count together toward your opening requirement. Tap a wild and choose its rank. Tap a meld to assign selected wilds to that pile, then press Meld. Wild assignments can be changed before playing. Keep your final foot card to discard. Clean piles earn 500; dirty piles earn 300, plus card values. Scores settle when the round ends.</p><p>Card values on this saved rules engine: Jokers 50; aces and twos 20; 8, 9, 10, J, Q and K 10; black threes and 4–7 5. Red threes are collected automatically and currently score 100 each. Melded cards add their values; cards left in your hand and unplayed foot subtract their values. Going out adds 100. New four-round tables rotate the starting player each round; the highest final score wins, with equal best scores tying. Example: a clean seven-card book of 5s earns 500 plus 35 for its cards. Existing tables retain their original round flow.</p></details>
  <details class="hf-guide" hidden><summary>Around the card table</summary>${g.players.filter(p=>p!==me).map(p=>`<p><b>${esc(nameOf(p))}</b> · ${(st.melds?.[p]||[]).map(m=>esc(m.rank)+' × '+m.cards.length).join(' · ')||'No melds yet'}</p>`).join('')}<p>Your red <span style="color:#bf2351">3</span>s: ${st.red3s?.[me]?.length||0}</p></details></section>`;
  // Buttons sit above the cards so melding or discarding is right there after you pick cards.
@@ -14876,29 +15006,29 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
   try{
    if(!S.me||!S.token)return;
    if(window.SENIOR_MODE&&!SENIOR_MODE.config.chat)return;
-   mountChatHead();const head=document.getElementById('chat-head'),dock=document.querySelector(selector);
-   if(!dock){head.classList.remove('ohana-docked-chat');head.removeAttribute('style');return;}
-   let slot=dock.querySelector('.ohana-workstation-chat');
-   if(!slot){slot=document.createElement('div');slot.className='ohana-workstation-chat';slot.setAttribute('role','group');slot.setAttribute('aria-label','Ohana chat, settings and workstation');dock.append(slot);}
+   mountChatHead();const head=document.getElementById('chat-head'),dock=document.querySelector(selector);if(dock?.id!=='home-controls-dock')ohanaEntranceWasHome=false;
+   let slot=document.getElementById('ohana-persistent-hub');
+   if(!slot){slot=document.createElement('div');slot.id='ohana-persistent-hub';slot.className='ohana-workstation-chat';slot.setAttribute('role','group');slot.setAttribute('aria-label','Ohana chat hub and workstation');document.body.append(slot);}
    if(head.parentElement!==slot)slot.append(head);head.classList.add('ohana-docked-chat');
    let toggle=slot.querySelector('.ohana-workstation-toggle');
    if(!toggle){toggle=document.createElement('button');toggle.type='button';toggle.className='ohana-workstation-toggle';slot.append(toggle);toggle.onclick=()=>{try{localStorage.setItem(key(),read()?'0':'1');}catch{}refresh();toggle.focus({preventScroll:true});};}
-   const collapsed=read();dock.dataset.workstationCollapsed=String(collapsed);
+   const collapsed=read();if(dock)dock.dataset.workstationCollapsed=String(collapsed);
    toggle.textContent=collapsed?'+':'−';toggle.setAttribute('aria-label',collapsed?'Show workstation':'Minimize workstation');toggle.setAttribute('aria-expanded',String(!collapsed));
-   set(slot,{position:'absolute',right:'4px',bottom:'4px',top:'auto',left:'auto',width:'108px',height:'72px',background:'url(/ohana-cardinal-control-v1.webp) center/contain no-repeat','z-index':'40',display:'block'});
-   set(head,{position:'absolute',left:'0',right:'auto',top:'0',bottom:'auto',width:'72px',height:'72px','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1'});
-   set(toggle,{position:'absolute',left:'auto',right:'0',top:'auto',bottom:'0',width:'44px',height:'44px','min-width':'44px','min-height':'44px','max-width':'44px','max-height':'44px',margin:'0',padding:'0',display:'flex','align-items':'center','justify-content':'center',background:'transparent',border:'0','box-shadow':'none',color:'#fff1cf',font:'900 28px/1 Nunito,system-ui','z-index':'42'});
+   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'176px',height:'112px',background:'url(/ohana-cardinal-control-v1.webp) left top/160px 107px no-repeat,linear-gradient(4deg,#643115,#b97131 45%,#8b431b 48%,#c17a39)','z-index':'80',display:'block'});
+   set(head,{position:'absolute',left:'0',right:'auto',top:'0',bottom:'auto',width:'118px',height:'107px','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1'});
+   set(toggle,{position:'absolute',left:'120px',right:'auto',top:'62px',bottom:'auto',width:'44px',height:'44px','min-width':'44px','min-height':'44px','max-width':'44px','max-height':'44px',margin:'0',padding:'0',display:'flex','align-items':'center','justify-content':'center',background:'transparent',border:'0','box-shadow':'none',color:'#fff1cf',font:'900 24px/1 Nunito,system-ui','z-index':'42'});
+   head.hidden=false;head.dataset.side='right';renderChatHeads();if(!dock)return;
    if(!originals.has(dock))originals.set(dock,dock.getAttribute('style')||'');
-   if(!collapsed){dock.setAttribute('style',originals.get(dock));set(dock,{height:'auto','min-height':'80px','max-height':'none',padding:'4px',display:'flex','flex-direction':'column','box-sizing':'border-box',gap:'4px'});}
+   if(!collapsed){dock.setAttribute('style',originals.get(dock));set(dock,{height:'auto','min-height':'112px','max-height':'none',padding:'4px 184px 4px 4px',display:'flex','flex-direction':'column','box-sizing':'border-box',gap:'4px'});}
    for(const child of dock.children){if(child===slot)continue;
     if(collapsed){if(!children.has(child))children.set(child,{style:child.getAttribute('style')||'',hidden:child.hidden,inert:child.inert});child.hidden=true;child.inert=true;set(child,{display:'none'});}
     else if(children.has(child)){const prior=children.get(child);child.setAttribute('style',prior.style);child.hidden=prior.hidden;child.inert=prior.inert;children.delete(child);}
    }
-   if(collapsed)set(dock,{position:dock.id==='gr-workstation'?'absolute':'fixed',left:'auto',right:'0',bottom:'0',width:'116px','min-width':'116px','max-width':'116px',height:'80px','min-height':'80px','max-height':'80px',padding:'0',display:'block',background:'transparent',border:'0','box-shadow':'none'});
+   if(collapsed)set(dock,{position:dock.id==='gr-workstation'?'absolute':'fixed',left:'auto',right:'0',bottom:'0',width:'176px','min-width':'176px','max-width':'176px',height:'112px','min-height':'112px','max-height':'112px',padding:'0',display:'block',background:'transparent',border:'0','box-shadow':'none'});
    else{
     for(const row of dock.querySelectorAll(':scope > .game-shelf-tabs'))set(row,{display:'flex','flex-wrap':'wrap','overflow-x':'visible',height:'auto','min-height':'44px',width:'100%'});
     for(const button of dock.querySelectorAll(':scope > .game-shelf-tabs > button'))set(button,{'flex':'1 1 100px','min-width':'44px','max-width':'100%','white-space':'normal','overflow-wrap':'anywhere'});
-    for(const row of dock.querySelectorAll(':scope > .dock-player,:scope > .gr-save-row,:scope > .pz-active'))set(row,{width:'calc(100% - 120px)','max-width':'calc(100% - 120px)','min-height':'72px',height:'auto','max-height':'none','flex-wrap':'wrap','overflow-x':'visible','overflow-y':'visible'});
+    for(const row of dock.querySelectorAll(':scope > .dock-player,:scope > .gr-save-row,:scope > .pz-active'))set(row,{width:'100%','max-width':'100%','min-height':'72px',height:'auto','max-height':'none','flex-wrap':'wrap','overflow-x':'visible','overflow-y':'visible'});
     if(dock.id==='gr-workstation')for(const row of dock.querySelectorAll(':scope > .gr-tools,:scope > .gr-answer-actions,:scope > .gr-find-actions'))set(row,{width:'100%',display:'flex','flex-wrap':'wrap','min-height':'44px',gap:'4px'});
     window.ohanaPaintCardinalBowls?.(dock);
     if(dock.classList.contains('cardinal-bowls')){
@@ -14906,16 +15036,16 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
      for(const button of dock.querySelectorAll('.dock-actions > button'))set(button,{flex:'1 1 64px','min-width':'44px','max-width':'100%',width:'auto','min-height':'44px',padding:'0',gap:'0','white-space':'normal','overflow-wrap':'anywhere','font-size':'16px'});
     }
     // Navigation remains a usable touch target beside the compact game actions.
-    for(const row of dock.querySelectorAll('.dock-command-row'))set(row,{'grid-template-columns':'44px minmax(0,1fr) 44px'});
-    for(const side of dock.querySelectorAll('.dock-side'))set(side,{width:'44px','min-width':'44px'});
-    for(const button of dock.querySelectorAll('.dock-side > button'))set(button,{width:'44px','min-width':'44px',height:'44px','min-height':'44px',padding:'0',gap:'2px'});
+    for(const row of dock.querySelectorAll('.dock-command-row'))set(row,{'grid-template-columns':dock.querySelector('.has-meld-help')?'44px minmax(0,1fr) 108px':'44px minmax(0,1fr) 44px'});
+    for(const side of dock.querySelectorAll('.dock-side'))set(side,{width:side.classList.contains('has-meld-help')?'108px':'44px','min-width':side.classList.contains('has-meld-help')?'108px':'44px'});
+    for(const button of dock.querySelectorAll('.dock-side > button:not([data-meld-help])'))set(button,{width:'44px','min-width':'44px',height:'44px','min-height':'44px',padding:'0',gap:'2px'});
     // Show every person within the viewport; use extra rows instead of a score carousel.
     for(const seat of dock.querySelectorAll('.dock-player .world-seat,.pz-active .world-seat,.cb-workstation-player .world-seat')){
      set(seat,{display:'grid','grid-template-columns':'44px minmax(0,1fr)','grid-template-rows':'auto auto',flex:'0 1 156px',width:'auto','min-width':'0','max-width':'100%',height:'auto','min-height':'64px',gap:'0 4px',padding:'0',margin:'0','align-items':'center','pointer-events':'auto'});
      const portrait=seat.querySelector('.world-portrait');if(portrait)set(portrait,{'grid-column':'1','grid-row':'1 / 3',position:'static',width:'44px',height:'56px','min-width':'44px','min-height':'0',padding:'0',transform:'none'});
      const img=portrait?.querySelector('img');if(img)set(img,{width:'44px',height:'56px','max-width':'44px','max-height':'56px',position:'static','object-fit':'contain',transform:'none'});
      const plate=seat.querySelector('.world-nameplate');if(plate)set(plate,{'grid-column':'2','grid-row':'1',display:'flex','flex-direction':'row','flex-wrap':'wrap',position:'static',width:'100%','min-width':'0',height:'auto','min-height':'0','max-height':'none',gap:'0 4px',padding:'0',transform:'none'});
-     const name=plate?.querySelector('b');if(name)set(name,{flex:'0 0 100%',width:'100%','max-width':'100%',height:'auto','min-height':'0','max-height':'none','font-size':'17px','line-height':'20px','white-space':'normal','overflow-wrap':'anywhere',overflow:'visible','text-overflow':'clip','text-align':'left'});
+     const name=plate?.querySelector('b');if(name)set(name,{flex:'0 1 auto',width:'auto','max-width':'100%',height:'auto','min-height':'0','max-height':'none','font-size':'17px','line-height':'20px','white-space':'normal','overflow-wrap':'anywhere',overflow:'visible','text-overflow':'clip','text-align':'left'});
      const turn=plate?.querySelector('.world-turn');if(turn)set(turn,{position:'static',top:'auto',right:'auto',width:'auto',height:'auto'});
      const score=plate?.querySelector('.world-plate-score');if(score)set(score,{flex:'0 0 auto',width:'auto',height:'auto','min-height':'0','max-height':'none','font-size':'20px','line-height':'22px','text-align':'left'});
      for(const extra of seat.querySelectorAll(':scope > small'))set(extra,{'grid-column':'2','grid-row':'2','font-size':'14px','line-height':'16px',margin:'0',padding:'0','max-height':'none',height:'auto'});
@@ -14923,8 +15053,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
     // The cardinal shares the action area; player rows use the full phone width.
     // All sizing lives in the existing controller so collapse and rerender agree.
     if(dock.id==='game-controls-dock'){
-     set(dock,{display:'grid','grid-template-columns':'minmax(0,1fr) 108px','grid-template-rows':'auto auto','align-items':'center'});
-     set(slot,{position:'relative',left:'auto',right:'auto',top:'auto',bottom:'auto','grid-column':'2','grid-row':'1','align-self':'center','justify-self':'end'});
+     set(dock,{display:'grid','grid-template-columns':'minmax(0,1fr)','grid-template-rows':'auto auto','align-items':'center'});
      for(const row of dock.querySelectorAll(':scope > .dock-command-row'))set(row,{'grid-column':'1','grid-row':'1','min-width':'0',width:'100%','column-gap':'2px'});
      for(const row of dock.querySelectorAll(':scope > .dock-player'))set(row,{display:'grid','grid-template-columns':'repeat(auto-fit,minmax(min(156px,100%),1fr))','grid-column':'1 / -1','grid-row':'2',width:'100%','max-width':'100%','min-width':'0',height:'auto','min-height':'0','max-height':'none',gap:'4px 8px',overflow:'visible','touch-action':'auto','pointer-events':'auto'});
      for(const row of dock.querySelectorAll('.dock-actions'))set(row,{display:'flex','flex-wrap':'wrap','min-width':'0',width:'100%','max-width':'100%',gap:'4px'});
@@ -14935,11 +15064,10 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
      for(const row of dock.querySelectorAll(':scope > .dock-bottom-tools'))set(row,{'grid-column':'1 / -1','grid-row':'3','max-width':'100%'});
     }
     if(dock.id==='cb-workstation'){
-     set(dock,{position:'relative',display:'grid','grid-template-columns':'minmax(0,1fr) minmax(108px,1fr)','align-items':'center'});
+     set(dock,{position:'relative',display:'grid','grid-template-columns':'minmax(0,1fr)','align-items':'center'});
      for(const button of dock.querySelectorAll(':scope > button'))set(button,{'min-width':'44px','max-width':'100%','min-height':'44px','white-space':'normal','overflow-wrap':'anywhere'});
      const share=dock.querySelector('#cb-share');if(share)set(share,{'grid-column':'1 / -1'});
      const person=dock.querySelector('.cb-workstation-player');if(person)set(person,{'grid-column':'1','grid-row':'3','min-width':'0','max-width':'100%'});
-     set(slot,{position:'relative',left:'auto',right:'auto',top:'auto',bottom:'auto','grid-column':'2','grid-row':'3','justify-self':'end'});
     }
     if(dock.id==='gr-workstation'){
      set(dock,{'flex-direction':'row','flex-wrap':'wrap','align-items':'center'});
@@ -15617,3 +15745,19 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-mai
 <style id="ohana-chat-lifecycle-repair">#chat-head .ch-emblem{display:none!important}#chat-head:not(.ohana-docked-chat){position:fixed!important;inset:auto 4px 4px auto!important;width:108px!important;height:72px!important;min-width:44px!important;min-height:44px!important;border:0!important;box-shadow:none!important;background:url(/ohana-cardinal-control-v1.webp) center/contain no-repeat!important;border-radius:0!important}.ohana-workstation-chat:focus-within{outline-offset:2px}#chat-head:focus-visible,.ohana-workstation-toggle:focus-visible{outline:3px solid #b8ffff!important}</style>
 
 <style id="ohana-nonblocking-unread">.toast{pointer-events:none!important}#chat-heads{display:none!important}#chat-head.has-unread::after{content:attr(data-unread);position:absolute;right:0;top:0;min-width:22px;height:22px;padding:2px;border-radius:50%;background:#a41612;color:#fff;font:700 14px/22px system-ui;text-align:center;pointer-events:none}</style>
+
+<style id="ohana-real-memory-slides">
+:root.ohana-world body #app#app#app .memories-polaroid-stage{inset:28% 20% 24%!important;overflow:hidden;border-radius:8px;pointer-events:none}
+:root.ohana-world body #app#app#app .real-memory-slide{inset:8% 10%!important;width:80%!important;height:80%!important;box-sizing:border-box;animation:ohanaPhotoFloat 6.5s ease-in-out both!important}
+:root.ohana-world body #app#app#app .real-memory-slide[data-transition="1"]{animation-name:ohanaPhotoAcross!important}
+:root.ohana-world body #app#app#app .real-memory-slide[data-transition="2"]{animation-name:ohanaPhotoRise!important}
+@keyframes ohanaPhotoFloat{0%{opacity:0;transform:scale(.7) rotate(-8deg)}15%,80%{opacity:1;transform:scale(1) rotate(3deg)}100%{opacity:0;transform:scale(.9) rotate(8deg)}}
+@keyframes ohanaPhotoAcross{0%{opacity:0;transform:translateX(-110%) rotate(-8deg)}18%,80%{opacity:1;transform:translateX(0) rotate(-2deg)}100%{opacity:0;transform:translateX(110%) rotate(8deg)}}
+@keyframes ohanaPhotoRise{0%{opacity:0;transform:translateY(100%) scale(.8)}18%,80%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-100%) scale(.9)}}
+@media(prefers-reduced-motion:reduce){:root.ohana-world body #app#app#app .real-memory-slide{animation:none!important}}
+</style>
+
+
+
+<style id="hf-live-selected-total">#game .world-hand .hf-selection-total{order:20!important;flex:0 0 100%!important;clear:both!important}</style>
+<style id="hf-hand-scroll-clearance">html:has(#game-controls-dock[data-game-type="handfoot"]){scroll-padding-bottom:calc(var(--game-rail-space,180px) + 48px)}#game .world-hand .hf-card[data-cid]{scroll-margin-bottom:42px}</style>

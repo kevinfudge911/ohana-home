@@ -1,5 +1,7 @@
-import AUDIT_APP_HTML from "./audit-app.html";
-import AUDIT_MEMORIES_HTML from "./audit-memories.html";
+import JOURNEY_COLORING_CHARACTER from "./journey-coloring-character-v1.webp";
+import JOURNEY_COLORING_ENTRANCE from "./ohana-journey-entrance-v1.webp";
+import OHANA_BLESSINGS_SIGN from "./ohana-blessings-prayer-sign-v1.webp";
+import OHANA_UNITED_SIGN from "./ohana-united-puzzle-sign-v1.webp";
 import ACTION_BOWLS from "./ohana-action-bowls-v1.webp";
 import CARDINAL_CONTROL from "./ohana-cardinal-control-v1.webp";
 import { seniorRoute } from "./senior-access.js";
@@ -10249,7 +10251,7 @@ var PuzzleRoom = class {
         }
       }
       if(!locked&&!joined&&m.staged===true){
-        const spot=puzzleFindSpot(this.meta,P,members,members[0].x,members[0].y,false);
+        const spot=puzzleFindSpot(this.meta,P,members,members[0].x,members[0].y,false,puzzleWorkspace(this.meta));
         if(spot){const dx=spot[0]-members[0].x,dy=spot[1]-members[0].y;for(const q of members){q.x+=dx;q.y+=dy;}}else{if(m.staged===true){for(const q of members){q.x=Number.isFinite(q._pzOriginX)?q._pzOriginX:q.x;q.y=Number.isFinite(q._pzOriginY)?q._pzOriginY:q.y;q.onTable=false;q.h=null;q.ht=null;delete q._pzOriginX;delete q._pzOriginY;}this.scheduleSave();this.broadcast({t:'stage-denied',by:me.id,pieces:members.map(q=>({...q}))});return null;}for(const q of members){q.h=me.id;q.ht=now2;}this.scheduleSave();this.broadcast({t:'drop-blocked',p:m.p,by:me.id,pieces:members.map(q=>[q.i,q.x,q.y])});return null;}
       }
       for(const q of members){delete q._pzOriginX;delete q._pzOriginY;}
@@ -10694,7 +10696,8 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
-    if(req.method==='GET'&&(p==='/audit'||p==='/audit-memories'))return new Response(p==='/audit'?AUDIT_APP_HTML:AUDIT_MEMORIES_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
+    if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
+    if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
@@ -10761,6 +10764,8 @@ var worker_default = {
     if (req.method === "GET" && p === "/ohana-splash-fish-v1.webp") return new Response(OHANA_SPLASH_FISH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-chess-beach-v3.webp") return new Response(OHANA_CHESS_BEACH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-tictac-beach-v3.webp") return new Response(OHANA_TICTAC_BEACH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
+    if(req.method==='GET'&&p==='/journey-coloring-character-v1.webp')return new Response(JOURNEY_COLORING_CHARACTER,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
+    if(req.method==='GET'&&p==='/ohana-journey-entrance-v1.webp')return new Response(JOURNEY_COLORING_ENTRANCE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if (req.method === "GET" && p === "/ohana-coloring-beach-v1.webp") return new Response(b64ToBytesColoring(OHANA_COLORING_BEACH_B64), { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-words-detail-v3.webp") return new Response(OHANA_WORDS_DETAIL, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-beach-play-v4.webp") return new Response(OHANA_BEACH_PLAY, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
