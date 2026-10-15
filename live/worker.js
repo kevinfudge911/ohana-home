@@ -1368,6 +1368,8 @@ import PZTHUMB_4 from "./e88322a286bf3570614bbd944151ebe7f6cc11f1-e88322a286bf35
 import PZPIC_5 from "./dcde1056c3872d0dd60ed70d4d94d7ee226a742a-dcde1056c3872d0dd60ed70d4d94d7ee226a742a-puzzle-canoe-cove.webp";
 import PZTHUMB_5 from "./13d67d8a69aac62e9a3f7e9e6cd846fa3e0ebb92-13d67d8a69aac62e9a3f7e9e6cd846fa3e0ebb92-pzthumb-canoe-cove.webp";
 import APP_HTML from "./5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html";
+import TSCMS_CABINET_V1 from "./ohana-jukebox.webp";
+import TSCMS_DAD_CARDINAL_V1 from "./dad-cardinal.webp";
 import HONU_IMAGE from "./94d28c5510f33949297a3b2655dceac18a9966e1-94d28c5510f33949297a3b2655dceac18a9966e1-94d28c5510f33949297a3b2655dceac18a9966e1-honu.webp";
 import MIKE_BIRTHDAY_IMAGE from "./466e0a4ecde0efd162492c7d2a17ad46ace7d257-mike-birthday.webp";
 import EDDIE_LIMO_IMAGE from "./6139ae2641f3caa5c5befa6be2d771fd230ddeb3-eddie-limo.webp";
@@ -9882,6 +9884,24 @@ function puzzleFindSpot(meta,pieces,members,tx,ty,rows,limits=null){
  for(const [x,y] of candidates)if((rows||limits||Math.hypot(x-tx,y-ty)<=Math.max(pw,ph)*1.25)&&free(x,y))return [x,y];
  return null;
 }
+function puzzleTidyAround(meta,pieces,targets){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,b=puzzleWorkspace(meta),gx=pw*1.72,gy=ph*1.72,pad=Math.min(pw,ph)*.4;
+ const buckets=[[],[],[],[]],slots=[],ids=new Set(targets.map(p=>p.i)),occupied=pieces.filter(p=>!p.tray&&!ids.has(p.i)&&(p.l||p.onTable||p.h||puzzleOnTable(meta,p)));
+ // Each ring contributes the top, right, bottom and left before expanding out.
+ for(let ring=0;ring<Math.ceil(Math.max(b.x1-b.x0,b.y1-b.y0)/Math.min(gx,gy));ring++){
+  const top=-ph-pad-ring*gy,bottom=h+pad+ring*gy,left=-pw-pad-ring*gx,right=w+pad+ring*gx;
+  if(top>=b.y0+pad)for(let x=0;x<=w-pw;x+=gx)buckets[0].push([x,top]);
+  if(right<=b.x1-pw-pad)for(let y=0;y<=h-ph;y+=gy)buckets[1].push([right,y]);
+  if(bottom<=b.y1-ph-pad)for(let x=0;x<=w-pw;x+=gx)buckets[2].push([x,bottom]);
+  if(left>=b.x0+pad)for(let y=0;y<=h-ph;y+=gy)buckets[3].push([left,y]);
+ }
+ for(let i=0;i<Math.max(...buckets.map(q=>q.length));i++)for(const side of buckets)if(side[i])slots.push(side[i]);
+ let k=0;for(const pc of targets){let spot;
+  while(k<slots.length){const p=slots[k++];if(!occupied.some(q=>Math.abs(q.x-p[0])<gx-1&&Math.abs(q.y-p[1])<gy-1)){spot=p;break;}}
+  if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,false,b);
+  if(spot){pc.x=Math.round(spot[0]);pc.y=Math.round(spot[1]);pc.onTable=true;}occupied.push(pc);
+ }
+}
 function puzzleArrangeRows(meta,pieces,targets){
  const ids=new Set(targets.map(q=>q.i)),occupied=pieces.filter(q=>!ids.has(q.i)),slots=puzzleGridSlots(meta);
  const pw=meta.w/meta.cols,ph=meta.h/meta.rows,pad=Math.min(pw,ph)*.36;let k=0;
@@ -10299,9 +10319,11 @@ var PuzzleRoom = class {
       const sizes = {};
       for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
       const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1);
-      puzzleArrangeRows(this.meta,P,singles);
+      // Mix before laying out: array/solution index must never reveal the picture.
+      for(let i=singles.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[singles[i],singles[j]]=[singles[j],singles[i]];}
+      puzzleTidyAround(this.meta,P,singles);
       this.scheduleSave();
-      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name });
+      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true });
       return null;
     }
     if (m.t === "shuffle") {
@@ -10798,6 +10820,8 @@ var worker_default = {
     if (req.method === "GET" && p === "/ohana-prayer-sign-v4.webp") return new Response(OHANA_PRAYER_INVITE, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-mikes-porch.webp") return new Response(OHANA_MIKES_PORCH_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-ten-room-v103.webp") return new Response(OHANA_TEN_ROOM_V103, {headers:{"content-type":"image/webp","cache-control":"public,max-age=31536000,immutable"}});
+    if (req.method === "GET" && p === "/ohana-jukebox.webp") return new Response(TSCMS_CABINET_V1,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
+    if (req.method === "GET" && p === "/dad-cardinal.webp") return new Response(TSCMS_DAD_CARDINAL_V1,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/ohana-workstation-v103.webp") return new Response(OHANA_WORKSTATION_V103, {headers:{"content-type":"image/webp","cache-control":"public,max-age=31536000,immutable"}});
     if (req.method === "GET" && p === "/ohana-teal-mat-v103.webp") return new Response(OHANA_TEAL_MAT_V103, {headers:{"content-type":"image/webp","cache-control":"public,max-age=31536000,immutable"}});
     if (req.method === "GET" && p === "/layout-preview") {
