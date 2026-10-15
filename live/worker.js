@@ -1239,7 +1239,7 @@ import { EventEmitter as EventEmitter22222 } from "node:events";
 import OHANA_ICON_192 from "./f6d12f8332d304befb9df6b21b8c51283b1bed07-f6d12f8332d304befb9df6b21b8c51283b1bed07-f6d12f8332d304befb9df6b21b8c51283b1bed07-ohana-icon-192-v2.png";
 import GET_HTML from "./cc9d63f5e409499aae54d64850d612b9532a23bb-cc9d63f5e409499aae54d64850d612b9532a23bb-get.html";
 import OHANA_ICON_512 from "./73ef35b4edc71036f93563c858456997b75b9e92-73ef35b4edc71036f93563c858456997b75b9e92-73ef35b4edc71036f93563c858456997b75b9e92-ohana-icon-512-v2.png";
-import ACCESSIBILITY_PREVIEW_HTML from "./c30d97d6a2e00e493d6dabf8e7ff7aeb8137db0a-c30d97d6a2e00e493d6dabf8e7ff7aeb8137db0a-c30d97d6a2e00e493d6dabf8e7ff7aeb8137db0a-accessibility-preview.html";
+import ACCESSIBILITY_PREVIEW_HTML from "./ohana-accessibility-preview.html.gz";
 import HANDFOOT_PREVIEW_HTML from "./979fbbd59bd0b64fdcba95a94dd9029effd1c62b-979fbbd59bd0b64fdcba95a94dd9029effd1c62b-979fbbd59bd0b64fdcba95a94dd9029effd1c62b-handfoot-preview.html";
 import WORD_ERROR_PREVIEW_HTML from "./578674b03e14cf233118aaf623cea3be759ee17c-578674b03e14cf233118aaf623cea3be759ee17c-578674b03e14cf233118aaf623cea3be759ee17c-word-error-preview.html";
 import SETTINGS_PREVIEW_HTML from "./850bb52f5cd174bb7a67ce80538e6b3fa7387701-850bb52f5cd174bb7a67ce80538e6b3fa7387701-850bb52f5cd174bb7a67ce80538e6b3fa7387701-settings-preview.html";
@@ -10801,7 +10801,7 @@ var worker_default = {
       const game = encodeURIComponent(url.searchParams.get("game") || "words"), section = url.searchParams.get("section") === "bottom" ? "bottom" : "top";
       return new Response(`<!doctype html><html><head><title>Ohana responsive practice</title><style>body{margin:0;background:#173f50;color:white;font:14px sans-serif}iframe{display:block;border:0;margin:0 auto;width:${width}px;height:${height}px}</style></head><body><iframe title="Fictional game viewport" src="/accessibility-preview?game=${game}&section=${section}&build=ohana-v105-menu-label-repair"></iframe></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     }
-    if (req.method === "GET" && p === "/accessibility-preview") return new Response(ACCESSIBILITY_PREVIEW_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+    if (req.method === "GET" && p === "/accessibility-preview") return new Response(ACCESSIBILITY_PREVIEW_HTML, { headers: { "content-type": "text/html; charset=utf-8", "content-encoding": "gzip", "cache-control": "no-store" } });
     if (req.method === "GET" && p === "/handfoot-preview") return new Response(HANDFOOT_PREVIEW_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
     if (req.method === "GET" && p === "/word-error-preview") return new Response(WORD_ERROR_PREVIEW_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });
     if (req.method === "GET" && p === "/settings-preview") return new Response(SETTINGS_PREVIEW_HTML, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } });

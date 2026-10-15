@@ -20,7 +20,7 @@ fallthrough = true
 
 [[rules]]
 type = "Data"
-globs = ["**/*.png", "**/*.webp"]
+globs = ["**/*.png", "**/*.webp", "**/*.gz"]
 fallthrough = true
 
 [[routes]]
@@ -40,4 +40,3 @@ storage = "sqlite"
 type = "ESModule"
 globs = ["**/*.js"]
 fallthrough = true
-
