@@ -1,0 +1,17 @@
+{
+  "edits": [
+    [
+      ".world-hand .hf-hand>.hf-card .hf-corner{left:10px!important;right:auto!important;width:auto!important;font-size:20px!important}",
+      ".world-hand .hf-hand>.hf-card .hf-corner{left:25%!important;right:auto!important;width:auto!important;font-size:18px!important}.world-hand .hf-hand.playing-foot>.hf-card .hf-corner{left:23%!important}"
+    ],
+    [
+      "b.onpointerdown=e=>{if(!e.isPrimary||e.button!==0)return;drag=",
+      "b.onpointerdown=e=>{if(!e.isPrimary||e.button!==0||(attribute==='data-cid'&&e.pointerType==='touch'))return;drag="
+    ],
+    [
+      "area.style.setProperty('--table-foot',Math.max(0,Math.round(bottom))+'px');",
+      "const value=Math.max(0,Math.round(bottom))+'px';if(area.style.getPropertyValue('--table-foot')!==value)area.style.setProperty('--table-foot',value);"
+    ]
+  ],
+  "css": "<style id=\"ohana-hf-native-pan-rank-fix\">:root.ohana-world body #app #game #board#board#board[data-type=handfoot],:root.ohana-world body #app #game #board#board#board[data-type=handfoot] :is(.hf-area,.hf-felt,.world-hand,.hf-hand,.hf-card){touch-action:pan-x pan-y pinch-zoom!important}</style>"
+}

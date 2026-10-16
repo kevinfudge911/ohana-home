@@ -1,0 +1,11 @@
+{
+  "source": "work/final-current-release/app.html",
+  "bytes": 6148332,
+  "delta": 35646,
+  "sha": "292d0d2647d81a74a90f0b742e927faa2fe4d20185394961c1650fad0003579f",
+  "published": false,
+  "hardwareTransparentDefaults": true,
+  "guideUpdated": true,
+  "newArt": false,
+  "boundedScope": "3 Bridge scripts, Bridge-only guide config, exact NEWS blurb"
+}

@@ -1,0 +1,21 @@
+{
+  "edits": [
+    [
+      "b.setAttribute('aria-description','Drag to rearrange. Alt plus arrow keys also moves this card.');",
+      "b.setAttribute('aria-description','Hold a card, then slide to rearrange. Swipe promptly to scroll; use two fingers to zoom. Alt plus arrow keys also moves this card.');"
+    ],
+    [
+      "const clean=()=>{drag?.ghost?.remove();b.classList.remove('o10-dragging');cards.forEach(c=>c.classList.remove('hand-drop-before','hand-drop-after'));drag=null;};",
+      "let pressTimer=null;const clean=()=>{clearTimeout(pressTimer);pressTimer=null;drag?.ghost?.remove();b.classList.remove('o10-dragging','hand-reorder-ready');cards.forEach(c=>c.classList.remove('hand-drop-before','hand-drop-after'));drag=null;};"
+    ],
+    [
+      "b.onpointerdown=e=>{if(!e.isPrimary||e.button!==0||(attribute==='data-cid'&&e.pointerType==='touch'))return;",
+      "b.onpointerdown=e=>{if(!e.isPrimary||e.button!==0||e.pointerType==='touch')return;"
+    ],
+    [
+      "  b.onpointercancel=clean;b.onlostpointercapture=clean;b.ondragstart=e=>e.preventDefault();",
+      "  b.addEventListener('touchstart',e=>{clean();if(e.touches.length!==1){S.handArrangeIgnoreUntil=Date.now()+450;return;}const t=e.touches[0];drag={pointer:t.identifier,x:t.clientX,y:t.clientY,started:Date.now(),touch:true,armed:false};pressTimer=setTimeout(()=>{if(drag?.pointer===t.identifier){drag.armed=true;b.classList.add('hand-reorder-ready');}},350);},{passive:true});\n  b.addEventListener('touchmove',e=>{if(!drag?.touch)return;if(e.touches.length!==1){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}const t=e.touches[0];if(!drag.armed){if(Math.hypot(t.clientX-drag.x,t.clientY-drag.y)>8)clean();return;}if(e.cancelable)e.preventDefault();b.onpointermove({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});},{passive:false});\n  b.addEventListener('touchend',e=>{if(!drag?.touch)return;const t=[...e.changedTouches].find(t=>t.identifier===drag.pointer);if(t)b.onpointerup({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});},{passive:false});\n  b.addEventListener('touchcancel',clean,{passive:true});\n  b.onpointercancel=clean;b.onlostpointercapture=clean;b.ondragstart=e=>e.preventDefault();"
+    ]
+  ],
+  "css": "<style id=\"ohana-native-pull-refresh-guard\">html:root{overscroll-behavior-y:none!important}html:root body{overscroll-behavior-y:none!important}html:root #app{overscroll-behavior-y:contain!important}.hand-reorder-ready{filter:drop-shadow(0 0 4px #67ffc7)!important}</style>"
+}

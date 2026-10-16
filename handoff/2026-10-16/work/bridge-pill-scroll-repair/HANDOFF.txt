@@ -1,0 +1,7 @@
+PRIVATE bounded repair, not published.
+Run node work/bridge-pill-scroll-repair/build.cjs <latest-app>, then node work/bridge-pill-scroll-repair/finish.cjs.
+Base final-current-release/app.html exact live6112686. Output6148332 after embedded new guide image; no new route/art.
+Touched modules: responsive physical Bridge, legacy command-player (yield once newpanel exists), hardware (transparent button defaults), Bridge-only guideconfig image/version3/text; exact Bridge NEWS blurb. Everything else preserved.
+Actual390 proof:9 visible Home command buttons each1newart0visiblelegacy;48pxmin targets. Transport background-image:none,border0,shadow:none. No fullcream panel. LastScoresbottom663.8<shellbottom700. ScrollTop59.333 remained59.333 through~20sec background polls. Chat opens, Close closes. Viewport reset.
+Root fixture8843 session71008. Existing approved Bridge assets copied into private directory solely because proxy preview lacked them; do not upload copies as newart. phone390.png screenshot before finalRoom/Volumeindividualpill addition; fullscene/commands/player finaltransparentappearance passed. Help image updated currentunboxed same375x674crop, version3. Newguide actual reopen check left for rootcombinedsmoke.
+Cause: old command-player global childList observer unconditionally overwrote shell justify-content:flex-end on unrelated polls, fighting newnormalizer. Guard oldrefresh when newpanel exists; newobserver ignores outside Bridge/chatpoll subtree and preserves ownscrollTop. overflow-anchor:none prevents content anchoring jumps.
