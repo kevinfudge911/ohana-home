@@ -10295,7 +10295,7 @@ var PuzzleRoom = class {
         });
       }
       const lockedCount = P.filter((q) => q.l).length;
-      this.broadcast({ t: "drop", p: m.p, g: members[0].g, pieces: members.map((q) => [q.i, q.x, q.y]), l: locked, joined, by: me.id, byName: me.name, locked: lockedCount, stats: locked || joined ? this.stats : void 0 });
+      this.broadcast({ t: "drop", p: m.p, g: members[0].g, pieces: members.map((q) => [q.i, q.x, q.y]), l: locked, joined, by: me.id, byName: me.name, clientAction:typeof m.clientAction==="string"&&m.clientAction.length<=100?m.clientAction:void 0, locked: lockedCount, stats: locked || joined ? this.stats : void 0 });
       if (lockedCount === P.length && !this.meta.done) {
         this.meta.done = now2;
         this.ctx.storage.put("meta", this.meta).catch(() => {
