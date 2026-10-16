@@ -5863,7 +5863,7 @@ try{for(const k of Object.keys(localStorage))if(k.startsWith('__oh_'))localStora
 
 async function api(path, body, method, room=S.room) {
   const requestToken=S.token;
-  const requestMethod=method||(body?'POST':'GET');let r;
+  const requestMethod=method||(body?'POST':'GET'),turnWatch=beginOwnTurnWatch(path,requestMethod);let r;
   for(let attempt=0;attempt<(requestMethod==='GET'?2:1);attempt++){
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
    try{r=await fetch(path,{method:requestMethod,signal:controller.signal,headers:{'content-type':'application/json','x-ohana-room':String(room||0),...(requestToken?{authorization:'Bearer '+requestToken}:{})},body:body?JSON.stringify(body):undefined});break;}
@@ -5874,6 +5874,7 @@ async function api(path, body, method, room=S.room) {
   if (r.status === 401) { if(requestToken&&requestToken===S.token)showSessionReconnect(); throw new Error('We couldn’t verify your connection. Your sign-in is still saved. Tap Retry.'); }
   if (!r.ok) throw new Error(d.error || 'Something went wrong');
   if(requestToken&&requestToken===S.token)document.querySelector('#session-reconnect')?.remove();
+  if(turnWatch)queueOwnTurnWatch(turnWatch);
   return d;
 }
 function showSessionReconnect(){
@@ -6825,7 +6826,7 @@ function pzSuspend(){ // step out of the puzzle board but keep the anchor so we 
  window.removeEventListener('resize',pzResize);
 }
 async function puzzleNextGame(){
- if(S.nextGamePending||S.movePending)return;
+ if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
  S.nextGamePending=true;const btn=$('#pz-next-game');if(btn)btn.disabled=true;
  try{
   const latest=await api('/api/sync?msgSince='+S.lastMsg),next=nextWaitingGame(latest,null);
@@ -11577,7 +11578,7 @@ async function loadGame(force=false) {
         setTimeout(() => AudioSys.beep(880, .15, .4), 120);
       }
       if (oldState && oldState.status === 'playing' && d.status === 'finished') {
-        setTimeout(() => {if(S.game===d.id)showRematchDialog(d);}, 600);
+        setTimeout(() => {if(S.game===d.id&&!S.autoAdvancePending&&S.memoryAutoWaiting!==d.id)showRematchDialog(d);}, 600);
       }
       renderGame();maybeGameEntryIntro(d);
       // Celebrate opponent's new move when we load/refresh
@@ -12545,7 +12546,12 @@ async function move(m, after) {
     if(g?.type==='words' && m.action==='play')runLastReveal(true,false);
   }
   catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }finally{S.movePending=false;document.querySelector('#board')?.removeAttribute('aria-busy');if(S.game===gameId&&['domino','ohana10'].includes(S.gstate?.type))renderGame();}
-  if(turnDone)await advanceConfirmedTurn(gameId);
+  if(turnDone){
+    if(turnStart.type==='memory'){
+      S.memoryAutoWaiting=gameId;try{const until=Number(S.gstate?.state?.revealUntil)||0;if(until>Date.now())await new Promise(resolve=>setTimeout(resolve,until-Date.now()+30));if(S.game!==gameId)return;await loadGame(true);}finally{if(S.memoryAutoWaiting===gameId)S.memoryAutoWaiting=null;}
+    }
+    if(S.game===gameId)await advanceConfirmedTurn(gameId);
+  }
 }
 
 // ----- Game Chat (fixed bottom panel with scores) -----
@@ -12790,10 +12796,20 @@ const MEMORY_FRIENDS={
 };
 function memoryFace(c){const f=MEMORY_FRIENDS[c];return f?`<img src="${f[1]?'/buddy-'+f[1]+'.webp?asset=ohana-v105-binary-repair-20261011&v=free1':'/honu.webp?asset=ohana-v105-binary-repair-20261011'}" alt=""><span>${f[0]}</span>`:esc(c||'');}
 function memoryName(c){return MEMORY_FRIENDS[c]?.[0]||c;}
+async function memoryPick(i,id){
+ if(S.game!==id)return;
+ if(S.movePending){if(S.memoryPickStage==='first'&&i!==S.memoryPickIndex&&!S.memoryQueuedPick)S.memoryQueuedPick={i,id};return;}
+ const g=S.gstate,st=g?.state;if(g?.type!=='memory'||g.status!=='playing'||String(g.players?.[g.turn])!==String(S.me?.id)||!st||Number(st.revealUntil)>Date.now()||st.matched[i]||st.open.includes(i)||st.pending.includes(i))return;
+ const first=st.open.length===0;S.memoryPickStage=first?'first':'second';S.memoryPickIndex=i;
+ try{await move({i});}finally{S.memoryPickStage=null;S.memoryPickIndex=null;}
+ const queued=S.memoryQueuedPick;S.memoryQueuedPick=null;if(first&&queued?.id===id&&S.game===id&&S.gstate?.state?.open?.includes(i))await memoryPick(queued.i,id);
+}
 function renderMem(st, g, myTurn) {
+  const revealing=Number(st.revealUntil)>Date.now();clearTimeout(S.memoryRevealTimer);
+  if(revealing){const id=g.id,until=st.revealUntil;S.memoryRevealTimer=setTimeout(()=>{if(S.game===id&&S.gstate?.type==='memory'&&S.gstate.state?.revealUntil===until){renderGame();schedulePoll();}},Math.max(20,until-Date.now()+20));}
   const up = i => st.matched[i] || st.open.includes(i) || st.pending.includes(i);
-  $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn ? 'disabled' : ''}>${up(i) ? memoryFace(c) : '<span class="memory-seal" aria-hidden="true">OHANA</span>'}</button>`).join('')}</div><p class="mem-progress" aria-label="${st.matched.filter(Boolean).length/2} of 10 pairs found">${st.matched.filter(Boolean).length/2}/10</p>`;
-  $('#board').querySelectorAll('button').forEach(b => b.onclick = () => move({ i: +b.dataset.i }));
+  $('#board').innerHTML = `<div class="scrawl" style="top:45%">nobody gets left behind</div><div class="mem">${st.cards.map((c, i) => `<button class="${st.matched[i] ? 'done' : up(i) ? 'up' : 'back'}" data-i="${i}" ${up(i) || !myTurn || revealing ? 'disabled' : ''}>${up(i) ? memoryFace(c) : '<span class="memory-seal" aria-hidden="true">OHANA</span>'}</button>`).join('')}</div><p class="mem-progress" aria-label="${st.matched.filter(Boolean).length/2} of 10 pairs found">${st.matched.filter(Boolean).length/2}/10${revealing?' · '+(st.open.length===1?'First card…':st.revealMatch?'A match!':'Take a look…'):''}</p>`;
+  $('#board').querySelectorAll('button').forEach(b => b.onclick = () => memoryPick(+b.dataset.i,g.id));
 }
 // ----- Checkers -----
 function renderChk(st, g, myTurn) {
@@ -13642,6 +13658,7 @@ if ('serviceWorker' in navigator) {
 }
 // Adaptive polling: fast when both players online in a game, normal otherwise
 function getPollInterval() {
+  if(S.game&&S.gstate?.type==='memory'&&S.gstate.status==='playing'&&(S.gstate.players?.[S.gstate.turn]===-1||Number(S.gstate.state?.revealUntil)>Date.now()))return 300;
   if(S.game&&S.gstate?.status==='playing'&&S.gstate?.players?.[S.gstate.turn]===-1)return 800;
   if (S.game && S.gstate?.players && S.sync?.members) {
     const allOnline = S.gstate.players.every(p => (S.sync.members || []).find(m => m.id === p)?.online);
@@ -14428,14 +14445,38 @@ function accessibleBoard(root,columns,label){
   };
  });
 }
+function beginOwnTurnWatch(path,method){
+ const match=method==='POST'&&path.match(/^\/api\/game\/(\d+)\/move$/);if(!match||String(S.game)!==match[1])return null;
+ const epoch=S.turnMoveEpoch=(S.turnMoveEpoch||0)+1,g=S.gstate;
+ if(g?.status!=='playing'||String(g.players?.[g.turn])!==String(S.me?.id))return null;
+ return {id:S.game,member:S.me.id,epoch};
+}
+function queueOwnTurnWatch(watch){
+ setTimeout(async()=>{
+  const current=()=>S.game===watch.id&&String(S.me?.id)===String(watch.member)&&S.turnMoveEpoch===watch.epoch;
+  try{
+   for(let n=0;S.movePending&&n<600;n++){if(!current())return;await new Promise(r=>setTimeout(r,50));}
+   if(!current()||S.movePending)return;
+   let game=await api('/api/game/'+watch.id);if(!current()||String(game?.id)!==String(watch.id))return;
+   if(game.status==='playing'&&String(game.players?.[game.turn])===String(watch.member))return;
+   if(!['playing','finished'].includes(game.status))return;
+   if(game.type==='memory'&&Number(game.state?.revealUntil)>Date.now()){await new Promise(r=>setTimeout(r,game.state.revealUntil-Date.now()+30));if(!current())return;}
+   if(current())await advanceConfirmedTurn(watch.id);
+  }catch{/* A failed read leaves the current table in place. */}
+ },0);
+}
+
 function afterTurnPreference(){try{return localStorage.getItem('ohana_after_turn_'+S.me.id+'_'+S.room)==='home'?'home':'puzzle';}catch{return 'puzzle';}}
 async function advanceConfirmedTurn(gameId){
- if(S.autoAdvancePending||S.movePending||S.game!==gameId)return;S.autoAdvancePending=true;
+ if(S.autoAdvancePending||S.nextGamePending||S.movePending||S.game!==gameId)return;S.autoAdvancePending=true;
  try{
   const latest=await api('/api/sync?msgSince='+S.lastMsg);if(S.game!==gameId)return;
-  const current=(latest.allGames||latest.games||[]).find(g=>String(g.id)===String(gameId));
-  // A newer turn can arrive while the move response is travelling. Stay for it.
-  if(!current||current.status==='playing'&&current.my_turn)return;
+  // The sync list is bounded; the current table may be older than its last120 rows.
+  const current=await api('/api/game/'+gameId);if(S.game!==gameId||String(current?.id)!==String(gameId))return;
+  if(!current.players?.some(id=>String(id)===String(S.me?.id)))return;
+  // Verify the actual table, including any newer own turn, rather than a truncated summary.
+  if(current.status==='playing'&&String(current.players[current.turn])===String(S.me?.id))return;
+  if(!['playing','finished'].includes(current.status))return;
   const next=nextWaitingGame(latest,gameId);
   if(next){const room=next.room_id||latest.roomId||S.room;if(Number(room)!==Number(S.room))await enterRoom(room);await openGame(next.id);return;}
   if(afterTurnPreference()==='puzzle'&&await openExistingSharedPuzzle())return;
@@ -14475,7 +14516,7 @@ async function openExistingSharedPuzzle(){
  await openPuzzle(puzzle.id);return true;
 }
 async function goToNextGame(){
- if(S.nextGamePending||S.movePending)return;
+ if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
  if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters and open your next game?',{cancelLabel:'Stay here',confirmLabel:'Next game'}))return;
  const current=S.game;S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
  try{

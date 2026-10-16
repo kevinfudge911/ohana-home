@@ -1309,28 +1309,28 @@ import BUDDY_MANGO from "./2e8ab63bb885d1e3b1448a77d5da6ad2c715b781-2e8ab63bb885
 import BUDDY_SUNNY from "./5de1a816707f0ef332b9c5f814dd725fe603c86a-5de1a816707f0ef332b9c5f814dd725fe603c86a-5de1a816707f0ef332b9c5f814dd725fe603c86a-buddy-sunny.webp";
 import BUDDY_SPLASH from "./00a9c8ee50a17fdc26b3c8c1bed55640c42595c4-00a9c8ee50a17fdc26b3c8c1bed55640c42595c4-00a9c8ee50a17fdc26b3c8c1bed55640c42595c4-buddy-splash.webp";
 import MAHJONG_PREVIEW_HTML from "./09246ba466da98b180a867e23a67c4a96f3b9dbc-09246ba466da98b180a867e23a67c4a96f3b9dbc-09246ba466da98b180a867e23a67c4a96f3b9dbc-mahjong-preview.html";
-import COLOR_BAMBOO from "./9652f9c2ff561121f3053bae6595e787042edcd0-9652f9c2ff561121f3053bae6595e787042edcd0-color-bamboo.svg";
-import COLOR_COCO from "./ccf261ccd9dd1bf0b5c4c0580b155243dacf41c1-ccf261ccd9dd1bf0b5c4c0580b155243dacf41c1-color-coco.svg";
-import COLOR_EDDIE from "./b0d8090fa61055f7044d84b384433439d9150879-b0d8090fa61055f7044d84b384433439d9150879-color-eddie.svg";
-import COLOR_FINN from "./30bf2eeffbe7c1a024fda30ae180c4a7f774f4ef-30bf2eeffbe7c1a024fda30ae180c4a7f774f4ef-color-finn.svg";
-import COLOR_FLORA from "./f6b1ec7bcddb2fbd3303a512fd50f8424260c490-f6b1ec7bcddb2fbd3303a512fd50f8424260c490-color-flora.svg";
-import COLOR_FLUTTER from "./7ce80afe087741e2e759da3d44fae373d87d7336-7ce80afe087741e2e759da3d44fae373d87d7336-color-flutter.svg";
-import COLOR_HONU from "./cd80de8fe47f96caadd6fd562aaa775dc5faaffa-cd80de8fe47f96caadd6fd562aaa775dc5faaffa-color-honu.svg";
-import COLOR_HOOT from "./1da04018d8ac3a77b6da5c4dae3fdffce168c0f9-1da04018d8ac3a77b6da5c4dae3fdffce168c0f9-color-hoot.svg";
-import COLOR_INKY from "./da46fec7c4632ecaf285d31a9a1e339d2013a1fb-da46fec7c4632ecaf285d31a9a1e339d2013a1fb-color-inky.svg";
-import COLOR_KAI from "./b54232944613df6d2f92b6930f7cd9bd83a17304-b54232944613df6d2f92b6930f7cd9bd83a17304-color-kai.svg";
-import COLOR_KIKO from "./e3e0da37cb314ae1e61d136d8f5f1df77c6d8eb2-e3e0da37cb314ae1e61d136d8f5f1df77c6d8eb2-color-kiko.svg";
-import COLOR_KOA from "./1fd470c42af8b2dc1f94fc8c0241e58d4b9596c7-1fd470c42af8b2dc1f94fc8c0241e58d4b9596c7-color-koa.svg";
-import COLOR_LULU from "./769b6dc96fd3630841e32800095ae76c5c2f9b31-769b6dc96fd3630841e32800095ae76c5c2f9b31-color-lulu.svg";
-import COLOR_MANGO from "./1c47c42680d66a4cce2793b8e1acfa76c26af02e-1c47c42680d66a4cce2793b8e1acfa76c26af02e-color-mango.svg";
-import COLOR_MILO from "./83c92d833829f8acf6db36a2e27cedb86f8b8e31-83c92d833829f8acf6db36a2e27cedb86f8b8e31-color-milo.svg";
-import COLOR_OTTO from "./cb3a176fbda3eb67402242209210732f2717e0c0-cb3a176fbda3eb67402242209210732f2717e0c0-color-otto.svg";
-import COLOR_PEBBLE from "./b73ab78a6f2e3ba90524835b78dcd3723f5aa7f8-b73ab78a6f2e3ba90524835b78dcd3723f5aa7f8-color-pebble.svg";
-import COLOR_PIPPA from "./1b5c1a11e9f93d67f13d1d466f36b48b896ab883-1b5c1a11e9f93d67f13d1d466f36b48b896ab883-color-pippa.svg";
-import COLOR_REEF from "./f38daff03fcd25e9a36cfb204543e2b1706646c2-f38daff03fcd25e9a36cfb204543e2b1706646c2-color-reef.svg";
-import COLOR_ROSIE from "./2d525136ddd5fdc7ce528fb55053021ae993ec15-2d525136ddd5fdc7ce528fb55053021ae993ec15-color-rosie.svg";
-import COLOR_SPLASH from "./93e5ddcb749dc8a2eb14198318e95fc6d63e1c64-93e5ddcb749dc8a2eb14198318e95fc6d63e1c64-color-splash.svg";
-import COLOR_SUNNY from "./845766ccc17502e76c19aa6807e1ce4083d0cfd7-845766ccc17502e76c19aa6807e1ce4083d0cfd7-color-sunny.svg";
+import COLOR_BAMBOO from "./9652f9c2ff561121f3053bae6595e787042edcd0-9652f9c2ff561121f3053bae6595e787042edcd0-color-bamboo.svg.gz";
+import COLOR_COCO from "./ccf261ccd9dd1bf0b5c4c0580b155243dacf41c1-ccf261ccd9dd1bf0b5c4c0580b155243dacf41c1-color-coco.svg.gz";
+import COLOR_EDDIE from "./b0d8090fa61055f7044d84b384433439d9150879-b0d8090fa61055f7044d84b384433439d9150879-color-eddie.svg.gz";
+import COLOR_FINN from "./30bf2eeffbe7c1a024fda30ae180c4a7f774f4ef-30bf2eeffbe7c1a024fda30ae180c4a7f774f4ef-color-finn.svg.gz";
+import COLOR_FLORA from "./f6b1ec7bcddb2fbd3303a512fd50f8424260c490-f6b1ec7bcddb2fbd3303a512fd50f8424260c490-color-flora.svg.gz";
+import COLOR_FLUTTER from "./7ce80afe087741e2e759da3d44fae373d87d7336-7ce80afe087741e2e759da3d44fae373d87d7336-color-flutter.svg.gz";
+import COLOR_HONU from "./cd80de8fe47f96caadd6fd562aaa775dc5faaffa-cd80de8fe47f96caadd6fd562aaa775dc5faaffa-color-honu.svg.gz";
+import COLOR_HOOT from "./1da04018d8ac3a77b6da5c4dae3fdffce168c0f9-1da04018d8ac3a77b6da5c4dae3fdffce168c0f9-color-hoot.svg.gz";
+import COLOR_INKY from "./da46fec7c4632ecaf285d31a9a1e339d2013a1fb-da46fec7c4632ecaf285d31a9a1e339d2013a1fb-color-inky.svg.gz";
+import COLOR_KAI from "./b54232944613df6d2f92b6930f7cd9bd83a17304-b54232944613df6d2f92b6930f7cd9bd83a17304-color-kai.svg.gz";
+import COLOR_KIKO from "./e3e0da37cb314ae1e61d136d8f5f1df77c6d8eb2-e3e0da37cb314ae1e61d136d8f5f1df77c6d8eb2-color-kiko.svg.gz";
+import COLOR_KOA from "./1fd470c42af8b2dc1f94fc8c0241e58d4b9596c7-1fd470c42af8b2dc1f94fc8c0241e58d4b9596c7-color-koa.svg.gz";
+import COLOR_LULU from "./769b6dc96fd3630841e32800095ae76c5c2f9b31-769b6dc96fd3630841e32800095ae76c5c2f9b31-color-lulu.svg.gz";
+import COLOR_MANGO from "./1c47c42680d66a4cce2793b8e1acfa76c26af02e-1c47c42680d66a4cce2793b8e1acfa76c26af02e-color-mango.svg.gz";
+import COLOR_MILO from "./83c92d833829f8acf6db36a2e27cedb86f8b8e31-83c92d833829f8acf6db36a2e27cedb86f8b8e31-color-milo.svg.gz";
+import COLOR_OTTO from "./cb3a176fbda3eb67402242209210732f2717e0c0-cb3a176fbda3eb67402242209210732f2717e0c0-color-otto.svg.gz";
+import COLOR_PEBBLE from "./b73ab78a6f2e3ba90524835b78dcd3723f5aa7f8-b73ab78a6f2e3ba90524835b78dcd3723f5aa7f8-color-pebble.svg.gz";
+import COLOR_PIPPA from "./1b5c1a11e9f93d67f13d1d466f36b48b896ab883-1b5c1a11e9f93d67f13d1d466f36b48b896ab883-color-pippa.svg.gz";
+import COLOR_REEF from "./f38daff03fcd25e9a36cfb204543e2b1706646c2-f38daff03fcd25e9a36cfb204543e2b1706646c2-color-reef.svg.gz";
+import COLOR_ROSIE from "./2d525136ddd5fdc7ce528fb55053021ae993ec15-2d525136ddd5fdc7ce528fb55053021ae993ec15-color-rosie.svg.gz";
+import COLOR_SPLASH from "./93e5ddcb749dc8a2eb14198318e95fc6d63e1c64-93e5ddcb749dc8a2eb14198318e95fc6d63e1c64-color-splash.svg.gz";
+import COLOR_SUNNY from "./845766ccc17502e76c19aa6807e1ce4083d0cfd7-845766ccc17502e76c19aa6807e1ce4083d0cfd7-color-sunny.svg.gz";
 import COLOR_A0 from "./ccbda1b412bedd94b629e03cb4bd5ea453216306-ccbda1b412bedd94b629e03cb4bd5ea453216306-color-beach-cottage.svg.gz";
 import THUMB_A0 from "./34feb773027b9d4373dba66b443e501fbddc0c3d-34feb773027b9d4373dba66b443e501fbddc0c3d-thumb-beach-cottage.webp";
 import COLOR_A1 from "./99a130b67f9f90be9a649a770a1f0e74de3eac50-99a130b67f9f90be9a649a770a1f0e74de3eac50-color-coral-reef.svg.gz";
@@ -6392,7 +6392,7 @@ var process_default22222 = _process22222;
 globalThis.process = process_default22222;
 var PUZZLE_ASSETS = { "/puzzle-luau-sunset.webp": PZPIC_0, "/pzthumb-luau-sunset.webp": PZTHUMB_0, "/puzzle-waterfall-garden.webp": PZPIC_1, "/pzthumb-waterfall-garden.webp": PZTHUMB_1, "/puzzle-reef-life.webp": PZPIC_2, "/pzthumb-reef-life.webp": PZTHUMB_2, "/puzzle-porch-morning.webp": PZPIC_3, "/pzthumb-porch-morning.webp": PZTHUMB_3, "/puzzle-market-day.webp": PZPIC_4, "/pzthumb-market-day.webp": PZTHUMB_4, "/puzzle-canoe-cove.webp": PZPIC_5, "/pzthumb-canoe-cove.webp": PZTHUMB_5 };
 var COLOR_THUMBS = { "beach-cottage": THUMB_A0, "coral-reef": THUMB_A1, "dolphins": THUMB_A2, "family-tree": THUMB_A3, "hawaiian-quilt": THUMB_A4, "hibiscus-mandala": THUMB_A5, "honu-mandala": THUMB_A6, "hummingbird": THUMB_A7, "island-tribal": THUMB_A8, "ocean-waves": THUMB_A9, "ohana-wreath": THUMB_A10, "orchids": THUMB_A11, "palm-leaves": THUMB_A12, "pineapple-mandala": THUMB_A13, "seashells": THUMB_A14, "sunset-sail": THUMB_A15, "surf-day": THUMB_A16, "ukulele": THUMB_A17 };
-const COLOR_GZIP_PAGE_NAMES = new Set(["beach-cottage","coral-reef","dolphins","family-tree","hawaiian-quilt","hibiscus-mandala","honu-mandala","hummingbird","island-tribal","ocean-waves","ohana-wreath","orchids","palm-leaves","pineapple-mandala","seashells","sunset-sail","surf-day","ukulele"]);
+const COLOR_GZIP_PAGE_NAMES = new Set(["beach-cottage","coral-reef","dolphins","family-tree","hawaiian-quilt","hibiscus-mandala","honu-mandala","hummingbird","island-tribal","ocean-waves","ohana-wreath","orchids","palm-leaves","pineapple-mandala","seashells","sunset-sail","surf-day","ukulele","bamboo","coco","eddie","finn","flora","flutter","honu","hoot","inky","kai","kiko","koa","lulu","mango","milo","otto","pebble","pippa","reef","rosie","splash","sunny"]);
 var COLOR_PAGES = { "beach-cottage": COLOR_A0, "coral-reef": COLOR_A1, "dolphins": COLOR_A2, "family-tree": COLOR_A3, "hawaiian-quilt": COLOR_A4, "hibiscus-mandala": COLOR_A5, "honu-mandala": COLOR_A6, "hummingbird": COLOR_A7, "island-tribal": COLOR_A8, "ocean-waves": COLOR_A9, "ohana-wreath": COLOR_A10, "orchids": COLOR_A11, "palm-leaves": COLOR_A12, "pineapple-mandala": COLOR_A13, "seashells": COLOR_A14, "sunset-sail": COLOR_A15, "surf-day": COLOR_A16, "ukulele": COLOR_A17, bamboo: COLOR_BAMBOO, coco: COLOR_COCO, eddie: COLOR_EDDIE, finn: COLOR_FINN, flora: COLOR_FLORA, flutter: COLOR_FLUTTER, honu: COLOR_HONU, hoot: COLOR_HOOT, inky: COLOR_INKY, kai: COLOR_KAI, kiko: COLOR_KIKO, koa: COLOR_KOA, lulu: COLOR_LULU, mango: COLOR_MANGO, milo: COLOR_MILO, otto: COLOR_OTTO, pebble: COLOR_PEBBLE, pippa: COLOR_PIPPA, reef: COLOR_REEF, rosie: COLOR_ROSIE, splash: COLOR_SPLASH, sunny: COLOR_SUNNY };
 // Ohana family Mahjong. Server-owned tile IDs, claims and scoring.
 function mjFamilyInit(players, random = Math.random, rounds = 4) {
@@ -7475,12 +7475,14 @@ __name2222(memInit, "memInit");
 __name22222(memInit, "memInit");
 __name222222(memInit, "memInit");
 function memMove(st, players, turnIdx, move) {
+  if(Number(st.revealUntil)>Date.now())throw new Error("Watch these cards for a moment.");
   const i = +move.i;
   if (!Number.isInteger(i) || !(i >= 0 && i < 20) || st.matched[i] || st.open.includes(i)) throw new Error("Pick a face-down card.");
-  st.pending = [];
+  st.pending = [];st.revealUntil=0;
   st.open.push(i);
-  if (st.open.length < 2) return { over: false, next: turnIdx };
+  if (st.open.length < 2) {if(players[turnIdx]===BOT_ID){st.revealUntil=Date.now()+900;st.revealBy=BOT_ID;}return { over: false, next: turnIdx };}
   const [a, b] = st.open;
+  st.revealUntil=Date.now()+1800;st.revealBy=players[turnIdx];st.revealMatch=st.cards[a]===st.cards[b];
   st.open = [];
   const solo = players.length === 1;
   if (solo) st.flips = (st.flips || 0) + 1;
@@ -7963,7 +7965,15 @@ __name22(chooseBotMove, "chooseBotMove");
 __name222(chooseBotMove, "chooseBotMove");
 __name2222(chooseBotMove, "chooseBotMove");
 __name22222(chooseBotMove, "chooseBotMove");
-async function advanceBot(env222222, id) {
+const MEMORY_BOT_RUNS=new Map();
+async function advanceBot(env222222,id){
+ const first=await env222222.DB.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
+ if(first?.type!=="memory")return advanceBotSteps(env222222,id);
+ if(MEMORY_BOT_RUNS.has(id))return MEMORY_BOT_RUNS.get(id);
+ const run=advanceBotSteps(env222222,id);MEMORY_BOT_RUNS.set(id,run);
+ try{return await run;}finally{if(MEMORY_BOT_RUNS.get(id)===run)MEMORY_BOT_RUNS.delete(id);}
+}
+async function advanceBotSteps(env222222, id) {
   const db = env222222.DB;
   for (let step = 0; step < 50; step++) {
     const g = await db.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
@@ -7972,6 +7982,7 @@ async function advanceBot(env222222, id) {
     if (players[g.turn] !== BOT_ID) return;
     const st = JSON.parse(g.state);
     if (!st.bot || (g.type === "mahjong" && st.mode === "family" && st.pending)) return;
+    if(g.type==="memory"&&Number(st.revealUntil)>Date.now()){await new Promise(resolve=>setTimeout(resolve,Math.min(2000,st.revealUntil-Date.now())));continue;}
     const move = await chooseBotMove(g.type, st, players, g.turn, db);
     if (!move) throw new Error("Computer player has no legal move.");
     let res = await applyMove(g.type, st, players, g.turn, move, db);
