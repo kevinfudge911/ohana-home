@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-16",
+  "count": 11,
+  "codeChanged": false,
+  "checks": [
+    {
+      "reference": "1 Corinthians 16:14",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=1%20Corinthians%2016%3A14&version=NKJV",
+      "normalizedTextSha256": "333258739b770ff103d788787049fb80d08dfc8954eb9cf157c99888240062f5",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Psalm 119:105",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Psalm%20119%3A105&version=NKJV",
+      "normalizedTextSha256": "74e4b5ad4dda7f9693f2b5c7653dd9733597d3999a3209954c50871fa570959b",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Philippians 4:13",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Philippians%204%3A13&version=NKJV",
+      "normalizedTextSha256": "122d5e26e306589315f7c1eada0bebf1e18fcf7aa8308d868170c6e9dcdd5449",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Proverbs 3:5",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Proverbs%203%3A5&version=NKJV",
+      "normalizedTextSha256": "86682c72ab6bb79c23e6949efbe773ad4bf029b417e32f16e41bd9a172814e03",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Psalm 147:3",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Psalm%20147%3A3&version=NKJV",
+      "normalizedTextSha256": "a3d508ad33d8a46ea7dabe0b4ede19134741421cadf8b235308fba5309ae132a",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Psalm 23:1",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Psalm%2023%3A1&version=NKJV",
+      "normalizedTextSha256": "2c1c0b15faa47ea3aa5c5c43f0523c122f1949a6be27af546b40ef066ab4c253",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "1 Peter 5:7",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=1%20Peter%205%3A7&version=NKJV",
+      "normalizedTextSha256": "c24879709ab1e0dfdb933bbfce6ce175d79c257d9cafafdca011e9d6c5f5ec38",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Matthew 11:28",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Matthew%2011%3A28&version=NKJV",
+      "normalizedTextSha256": "792fa742ac1b08e013d67927dc25a24b138d1df09e827ea44089f1d544d97408",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Philippians 4:4",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Philippians%204%3A4&version=NKJV",
+      "normalizedTextSha256": "7b42a229da221350eb2b86bc330c961ba51c3d2b4d303e3f64ef126e0d6b1fb3",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Psalm 56:3",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Psalm%2056%3A3&version=NKJV",
+      "normalizedTextSha256": "c2cfa4c68c8e9e75a9c7d6d0f83fbefb958d134afdc1873dea07c0e97f95abbb",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    },
+    {
+      "reference": "Psalm 118:24",
+      "translation": "NKJV",
+      "source": "https://www.biblegateway.com/passage/?search=Psalm%20118%3A24&version=NKJV",
+      "normalizedTextSha256": "1e87b2158ce9d09763430b75f083c93a3b7761aa1c5482a4d867e24b1ff4f9f4",
+      "manualComparison": "matches NKJV words/punctuation after whitespace normalization; poetry line breaks flattened by app"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+Bible typography research — read-only, 2026-10-16
+
+Actual live capture: work/bridge-phone-layout-repair/live-bible-research.png (986x550). Both leaves are cut off by workstation; Philippians4:4 split into sparse half-quotes; force-justified line has conspicuous word gaps. This is not an integrated printed spread.
+
+User references1/3 establish dense printed text, verse numerals, page edges and gutter. Reference2 establishes text following the leaf perspective; reference4's ornate cake decoration is not the requested typography target. Preserve current approved Bible art, not cake aesthetics.
+
+Recommended ink specification:
+- Near-black traditional readable serif, normal case. Book/chapter running header; modest chapter initial when authentic context exists; small inline verse numerals. No oversized quote styling, centered slogan or letter spacing.
+- Typeset independently on each leaf. Equal outer margins; generous inner gutter; follow perspective/curve separately. Clip ink within paper. Baseline, size and taper must transform with the leaf, not float horizontally over it.
+- Paragraph prose, poetry line breaks, only accurate references. Avoid full justification on short lines; no huge word gaps. Keep a complete short verse together rather than split across leaves.
+- A single-column paragraph setting per leaf is more suitable for mobile than four microscopic columns. Preserve visible art; expand actual reading view when needed. Full Bible stays above workstation; rotate portrait/landscape and check longest passage.
+- Existing11 verified short NKJV verses remain exact. They cannot honestly fill continuous Bible pages. Do not fabricate context, chapter numbers, repeated text, dummy glyphs, filler or alternate translation. Dense continuous spread requires separately verified authorized contiguous NKJV text; otherwise honestly label selected scripture passages.
+
+Primary sources:
+Cambridge catalogue https://www.cambridge.org/ca/files/2614/0500/2026/9781107924260Web.pdf
+NKJV is PRINTED pages19–21, PDF indices24–26. Clarion: paragraph setting, single column, side references, generous line spacing. Pitt Minion: traditional dense paragraph text and small inline verse numerals. Production PDF20–21 stresses even margins, generous gutter, clear consistent ink and line spacing. Web screenshot retrieval failed, so these findings use source text; do not claim screenshots were visually inspected.
+Thomas Nelson official NKJV product https://www.thomasnelsonbibles.com/product/nkjv-study-bible-full-color/
+Publisher-linked sample https://cr-assets.localretailconnect.com/preview/9780785259480.pdf
+Sample preface Format: prose paragraph structure; poetry line structure; headings indicate transitions. Comfort Print is publisher-specific; use a licensed available serif, do not extract proprietary font.
+
+No code, image generation or shared changes performed.

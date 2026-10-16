@@ -1,0 +1,22 @@
+{
+  "pass": true,
+  "cases": [
+    "black3 zero card value and leftover penalty",
+    "black3 never clean/dirty book or book bonus even seven",
+    "held black3 pair cannot pick black3 top; atomic",
+    "black3 final pure meld accepted and final discard ends round",
+    "black3 from hand rejected atomic",
+    "missing dirty book rejects atomic",
+    "black3 cannot fake missing clean book",
+    "at least3 pure black; rejects wild/red and own side atomic",
+    "extra remaining card or no final discard rejects atomic",
+    "collected red3 needs owner opening; each100/four1000/everyplayer",
+    "caught red3 actual hand AND unplayed foot minus300 each",
+    "red3 auto setaside replacement behavior unchanged"
+  ],
+  "provisional": [
+    "red3 beyond4 adds100each",
+    "unopened setaside red3 scores0; no collected penalty"
+  ],
+  "noProductionWrites": true
+}

@@ -8593,7 +8593,7 @@ function hfCardVal(card) {
   if (card.rank === "Joker") return 50;
   if (card.rank === "2") return 20;
   if (card.rank === "3" && (card.suit === "\u2665" || card.suit === "\u2666")) return 100;
-  if (card.rank === "3") return 5;
+  if (card.rank === "3") return 0;
   if (card.rank === "A") return 20;
   if (["K", "Q", "J", "10", "9", "8"].includes(card.rank)) return 10;
   return 5;
@@ -8731,7 +8731,7 @@ __name222222(hfMinMeld, "hfMinMeld");
 function hfCountCanastas(melds) {
   let clean = 0, dirty = 0;
   for (const m of melds) {
-    if (m.cards.length >= 7) {
+    if (m.rank !== "3" && m.cards.length >= 7) {
       if (m.cards.every((c) => !hfIsWild(c))) clean++;
       else dirty++;
     }
@@ -8750,7 +8750,7 @@ function hfScoreHand(melds, red3s, handCards) {
   score += red3s.length * 100;
   for (const m of melds) {
     for (const c of m.cards) score += hfCardVal(c);
-    if (m.cards.length >= 7) {
+    if (m.rank !== "3" && m.cards.length >= 7) {
       const isClean = m.cards.every((c) => !hfIsWild(c));
       score += isClean ? 500 : 300;
     }
@@ -8876,7 +8876,7 @@ function hfMoveApply(st, players, turnIdx, move) {
     const remaining = [...hand];
     const proposedByOwner = { [p]: structuredClone(st.melds[p]) };
     const getProposed = /* @__PURE__ */ __name((owner) => proposedByOwner[owner] || (proposedByOwner[owner] = structuredClone(st.melds[owner] || [])), "getProposed");
-    let points = 0, ownPoints = 0, playedOffAnother = false;
+    let points = 0, ownPoints = 0, playedOffAnother = false, blackThreeGroup = false;
     for (const group322222 of groups) {
       const cards = [];
       if (!Array.isArray(group322222.cardIds) || !group322222.cardIds.length) throw new Error("Choose cards for each meld.");
@@ -8886,6 +8886,14 @@ function hfMoveApply(st, players, turnIdx, move) {
         cards.push(remaining.splice(i, 1)[0]);
       }
       const rank = group322222.rank;
+      if (rank === "3") {
+        if (group322222.owner != null && String(group322222.owner) !== String(p)) throw new Error("Black threes stay on your own side.");
+        if (cards.length < 3 || !cards.every(hfIsBlack3)) throw new Error("Meld at least three black threes with no wilds or red threes.");
+        const books = hfCountCanastas(st.melds[p]);
+        if (!st.inFoot[p] || !books.clean || !books.dirty) throw new Error("Finish your clean and dirty books in your foot before melding black threes.");
+        if (groups.length !== 1 || hand.length !== cards.length + 1) throw new Error("Black threes must be all remaining cards except one final discard.");
+        getProposed(p).push({rank:"3",cards}); blackThreeGroup = true; continue;
+      }
       if (!["A", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"].includes(rank)) throw new Error("Threes cannot meld; twos and jokers must join natural cards.");
       if (cards.some((c) => !hfIsWild(c) && c.rank !== rank)) throw new Error("Keep each rank in its own group. Stage aces and tens separately, then play them together.");
       const rawOwner = group322222.owner;
@@ -8919,7 +8927,7 @@ function hfMoveApply(st, players, turnIdx, move) {
       ownPoints += groupPoints;
     }
     const minimum = hfOpening(st, p);
-    if (!st.melds[p].length && ownPoints < minimum) throw new Error("Your opening groups together need " + minimum + " points; you selected " + ownPoints + ". Stage another valid group.");
+    if (!blackThreeGroup && !st.melds[p].length && ownPoints < minimum) throw new Error("Your opening groups together need " + minimum + " points; you selected " + ownPoints + ". Stage another valid group.");
     if (st.inFoot[p] && remaining.length === 0) throw new Error("Keep your final foot card to discard.");
     if (st.inFoot[p] && remaining.length === 1) {
       const books = hfCountCanastas(proposedByOwner[p]);

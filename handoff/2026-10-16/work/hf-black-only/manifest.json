@@ -1,0 +1,19 @@
+{
+  "scope": "black-threes-only",
+  "redScoringUnchanged": true,
+  "exactInverse": true,
+  "rows": [
+    {
+      "file": "app.html",
+      "bytes": 6098739,
+      "sha256": "24bde2db9f7e2531260a4d670f8339c9c73d6c8756ee22390442c5301530ec36",
+      "sha": "0a9a951098e3dc20439fb5190186dbcbd2bcebbf"
+    },
+    {
+      "file": "worker.js",
+      "bytes": 772457,
+      "sha256": "79a7310d9f35aedffa0de7727727fa7040b2d6d5c8ac7d5bf981408ebbe2a45f",
+      "sha": "83b9a39281f677b99b05685de91086b53cc58f6a"
+    }
+  ]
+}

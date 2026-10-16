@@ -1,0 +1,17 @@
+{
+ "result":"PASS",
+ "prototypeOnly":true,
+ "fixture":"12-second embedded local test tone;3–5-second marked range",
+ "initialState":{"time":0,"paused":true,"rms":0},
+ "continuousMeasurement":{"silentSamples":46,"audibleSamples":209,"restoredAfterSilence":true,"recoveredAt":{"time":10.49,"censorGain":1,"userVolume":0.5,"paused":false,"rms":0.10765}},
+ "pausedSeek":{"time":4,"censorGain":0,"userVolume":0.5,"paused":true,"rms":0},
+ "userMute":{"time":4.64,"censorGain":0,"userVolume":0.5,"muted":true,"paused":false,"rms":0,"mutedSamples":118},
+ "volumeAfterReset":{"censorGain":1,"userVolume":0.49,"paused":true},
+ "unitTests":"verify-gain.cjs10casesPASS",
+ "original907CueCount":0,
+ "automaticProfanityDetection":false,
+ "sunoCORSVerified":false,
+ "physicalIphoneVerified":false,
+ "sharedCandidateChanged":false,
+ "published":false
+}

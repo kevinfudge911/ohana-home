@@ -1,0 +1,14 @@
+Timed clean-playback prototype — not deployed
+
+Censor engine uses a dedicated Web Audio gain node followed by a separate user-volume gain node. Timestamp ranges fade down60ms before marked word start, remain at zero for the range, fade back60ms after end. Neither node can exceed1; user mute stays on the media element. Audio events reschedule on play/seek/rate changes, cancel future ramps when paused/waiting, and ignore cues whose exact stream URL differs. No automatic play and no modification of source media.
+
+Existing907 catalog entries contain zero lyrics or word timestamps. None are certified censored. This prototype cannot identify profanity by filename/title, and it does not automatically transcribe audio. Accurate cues must come from checked timed lyrics or a listener marking the word's start/end. Source URL changes invalidate old cues. No moderation/pending-library gate was added.
+
+Integration must first verify CORS-enabled media access (existing singleton currently has no crossOrigin) and actual iPhone/iPad Web Audio behavior. Plain HTMLMediaElement.volume has limited browser availability; using only it would not prove physical iPhone fades. Do not attach createMediaElementSource to production audio until CORS verified, since an opaque cross-origin source can become silent in Web Audio. Listener/Bridge volume controls would need to target the separate user gain and display that desired level, never the instantaneous censor gain.
+
+Files: censor-gain.js; verify-gain.cjs; index.html +timed-test.wav isolated12second tone with3–5second cue and accessible numeric range editor. The test tone is not family music. Fixture has no production API or credentials. No shared candidate changes.
+
+Primary sources:
+https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume
+https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/crossOrigin
+https://developer.mozilla.org/en-US/docs/Web/API/MediaElementAudioSourceNode

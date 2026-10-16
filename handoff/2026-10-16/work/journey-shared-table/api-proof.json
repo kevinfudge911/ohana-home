@@ -1,0 +1,13 @@
+{
+  "twoMembersMerged": true,
+  "lastAcceptedFillWins": true,
+  "retryIdempotent": true,
+  "undoOwnOnly": true,
+  "otherMemberFillSurvivesUndo": true,
+  "markerAndEraserPayloadValidation": true,
+  "membershipAndPageValidation": true,
+  "ownerOnlySwitchAndClear": true,
+  "oldPageRetained": true,
+  "lateStrokeSavedToOldPage": true,
+  "noFamilyWrites": true
+}

@@ -1,0 +1,101 @@
+{
+  "worker": [
+    [
+      "if (card.rank === \"3\") return 5;",
+      "if (card.rank === \"3\") return 0;",
+      1
+    ],
+    [
+      "function hfCountCanastas(melds) {",
+      "function hfCountCanastas(melds) {",
+      1
+    ],
+    [
+      "function hfCountCanastas(melds) {\n  let clean = 0, dirty = 0;\n  for (const m of melds) {\n    if (m.cards.length >= 7) {\n      if (m.cards.every((c) => !hfIsWild(c))) clean++;\n      else dirty++;\n    }\n  }\n  return { clean, dirty };\n}\n",
+      "function hfCountCanastas(melds) {\n  let clean = 0, dirty = 0;\n  for (const m of melds) {\n    if (m.rank !== \"3\" && m.cards.length >= 7) {\n      if (m.cards.every((c) => !hfIsWild(c))) clean++;\n      else dirty++;\n    }\n  }\n  return { clean, dirty };\n}\n",
+      1
+    ],
+    [
+      "score += red3s.length * 100;",
+      "const opened = melds.some(m => m.rank !== \"3\" && m.cards.length);\n  if (opened) score += red3s.length >= 4 ? 1000 + (red3s.length - 4) * 100 : red3s.length * 100;",
+      1
+    ],
+    [
+      "function hfScoreHand(melds, red3s, handCards) {\n  let score = 0;\n  const opened = melds.some(m => m.rank !== \"3\" && m.cards.length);\n  if (opened) score += red3s.length >= 4 ? 1000 + (red3s.length - 4) * 100 : red3s.length * 100;\n  for (const m of melds) {\n    for (const c of m.cards) score += hfCardVal(c);\n    if (m.cards.length >= 7) {\n      const isClean = m.cards.every((c) => !hfIsWild(c));\n      score += isClean ? 500 : 300;\n    }\n  }\n  for (const c of handCards) score -= hfCardVal(c);\n  return score;\n}\n",
+      "function hfScoreHand(melds, red3s, handCards) {\n  let score = 0;\n  const opened = melds.some(m => m.rank !== \"3\" && m.cards.length);\n  if (opened) score += red3s.length >= 4 ? 1000 + (red3s.length - 4) * 100 : red3s.length * 100;\n  for (const m of melds) {\n    for (const c of m.cards) score += hfCardVal(c);\n    if (m.rank !== \"3\" && m.cards.length >= 7) {\n      const isClean = m.cards.every((c) => !hfIsWild(c));\n      score += isClean ? 500 : 300;\n    }\n  }\n  for (const c of handCards) score -= hfIsRed3(c) ? 300 : hfCardVal(c);\n  return score;\n}\n",
+      1
+    ],
+    [
+      "    let points = 0, ownPoints = 0, playedOffAnother = false;",
+      "    let points = 0, ownPoints = 0, playedOffAnother = false, blackThreeGroup = false;",
+      1
+    ],
+    [
+      "      const rank = group322222.rank;",
+      "      const rank = group322222.rank;\n      if (rank === \"3\") {\n        if (group322222.owner != null && String(group322222.owner) !== String(p)) throw new Error(\"Black threes stay on your own side.\");\n        if (cards.length < 3 || !cards.every(hfIsBlack3)) throw new Error(\"Meld at least three black threes with no wilds or red threes.\");\n        const books = hfCountCanastas(st.melds[p]);\n        if (!st.inFoot[p] || !books.clean || !books.dirty) throw new Error(\"Finish your clean and dirty books in your foot before melding black threes.\");\n        if (groups.length !== 1 || hand.length !== cards.length + 1) throw new Error(\"Black threes must be all remaining cards except one final discard.\");\n        getProposed(p).push({rank:\"3\",cards}); blackThreeGroup = true; continue;\n      }",
+      1
+    ],
+    [
+      "if (!st.melds[p].length && ownPoints < minimum)",
+      "if (!blackThreeGroup && !st.melds[p].length && ownPoints < minimum)",
+      1
+    ]
+  ],
+  "app": [
+    [
+      "if(natural.some(c=>c.rank==='3'))throw Error('Threes cannot be melded. Deselect the threes.');",
+      "if(natural.some(c=>c.rank==='3'&&['♥','♦'].includes(c.suit)))throw Error('Red threes are collected automatically.');\n const black=natural.filter(c=>c.rank==='3');if(black.length){if(black.length!==cards.length||black.length<3)throw Error('Select at least three black threes, with no other cards.');return [{rank:'3',cardIds:black.map(c=>c.id)}];}",
+      1
+    ],
+    [
+      "const cardValue=c=>c.rank==='Joker'?50:",
+      "const cardValue=c=>c.rank==='3'?0:c.rank==='Joker'?50:",
+      1
+    ],
+    [
+      "function countCanFE(melds) {\n  let cl = 0, di = 0;\n  for (const m of melds) {\n    if (m.cards.length >= 7) {\n      if (m.cards.every(c => c.rank !== 'Joker' && c.rank !== '2')) cl++;\n      else di++;\n    }\n  }\n  return { cl, di };\n}",
+      "function countCanFE(melds) {\n  let cl = 0, di = 0;\n  for (const m of melds) {\n    if (m.rank !== '3' && m.cards.length >= 7) {\n      if (m.cards.every(c => c.rank !== 'Joker' && c.rank !== '2')) cl++;\n      else di++;\n    }\n  }\n  return { cl, di };\n}",
+      1
+    ],
+    [
+      "const dirty=m.cards.some(wild),book=m.cards.length>=7;",
+      "const dirty=m.cards.some(wild),book=m.rank!=='3'&&m.cards.length>=7;",
+      1
+    ],
+    [
+      "  if (!myTurn || !st.hasDrawn || !cards.length || !(st.melds?.[me] || []).length) return false;",
+      "  if (!myTurn || !st.hasDrawn || !cards.length || meld.rank==='3' || !(st.melds?.[me] || []).length) return false;",
+      1
+    ],
+    [
+      "const clean = mine.some(m => m.cards.length >= 7 && !m.cards.some(wild));",
+      "const clean = mine.some(m => m.rank!=='3' && m.cards.length >= 7 && !m.cards.some(wild));",
+      1
+    ],
+    [
+      "const dirty = mine.some(m => m.cards.length >= 7 && m.cards.some(wild));",
+      "const dirty = mine.some(m => m.rank!=='3' && m.cards.length >= 7 && m.cards.some(wild));",
+      1
+    ],
+    [
+      "<span class=\"hf-meld-label\"><span>${redThrees.length}</span></span>",
+      "<span class=\"hf-meld-label\"><span>${esc(nameOf(p))} · ${redThrees.length} red threes</span></span>",
+      1
+    ],
+    [
+      " <h3 class=\"hf-hand-title sr-only\">",
+      " ${st.red3s?.[me]?.length?`<section class=\"hf-owned-red-threes\" aria-label=\"${esc(nameOf(me))}: ${st.red3s?.[me]?.length||0} red threes\"><b>${esc(nameOf(me))} · ${st.red3s?.[me]?.length||0} red threes</b><div class=\"hf-owned-red-cards\">${(st.red3s?.[me]||[]).map(c=>`<span class=\"hf-owned-red-card\" aria-label=\"Red 3 ${esc(c.suit)}\">3${esc(c.suit)}</span>`).join('')}</div></section>`:''}<h3 class=\"hf-hand-title sr-only\">",
+      1
+    ],
+    [
+      "black threes and 4–7 5. Red threes are collected automatically and currently score 100 each.",
+      "4–7 5; black threes 0 everywhere. A black three blocks discard pickup. A pure group of at least three black threes may be melded only from your foot after a clean and dirty book, leaving exactly one final discard; it earns no book bonus. Red threes are collected automatically and score only after their owner opens: 100 each, or 1000 for four collected by the same player. Every player can earn this bonus. Red threes caught in your actual hand or foot cost 300 each.",
+      1
+    ],
+    [
+      "['.hf-staged','.wild-assignments','.hf-acts','.hf-hand-title','.hf-hand','.hf-selection-total']",
+      "['.hf-staged','.wild-assignments','.hf-acts','.hf-owned-red-threes','.hf-hand-title','.hf-hand','.hf-selection-total']",
+      1
+    ]
+  ]
+}

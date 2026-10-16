@@ -1,0 +1,16 @@
+Bible research recommendation — no code/art changes
+
+Accuracy: all11 existing NKJV verse strings were checked against Bible Gateway NKJV pages on2026-10-16. Words and punctuation match after normalizing line-break whitespace. Psalm poetry retains capitalized second-line conjunctions; those are not typos. 1Peter5:7 starts lowercase because it continues the previous sentence; do not silently capitalize or paraphrase it. Keep visible reference and NKJV label, and retain the existing publisher attribution wherever Bible content is presented. verse-checks.json lists exact source URLs and local text hashes without reproducing the entire set.
+
+Presentation evidence: Cambridge2014–15 Bible catalog, printed pages19–21 (PDF indices24–26), https://www.cambridge.org/ca/files/2614/0500/2026/9781107924260Web.pdf . NKJV Clarion uses a readable single-column paragraph setting with side references; Pitt Minion uses a compact column setting. Both demonstrate actual scripture typography rather than a centered decorative quotation. PDF text read successfully; screenshot fetch failed cache-miss, so no claim of fresh visual inspection of its page images. Root already has published samples.
+
+User cake references: their third image best indicates dense real printing, curved paper, deep center gutter, layered edges and an open spread. Existing approved Bible/table artwork already supplies curved paper, gutter, ribbon, gilded edges and flowers. Preserve it; copying cake icing, personal inscriptions, added cross or HolyBible heading is outside their direction.
+
+Recommended next implementation after user-facing research explanation:
+1. Keep the compact porch Bible/table and ocean window composition unchanged.
+2. Use one authentic paragraph/verse on its actual page plane, with a real verse number and restrained reference/NKJV running header. Avoid splitting a single short verse arbitrarily across left/right pages merely to fill both.
+3. If a fuller printed spread is wanted, use a verified contiguous passage from ONE chapter, with true verse numbering and line order. Do not combine disconnected verses as though continuous, repeat filler text, invent pseudo-Scripture or bake AI text into artwork.
+4. The tiny porch page has roughly60px text width per page on a390px phone. Dense two-column typography there cannot also be comfortably readable. Keep the small visual and offer a tap-open reading view in the same approved book artwork, with16–18px live selectable text and a clear close/Home affordance. This is a recommendation, not an implemented feature.
+5. Prefer an actual readable single-column page over decorative script. Use the current serif family until a properly licensed production font is chosen. CSS perspective/plane fitting should be subtle and tested on portrait/landscape; no new art is required for typography.
+
+No new scripture, filler, paraphrases, translation substitutions or code edits were made. Any expansion beyond the11 verified verses requires per-passage verification before shipping.
