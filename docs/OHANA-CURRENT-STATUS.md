@@ -1,3 +1,9 @@
+# Current release checkpoint — October 16
+
+Ready deployment: app 6099743 bytes, blob 1822a9055477588bfd33c23be2165ab8ecd6c475; worker 781217 bytes, blob 4a82cca3152665ea4d8cb2c596f72642243a7772. Includes printed Bible leaves/readable reader, integrated digital jukebox, Bridge ordering/navigation/My Games/guide, gold Journey/setup controls, shared coloring isolation, compact landscape workstation. Combined normal startup, Bible opening, Bridge order passed; individual evidence preserved in work folders. Deployment must be verified before calling live.
+
+Previously confirmed live: 6b42aa7 header, card placement and gestures. Physical Android pinch/pull-refresh needs device confirmation. Remaining: exact covered Invite dialog, physical record-player button polish, red-three scoring choice for eight reds, friendly 72-hour inactivity reminder (not built), member upload sharing defaults, Christian radio, YouTube, timed profanity fades, remaining full-site gameplay/device audit. Tara automatic switching remains resolved by user. Outfits paused. Never change PuzzleRoom Durable Object storage/bindings/lifecycle; preserve bootstrap helper order and compressed assets.
+
 # Ohana Home — current review
 
 Reviewed October 16, 2026. This is a status reconciliation and active audit, not a claim that every game has passed a new end-to-end device test.
