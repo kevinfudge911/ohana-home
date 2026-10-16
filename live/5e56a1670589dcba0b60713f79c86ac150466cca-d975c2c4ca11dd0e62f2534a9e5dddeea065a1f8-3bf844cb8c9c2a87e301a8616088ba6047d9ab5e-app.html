@@ -6840,6 +6840,7 @@ function pzUpdateNextBtn(){
  const btn=$('#pz-next-game');if(!btn)return;
  const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&g.status==='playing'&&g.my_turn).length;
  btn.hidden=false;
+ let notice=document.getElementById('pz-turn-notice');if(!notice){notice=document.createElement('div');notice.id='pz-turn-notice';notice.setAttribute('role','status');btn.after(notice);}notice.hidden=!count;notice.innerHTML=count?'<span>'+count+' game'+(count===1?'':'s')+' waiting for your turn · <a href="#next-turn">Go</a></span>':'';if(count)notice.querySelector('a').onclick=e=>{e.preventDefault();puzzleNextGame();};
  btn.classList.toggle('next-ready',count>0);
  btn.innerHTML=gameControlIcon('next')+'<span class="next-count">'+count+'</span>';btn.setAttribute('aria-label','Next game, '+count+' games waiting for your turn');
 }
@@ -11569,7 +11570,7 @@ async function loadGame(force=false) {
         setTimeout(() => AudioSys.beep(880, .15, .4), 120);
       }
       if (oldState && oldState.status === 'playing' && d.status === 'finished') {
-        setTimeout(() => showRematchDialog(d), 600);
+        setTimeout(() => {if(S.game===d.id)showRematchDialog(d);}, 600);
       }
       renderGame();maybeGameEntryIntro(d);
       // Celebrate opponent's new move when we load/refresh
@@ -12513,6 +12514,7 @@ async function move(m, after) {
     document.querySelector('#board')?.setAttribute('aria-busy','true');
     document.querySelectorAll('#board .o10-pile,#board .o10-actions button,#game-controls-dock .dock-actions button').forEach(b=>b.disabled=true);
   }
+  const turnStart=S.gstate,wasOwnTurn=turnStart?.status==='playing'&&String(turnStart.players?.[turnStart.turn])===String(S.me?.id);let turnDone=false;
   const gameId=S.game,wordPlay=['words','handfoot'].includes(S.gstate?.type);
   try {
     const g = S.gstate; const meId = S.me?.id;
@@ -12530,11 +12532,13 @@ async function move(m, after) {
       toast(d.winner === meId ? 'You won! 🎉' : d.winner === 'tie' ? 'Tie game!' : 'Game over');
     }
     await loadGame(true);
+    const fresh=S.gstate;turnDone=wasOwnTurn&&S.game===gameId&&fresh!==turnStart&&fresh?.id===turnStart.id&&(fresh.status==='finished'||fresh.status==='playing'&&String(fresh.players?.[fresh.turn])!==String(S.me?.id))&&(d.over||Number.isInteger(d.next)&&String(turnStart.players?.[d.next])!==String(S.me?.id));
     if(S.game===gameId&&S.gstate?.players?.[S.gstate.turn]===-1)schedulePoll();
     // Celebrate the play in place; scrolling to the replay panel made the board jump after every move.
     if(g?.type==='words' && m.action==='play')runLastReveal(true,false);
   }
   catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }finally{S.movePending=false;document.querySelector('#board')?.removeAttribute('aria-busy');if(S.game===gameId&&['domino','ohana10'].includes(S.gstate?.type))renderGame();}
+  if(turnDone)await advanceConfirmedTurn(gameId);
 }
 
 // ----- Game Chat (fixed bottom panel with scores) -----
@@ -13337,7 +13341,7 @@ function showFreshInvites(invitations){
 
 function settingsHtml(isDialog) {
   const chosenAv = S.av || S.me?.avatar || '@hon';
-  return `${isDialog ? '<header class="settings-dlg-head"><h2>⚙ Settings</h2><button type="button" class="settings-dlg-close" aria-label="Close settings">✕</button></header>' : '<h2 class="shelf">Settings<small>Make yourself at home.</small></h2>'}<div class="settings-content">${lookControls()}<div id="wardrobe-mount"></div><section class="settings-tools" aria-labelledby="settings-tools-title"><h3 id="settings-tools-title">Accessibility &amp; app preferences</h3><button type="button" id="access-open" class="soft">Accessibility &amp; install help</button>${notificationControl()}<div class="settings-room"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span>${(S.me?.is_admin&&S.sync?.rooms?.length===2)?(()=>{const other=S.sync.rooms.find(r=>r.id!==S.sync.roomId);return other?`<button type="button" class="soft" id="settings-room-swap" data-swap-room="${other.id}">⇄ Swap to ${esc(other.name)}</button>`:'';})():''}<button type="button" class="soft" id="settings-rooms">Choose a room</button></div></section>${!S.sync?.childPolicy?'<details class="settings-tools"><summary>Children &amp; allowed games</summary><div id="child-controls" class="child-controls"></div></details>':''}<section class="settings-tools"><h3>Invitations</h3><button type="button" class="soft" id="senior-create">Create a senior setup link</button><small>Choose their name, games and places, then send their ready-to-play invitation.</small></section><h3>Your profile</h3><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me?.name||'')}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me?.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>${S.me?.is_admin&&S.sync?.roomId===1?'<details class="settings-tools"><summary>Family administration</summary><div class="admin" id="adm">Loading…</div></details>':''}<section class="settings-tools" aria-label="This device"><h3>This device</h3><button type="button" id="install" class="soft">Install Ohana Home</button><button type="button" id="out" class="ghost">Sign out</button></section></div>`;
+  return `${isDialog ? '<header class="settings-dlg-head"><h2>⚙ Settings</h2><button type="button" class="settings-dlg-close" aria-label="Close settings">✕</button></header>' : '<h2 class="shelf">Settings<small>Make yourself at home.</small></h2>'}<div class="settings-content">${lookControls()}<label class="settings-after-turn">After turns, when no game needs you <select id="after-turn-place"><option value="puzzle" ${afterTurnPreference()==='puzzle'?'selected':''}>Puzzle</option><option value="home" ${afterTurnPreference()==='home'?'selected':''}>Home</option></select><small>For you in this room, on this device.</small></label><div id="wardrobe-mount"></div><section class="settings-tools" aria-labelledby="settings-tools-title"><h3 id="settings-tools-title">Accessibility &amp; app preferences</h3><button type="button" id="access-open" class="soft">Accessibility &amp; install help</button>${notificationControl()}<div class="settings-room"><span>${roomTitle(S.sync?.familyName,S.sync?.roomId)}</span>${(S.me?.is_admin&&S.sync?.rooms?.length===2)?(()=>{const other=S.sync.rooms.find(r=>r.id!==S.sync.roomId);return other?`<button type="button" class="soft" id="settings-room-swap" data-swap-room="${other.id}">⇄ Swap to ${esc(other.name)}</button>`:'';})():''}<button type="button" class="soft" id="settings-rooms">Choose a room</button></div></section>${!S.sync?.childPolicy?'<details class="settings-tools"><summary>Children &amp; allowed games</summary><div id="child-controls" class="child-controls"></div></details>':''}<section class="settings-tools"><h3>Invitations</h3><button type="button" class="soft" id="senior-create">Create a senior setup link</button><small>Choose their name, games and places, then send their ready-to-play invitation.</small></section><h3>Your profile</h3><form id="profile-form" class="profile-settings"><label for="profile-name">Your name</label><input id="profile-name" maxlength="20" required autocomplete="nickname" value="${esc(S.me?.name||'')}"><label for="profile-about">About me <small>optional</small></label><textarea id="profile-about" maxlength="300" rows="3" placeholder="Favorite games, hobbies, or a little hello…">${esc(S.me?.about||'')}</textarea><small>Visible to Ohana who share a room with you. Up to 300 characters.</small><p id="profile-status" role="status" aria-live="polite"></p><button type="submit" id="save-profile" class="soft">Save my settings</button></form>${S.me?.is_admin&&S.sync?.roomId===1?'<details class="settings-tools"><summary>Family administration</summary><div class="admin" id="adm">Loading…</div></details>':''}<section class="settings-tools" aria-label="This device"><h3>This device</h3><button type="button" id="install" class="soft">Install Ohana Home</button><button type="button" id="out" class="ghost">Sign out</button></section></div>`;
 }
 
 async function openInviteChoices(){location.href='/invite-builder';}
@@ -13354,6 +13358,7 @@ async function mountShoutOutAccess(container){
  }if(!list.children.length)status.textContent='No regular members in this room yet.';}catch(e){status.textContent=e.message;}
 }
 function bindSettings(container, closeDialog=null) {
+ const afterTurn=container.querySelector('#after-turn-place');if(afterTurn)afterTurn.onchange=()=>{try{localStorage.setItem('ohana_after_turn_'+S.me.id+'_'+S.room,afterTurn.value);}catch{}};
  mountShoutOutAccess(container);
  const inviteChoices=document.createElement('button');inviteChoices.type='button';inviteChoices.textContent='Make an invitation';inviteChoices.onclick=()=>openInviteChoices().catch(e=>toast(e.message));container.querySelector('#senior-create')?.before(inviteChoices);const senior=container.querySelector('#senior-create');if(senior)senior.hidden=true;if(senior)senior.onclick=async()=>{senior.disabled=true;try{const d=await api('/api/senior/create',{});const dialog=document.createElement('dialog');dialog.className='gr-dialog';const title=document.createElement('h2');title.textContent='Senior setup link';const link=document.createElement('a');link.href=d.setup_url;link.textContent='Open invitation settings';link.target='_blank';link.rel='noreferrer';const copy=document.createElement('button');copy.textContent='Copy setup link';copy.onclick=async()=>{try{await navigator.clipboard.writeText(d.setup_url);copy.textContent='Copied';}catch{link.textContent=d.setup_url;}};const close=document.createElement('button');close.textContent='Done';close.onclick=()=>dialog.close();dialog.append(title,link,copy,close);document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();}catch(e){toast(e.message);}finally{senior.disabled=false;}};
   bindLook(container);
@@ -14416,6 +14421,23 @@ function accessibleBoard(root,columns,label){
   };
  });
 }
+function afterTurnPreference(){try{return localStorage.getItem('ohana_after_turn_'+S.me.id+'_'+S.room)==='home'?'home':'puzzle';}catch{return 'puzzle';}}
+async function advanceConfirmedTurn(gameId){
+ if(S.autoAdvancePending||S.movePending||S.game!==gameId)return;S.autoAdvancePending=true;
+ try{
+  const latest=await api('/api/sync?msgSince='+S.lastMsg);if(S.game!==gameId)return;
+  const current=(latest.allGames||latest.games||[]).find(g=>String(g.id)===String(gameId));
+  // A newer turn can arrive while the move response is travelling. Stay for it.
+  if(!current||current.status==='playing'&&current.my_turn)return;
+  const next=nextWaitingGame(latest,gameId);
+  if(next){const room=next.room_id||latest.roomId||S.room;if(Number(room)!==Number(S.room))await enterRoom(room);await openGame(next.id);return;}
+  if(afterTurnPreference()==='puzzle'&&await openExistingSharedPuzzle())return;
+  if(S.game===gameId){S.tab='games';closeGame();}
+ }catch(e){toast('Your play is saved. Could not check the next table yet.',3500);}
+ finally{S.autoAdvancePending=false;}
+}
+
+
 function nextWaitingGame(latest,current){
  const currentId=typeof current==='object'?current?.id:current;
  return (latest.allGames||latest.games||[]).filter(g=>String(g.id)!==String(currentId)&&g.in_game&&g.status==='playing'&&g.my_turn).sort((a,b)=>(a.updated_at||0)-(b.updated_at||0)||a.id-b.id)[0];
@@ -16545,3 +16567,4 @@ const digitalStyle=document.createElement("style");digitalStyle.textContent="@me
 @media(min-width:601px) and (orientation:portrait){:root.ohana-world body #app #game[data-game-type=spades]{background-size:auto 100dvh!important;background-position:45% top!important}:root.ohana-world body #app #game[data-game-type=spades] #board#board#board{padding-top:clamp(260px,45dvh,520px)!important}}
 @media(min-width:601px) and (max-height:450px){:root.ohana-world body #app #game[data-game-type=spades]{background-position:center calc(-1 * clamp(100px,16vw,200px))!important}:root.ohana-world body #app #game[data-game-type=spades] #board#board#board{padding-top:0!important}:root.ohana-world body #app #game[data-game-type=spades] #board#board#board .sp-felt{gap:0!important}:root.ohana-world body #app #game[data-game-type=spades] #board#board#board .sp-trick{margin:0 0 4px!important}:root.ohana-world body #app #game[data-game-type=spades] #board#board#board .hf-hand{padding-top:0!important}}
 </style>
+<style id="ohana-turn-handoff">#pz-turn-notice{max-width:260px;overflow:hidden;white-space:nowrap;font:600 15px Fredoka,Nunito,sans-serif;color:#fff1ca}#pz-turn-notice>span{display:inline-block;animation:ohanaTurnNotice 14s linear infinite}#pz-turn-notice a{color:#a8ffff;text-decoration:underline;display:inline-block;padding:10px 5px}#pz-turn-notice:focus-within>span{animation-play-state:paused}@keyframes ohanaTurnNotice{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(-8%)}}@media(prefers-reduced-motion:reduce){#pz-turn-notice>span{animation:none}}.settings-after-turn{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 0}.settings-after-turn small{flex-basis:100%}</style>
