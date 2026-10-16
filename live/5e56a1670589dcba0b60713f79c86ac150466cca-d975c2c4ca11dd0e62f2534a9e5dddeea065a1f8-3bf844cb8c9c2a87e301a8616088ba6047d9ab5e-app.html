@@ -10571,7 +10571,7 @@ function loadLook() {
   let l = {};
   try { l = JSON.parse(localStorage.getItem('ohana_look') || '{}'); } catch {}
   return {
-    size: l.size || '1',
+    size: LOOK_SIZES.some(([v])=>v===String(l.size)) ? String(l.size) : '1',
     bold: !!l.bold,
     contrast: !!l.contrast,
     board: l.board || 'normal',
@@ -10580,7 +10580,8 @@ function loadLook() {
 }
 function applyLook(l) {
   l = l || loadLook();
-  UI.zoom = +l.size || 1;
+  UI.zoom = LOOK_SIZES.some(([v])=>v===String(l.size)) ? Number(l.size) : 1;
+  l = {...l,size:String(UI.zoom)};
   const r = document.documentElement;
   r.style.zoom = UI.zoom === 1 ? '' : String(UI.zoom);
   r.classList.toggle('bold-text', !!l.bold);
