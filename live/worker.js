@@ -1,3 +1,8 @@
+import OHANA_ROOM_GUIDE_JOURNEY from "./ohana-guide-journey-v1.webp";
+import OHANA_ROOM_GUIDE_BLESSINGS from "./ohana-guide-blessings-v1.webp";
+import OHANA_ROOM_GUIDE_UNITED from "./ohana-guide-united-v1.webp";
+import OHANA_ROOM_GUIDE_BRIDGE from "./ohana-guide-bridge-v1.webp";
+import OHANA_ROOM_GUIDE_MEMORIES from "./ohana-guide-memories-v1.webp";
 import OHANA_BRIDGE_COMMAND_ICONS from "./ohana-bridge-command-icons-v1.webp";
 import OHANA_BRIDGE_RECORD from "./ohana-hub-record-player-v1.webp";
 import OHANA_BRIDGE_PORTRAIT from "./ohana-bridge-setting-portrait-v1.webp";
@@ -10733,7 +10738,12 @@ var worker_default = {
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
-    if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(OHANA_BRIDGE_LANDSCAPE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+    if(req.method==='GET'&&p==='/ohana-guide-journey-v1.webp')return new Response(OHANA_ROOM_GUIDE_JOURNEY,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+if(req.method==='GET'&&p==='/ohana-guide-blessings-v1.webp')return new Response(OHANA_ROOM_GUIDE_BLESSINGS,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+if(req.method==='GET'&&p==='/ohana-guide-united-v1.webp')return new Response(OHANA_ROOM_GUIDE_UNITED,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+if(req.method==='GET'&&p==='/ohana-guide-bridge-v1.webp')return new Response(OHANA_ROOM_GUIDE_BRIDGE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+if(req.method==='GET'&&p==='/ohana-guide-memories-v1.webp')return new Response(OHANA_ROOM_GUIDE_MEMORIES,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(OHANA_BRIDGE_LANDSCAPE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-bridge-command-icons-v1.webp')return new Response(OHANA_BRIDGE_COMMAND_ICONS,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-bridge-setting-portrait-v1.webp')return new Response(OHANA_BRIDGE_PORTRAIT,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-hub-record-player-v1.webp')return new Response(OHANA_BRIDGE_RECORD,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
