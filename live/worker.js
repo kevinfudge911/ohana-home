@@ -1,3 +1,4 @@
+import OHANA_BRIDGE_COMMAND_ICONS from "./ohana-bridge-command-icons-v1.webp";
 import OHANA_BRIDGE_RECORD from "./ohana-hub-record-player-v1.webp";
 import OHANA_BRIDGE_PORTRAIT from "./ohana-bridge-setting-portrait-v1.webp";
 import OHANA_BRIDGE_LANDSCAPE from "./ohana-bridge-setting-v1.webp";
@@ -10733,6 +10734,7 @@ var worker_default = {
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(OHANA_BRIDGE_LANDSCAPE,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+    if(req.method==='GET'&&p==='/ohana-bridge-command-icons-v1.webp')return new Response(OHANA_BRIDGE_COMMAND_ICONS,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-bridge-setting-portrait-v1.webp')return new Response(OHANA_BRIDGE_PORTRAIT,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-hub-record-player-v1.webp')return new Response(OHANA_BRIDGE_RECORD,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
