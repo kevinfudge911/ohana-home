@@ -1,0 +1,1 @@
+const fs=require('fs'),p=process.argv[2],m=require('./patch-v2.json');let a=fs.readFileSync(p,'utf8');for(const e of m.edits){if(a.split(e.old).length!==e.count+1)throw Error('Header anchor');a=a.split(e.old).join(e.replacement);}fs.writeFileSync(p,a+m.css);console.log('Header v2 transplant applied');

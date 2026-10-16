@@ -1,0 +1,1 @@
+const fs=require('fs');const p=JSON.parse(fs.readFileSync(__dirname+'/patch.json'));let a=fs.readFileSync(process.argv[2],'utf8');for(const[x,y]of p.edits){if(a.split(x).length!==2)throw Error('Guard '+x.slice(0,70));a=a.replace(x,y)}fs.writeFileSync(process.argv[3],a+p.css);

@@ -1,8 +1,25 @@
 # Ohana Home — master handoff, October 16, 2026
 
+## Current audit checkpoint after usage reset
+
+The user applied one free reset; read-only account check showed 0% used and two resets remaining at that moment. Medium reasoning was selected by the user. Prior 1%-remaining notes are historical. Keep work efficient. User requests a full review, saved status, and prompt publication of verified repairs.
+
+The application release accompanying this checkpoint is 6,158,495 bytes, Git blob d4def021c2af1fbb9580d99f52c505c42dc9ac5e. It adds the tested shared room/game headers, HF full-red-three display beside own foot, correctly attached discard/book labels, and native card-gesture repair. Worker is unchanged. Logic tests and actual isolated390px HF/O10 selection/reordering, ownership, normal startup, game header geometry and Home return passed. Real Android multitouch/pull-refresh still needs the user's confirmation; do not guarantee a physical-device result from browser/CSS tests. Verify Cloudflare/public hash before calling this particular release live.
+
+Immediately preceding confirmed public app: cc5b759,6149681bytes,f4356b5017764ed21f2324d0d809f423fb45c856. Git main134d84c was handoff-only. Current local candidate work/audit-followup-release/app.html; canonical work/final-current-release/app.html changes only after root publishes.
+
+Latest new Bridge requirements: record player → Room+Volume together → Chat → Games/tools. Remove redundantClose; preservecardinaltoggle returning SAMEGAME, Homegoesporch. AddMyGamesallongoinggames/opponents/turns. Recordplayer/lidopensmusicselector/editor; physicalcontrolsinsidefrontplate, visuallyintegrated notoldseparateboxes. Home/Bridge headingssamebrand/readablesize. Invitescreenmustnotbehindcardinal; determineactualinternaldialog ratherthaninventnewflow. Music audit found full-screenmusiclayer coverscardinaland Homecleanup mustclosemusicproperly. Navigation/orderprivatepatch in progress, NOT in this release. Invite wasn't clicked on production because it maysend/shareactualroom invitation.
+
+User reconfirmed DIGITALjukebox interior must lose genericblue/whiteboxedpanels, redundantOhanaTunesheading/overlap and clippedcardinalcaption; keep integratedprofessionalcabinet andexistingsearch/filter/playlist/Add/Share. Journey innerlibrary/studiocreamboxes/genericbluecontrols needscopedgold/illustratedstyling; privatepatchnotyetverified. Bibleprinted-leafprototypeusesexisting11verifiedNKJVversescompletewithinoneleaf, plus tap-readableview; artunchanged, testingnotfinished. Do notcallanyofthesecompleted.
+
+Fresh read-only public audit: Home finishesloading, correct8roomorder, Memoriesloadsphotos andHomeleft/titleRightmeasured+Homebackworks; GrannyloadsSavedandHomebackworks; Blessingsfamilywallloads (no prayer/reaction posts). Fullend-to-endplaythrough/deviceorientationauditofeverygame is STILL NOT COMPLETE. Current review in docs/OHANA-CURRENT-STATUS.md deliberatelydistinguisheslive/active/pending.
+
+Tara automatic-next issue remains CLOSED/userconfirmedworking. Outfits alonepaused. Redscoringchoice/YouTube/radio/sharedcoloring/censorwordtimings/Bibledesignremainasrecordedbelow. NeveralterPuzzleRoomDO/storage/lifecycle. Preserveearlyboothelperordering andgzipassets/packageheadroom.
+
+
 ## AUTHORITATIVE CURRENT STATUS — latest handoff
 
-User has 1% usage remaining. Preserve this record in GitHub; minimize additional work. All previously verified finished changes are LIVE. Do not describe pending patches as completed. Only outfits are paused. User authorized publishing finished repairs, not speculative candidates.
+Historical pre-reset checkpoint: user then had 1% usage remaining. Preserve this record in GitHub; minimize additional work. All previously verified finished changes are LIVE. Do not describe pending patches as completed. Only outfits are paused. User authorized publishing finished repairs, not speculative candidates.
 
 CONFIRMED LIVE commit cc5b759a7b0e93e092b479532343387ec8271368. Public app 6,149,681 bytes, Git blob f4356b5017764ed21f2324d0d809f423fb45c856; Cloudflare success and normal signed-in Home loading verified. Worker unchanged: 772,457 bytes, blob83b9a39281f677b99b05685de91086b53cc58f6a. Local canonical work/final-current-release/app.html. This supersedes older deployment status below.
 

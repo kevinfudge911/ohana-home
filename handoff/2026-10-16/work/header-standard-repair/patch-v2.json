@@ -1,0 +1,30 @@
+{
+  "edits": [
+    {
+      "old": "id=\"gb-back\" style=\"padding:6px 10px;font-size:14px\"",
+      "replacement": "id=\"ohana-game-home\" style=\"padding:0\"",
+      "count": 2
+    },
+    {
+      "old": "const backControl=gameHead.querySelector('#gb-back');backControl.innerHTML=gameControlIcon('back');backControl.setAttribute('aria-label','Back to games');backControl.title='Back to games';",
+      "replacement": "const backControl=gameHead.querySelector('#ohana-game-home');backControl.classList.add('room-home-control');backControl.innerHTML='<span class=\"room-home-arrow\" aria-hidden=\"true\">←</span><span class=\"room-home-wordmark\" aria-hidden=\"true\">Ohana Home</span>';backControl.setAttribute('aria-label','Ohana Home');backControl.title='Ohana Home';",
+      "count": 1
+    },
+    {
+      "old": "const gbBack = $('#gb-back'); if (gbBack) gbBack.onclick = closeGame;",
+      "replacement": "const gbBack = $('#ohana-game-home'); if (gbBack) gbBack.onclick = goHomePorch;",
+      "count": 1
+    },
+    {
+      "old": "gameHead.innerHTML = navHtml;",
+      "replacement": "gameHead.innerHTML = navHtml;\n  const roomTitleNode=gameHead.querySelector('h2');if(roomTitleNode)roomTitleNode.innerHTML=esc(S.sync?.types?.[g.type]?.name||g.name)+modeLabel;",
+      "count": 1
+    },
+    {
+      "old": "<div><h1>Ohana Home</h1></div></header>",
+      "replacement": "<div class=\"room-current-heading\"><h1>${esc(isHomePorch?\"Ohana Home\":S.colorBook?\"Ohana Color\":PZ.lobby?\"Ohana United\":({faith:\"Ohana Blessings\",family:\"Our Ohana\",rooms:\"Ohana Rooms\",settings:\"Ohana Settings\",chat:\"Ohana Bridge\"})[S.tab]||\"Ohana Home\")}</h1></div></header>",
+      "count": 1
+    }
+  ],
+  "css": "<style id=\"ohana-consistent-header-v2\">\n:root.ohana-world body #app:has(#game)>header{display:none!important}\n:root.ohana-world body #app #game #game-head{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;min-height:44px!important;gap:6px!important}\n:root.ohana-world body #app #game #game-head>#ohana-game-home{overflow:visible!important;order:-10!important;margin-right:auto!important}\n:root.ohana-world body #app #game #game-head>h2,:root.ohana-world body #app #game #game-head>.chs-head-center{display:block!important;order:10!important;flex:0 1 auto!important;margin-left:auto!important;text-align:right!important;min-width:0!important;font:700 clamp(16px,2.5vw,24px)/1.15 Fredoka,Nunito,sans-serif!important}\n:root.ohana-world body #app #game #game-head .chs-head-center{align-items:flex-end!important}\n:root.ohana-world body #app .journey-room-heading>.room-home-control,:root.ohana-world body #app #pz-board .pz-head>.room-home-control,:root.ohana-world body #app #gr-main .gr-header>.room-home-control,.game-setup-room>header>.room-home-control{order:-10!important;margin-right:auto!important}\n:root.ohana-world body #app .journey-room-heading>h2,:root.ohana-world body #app #pz-board .pz-head>h2,:root.ohana-world body #app #gr-main .gr-header>h1,.game-setup-room>header>h2{order:10!important;margin-left:auto!important;text-align:right!important}\n</style><style id=\"ohana-current-room-heading-v2\">:root.ohana-world body #app#app>header:has(.room-home-control)>.room-current-heading{display:block!important;margin-left:auto!important;text-align:right!important}:root.ohana-world body #app#app>header:has(.room-home-control)>.room-current-heading h1{font:700 clamp(17px,3vw,26px)/1.15 Fredoka,Nunito,sans-serif!important;text-align:right!important;margin:0!important;background:none!important;color:#fff1cf!important;width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;min-height:0!important;padding:0!important;text-indent:0!important;-webkit-text-fill-color:#fff1cf!important}:root.ohana-world body #app#app>header:has(.room-home-control)>:is(.header-buddy,.home-mark){display:none!important}</style>"
+}
