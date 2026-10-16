@@ -6567,7 +6567,7 @@ function renderColorBook(){
   const mine=cbPageList();
   m.innerHTML=`<section id="ohana-journey-room" class="journey-library" aria-label="Ohana Journey coloring room">
 <header class="cb-head journey-room-heading">${roomHomeControl('id="cb-back"')}<h2>Ohana Journey</h2></header>
-<div class="journey-entrance"><img src="/ohana-journey-entrance-v1.webp?journey-approved=3" alt="Journey coloring beside her little plush friend on the Ohana ocean porch" fetchpriority="high"></div>
+<div class="journey-entrance"><img src="/ohana-journey-entrance-v1.webp?journey-approved=4" alt="Journey coloring beside her little plush friend on the Ohana ocean porch" fetchpriority="high"></div>
 <p class="cb-intro">A little color. A little wonder. A place for the whole Ohana.</p><p class="journey-save-note">Choose a picture below. Your coloring stays saved on this device.</p><div class="journey-picture-library">
   <button class="cb-surprise" id="cb-surprise">✨ Surprise me with a brand-new page</button><p class="cb-hint">Every tap makes a new picture with one of our Ohana buddies. It never runs out!</p>
   <h3 class="shelf">Our Ohana buddies<small>color your favorite friend</small></h3><div class="cb-buddies">${Object.entries(CB_BUDDIES).map(([k,n])=>`<button class="cb-buddy" data-cb-page="buddy:${k}" aria-label="Color ${n}"><img src="/${k==='honu'?'honu':'buddy-'+k}.webp?asset=ohana-v105-binary-repair-20261011&v=free1" alt=""><b>${n}</b>${cbHasWork('buddy:'+k)?'<small>✎</small>':''}</button>`).join('')}</div>
@@ -11434,7 +11434,7 @@ function renderGames() {
     ${shelf==='others'?`<h2 class="shelf">Other games<small>In rooms you belong to</small></h2><div class="nook-grid">${others.length?others.map(g=>card(g,g.status==='waiting'?`<button data-join="${g.id}" data-join-room="${g.room_id||sy.roomId||1}">Join</button>`:`<button data-open="${g.id}" data-open-room="${g.room_id||sy.roomId||1}">View</button>`)).join(''):'<p>No other games are going on in your rooms right now.</p>'}</div>`:''}
     ${['new','mine','all'].includes(shelf)?`
     <section class="ohana-home-catalog" aria-label="Available games"><h2 class="shelf">Games</h2>
-    ${shelves.map(([t,sub,ids])=>`<h3 class="shelf game-category">${t}</h3>`+(t==='Little ones'?`<article class="gcard game-setup"><div class="setup-banner setup-scene-coloring journey-room-entrance-card"><img src="/ohana-journey-entrance-v1.webp?journey-approved=3" alt="Ohana Journey coloring room with Journey coloring beside the ocean"></div><div class="setup-wood"><button class="setup-start" data-open-colorbook>Go</button></div></article>`:'')+ids.filter(id=>sy.types[id]).map(id=>gameSetupCard(id,sy)).join('')).join('')}</section>
+    ${shelves.map(([t,sub,ids])=>`<h3 class="shelf game-category">${t}</h3>`+(t==='Little ones'?`<article class="gcard game-setup"><div class="setup-banner setup-scene-coloring journey-room-entrance-card"><img src="/ohana-journey-entrance-v1.webp?journey-approved=4" alt="Ohana Journey coloring room with Journey coloring beside the ocean"></div><div class="setup-wood"><button class="setup-start" data-open-colorbook>Go</button></div></article>`:'')+ids.filter(id=>sy.types[id]).map(id=>gameSetupCard(id,sy)).join('')).join('')}</section>
     `:''}`;
   m.querySelectorAll('[data-game-shelf]').forEach(b=>b.onclick=()=>{S.gameShelf=b.dataset.gameShelf;renderGames();$('#main').querySelector('[data-game-shelf="'+S.gameShelf+'"]')?.focus({preventScroll:true});});
   if(shelf==='history')loadGameHistory();
