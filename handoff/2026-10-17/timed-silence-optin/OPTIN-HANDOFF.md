@@ -8,7 +8,7 @@ Prepared2026-10-16 against current canonical app6306082B/worker785386B with927so
 - `state.disable()`: removes own UI, closes editor, invalidates pending work, clears timer, restores original own/native Play/volume property and desired volume; stale event callbacks do nothing. A delayed GET success/failure after disable resolves without pausing or modifying subsequent normal native playback.
 - UI uses **Timed silences**, not a misleading Clean label. Temporary fixture saves explicitly disappear on reload and do not touch family songs/account timings.
 - `memory-transport.js`: two exact synthetic IDs only, exact known recording URLs, in-memory Map, revision/idempotency checks, bounds, defensive copies. No fetch/network/durable storage. This is an isolated testing adapter, not production authentication.
-- `build-isolated-page.cjs`: creates `synthetic-6s.wav` (48044B, mono8-bit8000Hz,440/660Hz), `isolated-test.html` (80122B) and `isolated-page-proof.json`. The exact current client/editor is embedded. Two IDs use that fixed synthetic source. Activate/Deactivate, tone selection, native audio controls, temporary editor and native effective-volume diagnostic are exposed. No family IDs/URLs, no actual cue endpoint calls.
+- `build-isolated-page.cjs`: creates `synthetic-6s.wav` (48044B, mono8-bit8000Hz,440/660Hz), `isolated-test.html` (80131B) and `isolated-page-proof.json`. The exact current client/editor is embedded. Two IDs use that fixed synthetic source. Activate/Deactivate, tone selection, native audio controls, temporary editor and native effective-volume diagnostic are exposed. No family IDs/URLs, no actual cue endpoint calls.
 - `patch.json` and old global transplant outputs are **STALE**. `transplant.cjs` now refuses a source/manifest mismatch before writing outputs. They must not be used until the refactored client, separately-reviewed authoritative-source API, opt-in integration and teardown are combined intentionally.
 
 ## Mechanical tests passed
@@ -31,4 +31,6 @@ These tests are not browser or audible/physical-device verification. Native gett
 ## Unchanged limitations
 
 Manual exact-recording timing only; all927production tracks remain unmapped/not certified clean. No automatic detector/transcription.20ms JS timer,80ms ramps and120ms padding are foreground best effort; CPU stalls/throttling/rate changes can leak audio. Known iOS devices refuse marked playback. No global/family shared cue review exists. Native setter readback is insufficient to certify audible capability.
+
+Root review 2026-10-17 04:50 UTC: corrected a residual post-save Clean label to Timed silences so manually marked ranges never imply whole-song filtering. Regenerated 80,131-byte fixture; engine and memory checks pass again. Still no browser, audible, device or deployment proof.
 
