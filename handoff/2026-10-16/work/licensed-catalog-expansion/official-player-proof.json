@@ -1,0 +1,49 @@
+{
+  "checked": "2026-10-17T02:21:20.676Z",
+  "source": "https://www.fulllifeinchrist.org/hymns",
+  "scope": "Visible official player state and progressing elapsed-time display; brief samples, not complete audition",
+  "tracks": [
+    {
+      "title": "It Is Well With My Soul",
+      "progress": "0:08",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "4:01"
+    },
+    {
+      "title": "Great is Thy Faithfulness",
+      "progress": "0:10",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "3:32"
+    },
+    {
+      "title": "What a Friend We Have in Jesus",
+      "progress": "0:10",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "2:50"
+    },
+    {
+      "title": "Jesus Loves Me",
+      "progress": "0:08",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "1:29"
+    },
+    {
+      "title": "I Am Jesus' Little Lamb",
+      "progress": "0:14",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "1:43"
+    },
+    {
+      "title": "Holy, Holy, Holy",
+      "progress": "0:25",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "2:20"
+    },
+    {
+      "title": "Rock of Ages",
+      "progress": "0:12",
+      "state": "sqs-widget sqs-widgets-audio-player dark cdk-audio-player play-state-playing playing",
+      "total": "2:35"
+    }
+  ]
+}
