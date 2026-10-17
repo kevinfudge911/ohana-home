@@ -1,0 +1,18 @@
+# Contemporary Christian additions and native guide close
+
+Publisher: https://www.heartfeltmg.com/ explicitly lists selected HMG-owned recordings under CC BY 4.0. Exact title/artist/source/license/unmodified credits are included in the reader, with Source and CC BY 4.0 links. Their rendered phone hit targets are 44px high. Complete published lyrics of the selected songs were reviewed; no lyrics copied into Ohana. This is not a full audio audition or automatic profanity filtering.
+
+Official playback proof is in official-playback-proof.json. Initial query-gated917 candidate exposed Daystar, Without You and The Almighty only on ?ohana-music-preview=1. Actual Ohana playback held Daystar because selecting it advanced to Without You. The cause was not established; don't label Daystar verified or silently re-add it. held-tracks.json preserves the research.
+
+Without You passed actual Ohana audio: readyState4, elapsed2.784 and4.660, duration166.654, selected and actual URL matched. The Almighty passed: readyState4, elapsed4.303, duration210, selected and actual URL matched. Both credits matched the current recording. Phone390x844 screenshot was visually reviewed; credits and source/license links fit and original cabinet/digital layout remained intact. Playback was paused and playlist filter restored afterward.
+
+The actual Music introduction Okay test initially left the site. work/native-close-dedupe/check.cjs reproduced two Back calls when wrapped close and the later native close event both finished the same token before async history changed. One currently-open-token guard prevents duplicate finishing. Corrected canary88298beeff8f8bbd2be577a0e7ba9f78cc230618 passed actual introduction Okay: stayed in Music, then TUNES SELECT opened the reader.
+
+Final candidate760867e94367cf9fbf0e1330fe163726e916ddef includes ONLY the two verified tracks (916 total), matching916 builtin IDs, credits and unconditional single-close guard. App af952ca1bc5173246ecbe35cf32eebedbfac3847,6298250 bytes; worker45d42751f0d9d8f32662709f304728b3068cd490,785002 bytes. Exact scope/inverse proofs pass. Original914 records, auth/ACL/source validation, room artwork/photo, route repair, reminder code and PuzzleRoom DO/storage/bindings/lifecycle are unchanged. All28 app script blocks parse, worker syntax passes.
+
+Final music deployment760867 succeeded. Ordinary public root Home loaded, Music guide Okay stayed in Music, reader showed916 selections and Contemporary Christian2. Without You ready4/elapsed7.611588/duration166.654 and Almighty ready4/elapsed9.189152/duration210, selected and actual sources matched. Source/license links44px high, actual credit text visible. Screenshot live-phone-390x844.jpg; evidence live-playback-proof.json.
+
+Landscape follow-up2adad826229ad6b7fdbc6e4ac8cfc15414790c6d deployed successfully. App bf1b6a36663aa50b9113661082b93ddbe17e5d7a,6298416 bytes; worker unchanged45d42751f0d9d8f32662709f304728b3068cd490,785002. An existing control rail was limited to one grid column; narrow landscape-only grid-column:1/-1 rule fixes overflow without changing portrait or cabinet artwork. Actual844x390 Previous x83.69..127.69 and Play x132.69..212.69, all44px tall, collection x323.69..483.69. Full screenshot reviewed: work/music-landscape-rail/live-844x390.jpg. Portrait recheck Previous x26.67..70.67/Play x80.67..160.67, controls still44px high. Normal Home returned at root URL, audio left paused, All playlists restored, sampled logs empty. Canonical files and handoff updated after verification.
+
+Physical iPhone/Android audio, more kids/country/comedy tracks and timed fades remain open. This release does not certify the library clean or add automatic profanity filtering.
+

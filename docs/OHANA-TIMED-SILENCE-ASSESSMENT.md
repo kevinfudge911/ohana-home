@@ -1,3 +1,7 @@
+# Current catalog update
+
+Live catalog now916 (Without You and The Almighty added). The assessment below describes its earlier914-track baseline; both new HMG sources are also outside the unchanged Suno-only cue-save validator. All916 remain unmapped, and the fade draft is still unpublished. Current canonical app6298416/worker785002.
+
 # Timed silence — current read-only assessment
 
 Date:2026-10-16. Canonical inspected: `work/final-current-release/app.html`6293012B; `worker.js`784943B. Current app/Bible release commit: `1edbce3f60f8b97d41ceb488c2a5820fa78b841d`; documentation HEAD: `3f8c0cbd8179a7585e75ff85ed9fe2d0b77cb4e6`; app blob: `b6554e2bdb08ac0e80c3f4868226100f24a61bcd` (exact identities supplied by root).

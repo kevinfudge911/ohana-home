@@ -1,3 +1,15 @@
+# Latest verified checkpoint — Christian music and guide close
+
+Current app release 2adad826229ad6b7fdbc6e4ac8cfc15414790c6d is live, following music release760867e94367cf9fbf0e1330fe163726e916ddef. App blob bf1b6a36663aa50b9113661082b93ddbe17e5d7a,6298416 bytes. Worker45d42751f0d9d8f32662709f304728b3068cd490,785002 bytes. Canonical files work/final-current-release/ updated only after public verification.
+
+916 selections now include Without You (Terry Parks) and The Almighty (Dan Parks), both from Heartfelt Media Group under the publisher's CC BY4.0 terms. Category Contemporary Christian has2; Sunday Best has106; original914 records preserved. Actual official and Ohana playback passed. Ordinary public Without You ready4/elapsed7.6116/duration166.654; Almighty ready4/elapsed9.1892/duration210; selected and actual URLs matched. Current-track unmodified/source/license credit is visible, links44px high. Daystar was held because actual Ohana selection advanced to another track despite official-source playback; cause not established. Do not re-add it as verified. User's own library/sharing rows were not changed. Playback restored paused, All playlists filter restored.
+
+Music's introductory Okay button exposed duplicate history.back calls from wrapped close plus native close event. One currently-open-token guard now deduplicates finishClose globally. Actual public fresh-tab Music guide Okay stayed in Music and reopened the reader. Previous native Back/route repair preserved. Landscape audit found the control rail constrained to one grid column, clipping Previous; a narrow landscape-only grid-column span fixes sizing without redesign. Phone390x844 and landscape844x390 checked live; artwork, Bible, music sharing, worker reminders and PuzzleRoom DO/storage/bindings/lifecycle unchanged.
+
+Evidence: work/heartfelt-catalog-expansion/VERIFICATION.md, live-playback-proof.json, live-phone-390x844.jpg; work/music-landscape-rail/. All916 tracks remain unmapped by the PRIVATE timed-silence draft; no automatic detection or whole-library clean certification. Native iPhone/Android audio/gestures/background behavior still require physical verification. Further kids/country/comedy music, timed fades, exact Invite obstruction and final full audit remain open. Red-three8-card scoring question was asked asynchronously; wait for user choice, don't assume. Outfits stay last.
+
+The earlier checkpoint/history follows.
+
 # Latest verified checkpoint — room Back and category transitions
 
 Release b64bcf06df9ffeb84f6343243d04b281c2c74575 is live after Cloudflare success and ordinary public phone-size verification. App blob 86f96002bf12c519810c08bed7159e46f7331452, 6296126 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). Canonical files are work/final-current-release/. Original artwork, printed Bible pages, 914 songs and Nashville Roadhouse photograph are preserved.
