@@ -8,3 +8,5 @@ User briefly reported Ohana not loading; fresh ordinary public session completed
 
 Promotion removes query-only worker path and places checked orientation in normal app. Require build success and fresh normal Home/game checks before declaring live. Catalog remains927, music timing feature still unpublished. Synthetic timing test cleanup dc076cc71dbda67d0d1b05f0774dcb75dbbbad1c completed successfully and ordinary Home rechecked. No synthetic timing endpoint remains in promoted worker.
 
+LIVE VERIFIED: release97540b79643544c8151bfdeba67c85a3e4bbdf3c Cloudflare success; fresh ordinary Home loaded and existing HandFoot86 opened. Normal live computed8opponent stacks180deg and10own melds none; sampled browser errors empty. Public phone screenshot reviewed: live-opponent-phone.jpg. No moves/bids made. Canonical app updated after this verification; worker remains original verified baseline. Physical-device and Spades played-trick visual coverage still unobserved as described above.
+

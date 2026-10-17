@@ -1,3 +1,7 @@
+# Latest verified checkpoint — cards face their owner
+
+Release97540b79643544c8151bfdeba67c85a3e4bbdf3c is LIVE after Cloudflare success and fresh ordinary Home/game86 checks. App283ea0ec4027e8afdf8b867a3fb3863e212bcca0/6306474bytes, worker0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1/785386bytes. Opponent HandFoot stacks and Ohana10 rows/backs face the far side; Spades renderer marks only opponent cards. Own cards/names/controls/artwork unchanged. Scope and coverage: work/card-seat-facing/VERIFICATION.md.927selections retained. No production timed-silence feature. Intermittent phone loading report: user confirmed loaded, cause not established.
+
 # Card-facing correction — 2026-10-17
 
 User asks other players' cards to face them across the table like physical card play. Narrow app change rotates far-side Hand and Foot public card stacks, Ohana10 opponent meld rows/hidden backs and opponent-owned Spades trick cards180degrees. Own hand/melds and own Spades card stay upright. Names, counts, Clean/Dirty labels and controls are outside rotation. Existing artwork, seating positions, scoring, handlers and backend unchanged. No PuzzleRoom changes. App candidate283ea0ec4027e8afdf8b867a3fb3863e212bcca0/6,306,474bytes; worker restored baseline0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1/785,386bytes.
