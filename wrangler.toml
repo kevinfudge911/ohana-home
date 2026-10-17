@@ -40,3 +40,7 @@ storage = "sqlite"
 type = "ESModule"
 globs = ["**/*.js"]
 fallthrough = true
+
+# Friendly, deduplicated reminder checks; only opted-in waiting family turns.
+[triggers]
+crons = ["0 * * * *"]
