@@ -23,6 +23,14 @@ Current app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,6313426B. Worker blob4c
 -72hour reminders: hourly cron0 * * * *; friendly opt-in waiting multiplayer turns; deduped activity period, no forced notifications. First scheduled invocation2026-10-17T03:00:01Z Success. Not proof of individual delivery. See OHANA-72-HOUR-REMINDER.md.
 - Tara Android auto-advance was explicitly resolved by user. Do not reopen that investigation.
 
+## Latest user steering and verification hold
+
+- User rejected gold boxes too: clickable words/art with individual light oval readability backing, no raised/blue/boxed controls. Audit every Bridge destination, including Blessings, My Games artwork, Rooms, Scores, Settings and Announcements.
+- Chat must float only within Bridge and disappear with Bridge; full conversation scroll required. Room under Volume must open family-room chooser. Record-player lid must visibly say Playlist and open digital selector directly.
+- Bridge repair draft stalled the browser; follow-up deployed but could not be verified because Chrome connection stopped responding. Restoring prior checked Bridge via rollbackfb9c76b38894d4adce9f8474f9e8b76df8e7ae03; check deployment and fresh normal startup before claiming restored. Do NOT call draft tested/live. See work/bridge-chat-freeflow/HANDOFF.md locally and OHANA-BRIDGE-FREEFLOW-HANDOFF.md in GitHub.
+- Ten more HMG tracks are query-gated, NOT published as normal additions. Ordinary catalog remains929; preview query939. Source playback checked, actual Ohana playback NOT RUN.
+- User requests silent work while resting: do not play music or run audio tests. Source/license/catalog/code work may continue quietly.
+
 ## Unfinished and next actions
 
 1. Timed silences/profanity: PRIVATE, NOT in normal player. Explicit opt-in draft, manual exact-recording ranges only, no automatic detector. All929production tracks unmapped/unverified. Synthetic browser checks proved status update and native-volume diagnostics while generated tone played, not audible suppression. Known iOS marked playback refused; background marked playback pauses; timer throttling can leak audio. No whole-library clean claim. Read OHANA-TIMING-STATUS-RETEST.md. Local draft work/music-timed-silence/; API binding work/timed-cue-source-binding/. Exact929source map and22external recordings passed SQLite tests. Next requires audible/physical device tests and deliberate real opt-in integration, not more promotion of synthetic tests as a feature.

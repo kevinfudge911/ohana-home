@@ -1,0 +1,26 @@
+/* Free-flowing words, not decorative button boxes. Native button semantics remain accessible. */
+html.ohana-world body #app #faith button.ohana-button,
+html.ohana-world body:has(#faith):has(#faith):has(#faith) header .ohana-room-guide-help.ohana-button{
+ background:none!important;background-image:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;color:#fff4d6!important;text-shadow:0 1px 3px #39200c!important;
+ min-width:0!important;max-width:100%;min-height:44px;padding:8px 6px!important;
+ font:800 15px/1.3 Nunito,sans-serif!important;white-space:normal;overflow-wrap:anywhere;
+}
+html.ohana-world body #app #faith :is(.pr-note,.pr-dialog,.devo) button.ohana-button{color:#4b351c!important;text-shadow:none!important}
+html.ohana-world body #app #faith button[aria-pressed="true"].ohana-button{color:#ffe095!important;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+html.ohana-world body #app #faith .pr-lift.on.ohana-button{color:#356236!important;text-decoration:underline;text-underline-offset:4px}
+html.ohana-world body #app #faith .pr-more.ohana-button{flex:0 0 44px;width:44px;padding:5px!important}
+html.ohana-world body #app #faith .pr-lift.ohana-button{flex:1 1 0;padding:7px 4px!important;font-size:13px!important;gap:3px}
+html.ohana-world body #app #faith .pr-count{padding:1px 4px;background:none}
+html.ohana-world body #app #faith .pr-actions{gap:5px;flex-wrap:wrap}
+html.ohana-world body #app #faith .pr-menu-list .danger.ohana-button{color:#8a3e2d!important}
+html.ohana-world body #app #faith .pr-color.ohana-button{flex:none;width:44px;height:44px;min-height:44px;padding:0!important;border-radius:50%!important;background-image:none!important;box-shadow:inset 0 1px #fff8!important}
+html.ohana-world body #app #faith .pr-color-row{flex-wrap:wrap}
+html.ohana-world body #app #faith .pr-dialog{max-height:calc(100dvh - 24px);overflow:auto}
+html.ohana-world body #app #faith .pr-compose-actions{flex-wrap:wrap;margin-top:12px}
+html.ohana-world body #app #faith .pr-filters{gap:7px}
+html.ohana-world body #app #faith .pr-wall{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+html.ohana-world body #app #faith button.ohana-button:focus-visible{outline:3px solid #e3b75b!important;outline-offset:2px}
+html.ohana-world body #app #faith button.ohana-button::before,
+html.ohana-world body #app #faith button.ohana-button::after{display:none!important;content:none!important}
+
