@@ -4,6 +4,8 @@ Updated2026-10-17 06:50UTC. Read OHANA-MASTER-HANDOFF.md for canonical hashes an
 
 | Area | Verified evidence | Remaining limit |
 |---|---|---|
+| Latest shared command styling | Source inventory and CSS-only73group pass; scripts/handlers unchanged; user-authorized normal-site phone review | Browser connection unavailable; full visual/device audit NOT complete; do not declare every blue control gone |
+| Latest Chat bubble | User confirmed Chat good on phone after normal-site repair | Do not imply whole Bridge/all destinations certified |
 | Normal startup | Fresh ordinary public Home after latest app release and synthetic cleanup; sampled errors empty | User intermittent phone load later resolved; cause unknown |
 | Home/room entrances | Eight-room order and proportional Shuffle/Tile/Journey artwork at responsive phone/tablet sizes | Physical device reopening/gesture checks incomplete |
 | Blessings | Gold/cream controls including Help, filters and draft/edit menus; phone/tablet fit; landscape editor scrolls within viewport; CSS-only exact inverse proof | Physical Safari not tested; no real posts/edits/lifts/deletes made |

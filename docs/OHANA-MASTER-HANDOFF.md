@@ -25,15 +25,19 @@ Last fully browser-verified app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,631
 
 ## Current normal-site phone review — user authorized
 
-The user explicitly rejected a separate review URL and authorized publishing the saved repairs on the normal website so they can verify from their phone. Normal-site candidate app79de65e43f76315f25eeb7674d3ecc24fb5295a2,6357652B; worker e9d8c743bdce98e17aa6847ce54bd235f022819c,785805B. No separate Bridge review route should remain. Query-gated ten music candidates remain hidden normally;929 ordinary selections. Browser connection is unavailable, so fresh startup and repaired interactions are NOT independently verified. Do not call this fully tested or declare the full audit finished. Fetch main/check runs for deployment result.
+The user explicitly rejected a separate review URL and authorized publishing the saved repairs on the normal website so they can verify from their phone. Normal-site candidate app0854ba63c7ec925d7bf16c3b8b6dbe8887358f9c,6414148B; worker e9d8c743bdce98e17aa6847ce54bd235f022819c,785805B. No separate Bridge review route should remain. Query-gated ten music candidates remain hidden normally;929 ordinary selections. Browser connection is unavailable, so fresh startup and repaired interactions are NOT independently verified. Do not call this fully tested or declare the full audit finished. Fetch main/check runs for deployment result.
 
-Includes freeflow Blessings words, MyGames existing artwork, Room-family chooser, floating chat constrained to Bridge, Playlist lid text opening selector. Scores/Settings/Announcements and all remaining Bridge destination styling are NOT included yet; continue audit. Preserve silent-work request: no music playback.
+Includes freeflow Blessings words, MyGames existing artwork, Room-family chooser, floating chat constrained to Bridge, Playlist lid text opening selector. A CSS-only source pass now targets73command groups including Scores,Settings,Announcements,Rooms/Invites,Puzzle tools,setup and game action bars. Actual game art/pieces/cards/swatches excluded. Source inventory is complete for named groups, but browser/device visual audit NOT complete; no claim all blue controls gone. User confirmed Chat good on phone. See OHANA-COMMAND-FREEFLOW.md. Preserve silent-work request: no music playback.
+
+## Latest source pass / continuation
+
+Current user-review source is work/current-user-review-release/app.html (0854ba63c7ec925d7bf16c3b8b6dbe8887358f9c,6414148B), copied after hosting success; worker remains e9d8c743bdce98e17aa6847ce54bd235f022819c. Latest source pass in work/ohana-menu-freeflow/. Preserve shared menu CSS and Chat phone confirmation in future builds; do not base new changes on older work/final-current-release app without deliberately merging current changes. Normal library929;10unverified extras gated. Silent work only. Scope proof exact CSS inverse, scripts unchanged; no independent browser verification.
 
 ## Latest user steering and verification hold
 
 - User rejected gold boxes too: clickable words/art with individual light oval readability backing, no raised/blue/boxed controls. Audit every Bridge destination, including Blessings, My Games artwork, Rooms, Scores, Settings and Announcements.
 - Chat must float only within Bridge and disappear with Bridge; full conversation scroll required. Room under Volume must open family-room chooser. Record-player lid must visibly say Playlist and open digital selector directly.
-- Bridge repair draft stalled the browser; follow-up deployed but could not be verified because Chrome connection stopped responding. Restoring prior checked Bridge via rollbackfb9c76b38894d4adce9f8474f9e8b76df8e7ae03; check deployment and fresh normal startup before claiming restored. Do NOT call draft tested/live. See work/bridge-chat-freeflow/HANDOFF.md locally and OHANA-BRIDGE-FREEFLOW-HANDOFF.md in GitHub.
+- Historical Bridge attempt stalled browser and was rolled back. User then explicitly authorized publishing to normal website for phone review; latest normal-site review supersedes rollback. User confirmed Chat good. See OHANA-BRIDGE-PHONE-REVIEW.md; no independent complete visual audit.
 - Ten more HMG tracks are query-gated, NOT published as normal additions. Ordinary catalog remains929; preview query939. Source playback checked, actual Ohana playback NOT RUN.
 - User requests silent work while resting: do not play music or run audio tests. Source/license/catalog/code work may continue quietly.
 
