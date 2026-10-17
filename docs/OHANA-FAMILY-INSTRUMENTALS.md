@@ -1,0 +1,8 @@
+# Latest verified checkpoint — family instrumentals
+
+Release27d09628399eb624150853f5ecf82869bb6e0eed is LIVE after Cloudflare success, ordinary Home startup and BOTH actual Ohana playback checks. App8c6b2a950df14e272c864108f4bece1ff487bdfe/6307724bytes; worker4c04306bf8ae95be043415b1da312964d43a46f0/785470bytes.929selections. Added Monkeys Spinning Monkeys and Carefree, Kevin MacLeod/Incompetech, CC BY4.0 unmodified instrumentals, source and license links visible. Family Instrumentals2, Family & Kids4. Exact official and Ohana sources advanced, readyState4/finite duration; both paused afterward, All playlists restored, returnedHome, sampled errors empty. These are instrumentals, not sing-alongs/spoken comedy. No full audition or physical device certification. Source details and evidence work/family-instrumentals/.
+
+Original927records, card-facing correction, Bible, music sharing, navigation, reminders and artwork preserved. No PuzzleRoom/DO/bindings changes. Canonical work/final-current-release updated after public verification. Older builders/cue maps are based on927or fewer; regenerate authoritative map deliberately for929before use. All929production recordings remain unmapped by private timing draft; no automatic filtering. Further country/kids vocals/comedy, manual timings/audible/device checks, exact Invite obstruction and red-three8-card question remain open. Outfits last.
+
+Publisher sources: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400011 and https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400037. Current publisher attribution text states CC BY4.0; official browser players supplied exact MP3 URLs. Short Commons nursery-rhyme tune demonstrations researched but not added.
+

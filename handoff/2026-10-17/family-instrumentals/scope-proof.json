@@ -1,0 +1,14 @@
+{
+  "baseline": 927,
+  "added": 2,
+  "total": 929,
+  "originalRecordsPreserved": true,
+  "appBytes": 6307724,
+  "appDelta": 1250,
+  "workerBytes": 785470,
+  "workerDelta": 84,
+  "appSHA256": "a89c332b77f5a438479543af1e29d813253075bbc67bee66d0c2b022bdebd41d",
+  "workerSHA256": "7b637d5c757ad50029e65bf79bb8bdd81750d8250f834971855bc465b8272aa9",
+  "scope": "PASS exact inverse: catalog + two existing visible-credit allowlist IDs;2 builtin IDs. No layout/auth/ACL/source-validator/queue/DO/user changes.",
+  "mediaEvidence": "Both official players advanced with exact MP3 sources and finite duration. Ohana playback verification pending; no physical-device/audio-audition claim."
+}

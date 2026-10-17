@@ -1,0 +1,34 @@
+{
+  "release": "27d09628399eb624150853f5ecf82869bb6e0eed",
+  "cloudflare": "success",
+  "normalStartup": true,
+  "catalog": 929,
+  "playlist": "Family Instrumentals",
+  "tracks": [
+    {
+      "title": "Monkeys Spinning Monkeys",
+      "src": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3",
+      "currentSrcMatched": true,
+      "readyState": 4,
+      "time": 1.038626,
+      "duration": 125
+    },
+    {
+      "title": "Carefree",
+      "src": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3",
+      "currentSrcMatched": true,
+      "readyState": 4,
+      "time": 1.04617,
+      "duration": 205.078639
+    }
+  ],
+  "visibleCredits": true,
+  "sourceAndLicenseLinks": true,
+  "screenshot": "live-phone.jpg",
+  "pausedAfterward": true,
+  "filterRestored": "All playlists",
+  "returnedHome": true,
+  "sampledBrowserErrors": [],
+  "physicalDevice": false,
+  "fullAudition": false
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "ohana-ccby-incompetech-monkeys-spinning-monkeys",
+    "title": "Monkeys Spinning Monkeys",
+    "artist": "Kevin MacLeod · Incompetech",
+    "stream": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3",
+    "sources": [
+      "Family & Kids",
+      "Family Instrumentals"
+    ],
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400011",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Monkeys Spinning Monkeys by Kevin MacLeod (incompetech.com). CC BY 4.0. Unmodified instrumental recording."
+  },
+  {
+    "id": "ohana-ccby-incompetech-carefree",
+    "title": "Carefree",
+    "artist": "Kevin MacLeod · Incompetech",
+    "stream": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3",
+    "sources": [
+      "Family & Kids",
+      "Family Instrumentals"
+    ],
+    "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400037",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Carefree by Kevin MacLeod (incompetech.com). CC BY 4.0. Unmodified instrumental recording."
+  }
+]

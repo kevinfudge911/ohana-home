@@ -1,0 +1,26 @@
+{
+  "source": "Composer official pages, observed current CC BY4.0 attribution",
+  "tracks": [
+    {
+      "title": "Monkeys Spinning Monkeys",
+      "stream": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3",
+      "readyState": 4,
+      "time": 2.782195,
+      "duration": 125,
+      "paused": false
+    },
+    {
+      "title": "Carefree",
+      "stream": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3",
+      "readyState": 4,
+      "time": 1.105172,
+      "duration": 205.078639,
+      "paused": false
+    }
+  ],
+  "bothPausedAfterward": true,
+  "physicalDevice": false,
+  "fullAudition": false,
+  "productionPlayback": "PENDING",
+  "content": "Instrumentals; no spoken-comedy or sing-along claim"
+}
