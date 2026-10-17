@@ -4,9 +4,9 @@ Updated2026-10-17 06:50UTC. This replaces repeated chronological status headers.
 
 ## Verified source and release
 
-Site https://ohanahome.app ; repository kevinfudge911/ohana-home, main; Cloudflare Worker ohana-home. Current application release17d0094c8de7cfb58547dfdfbf59b8942dbd9e45. Blessings styling published after Cloudflare success and fresh normal public Home/Blessings verification.
+Site https://ohanahome.app ; repository kevinfudge911/ohana-home, main; Cloudflare Worker ohana-home. Last fully browser-verified application release17d0094c8de7cfb58547dfdfbf59b8942dbd9e45. Blessings styling published after Cloudflare success and fresh normal public Home/Blessings verification.
 
-Current app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,6313426B. Worker blob4c04306bf8ae95be043415b1da312964d43a46f0,785470B. Published after Cloudflare success and fresh normal Home/music verification. Canonical local files work/final-current-release/app.html and worker.js. Actual repo app path live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html; entrypoint live/worker.js. Do not create duplicate live/app.html. Raw live package66716673B, limit67108864B. Preserve22losslessly gzipped coloring pages and bootstrap script order.
+Last fully browser-verified app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,6313426B. Worker blob4c04306bf8ae95be043415b1da312964d43a46f0,785470B. Published after Cloudflare success and fresh normal Home/music verification. Canonical local files work/final-current-release/app.html and worker.js. Actual repo app path live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html; entrypoint live/worker.js. Do not create duplicate live/app.html. Raw live package66716673B, limit67108864B. Preserve22losslessly gzipped coloring pages and bootstrap script order.
 
 ## Already live — do not redo as unfinished
 
@@ -22,6 +22,12 @@ Current app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,6313426B. Worker blob4c
 - Black threes: always0; pure final-stage meld after required books, leave one final discard; discard pickup blocked by black3. Red-three new scoring NOT live.
 -72hour reminders: hourly cron0 * * * *; friendly opt-in waiting multiplayer turns; deduped activity period, no forced notifications. First scheduled invocation2026-10-17T03:00:01Z Success. Not proof of individual delivery. See OHANA-72-HOUR-REMINDER.md.
 - Tara Android auto-advance was explicitly resolved by user. Do not reopen that investigation.
+
+## Current normal-site phone review — user authorized
+
+The user explicitly rejected a separate review URL and authorized publishing the saved repairs on the normal website so they can verify from their phone. Normal-site candidate app79de65e43f76315f25eeb7674d3ecc24fb5295a2,6357652B; worker e9d8c743bdce98e17aa6847ce54bd235f022819c,785805B. No separate Bridge review route should remain. Query-gated ten music candidates remain hidden normally;929 ordinary selections. Browser connection is unavailable, so fresh startup and repaired interactions are NOT independently verified. Do not call this fully tested or declare the full audit finished. Fetch main/check runs for deployment result.
+
+Includes freeflow Blessings words, MyGames existing artwork, Room-family chooser, floating chat constrained to Bridge, Playlist lid text opening selector. Scores/Settings/Announcements and all remaining Bridge destination styling are NOT included yet; continue audit. Preserve silent-work request: no music playback.
 
 ## Latest user steering and verification hold
 

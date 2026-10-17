@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),crypto=require('crypto');
 const base=fs.readFileSync('work/heartfelt-batch-two/preview-app.html','utf8');let app=base;
-const rep=(from,to)=>{if(app.split(from).length!==2)throw Error('Unique anchor: '+from.slice(0,90));app=app.replace(from,to)};
+const patches=[];const rep=(from,to)=>{patches.push([from,to]);if(app.split(from).length!==2)throw Error('Unique anchor: '+from.slice(0,90));app=app.replace(from,to)};
 const old=app.match(/<style id="ohana-blessings-controls-v1">[\s\S]*?<\/style>/);if(!old)throw Error('Blessings style missing');
 rep(old[0],'<style id="ohana-blessings-controls-v1">\n'+fs.readFileSync(__dirname+'/blessings.css','utf8')+'\n</style>');
 rep("chatButton.setAttribute('aria-expanded',String(chat));};","chatButton.setAttribute('aria-expanded',String(chat));d.classList.toggle('ohana-chat-bubble',chat);};");
@@ -45,7 +45,7 @@ const bubbleCSS=[
 ].map(([selector,body])=>prefix+selector+'{'+body+'}').join('\n');
 rep('</head>','<style id="ohana-freeflow-chat-repair">'+css+bubbleCSS+'</style>\n</head>');
 let blocks=0;for(const m of app.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){if(/\bsrc=|application\/(?:json|ld\+json)/.test(m[1])||!m[2].trim())continue;new vm.Script(m[2]);blocks++;}
-fs.writeFileSync(__dirname+'/app.html',app);
+fs.writeFileSync(__dirname+'/app.html',app);fs.writeFileSync(__dirname+'/patches.json',JSON.stringify(patches));
 fs.copyFileSync('work/heartfelt-batch-two/worker.js',__dirname+'/worker.js');
 const git=s=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(s)+'\0').update(s).digest('hex');
 fs.writeFileSync(__dirname+'/scope-proof.json',JSON.stringify({app:git(app),bytes:Buffer.byteLength(app),scriptBlocksParsed:blocks,musicGatePreserved:app.includes("get('ohana-music-preview')"),newAudioPlayback:false,chatBackendAndPermissionsUnchanged:true,workerUnchangedFromGatedCatalog:true,browser:'NOT RUN'},null,2));
