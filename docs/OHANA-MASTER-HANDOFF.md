@@ -4,11 +4,13 @@ Updated2026-10-17 06:50UTC. This replaces repeated chronological status headers.
 
 ## Verified source and release
 
-Site https://ohanahome.app ; repository kevinfudge911/ohana-home, main; Cloudflare Worker ohana-home. Current application releasebd2de3fc8f77070a9b436258369461bf58d2e6cf. Later commits contain handoff updates and temporary synthetic test deployment/removal. Latest test cleanup efe8dfac5a1c6db02e6fd1b63ca5ead55efafb80 passed Cloudflare success and normal public Home startup; former test query also returned normal Home.
+Site https://ohanahome.app ; repository kevinfudge911/ohana-home, main; Cloudflare Worker ohana-home. Current application release17d0094c8de7cfb58547dfdfbf59b8942dbd9e45. Blessings styling published after Cloudflare success and fresh normal public Home/Blessings verification.
 
-Current app blob8a7949626d6f687a25f9c32395b2bf9c40987e46,6310791B. Worker blob4c04306bf8ae95be043415b1da312964d43a46f0,785470B. Published after Cloudflare success and fresh normal Home/music verification. Canonical local files work/final-current-release/app.html and worker.js. Actual repo app path live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html; entrypoint live/worker.js. Do not create duplicate live/app.html. Raw live package66714038B, limit67108864B. Preserve22losslessly gzipped coloring pages and bootstrap script order.
+Current app blob6bbb4d40d2d720701b9d896962bdc93a9ae7bda0,6313426B. Worker blob4c04306bf8ae95be043415b1da312964d43a46f0,785470B. Published after Cloudflare success and fresh normal Home/music verification. Canonical local files work/final-current-release/app.html and worker.js. Actual repo app path live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html; entrypoint live/worker.js. Do not create duplicate live/app.html. Raw live package66716673B, limit67108864B. Preserve22losslessly gzipped coloring pages and bootstrap script order.
 
 ## Already live — do not redo as unfinished
+
+- Blessings: gold/cream tabs, filters, prayer/praise actions, editor/menu controls and Help. Praying state remains distinct; mobile wall uses readable single-column notes without sideways overflow. CSS-only change; prayers, devotional text, counts, handlers, permissions and backend untouched. Responsive390×844,1024×768 and844×390 checks; no real notes changed. See OHANA-BLESSINGS-STYLE.md.
 
 - Bible: two printed columns on each open leaf;11saved NKJV selections; original transparent Bible/table art; larger reading view. Responsive phone/tablet/landscape fit checked. See OHANA-PRE-SHOW-AUDIT.md and historical Bible evidence.
 - Home: Music,Memories,Blessings,Granny,United,Journey,Shuffle,Tile. Individual games inside matching rooms. Approved Shuffle people/card-playing artwork preserved; oversized entrance/game artwork sizing repaired.

@@ -6,6 +6,7 @@ Updated2026-10-17 06:50UTC. Read OHANA-MASTER-HANDOFF.md for canonical hashes an
 |---|---|---|
 | Normal startup | Fresh ordinary public Home after latest app release and synthetic cleanup; sampled errors empty | User intermittent phone load later resolved; cause unknown |
 | Home/room entrances | Eight-room order and proportional Shuffle/Tile/Journey artwork at responsive phone/tablet sizes | Physical device reopening/gesture checks incomplete |
+| Blessings | Gold/cream controls including Help, filters and draft/edit menus; phone/tablet fit; landscape editor scrolls within viewport; CSS-only exact inverse proof | Physical Safari not tested; no real posts/edits/lifts/deletes made |
 | Bible | Two columns per leaf,11NKJVselections, bounded text and larger reader; responsive phone/tablet/landscape | Physical iPhone/Safari visual approval not recorded |
 | Bridge | Individual icon/label backings, scroll reset repair, Volume/Chat/MyGames order, jukebox navigation | Exact covered Invite screen unidentified |
 | Music929 | Added18hymns,2Christian tracks,2family instrumentals; exact Ohana audio sources/elapsed checks; credits visible | No full-library clean claim; country/kids vocals/spoken comedy expansion unfinished |
