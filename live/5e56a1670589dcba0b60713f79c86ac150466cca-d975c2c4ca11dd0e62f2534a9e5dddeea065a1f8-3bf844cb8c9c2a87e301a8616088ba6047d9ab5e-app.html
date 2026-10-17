@@ -6016,7 +6016,7 @@ function ohanaEntranceBible(){
  }
  ohanaEntranceWasHome=true;const first=ohanaEntranceVerse,index=OHANA_ENTRANCE_NKJV.indexOf(first),second=Array.from({length:OHANA_ENTRANCE_NKJV.length-1},(_,i)=>OHANA_ENTRANCE_NKJV[(index+i+1)%OHANA_ENTRANCE_NKJV.length]).find(v=>!matchMedia('(max-width:600px)').matches||v.v.length<=55);
  /* ohana-bible-print-canary */
- const ohanaBiblePrintEnabled=new URLSearchParams(location.search).get('ohana-bible-preview')==='1';
+ const ohanaBiblePrintEnabled=true;
  if(ohanaBiblePrintEnabled){
   document.documentElement.classList.add('ohana-bible-print-preview');
  const ordered=Array.from({length:OHANA_ENTRANCE_NKJV.length},(_,i)=>OHANA_ENTRANCE_NKJV[(index+i)%OHANA_ENTRANCE_NKJV.length]);
