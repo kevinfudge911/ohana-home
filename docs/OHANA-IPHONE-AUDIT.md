@@ -1,3 +1,7 @@
+# Latest addition — Nashville Roadhouse
+
+The framed original photo and full-photo viewer are live in7c9ca4603f2956cca0938dea28911366bb33624a. Portrait390×844 and landscape844×390 checks passed, including Close, Home, Back, Escape, clean room reopening and continued music playback. Original JPEG and907 catalog records are unchanged. See docs/OHANA-NASHVILLE-ROADHOUSE.md. Physical iPhone/Safari testing remains open.
+
 # iPhone-size audit — October 16, 2026
 
 The screenshot repairs are published and verified. This audit used responsive browsers, not a physical iPhone or Safari.
@@ -14,7 +18,7 @@ The screenshot repairs are published and verified. This audit used responsive br
 
 ## Still open
 
-- Two library buttons remain40px high because a later style overrides the intended44px rule. A small correction is staged.
+- Library target correction is now live in7c9ca460: expanded Song+, Playlist+ and Mine measure44px high.
 - The full Android/browser Back repair is a private draft and is not published.
 - The Bible's denser printed-page design remains unpublished and visually unverified.
 - Additional family songs and timed profanity fades are not live. The existing907 recordings are not certified clean.
@@ -30,3 +34,4 @@ Worker unchanged during these screenshot/audit fixes.
 Local evidence is saved in outputs/signup-ipad-fixed.png, work/iphone-entry-audit/, work/bridge-guide-exit-repair/, work/all-guide-exit-repair/, work/updates-exit-repair/ and work/music-live-preshow-audit/.
 
 No production accounts, invitations, messages or game moves were created during these checks.
+

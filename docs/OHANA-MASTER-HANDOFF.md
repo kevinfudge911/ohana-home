@@ -1,3 +1,13 @@
+# Latest verified checkpoint — Nashville Roadhouse
+
+Release7c9ca4603f2956cca0938dea28911366bb33624a is live. App blob5a5e0d6bad9cdeb2aa956628f6f78f6876364d6d,6293214 bytes; worker unchanged. Canonical local app is work/final-current-release/app.html.
+
+The user's original Nashville Roadhouse photograph is framed on the Music room wall, with tap-to-enlarge. Live390×844 and844×390 checks passed for image containment, Home, Close, browser Back, Escape, reopening Music and uninterrupted audio. The library target cascade repair is also live: Song+, Playlist+ and Mine are44px high. All907 catalog records are unchanged.
+
+Evidence and limits: docs/OHANA-NASHVILLE-ROADHOUSE.md. Physical iPhone/Safari remains untested; the full saved audit still lists unfinished features. No new songs or profanity filtering were published in this batch. Local preview access is still denied; do not repeatedly retry or bypass session policy.
+
+The earlier checkpoint/history follows.
+
 # Latest verified checkpoint
 
 The screenshot repairs and responsive audit are verified live through3b756472ad607de91c45ed663a535dc1e92267f2. App blob6515cd9af067208c9bc4c29b3c8d228d91c6cebd, worker unchanged. Canonical local app: work/final-current-release/app.html. Read docs/OHANA-IPHONE-AUDIT.md for passes and limits.
@@ -187,3 +197,4 @@ Publish with fresh expected Git main SHA, no force. Keep rollback snapshots and 
 ## Latest small repair release (Oct16)
 Pushed cc5b759a7b0e93e092b479532343387ec8271368; app6149681 bytes Gitblob f4356b5017764ed21f2324d0d809f423fb45c856. Worker unchanged. Card8/9/10 ranks restored25percent/23percent in original handshape, touch pointer avoids drag capture, observer skips identical CSSwrites; actual390 tap/rank checks passed but physical pinch freeze needs user retest. Visible owner Share for songs/playlists passed isolated ACL tests. Duplicate Home crest removed. Current script source work/final-current-release/app.html. Await public confirmation before calling live.
 Tara Android automatic switching CONFIRMED WORKING by user; stop investigation. No speculative patch. User wants own music available everyone but Share privacy defaults still unchanged; no bulk exposure. Newblueboxes/musicheading/cardinalcaption/Bible remain pending.
+
