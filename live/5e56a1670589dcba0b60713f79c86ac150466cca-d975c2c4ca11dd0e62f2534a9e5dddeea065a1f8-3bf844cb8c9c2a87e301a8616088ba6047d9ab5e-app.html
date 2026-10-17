@@ -15586,14 +15586,14 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-mai
 </script>
 <script id="ohana-screen-history">if(new URLSearchParams(location.search).get('ohana-route-preview')==='1'){
 (()=>{'use strict';
-let restoring=false,homeTransition=false,queuedRestore=null;
+let restoring=false,homeTransition=false,queuedRestore=null,colorRoutePage=S.colorBook?(CB.page||null):null;
 function normalized(v){const n={ohanaScreen:true,game:null,granny:false,record:null,tab:v.tab||'games',shelf:v.shelf||'mine',color:false,colorPage:null,puzzle:null,puzzleLobby:false};if(v.granny){n.granny=true;n.record=v.record||null;}else if(v.game)n.game=v.game;else if(v.puzzle)n.puzzle=v.puzzle;else if(v.color){n.color=true;n.colorPage=v.colorPage||null;}else n.puzzleLobby=!!v.puzzleLobby;return n;}
-function snapshot(){return normalized({game:S.game,granny:S.granny,record:GR.record,tab:S.tab,shelf:S.gameShelf,color:S.colorBook,colorPage:CB.page,puzzle:PZ.id,puzzleLobby:PZ.lobby});}
+function snapshot(){return normalized({game:S.game,granny:S.granny,record:GR.record,tab:S.tab,shelf:S.gameShelf,color:S.colorBook,colorPage:colorRoutePage,puzzle:PZ.id,puzzleLobby:PZ.lobby});}
 let last=snapshot(),lastUrl=location.href;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function commit(explicit){if(restoring||homeTransition)return;const next=explicit||snapshot(),state=history.state;if(same(last,next))return;if(state?.ohanaScreen&&!state.ohanaOverlayNav&&same(normalized(state),next)){last=next;lastUrl=location.href;return;}const url=location.href;history.replaceState(last,'',lastUrl);history.pushState(next,'',url);last=next;lastUrl=url;}
 const originalRender=render;render=function(...args){const result=originalRender.apply(this,args);commit();return result;};
-const originalColor=openColorBook;openColorBook=function(page,...args){const result=originalColor.call(this,page,...args);if(S.colorBook&&!S.game&&!S.granny&&!PZ.id)commit(normalized({...snapshot(),color:true,colorPage:page||null}));return result;};
+const originalColor=openColorBook;openColorBook=function(page,...args){colorRoutePage=page||null;const result=originalColor.call(this,page,...args);if(S.colorBook&&!S.game&&!S.granny&&!PZ.id)commit(normalized({...snapshot(),color:true,colorPage:page||null}));return result;};
 const originalPuzzle=openPuzzle;openPuzzle=function(...args){const result=originalPuzzle.apply(this,args);commit();return result;};
 for(const [name,original] of [['openGranny',openGranny],['grOpen',grOpen],['grNew',grNew]]){const wrapped=function(...args){const result=original.apply(this,args);commit();if(result&&typeof result.then==='function')result.then(()=>commit(),()=>{});return result;};if(name==='openGranny')openGranny=wrapped;else if(name==='grOpen')grOpen=wrapped;else grNew=wrapped;}
 const originalHome=goHomePorch;goHomePorch=function(...args){if(restoring)return originalHome.apply(this,args);homeTransition=true;const result=originalHome.apply(this,args);setTimeout(()=>{homeTransition=false;commit();},0);return result;};
