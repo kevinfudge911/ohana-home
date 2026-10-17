@@ -1,3 +1,4 @@
+import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
 import OHANA_SHUFFLE_ENTRANCE from "./ohana-shuffle-entrance-v1.webp";
 import OHANA_TILE_ENTRANCE from "./ohana-tile-entrance-v1.webp";
@@ -10779,6 +10780,7 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    if(/^\/api\/music\/audio\/m_[a-f0-9-]+$/.test(p))return handleMusicAudio(req,env222222,ohanaMusicReadable);
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
@@ -11283,7 +11285,7 @@ __name22222(prayerApi, "prayerApi");
 async function api2(req, env222222, url) {
   const db = env222222.DB;
   const p = url.pathname;
-  const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+  const body = req.method === "POST" && p!=="/api/music/upload" ? await req.json().catch(() => ({})) : {};
   if (p === "/api/ai-chat") {
     const conv = "ohana-ai-chat";
     const AI_CODES = { "CLAUDE-KTAMA3L5TCW6": "claude", "ANTIGRAV-P7OY4JFRL936": "antigravity", "CHATGPT-9IS145SNOYKZ": "chatgpt" };
@@ -11506,6 +11508,9 @@ async function api2(req, env222222, url) {
   if (!activeRoom) return err("You do not belong to this room. Open Rooms or use a room invitation.", 403);
   const roomId = activeRoom.id;
   const canManageRoom = /* @__PURE__ */ __name22222(() => roomId === 1 ? !!me.is_admin : activeRoom.owner_id === me.id, "canManageRoom");
+  if(p==='/api/music/upload')return handleMusicUpload(req,{db,me,room:roomId,bucket:env222222.MUSIC_FILES,ensureMusicSchema:ensureOhanaMusicSchema,audience:ohanaMusicAudience,track:ohanaMusicTrack,text:ohanaMusicText,requestId:ohanaMusicRequestId});
+  const musicPlayback=p.match(/^\/api\/music\/tracks\/(m_[a-f0-9-]+)\/playback$/);
+  if(musicPlayback)return createMusicPlaybackTicket(req,{db,me,room:roomId,bucket:env222222.MUSIC_FILES,id:musicPlayback[1],readable:ohanaMusicReadable});
   if(p.startsWith("/api/music/")) return ohanaMusicApi(req,db,me,roomId,body,url);
   if(p === "/api/announce/access"){
     if(!me.is_admin)return err("Only administrators can grant shout-out access.",403);
@@ -12412,7 +12417,7 @@ async function ohanaMusicApi(req, db, me, room, body, url) {
     if (row?.deleted_at) ohanaMusicFault(409,'Restore this item before editing it.');
     const audience=await ohanaMusicAudience(db,room,me.id,body,row);
     if (kind === 'tracks') {
-      const title=ohanaMusicText(body.title,'title',160),artist=ohanaMusicText(body.artist,'artist',120),stream=ohanaMusicStream(body.stream);
+      const title=ohanaMusicText(body.title,'title',160),artist=ohanaMusicText(body.artist,'artist',120),stream=row&&row.stream_url.startsWith('/api/music/audio/')&&body.stream===row.stream_url?row.stream_url:ohanaMusicStream(body.stream);
       const category=body.category||'radio';if(!['radio','sunday'].includes(category)) ohanaMusicFault(400,'Choose Radio or Sunday Best.');
       if (!row) {
         const request=ohanaMusicRequestId(body), existing=await db.prepare('SELECT * FROM music_tracks WHERE room_id=? AND member_id=? AND request_id=?').bind(room,me.id,request).first();

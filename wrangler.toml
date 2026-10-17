@@ -44,3 +44,8 @@ fallthrough = true
 # Friendly, deduplicated reminder checks; only opted-in waiting family turns.
 [triggers]
 crons = ["0 * * * *"]
+
+# Private personal-song storage; access is checked by the music API.
+[[r2_buckets]]
+binding = "MUSIC_FILES"
+bucket_name = "ohana-music-files"
