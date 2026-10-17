@@ -5792,7 +5792,37 @@ html[data-ohana-game=ohana10] #gb{padding:0!important;background:none!important}
 <style id="ohana-bible-phone-fit-v1">@media(max-width:600px){.ohana-entrance{height:75vw!important;min-height:0!important;aspect-ratio:auto!important}.ohana-entrance .ohana-entry-bible{width:min(58vw,220px)!important;bottom:0!important}.ohana-entry-bible .ohana-bible-page{top:6%!important;height:32%!important;width:31%!important;gap:0!important;overflow:hidden!important}.ohana-entry-bible .ohana-bible-left{left:18%!important}.ohana-entry-bible .ohana-bible-right{right:18%!important}.ohana-entry-bible strong{font-size:11px!important;line-height:1.1!important}.ohana-entry-bible span{font-size:12px!important;line-height:1!important}.ohana-entry-bible small{font-size:7.5px!important;line-height:1.05!important}.ohana-entry-bible blockquote{font-size:9px!important;line-height:1.1!important}}@media(max-width:360px){.ohana-entry-bible blockquote{font-size:8.5px!important}.ohana-entry-bible strong{font-size:10px!important}.ohana-entry-bible span{font-size:10px!important}.ohana-entry-bible small{font-size:7px!important}}</style><style id="ohana-card-seat-facing">
 /* Opponent cards on the far side face their owner; names and controls remain upright. */
 #game .hf-public-table .hf-public-cards,#game .o10-seat .o10-meld-row,#game .o10-seat .o10-hidden-hand,#game .sp-played.ohana-facing-away>.sp-card{rotate:180deg!important;transform-origin:center!important}
-</style></head>
+</style><style id="ohana-blessings-controls-v1">
+/* Blessings owns its controls; shared turquoise button decoration must not override it. */
+html.ohana-world body #app #faith button.ohana-button{
+ background:linear-gradient(#fff6dc,#ead4a2)!important;color:#493318!important;
+ border:2px solid #b88a46!important;border-radius:16px 11px!important;
+ box-shadow:inset 0 1px #fff9,0 2px 0 #80582d!important;text-shadow:none!important;
+ min-width:0!important;max-width:100%;min-height:44px;padding:8px 10px!important;
+ font:700 14px/1.25 Nunito,sans-serif!important;white-space:normal;overflow-wrap:anywhere;
+}
+html.ohana-world body #app #faith :is(.pr-add-btn,.pr-post,#pr-post,.devo-amen,button[aria-pressed="true"]).ohana-button{
+ background:linear-gradient(#fff0bb,#e9bc65 65%,#d29a43)!important;color:#422b0f!important;border-color:#ffe5a4!important;
+}
+html.ohana-world body #app #faith .pr-lift.on.ohana-button,
+html.ohana-world body #app #faith .devo-amen.on.ohana-button{
+ background:linear-gradient(#e3efcf,#a8c18b)!important;color:#253e22!important;border-color:#718951!important;
+}
+html.ohana-world body #app #faith .pr-more.ohana-button{flex:0 0 44px;width:44px;padding:5px!important}
+html.ohana-world body #app #faith .pr-lift.ohana-button{flex:1 1 0;padding:7px 4px!important;font-size:12px!important;gap:3px}
+html.ohana-world body #app #faith .pr-count{padding:1px 4px}
+html.ohana-world body #app #faith .pr-actions{gap:5px;flex-wrap:wrap}
+html.ohana-world body #app #faith .pr-menu-list .danger.ohana-button{background:#f5ded3!important;color:#813f2c!important;border-color:#bb806c!important}
+html.ohana-world body #app #faith .pr-color.ohana-button{flex:none;width:44px;height:44px;min-height:44px;padding:0!important;border-radius:50%!important;background-image:none!important;box-shadow:inset 0 1px #fff8!important}
+html.ohana-world body #app #faith .pr-color-row{flex-wrap:wrap}
+html.ohana-world body #app #faith .pr-dialog{max-height:calc(100dvh - 24px);overflow:auto}
+html.ohana-world body #app #faith .pr-compose-actions{flex-wrap:wrap;margin-top:12px}
+html.ohana-world body #app #faith .pr-filters{gap:7px}
+html.ohana-world body #app #faith .pr-wall{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+html.ohana-world body #app #faith button.ohana-button:focus-visible{outline:3px solid #fff0b0!important;outline-offset:3px}
+
+</style>
+</head>
 <body>
 <div id="app"></div>
 <script>
