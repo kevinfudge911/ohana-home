@@ -1,3 +1,13 @@
+# Latest verified checkpoint — printed Bible pages
+
+Release 1edbce3f60f8b97d41ceb488c2a5820fa78b841d is live after Cloudflare success and ordinary public Home verification. App blob b6554e2bdb08ac0e80c3f4868226100f24a61bcd, 6293012 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). All 914 songs, Nashville Roadhouse photo and native-dialog Back repair preserved. Canonical files remain work/final-current-release/.
+
+The entrance Bible now uses two printed columns on each leaf, with book headings and verse references. All eleven original NKJV selections occur once, honestly labeled selected scriptures; original Bible/table artwork and 18px tap-to-read view are unchanged. Query-gated canary deployed and was visually reviewed at 390x844, 768x1024 and 844x390; DOM Range text ink stayed within both page boundaries. Ordinary public phone startup and new columns were verified after promotion. Evidence: work/bible-print-canary/VERIFICATION.md and screenshots. Physical iPhone/Safari is not certified by these responsive Chrome checks.
+
+Native-menu Back repair remains live; physical Android retest and broader nonmodal Prayer/ColorBook/Puzzle route history remain open. First reminder cron invocation succeeded at 03:00:01Z, but actual notification receipt remains unverified. Further Christian country/contemporary/kids/comedy additions, timed profanity fades, exact Invite obstruction, red-three scoring question and full physical-device/gameplay audit are still pending. Outfits stay last. Local preview networking remains denied; do not retry bypass routes or enable public Cloudflare version URLs.
+
+The earlier checkpoint/history follows.
+
 # Ohana pre-show audit — October 16, 2026
 
 Current live release: cf88f572e685bca1722e2a08e37a56dfe4a7cfc6. Sizing-only fix preserves approved artwork; obsolete compact thumbnail proposal was never published.
@@ -24,3 +34,4 @@ Unresolved / NOT certified:
 Local verification blocker: loopback request returns EACCES under current network sandbox; browser preview ports time out. Root servers report running but preview is unreachable. Do not convert unit tests into visual-certification claims.
 
 Evidence: work/music-live-preshow-audit/AUDIT.md; work/live-preshow-audit/proof.json; work/music-timed-silence/HANDOFF.md; work/android-back-repair/HANDOFF.md; work/bible-printed-columns/.
+
