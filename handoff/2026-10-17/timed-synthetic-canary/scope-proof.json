@@ -1,0 +1,17 @@
+{
+  "canonicalGitBlob": "0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1",
+  "baseBytes": 785386,
+  "outputBytes": 866087,
+  "delta": 80701,
+  "pageBytes": 80131,
+  "exactInverse": true,
+  "normalRoutesUnchanged": true,
+  "query": "/?ohana-synthetic-timings=1",
+  "cspBlocksNetwork": true,
+  "storage": "temporary memory only",
+  "productionCueApiIncluded": false,
+  "puzzleRoomUntouched": true,
+  "browser": "NOT RUN",
+  "deployment": "NOT DEPLOYED",
+  "workerSHA256": "8492fbe3f552154a66a62858582ea0ff42822bc6e4760524ea92e49286473d98"
+}
