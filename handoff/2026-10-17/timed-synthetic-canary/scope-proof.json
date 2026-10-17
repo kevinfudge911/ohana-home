@@ -1,9 +1,9 @@
 {
-  "canonicalGitBlob": "0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1",
-  "baseBytes": 785386,
-  "outputBytes": 866087,
-  "delta": 80701,
-  "pageBytes": 80131,
+  "canonicalGitBlob": "4c04306bf8ae95be043415b1da312964d43a46f0",
+  "baseBytes": 785470,
+  "outputBytes": 866126,
+  "delta": 80656,
+  "pageBytes": 80086,
   "exactInverse": true,
   "normalRoutesUnchanged": true,
   "query": "/?ohana-synthetic-timings=1",
@@ -13,5 +13,5 @@
   "puzzleRoomUntouched": true,
   "browser": "NOT RUN",
   "deployment": "NOT DEPLOYED",
-  "workerSHA256": "8492fbe3f552154a66a62858582ea0ff42822bc6e4760524ea92e49286473d98"
+  "workerSHA256": "a3bb43d06790c282c87be8487b5d38af680897dc7c6a684e95cf8e0fe4eb7697"
 }

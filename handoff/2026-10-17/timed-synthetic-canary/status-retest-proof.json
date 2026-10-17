@@ -1,0 +1,28 @@
+{
+  "canary": "e66927cfc5717b8ba2769e18d961290efa751bf3",
+  "cloudflare": "success",
+  "normalHomeStartup": true,
+  "bothSaveStatuses": "Temporarily saved 1 marked ranges.",
+  "inside": {
+    "time": 2.244,
+    "paused": false,
+    "desired": 1,
+    "effective": 0
+  },
+  "after": {
+    "time": 2.847,
+    "paused": false,
+    "desired": 1,
+    "effective": 1
+  },
+  "deactivated": {
+    "time": 3.238,
+    "optedIn": false,
+    "paused": true,
+    "desired": 1,
+    "effective": 1
+  },
+  "audibleProof": false,
+  "physicalDevice": false,
+  "productionCueApi": false
+}

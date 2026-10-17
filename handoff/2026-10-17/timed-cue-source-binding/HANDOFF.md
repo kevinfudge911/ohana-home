@@ -1,3 +1,15 @@
+# Timing draft browser retest — 2026-10-17 05:50 UTC
+
+Production music remains929selections; baseline app8c6b2a950df14e272c864108f4bece1ff487bdfe,worker4c04306bf8ae95be043415b1da312964d43a46f0. Query-only synthetic canarye66927cfc5717b8ba2769e18d961290efa751bf3 passed Cloudflare deployment and ordinary public Home startup.80086Bfixture,866126Btemporary worker. No family song/account data, production cue API/D1 changes or PuzzleRoom/bindings changes. CSP blocks network connections.
+
+Actual responsive Chrome browser checks: before activation optedInfalse,cueRequests0. Saved1.50–2.50 and BOTH outer/editor statuses read Temporarily saved1marked ranges, correcting the earlier stale status. Continuous generated-tone playback observed time2.244/pausedfalse/desired1/effective0 then time2.847/pausedfalse/desired1/effective1 in one conditional DOM observation. Paused and deactivated: time3.238/optedInfalse/pausedtrue/desired1/effective1. Sampled browser errors empty. Earlier immediate post-click read showed stale100msdiagnostic; fresh snapshot and conditional read confirmed completed opt-out, not a runtime failure. Native volume diagnostics are NOT audible suppression proof. No physical iPhone/Safari/Android test.
+
+Private source binding regenerated deliberately against929canonical songs and22external recordings across St.Peter,HMG,Incompetech. Exact map98839B; private worker888260B,delta102790B. Actual SQLite source tests PASS22external exact originals plus swapped/modified URLs, custom ACL/revocation/deletion/source changes and owner isolation. Global normal song-source validator unchanged. Filename external20.json is historical and now holds22. No API deployment.
+
+This cleanup commit restores verified baseline worker and removes the synthetic query page. Require deployment success/fresh normal Home startup before declaring cleanup live. Canonical files remain baseline929app/worker. All929songs remain unmapped; no automatic profanity detector or whole-library clean claim. Manual timing feature still not in production. Remaining audible/device/mute/background/rate checks and real opt-in integration are unfinished. Older manifests/full candidates are superseded, never copy over canonical.
+
+Historical implementation notes follow; current counts/bytes above supersede them.
+
 # Exact recording binding for manual cues — private source draft
 
 Canonical source inspected: app6306082B / worker785386B,927 built-in songs. Exact authoritative927 ID→stream map generated from decoded canonical jb-tracks catalog; worker built-in ID set parity checked.20 external recordings accepted (original7 St.Peter hymns +2 HMG +11 added St.Peter hymns).

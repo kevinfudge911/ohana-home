@@ -1,6 +1,6 @@
 {
   "result": "PASS",
-  "builtinCount": 927,
+  "builtinCount": 929,
   "externalAccepted": [
     {
       "id": "ohana-pd-stpeter-it-is-well",
@@ -81,6 +81,14 @@
     {
       "id": "ohana-pd-stpeter-church-one-foundation",
       "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-ccby-incompetech-monkeys-spinning-monkeys",
+      "host": "incompetech.com"
+    },
+    {
+      "id": "ohana-ccby-incompetech-carefree",
+      "host": "incompetech.com"
     }
   ],
   "cases": [
@@ -96,5 +104,5 @@
     "owner spoof ignored",
     "global Suno validator unchanged"
   ],
-  "limit": "Actual existing music API and SQLite source tests only. No deployment/browser/audio test. All927 recordings remain unmapped/unverified."
+  "limit": "Actual existing music API and SQLite source tests only. No deployment/browser/audio test. All929 recordings remain unmapped/unverified."
 }

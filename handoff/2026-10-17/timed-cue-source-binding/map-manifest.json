@@ -1,9 +1,9 @@
 {
   "sourceApp": "work/final-current-release/app.html",
-  "sourceAppBytes": 6306082,
-  "sourceAppSha256": "5df47638ec5e87f96c9c103ffa57c8a517eae2a199348e41b47ac444b0f0ddd3",
-  "catalogCount": 927,
-  "externalCount": 20,
-  "mapBytes": 98583,
+  "sourceAppBytes": 6307724,
+  "sourceAppSha256": "a89c332b77f5a438479543af1e29d813253075bbc67bee66d0c2b022bdebd41d",
+  "catalogCount": 929,
+  "externalCount": 22,
+  "mapBytes": 98839,
   "regenerate": "Regenerate exact map and rerun tests whenever catalog sources change."
 }
