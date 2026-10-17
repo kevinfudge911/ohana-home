@@ -1,0 +1,72 @@
+{
+  "canary": "4a3447a5f97a82c54b7d2336358298f162d233c0",
+  "cloudflare": "success",
+  "normalHomeStartup": true,
+  "nativeActions": [
+    "play",
+    "pause",
+    "stop",
+    "previoustrack",
+    "nexttrack",
+    "seekto",
+    "seekbackward",
+    "seekforward"
+  ],
+  "nativeBeforePlayback": {
+    "title": null,
+    "state": "none",
+    "paused": true,
+    "time": 0,
+    "ready": 0
+  },
+  "playing": {
+    "title": "Monkeys Spinning Monkeys",
+    "state": "playing",
+    "time": 1.04,
+    "ready": 4,
+    "paused": false
+  },
+  "paused": {
+    "title": "Monkeys Spinning Monkeys",
+    "state": "paused",
+    "time": 2.15,
+    "ready": 4,
+    "paused": true
+  },
+  "next": {
+    "title": "Carefree",
+    "state": "playing",
+    "time": 1.03,
+    "ready": 4,
+    "paused": false
+  },
+  "actualMedia": {
+    "currentSrc": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3",
+    "ready": 4,
+    "time": 6.882475,
+    "paused": false
+  },
+  "sampledErrors": [],
+  "normalUiControlsUsed": true,
+  "nativeHardwareButtonsInvoked": false,
+  "physicalLockScreenBluetooth": false,
+  "backgroundGuarantee": false,
+  "finalReleaseCheck": "Cloudflare success; fresh normal Home and exact Carefree playback passed, diagnostic absent",
+  "finalRelease": "bd2de3fc8f77070a9b436258369461bf58d2e6cf",
+  "livePlayback": {
+    "time": 1.037728,
+    "readyState": 4,
+    "paused": false,
+    "currentSrc": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3"
+  },
+  "liveAcrossRooms": {
+    "time": 7.796455,
+    "readyState": 4,
+    "paused": false,
+    "currentSrc": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3"
+  },
+  "restoredPaused": {
+    "time": 9.768394,
+    "paused": true
+  }
+}

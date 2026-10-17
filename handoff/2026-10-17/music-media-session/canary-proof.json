@@ -1,0 +1,14 @@
+{
+  "appBase": "8c6b2a950df14e272c864108f4bece1ff487bdfe",
+  "workerBase": "4c04306bf8ae95be043415b1da312964d43a46f0",
+  "workerBytes": 789758,
+  "delta": 4288,
+  "scriptBlocksParsed": 26,
+  "exactInverse": true,
+  "normalRoutesUnchanged": true,
+  "workerStorageUnchanged": true,
+  "query": "/?ohana-device-media-preview=1",
+  "diagnostic": "Visible native media metadata/state/registered-action readback; no account/room IDs, no extra writes/network",
+  "browser": "NOT RUN",
+  "physicalDevice": "NOT RUN"
+}

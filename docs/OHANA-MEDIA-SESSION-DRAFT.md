@@ -1,14 +1,4 @@
-# Optional device media controls — private draft
+# Earlier draft superseded
 
-Prepared2026-10-17 06:35UTC against929-song canonical app8c6b2a950df14e272c864108f4bece1ff487bdfe. NOT DEPLOYED. Browser/OS/device checks NOT RUN. Current live music remains unchanged; this is not a screen-lock playback repair or guarantee.
-
-Sources: W3C Media Session https://www.w3.org/TR/mediasession/ and MDN https://developer.mozilla.org/en-US/docs/Web/API/MediaSession . Standard supports metadata/playback-state reporting and device play/pause/previous/next/seek actions where browser/OS implements them. It does not prevent OS suspension, battery restrictions, force-close or autoplay restrictions.
-
-client.js is an optional feature-detected adapter inside the existing music singleton after final listener queue installation. Delegates next/previous to latest existing playlist/shuffle queue; Play is idempotent, Pause/Stop preserve normal controls, bounded seek actions reject invalid time/duration. Metadata tracks selected title/artist only, album Ohana Music; no artwork/network requests or UI. Source/sign-in absence clears metadata/state/position; device Play/Next cannot replay after sign-out. No autoplay, timers, storage, new audio elements, auth changes or globals. Unsupported action/API errors are isolated. Position updates use existing media events and throttle timeupdate to1Hz.
-
-node check.cjs PASS: API-absent fallback leaves original renderer untouched; unsupported action doesn't block remaining handlers; duplicate install/no autoplay; renderer return preserved; Play while playing does not toggle Pause; Pause/resume; latest queue next/previous delegation; track metadata changes; invalid/out-of-range seek and unknown duration; Stop reset; sign-out blocks replay and clears metadata. These are private source tests with controlled dependencies, not native hardware proof. build.cjs exact inverse only inserts adapter and initializer after existing queue;26script blocks parse, worker unchanged.
-
-Next: public default-off same-site canary with temporary visible diagnostic of native MediaSession registered actions/metadata/playbackState, normal startup and ordinary playback checks, then remove diagnostic before promotion. Read-only browser evaluation must remain DOM-backed; don't inspect hidden navigator/app state directly or bypass disabled native control APIs. Actual lock-screen/Bluetooth buttons and long background playback still need physical device confirmation. Don't report them tested from a browser callback simulation. Do not retry denied local routes.
-
-Files client.js,check.cjs,build.cjs,scope-proof.json,app.html/private candidate. No live app, worker, source media, sharing, database, PuzzleRoom/bindings/lifecycle changes. Canonical work/final-current-release untouched. No publication performed.
+The optional adapter is now published in releasebd2de3fc8f77070a9b436258369461bf58d2e6cf. See OHANA-DEVICE-MEDIA-CONTROLS.md for exact browser evidence and physical-device limits. No guarantee against OS suspension or force-close.
 

@@ -1,6 +1,6 @@
 # Ohana pre-show audit — current checkpoint
 
-Updated2026-10-17 06:20UTC. Read OHANA-MASTER-HANDOFF.md for canonical hashes and outstanding decisions. Normal app remains929selections; this consolidation changes documentation only. The full previous audit is preserved at ../handoff/2026-10-17/pre-show-history-before-consolidation.md.
+Updated2026-10-17 06:50UTC. Read OHANA-MASTER-HANDOFF.md for canonical hashes and outstanding decisions. Current929-song app now includes optional device media controls; this file records verification. The full previous audit is preserved at ../handoff/2026-10-17/pre-show-history-before-consolidation.md.
 
 | Area | Verified evidence | Remaining limit |
 |---|---|---|
@@ -18,11 +18,11 @@ Updated2026-10-17 06:20UTC. Read OHANA-MASTER-HANDOFF.md for canonical hashes an
 | Coloring/Puzzle | Earlier shared/personal isolation and route checks saved | Never change PuzzleRoom DO/storage/bindings/lifecycle; no puzzle moves for audit |
 |72hour reminders | Code/SQLite cases, hourly cron and first actual scheduled success | Notification receipt unobserved; no forced live test |
 | Timed silences | Private source/engine/SQLite tests and generated-tone browser mechanical checks | NOT production; no automatic detector; all929unmapped; audible/device checks incomplete; iOS marked playback refused |
-| Background audio | Ordinary audio singleton persists room changes; source no ordinary hidden-page pause | Screen lock/Bluetooth/OS/battery behavior needs physical device |
+| Background audio | Ordinary audio persists room changes; optional device media controls now live and native browser metadata/state checked | Screen lock/Bluetooth/OS/battery behavior needs physical device |
 
 ## Publication rule
 
-Publish independently completed verified items without waiting for unrelated work. Require hosting success and normal public startup/UI evidence. Do not deploy unfinished red-three scoring, speculative Invite fixes or unmapped timed filtering. Only docs changed at this checkpoint; no new app feature claimed. Outfits last.
+Publish independently completed verified items without waiting for unrelated work. Require hosting success and normal public startup/UI evidence. Do not deploy unfinished red-three scoring, speculative Invite fixes or unmapped timed filtering. Device media controls are published after native browser API and ordinary playback checks; physical lock-screen/Bluetooth behavior remains unverified. Outfits last.
 
 Feature evidence: OHANA-CARD-SEAT-FACING.md, OHANA-FAMILY-INSTRUMENTALS.md, OHANA-HYMNS-BATCH-TWO.md, OHANA-TIMING-STATUS-RETEST.md, OHANA-72-HOUR-REMINDER.md, OHANA-BACKGROUND-AUDIO-CHECK.md, OHANA-FAMILY-CATALOG-RESEARCH.md.
 
