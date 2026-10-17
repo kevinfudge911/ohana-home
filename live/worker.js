@@ -10779,7 +10779,6 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
-    if(req.method==='GET'&&p==='/'&&url.searchParams.get('ohana-seat-facing-preview')==='1')return new Response(APP_HTML.replace("<div class=\"sp-played\"><div class=\"hf-card sp-card","<div class=\"sp-played${String(pl.p)===String(me)?'':' ohana-facing-away'}\"><div class=\"hf-card sp-card").replace('</head>',"<style id=\"ohana-card-seat-facing\">\n/* Opponent cards on the far side face their owner; names and controls remain upright. */\n#game .hf-public-table .hf-public-cards,#game .o10-seat .o10-meld-row,#game .o10-seat .o10-hidden-hand,#game .sp-played.ohana-facing-away>.sp-card{rotate:180deg!important;transform-origin:center!important}\n</style>"+'</head>'),{headers:{'content-type':'text/html;charset=utf-8','cache-control':'no-store'}});
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(p === "/ohana-action-bowls-v1.webp")return new Response(ACTION_BOWLS,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});

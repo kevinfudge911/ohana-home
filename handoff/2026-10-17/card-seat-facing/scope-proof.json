@@ -1,0 +1,13 @@
+{
+  "appBase": "742eb799bf5ac859befbb1bd8bcc2f76f9f752a1",
+  "workerBase": "0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1",
+  "exactInverse": true,
+  "scriptBlocksParsed": 26,
+  "gameplayChange": false,
+  "scope": "Rotate only far-side exposed card rows/backs and opponent Spades cards, preserve names/controls/own cards/artwork.",
+  "query": "/?ohana-seat-facing-preview=1",
+  "appBytes": 6306474,
+  "workerCanaryBytes": 786139,
+  "browser": "NOT RUN",
+  "deployment": "NOT DEPLOYED"
+}

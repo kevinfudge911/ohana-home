@@ -1,3 +1,15 @@
+# Card-facing correction — 2026-10-17
+
+User asks other players' cards to face them across the table like physical card play. Narrow app change rotates far-side Hand and Foot public card stacks, Ohana10 opponent meld rows/hidden backs and opponent-owned Spades trick cards180degrees. Own hand/melds and own Spades card stay upright. Names, counts, Clean/Dirty labels and controls are outside rotation. Existing artwork, seating positions, scoring, handlers and backend unchanged. No PuzzleRoom changes. App candidate283ea0ec4027e8afdf8b867a3fb3863e212bcca0/6,306,474bytes; worker restored baseline0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1/785,386bytes.
+
+Canary74100f57d27ee6ee50a0d8bf11b7c224e51f67e8 Cloudflare success. Actual public phone-size game86: all8opponent card-row containers computed180deg; all10own meld-row containers none. Screenshot reviewed; opponent artwork inverted, ranks still visible, labels upright.13own cards, opponent meld stacks and counts preserved; no moves made. Ohana10games137and114: opponent hidden backs180deg; current tables have no opponent exposed melds, so those visual states unobserved. Spades139 currently bidding, no trick cards; actual renderer template executed with own/opponent fixtures and numeric/string IDs, only opponent gets facing-away class and card order/labels preserved. All26JavaScript blocks parse; exact inverse restores original app/worker. This is responsive Chrome, not physical iPhone/Safari/Android certification.
+
+User briefly reported Ohana not loading; fresh ordinary public session completed Home with no sampled errors, and user confirmed phone loaded. Cause not established; intermittent report retained. New orientation had remained query-gated during that report. Do not claim a loading repair.
+
+Promotion removes query-only worker path and places checked orientation in normal app. Require build success and fresh normal Home/game checks before declaring live. Catalog remains927, music timing feature still unpublished. Synthetic timing test cleanup dc076cc71dbda67d0d1b05f0774dcb75dbbbad1c completed successfully and ordinary Home rechecked. No synthetic timing endpoint remains in promoted worker.
+
+Earlier status follows.
+
 # Synthetic timing browser check — 2026-10-17 05:20 UTC
 
 Canary a79557552937888860f3cd9435bfa9da9ba057a6 passed Cloudflare build and fresh ordinary public Home startup. App remained742eb799bf5ac859befbb1bd8bcc2f76f9f752a1; canary worker2a10e75cd56bda6857a92d011aba05b1002c8d56. Raw live package66,789,946bytes below67,108,864 limit. Query-only page used synthetic embedded tones, memory saves and CSP denying network connections. No family cues, D1, bindings, PuzzleRoom or ordinary jukebox changes.

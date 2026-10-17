@@ -1,0 +1,4 @@
+<style id="ohana-card-seat-facing">
+/* Opponent cards on the far side face their owner; names and controls remain upright. */
+#game .hf-public-table .hf-public-cards,#game .o10-seat .o10-meld-row,#game .o10-seat .o10-hidden-hand,#game .sp-played.ohana-facing-away>.sp-card{rotate:180deg!important;transform-origin:center!important}
+</style>
