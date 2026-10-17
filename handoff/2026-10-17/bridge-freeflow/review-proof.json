@@ -1,0 +1,14 @@
+{
+  "defaultApp": "fa1c5ab2d6ae4f6272d395888e214a927aa9f6e2",
+  "reviewApp": "79de65e43f76315f25eeb7674d3ecc24fb5295a2",
+  "worker": "16f7a322cad20727f0df7b643a5fd9022e95a8d5",
+  "workerBytes": 830585,
+  "workerDelta": 44780,
+  "exactPatchReproduction": true,
+  "workerExactInverse": true,
+  "normalRoutesUnchanged": true,
+  "storageBindingsAuthUnchanged": true,
+  "userAuthorizedManualReview": true,
+  "browserVerified": false,
+  "query": "/?ohana-bridge-review=1"
+}
