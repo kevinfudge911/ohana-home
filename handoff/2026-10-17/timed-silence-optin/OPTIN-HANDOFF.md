@@ -34,3 +34,5 @@ Manual exact-recording timing only; all927production tracks remain unmapped/not 
 
 Root review 2026-10-17 04:50 UTC: corrected a residual post-save Clean label to Timed silences so manually marked ranges never imply whole-song filtering. Regenerated 80,131-byte fixture; engine and memory checks pass again. Still no browser, audible, device or deployment proof.
 
+2026-10-17 05:20 UTC: query-only synthetic canary browser check recorded in work/timed-synthetic-canary/VERIFICATION.md. Tested fixture80,131B; residual stale outer save status corrected privately afterward, new fixture80,086B, code tests PASS, correction browser proof pending. Temporary public test removed in cleanup commit. No production cue feature or audible proof.
+

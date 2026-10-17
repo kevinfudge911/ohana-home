@@ -1,0 +1,10 @@
+# Synthetic timing browser check — 2026-10-17 05:20 UTC
+
+Canary a79557552937888860f3cd9435bfa9da9ba057a6 passed Cloudflare build and fresh ordinary public Home startup. App remained742eb799bf5ac859befbb1bd8bcc2f76f9f752a1; canary worker2a10e75cd56bda6857a92d011aba05b1002c8d56. Raw live package66,789,946bytes below67,108,864 limit. Query-only page used synthetic embedded tones, memory saves and CSP denying network connections. No family cues, D1, bindings, PuzzleRoom or ordinary jukebox changes.
+
+Actual responsive Chrome browser checks: default optedInfalse/cueRequests0; activate and open editor; Save1.50–2.50; seek2.00 reports desired1/effective0; seek3.00 reports effective1; Play progressed3.337575sec/6sec duration readyState4; pause/close/deactivate restored desired/effective1. Tone two started with empty timings and accepted two newline-separated ranges. Reload cleared memory; reactivation editor empty. Sampled browser errors empty. Phone editor dialog336.67px within actual375px viewport with no horizontal overflow; screenshot phone-editor.jpg reviewed. This was responsive Chrome, not physical iPhone/Android/Safari or audible verification. Native volume diagnostics are not proof of audible suppression. Landscape, mute/rate/background and actual acoustic tests still pending.
+
+Found stale outer status after Save despite updated editor status. Private client corrected to update both via tell(); engine and memory tests rerun PASS; regenerated fixture80,086bytes. That correction has NOT been browser-tested or deployed. Previously tested fixture80,131bytes.
+
+This checkpoint removes the temporary public synthetic page by restoring verified worker0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1. Require cleanup deployment success and fresh ordinary startup before calling removal live. Canonical app/worker remain verified927-song baseline. No production timed-silence feature is published, no automatic detection, all927 tracks remain unmapped. Old full canary source/proof is historical, regenerate deliberately before reuse; do not overwrite canonical.
+
