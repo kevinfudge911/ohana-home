@@ -12171,7 +12171,7 @@ async function memoriesApi(req, env, url) {
   const me = await auth(req, env);
   if (!me) return Response.json({error:'Sign in to your Ohana family to open Memories.'},{status:401});
   const db=env.DB;
-  const rooms=(await db.prepare('SELECT r.id,r.name,r.owner_id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE rm.member_id=? ORDER BY r.name').bind(me.id).all()).results;
+const rooms=(await db.prepare("SELECT r.id,r.name,r.owner_id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE rm.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'') ORDER BY r.name").bind(me.id).all()).results;
   const headers={'cache-control':'private, no-store','x-content-type-options':'nosniff'};
   const reply=(data,status=200)=>Response.json(data,{status,headers});
   if(url.pathname==='/api/memories/rooms' && req.method==='GET')return reply({rooms,me:{id:me.id,name:me.name,is_admin:!!me.is_admin}});
