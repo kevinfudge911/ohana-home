@@ -1,3 +1,13 @@
+# Latest verified checkpoint — room Back and category transitions
+
+Release b64bcf06df9ffeb84f6343243d04b281c2c74575 is live after Cloudflare success and ordinary public phone-size verification. App blob 86f96002bf12c519810c08bed7159e46f7331452, 6296126 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). Canonical files are work/final-current-release/. Original artwork, printed Bible pages, 914 songs and Nashville Roadhouse photograph are preserved.
+
+The screen-history repair tracks Prayer/tab, explicit Coloring navigation, existing Puzzle/lobby, game and Granny routes. Journey Color/existing-game clicks are recorded before category teardown can consume their destination. Native-menu Back module is byte-identical to the previous verified version. Source-real category/shared-color/overlay lifecycle checks and exact inverse passed; all 28 script blocks parse. Query-gated public testing verified Prayer Back Home; Journey to Color, guide Back then Color Back Home; existing game36 opens with unchanged board, first Back closes rules and keeps game, next Back Home; existing Duckville puzzle opened at 90 of 510 pieces and Back Home without moving any piece. Ordinary public startup and Prayer/Color Back were rechecked after promotion. Test diagnostics are absent from the release.
+
+Important: Color's automatic guide is a real native dialog. First Back closes it and stays in Color; another Back returns Home. Earlier preliminary reports of a remaining duplicate were corrected after diagnostic evidence identified the guide. Browser Home boundary is not trapped. These are responsive Chrome checks, not physical Android/iPhone/Safari certification. Exact Invite obstruction, further family music, manual timed fades, red-three scoring question, background audio device behavior and full gameplay/device audit remain open. Outfits remain last. Timed-fade blockers are saved in work/music-timed-silence/CURRENT-ASSESSMENT.md; no automatic profanity detection or whole-library cleanliness is claimed. PuzzleRoom storage/bindings/lifecycle were not changed.
+
+The earlier checkpoint/history follows.
+
 # Latest verified checkpoint — printed Bible pages
 
 Release 1edbce3f60f8b97d41ceb488c2a5820fa78b841d is live after Cloudflare success and ordinary public Home verification. App blob b6554e2bdb08ac0e80c3f4868226100f24a61bcd, 6293012 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). All 914 songs, Nashville Roadhouse photo and native-dialog Back repair preserved. Canonical files remain work/final-current-release/.
