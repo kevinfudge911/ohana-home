@@ -1,0 +1,46 @@
+[
+  {
+    "viewport": "390x844",
+    "bookWidth": 220,
+    "pageWidth": 59.4,
+    "columnWidth": 24.2,
+    "fontPx": 1.87,
+    "availableHeight": 39.43,
+    "estimatedWorstInkHeight": 29.0,
+    "estimatedFits": true,
+    "method": "Georgia GDI pixel metrics; all11rotations; conservative reference text; not browser visual proof"
+  },
+  {
+    "viewport": "768x1024",
+    "bookWidth": 353,
+    "pageWidth": 91.78,
+    "columnWidth": 40.39,
+    "fontPx": 3.0,
+    "availableHeight": 56.27,
+    "estimatedWorstInkHeight": 47.0,
+    "estimatedFits": true,
+    "method": "Georgia GDI pixel metrics; all11rotations; conservative reference text; not browser visual proof"
+  },
+  {
+    "viewport": "844x390",
+    "bookWidth": 388,
+    "pageWidth": 100.88,
+    "columnWidth": 44.94,
+    "fontPx": 3.3,
+    "availableHeight": 62.25,
+    "estimatedWorstInkHeight": 52.0,
+    "estimatedFits": true,
+    "method": "Georgia GDI pixel metrics; all11rotations; conservative reference text; not browser visual proof"
+  },
+  {
+    "viewport": "986x550",
+    "bookWidth": 454,
+    "pageWidth": 118.04,
+    "columnWidth": 53.52,
+    "fontPx": 3.86,
+    "availableHeight": 73.52,
+    "estimatedWorstInkHeight": 56.0,
+    "estimatedFits": true,
+    "method": "Georgia GDI pixel metrics; all11rotations; conservative reference text; not browser visual proof"
+  }
+]

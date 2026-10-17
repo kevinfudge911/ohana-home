@@ -1,0 +1,1 @@
+const fs=require('fs'),p=JSON.parse(fs.readFileSync(__dirname+'/patch.json'));let a=fs.readFileSync(process.argv[2],'utf8');if(a.split(p.old).length!==2)throw Error('Bible renderer guard');fs.writeFileSync(process.argv[3],a.replace(p.old,p.replacement)+p.css);

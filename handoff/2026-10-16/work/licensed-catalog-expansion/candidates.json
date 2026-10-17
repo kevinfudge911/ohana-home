@@ -1,0 +1,86 @@
+[
+  {
+    "title": "I Will Rejoice",
+    "artist": "Open Skies Praise",
+    "source_url": "https://openskiespraise.org/songs/spring-jam-2017/i-will-rejoice",
+    "stream": "https://openskiespraise.org/user/pages/03.songs/spring-jam-2017/01.i-will-rejoice/01%20I%20Will%20Rejoice.mp3",
+    "license": "CC BY-NC 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "categories": [
+      "Sunday Best",
+      "Worship"
+    ],
+    "availability": "Primary media endpoint returned audio/mpeg through web tool; not full browser playback tested",
+    "review": "Published full lyrics reviewed; worship text. Requires noncommercial use plus visible attribution."
+  },
+  {
+    "title": "Know You More",
+    "artist": "Open Skies Praise",
+    "source_url": "https://openskiespraise.org/songs/fall-jam-2017/know-you-more",
+    "stream": "https://openskiespraise.org/user/pages/03.songs/fall-jam-2017/01.know-you-more/01%20Know%20You%20More.mp3",
+    "license": "CC BY-NC 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "categories": [
+      "Sunday Best",
+      "Worship"
+    ],
+    "availability": "Primary media endpoint returned audio/mpeg through web tool; not full browser playback tested",
+    "review": "Published full lyrics reviewed; worship text. Requires noncommercial use plus visible attribution."
+  },
+  {
+    "title": "The Word Of God",
+    "artist": "Open Skies Praise",
+    "source_url": "https://openskiespraise.org/songs/vbs-2017/the-word-of-god",
+    "stream": "https://openskiespraise.org/user/pages/03.songs/vbs-2017/01.the-word-of-god/01%20The%20Word%20Of%20God.mp3",
+    "license": "CC BY-NC 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "categories": [
+      "Sunday Best",
+      "Family & Kids"
+    ],
+    "availability": "Web tool cache miss, not yet media verified",
+    "review": "Published full lyrics reviewed; kids VBS text. Requires noncommercial use plus visible attribution."
+  },
+  {
+    "title": "The Elements",
+    "artist": "Tom Lehrer",
+    "source_url": "https://tomlehrersongs.com/the-elements/",
+    "stream": "https://tomlehrersongs.com/wp-content/uploads/2021/10/4-The-Elements.mp3",
+    "license_url": "https://tomlehrersongs.com/",
+    "license": "Author public-domain release includes recording rights; underlying Sullivan music explicitly public domain in official lyrics PDF",
+    "categories": [
+      "Comedy",
+      "Family & Kids"
+    ],
+    "review": "Official complete lyric sheet reviewed: educational elements list with wordplay, no profanity found. Selected recording/spoken introduction still needs full listening before family-clean classification. NOT included in patch.",
+    "availability": "Primary direct endpoint responded as audio/mpeg/OK through web tool; no full selected recording listening proof"
+  },
+  {
+    "title": "New Math",
+    "artist": "Tom Lehrer",
+    "source_url": "https://tomlehrersongs.com/new-math/",
+    "stream": "https://tomlehrersongs.com/wp-content/uploads/2021/10/10-New-Math.mp3",
+    "license_url": "https://tomlehrersongs.com/",
+    "license": "Author public-domain release includes recording rights",
+    "categories": [
+      "Comedy",
+      "Family & Kids"
+    ],
+    "review": "Official complete two-page lyric sheet reviewed: arithmetic/classroom satire, no profanity found. Selected recording/spoken introduction still needs full listening before family-clean classification. NOT included in patch.",
+    "availability": "Primary direct endpoint responded as audio/mpeg/OK through web tool; no full selected recording listening proof"
+  },
+  {
+    "title": "Come Back to God",
+    "artist": "Rewob featuring Maggie, reusenoise and Skill_Borrower",
+    "source_url": "https://ccmixter.org/files/rewob/70820",
+    "stream": "https://ccmixter.org/content/rewob/rewob_-_Come_Back_to_God.mp3",
+    "license": "CC BY-NC 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "categories": [
+      "Sunday Best",
+      "Country Christian"
+    ],
+    "published": "2026-05-03",
+    "review": "Artist tags upbeat_country_feel; contemporary 2026 release. Full lyrics/audio content not yet reviewed. Requires noncommercial use and complete attribution including samples; NOT included in patch."
+  }
+]

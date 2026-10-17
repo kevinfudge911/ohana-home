@@ -1,3 +1,19 @@
+# Current authoritative checkpoint — October16 iPhone-size audit
+
+Live confirmed: da7823 (common room-guide exits) follows8272 (Bridge contentflow),0a2 (signup reachability),cf88 (original game-scene sizing). Public checks: signup iPad1024x768 andphone390x844/844x390 scrollto44pxJoin; Bridge390x600/844x390 image andinstructions separated, Home/Okay visible andwork; Blessings390/844 Home/Okay/More visible andwork. Home/Journey/Shuffle/Tile entries normalart/nooverflow; jukebox907 smoke test passes. This is responsiveChrome, NOTphysicalSafari certification.
+
+Next audited follow-up accompanying this handoff: Updates visibleHome/Close/Previous/Next with original optoutsemantics, plus44px libraryactions/clearMineemptytext; sourcechecks pass, publicdeployment mustbeverified. Currentcandidate work/licensed-catalog-expansion/polished-app.html6111878bytes. Mainapp filepath MUSTremain hashedworkerimport, NOTlive/app.html. DO/workerunchangedthisfollowup.
+
+UserrequestsfulliPhoneaudit afterrepairs, immediatepublicationofverifiedfinishedwork,15minute checks(activeheartbeat), outfitsONLYafterallotherchorescompleted/published. Neverchangeapprovedroomart/designs justfixsizing. Unfinished: Bibleprintedcolumns(11NKJVunchanged, visualunverified), broadAndroidBack(private testedmodels notbrowser), timedmanualprofanityfades(private engine/APIpass, editorunverified;907unmappednotclean),7PDhymns/kids+licensedworship/country/comedycandidates(notlive),72hreminder(notimplemented; existing24hhandlerfound),exactInviteobstruction,red3scoringchoice,otherfullgame/deviceaudit. Backgroundaudio ordinaryliveHTMLaudio notpausedonlock; newmanualfadesmustpaus emappedtrackswhenhiddenforsecurity. PhysicalAndroid/iOSlock/pinch/audionotproven. LocalnetworkconnectionsEACCES; publicbrowser/GitHubworks. Do not repeatedlyretryblockedlocalhost.
+
+Pendingguardedsourcepatches mirroredunderhandoff/2026-10-16/work inthiscommit; theyareNOTallpublished. See reportsandevidence. PreservePuzzleRoomDO/bindings/storage/lifecycle andearlyboothelperorder/gzipassets.
+
+# Verified live and active work — October16 follow-up
+
+5046ca4 deployed successfully; public Home completes startup, printed Bible present, new digitaljukebox opens. 8d5bd4 saved display-size guard deployment alsoSUCCESS, exactpublicDOMstillneedscheck. Current canonicalapp work/final-current-release/app.html includesguard, worker work/audit-visual-release/worker.js includes additive sharedcoloringAPI. Avoidduplicate live/app.html: worker imports hashedappfilename; wrongduplicate causedfailed28a34ff package.
+
+Activehelperassignments: porchlayout investigating mobileShuffle/gameentry500%appearance, guard12casespass butuserexactcauseunconfirmed. Jukeboxhelper sourcing Christian country,worship,gospel,oldhymns,cleancomedy,funchildrenssongs usingpermittedplayablesources; noneimportedyet. Dominohelper timedmanual profanitycues/fades: noexisting907wordtimings; safeAndroid/desktopvolumeengine, iOSnotcertified, neverclaimallclean. 72hourfriendlygamereminder requestednotbuilt. Preserve DO, allACL, currentcatalog, existingprivateaudio.
+
 # Current release checkpoint — October 16
 
 Ready deployment: app 6099743 bytes, blob 1822a9055477588bfd33c23be2165ab8ecd6c475; worker 781217 bytes, blob 4a82cca3152665ea4d8cb2c596f72642243a7772. Includes printed Bible leaves/readable reader, integrated digital jukebox, Bridge ordering/navigation/My Games/guide, gold Journey/setup controls, shared coloring isolation, compact landscape workstation. Combined normal startup, Bible opening, Bridge order passed; individual evidence preserved in work folders. Deployment must be verified before calling live.

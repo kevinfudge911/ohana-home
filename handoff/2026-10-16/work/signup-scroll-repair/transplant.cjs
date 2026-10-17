@@ -1,0 +1,1 @@
+const fs=require('fs'),a=fs.readFileSync(process.argv[2],'utf8');if(a.includes('id="ohana-signup-reachable-actions"'))throw Error('Already applied');fs.writeFileSync(process.argv[3],a+fs.readFileSync(__dirname+'/style.html','utf8'));
