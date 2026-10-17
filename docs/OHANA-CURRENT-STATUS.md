@@ -1,153 +1,43 @@
-# Latest verified checkpoint — eleven more hymns
+# Ohana Home — current master handoff
 
-Release ef141a326a13d3558869c4fcd218260ad5d35ea5 is live after Cloudflare success, normal public Home startup and ALL11 actual Ohana playback checks. App742eb799bf5ac859befbb1bd8bcc2f76f9f752a1,6306082 bytes; worker0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1,785386 bytes. Canonical work/final-current-release/ updated after verification.927 selections, Traditional Hymns18, Sunday Best117; Family & Kids2 and Contemporary Christian2 unchanged.
+Updated2026-10-17 06:20UTC. This replaces repeated chronological status headers. Read this file first; historical claims do not override it. Full previous master is preserved at ../handoff/2026-10-17/master-history-before-consolidation.md and in Git history through7c96a6d3de90be0e812db0653dac782ab69bdb3f.
 
-Added11 public-domain St. Peter recordings: A Mighty Fortress Is Our God, Abide with Me, Beautiful Savior, Now Thank We All Our God, Praise God/from Whom All Blessings Flow, Praise to the Lord/the Almighty, The Lord’s My Shepherd, All Hail the Power of Jesus’ Name, Eternal Father/Strong to Save, O God/Our Help in Ages Past, The Church’s One Foundation. Exact official source links and publisher's recording/public-domain declaration retained in metadata. Actual official elapsed counters advanced, then all11 actual Ohana media checks matched selected/current stream, readyState4, finite duration and elapsed>=1 second; no silent skips. All paused afterward. Search/playlist restored, Home returned and sampled errors empty. Evidence work/hymns-batch-two/VERIFICATION.md and proof JSONs/screenshot.
+## Verified source and release
 
-Only catalog and11 builtin IDs changed. Original916 records, two HMG tracks/visible credits, native close dedupe, Back/route repair, landscape rail fix, original artwork/photo, printed Bible and reminder logic preserved. PuzzleRoom DO/storage/bindings/lifecycle untouched. Older catalog builders expect their old counts and must not overwrite current source. Daystar remains held after prior Ohana auto-skip.
+Site https://ohanahome.app ; repository kevinfudge911/ohana-home, main; Cloudflare Worker ohana-home. Current application release27d09628399eb624150853f5ecf82869bb6e0eed. Later commits contain handoff updates and temporary synthetic test deployment/removal. Latest test cleanup efe8dfac5a1c6db02e6fd1b63ca5ead55efafb80 passed Cloudflare success and normal public Home startup; former test query also returned normal Home.
 
-All927 remain unmapped by the PRIVATE timed-fade draft; no automatic word detection or full-library clean certification. Physical iPhone/Android/Safari gestures/audio/background behavior remain unverified. More fun kids/country/comedy music, timed fades, exact Invite obstruction, red-three8-card question and remaining full audit still pending. User was asked the8-red-three scoring choice asynchronously; wait for response. Outfits last. Local preview denied; do not retry denied localhost/file/alternate routes.
+Current app blob8c6b2a950df14e272c864108f4bece1ff487bdfe,6307724B. Worker blob4c04306bf8ae95be043415b1da312964d43a46f0,785470B. Both verified against current Git main during consolidation. Canonical local files work/final-current-release/app.html and worker.js. Actual repo app path live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html; entrypoint live/worker.js. Do not create duplicate live/app.html. Raw live package66710971B, limit67108864B. Preserve22losslessly gzipped coloring pages and bootstrap script order.
 
-The earlier checkpoint/history follows.
+## Already live — do not redo as unfinished
 
-# Latest verified checkpoint — Christian music and guide close
+- Bible: two printed columns on each open leaf;11saved NKJV selections; original transparent Bible/table art; larger reading view. Responsive phone/tablet/landscape fit checked. See OHANA-PRE-SHOW-AUDIT.md and historical Bible evidence.
+- Home: Music,Memories,Blessings,Granny,United,Journey,Shuffle,Tile. Individual games inside matching rooms. Approved Shuffle people/card-playing artwork preserved; oversized entrance/game artwork sizing repaired.
+- Bridge/music: individual light icon-and-label backings, no duplicate symbols, corrected scrolling, Room/Volume thenChat thenMyGames, player opens jukebox, digital reader, Add/Edit/Share, independent listener playback. Nashville Roadhouse photo framed with uncropped viewer. Exact reported Invite obstruction remains unidentified.
+- Music929selections: original907 plus18St.Peter public-domain hymns,2HMG CC BY4.0 songs and2Incompetech CC BY4.0 instrumentals. Traditional Hymns18, Sunday Best117, Contemporary Christian2, Family & Kids4, Family Instrumentals2. Exact selected/current audio sources and elapsed playback checked for additions; both new instrumentals verified inside Ohana with visible source/license credits. These are not a full-library clean certification. See OHANA-FAMILY-INSTRUMENTALS.md and OHANA-HYMNS-BATCH-TWO.md.
+- Navigation: native-dialog Back dedupe, Prayer/Color/Puzzle/game/Granny route history, Home restoration. Responsive Chrome checks passed. Physical Android/iPhone Back still requires confirmation; browser Home boundary is not trapped.
+- Cards: mobile ranks, hand arrangement gestures, compact HandFoot layout and landscape repairs. Opponent far-side cards face their owner; own cards/names/labels/controls upright. Actual HandFoot rows checked; Ohana10 backs checked; Spades actual trick-renderer fixture checked, but live table was bidding with no trick cards. See OHANA-CARD-SEAT-FACING.md.
+- Black threes: always0; pure final-stage meld after required books, leave one final discard; discard pickup blocked by black3. Red-three new scoring NOT live.
+-72hour reminders: hourly cron0 * * * *; friendly opt-in waiting multiplayer turns; deduped activity period, no forced notifications. First scheduled invocation2026-10-17T03:00:01Z Success. Not proof of individual delivery. See OHANA-72-HOUR-REMINDER.md.
+- Tara Android auto-advance was explicitly resolved by user. Do not reopen that investigation.
 
-Current app release 2adad826229ad6b7fdbc6e4ac8cfc15414790c6d is live, following music release760867e94367cf9fbf0e1330fe163726e916ddef. App blob bf1b6a36663aa50b9113661082b93ddbe17e5d7a,6298416 bytes. Worker45d42751f0d9d8f32662709f304728b3068cd490,785002 bytes. Canonical files work/final-current-release/ updated only after public verification.
+## Unfinished and next actions
 
-916 selections now include Without You (Terry Parks) and The Almighty (Dan Parks), both from Heartfelt Media Group under the publisher's CC BY4.0 terms. Category Contemporary Christian has2; Sunday Best has106; original914 records preserved. Actual official and Ohana playback passed. Ordinary public Without You ready4/elapsed7.6116/duration166.654; Almighty ready4/elapsed9.1892/duration210; selected and actual URLs matched. Current-track unmodified/source/license credit is visible, links44px high. Daystar was held because actual Ohana selection advanced to another track despite official-source playback; cause not established. Do not re-add it as verified. User's own library/sharing rows were not changed. Playback restored paused, All playlists filter restored.
+1. Timed silences/profanity: PRIVATE, NOT in normal player. Explicit opt-in draft, manual exact-recording ranges only, no automatic detector. All929production tracks unmapped/unverified. Synthetic browser checks proved status update and native-volume diagnostics while generated tone played, not audible suppression. Known iOS marked playback refused; background marked playback pauses; timer throttling can leak audio. No whole-library clean claim. Read OHANA-TIMING-STATUS-RETEST.md. Local draft work/music-timed-silence/; API binding work/timed-cue-source-binding/. Exact929source map and22external recordings passed SQLite tests. Next requires audible/physical device tests and deliberate real opt-in integration, not more promotion of synthetic tests as a feature.
+2. Music expansion: still need suitable Christian country, kids vocals and spoken comedy. Country source had restrictive reuse terms; LibriVox media redirected to a Chrome-blocked host. Do not bypass or add as verified. See OHANA-FAMILY-CATALOG-RESEARCH.md. Daystar is held because Ohana auto-skipped it despite source playback; do not re-add as verified.
+3. Red-three scoring: agreed+100each only after opening meld; four=1000total; caught in hand/unopened foot=-300each. Need eight-card choice:2000pergroups-of-four versus1400onebonus+extras. Asynchronous question already asked, no answer yet. Do not invent/repeat unnecessarily. Full red-three cards by owner/foot already live.
+4. Physical iPhone/iPad/Android/Safari audit: touch reordering, pinch/pan, pull-to-refresh, signup visibility and Back/menus still not certified by responsive Chrome. User's intermittent phone Loading report later resolved by user; cause unknown, do not claim a loading repair.
+5. Background audio: ordinary singleton audio persists between rooms; source has no ordinary hidden-page pause. Lock-screen/Bluetooth/battery behavior and OS force-close require physical testing. No custom MediaSession controls yet. See OHANA-BACKGROUND-AUDIO-CHECK.md.
+6. Identify exact Invite panel reported behind cardinal. Outgoing chooser previously fit; no invite sent in tests. Do not call all Invite paths repaired.
+7. Final full gameplay/device audit remains incomplete; never certify whole site from startup/UI checks. YouTube/corner-TV and original-owned-video audio conversion remain future unbuilt work; check current provider rules before implementation.
+8. Outfits only after ALL other chores are completed, published and verified.
 
-Music's introductory Okay button exposed duplicate history.back calls from wrapped close plus native close event. One currently-open-token guard now deduplicates finishClose globally. Actual public fresh-tab Music guide Okay stayed in Music and reopened the reader. Previous native Back/route repair preserved. Landscape audit found the control rail constrained to one grid column, clipping Previous; a narrow landscape-only grid-column span fixes sizing without redesign. Phone390x844 and landscape844x390 checked live; artwork, Bible, music sharing, worker reminders and PuzzleRoom DO/storage/bindings/lifecycle unchanged.
+## Mandatory working constraints
 
-Evidence: work/heartfelt-catalog-expansion/VERIFICATION.md, live-playback-proof.json, live-phone-390x844.jpg; work/music-landscape-rail/. All916 tracks remain unmapped by the PRIVATE timed-silence draft; no automatic detection or whole-library clean certification. Native iPhone/Android audio/gestures/background behavior still require physical verification. Further kids/country/comedy music, timed fades, exact Invite obstruction and final full audit remain open. Red-three8-card scoring question was asked asynchronously; wait for user choice, don't assume. Outfits stay last.
+NEVER change PuzzleRoom Durable Object implementation/storage/bindings/exports/lifecycle. Preserve approved designs; no unsolicited redesigns, generic blue-and-white panels or duplicate Home controls. No messages/invites/forced notifications during tests. No gameplay moves/bids merely to produce a visual state.
 
-The earlier checkpoint/history follows.
+Local preview networking denied. Do not retry localhost/file/data-page/alternate-port/proxy/CDP routes or enable Cloudflare preview URLs/security settings. Public same-site explicitly gated synthetic canaries have been used without family data/API writes; remove when evidence saved. Do not bypass blocked media hosts.
 
-# Latest verified checkpoint — room Back and category transitions
+Use GitHub connector with fresh main lease, exact baseline guards and reversible scoped changes. Hosting success plus fresh normal public startup/UI proof required before calling live. Canonical copies update only after verification. Old full candidates/builders/patch manifests are stale; regenerate deliberately against current baseline. No physical-device claims from responsive Chrome.
 
-Release b64bcf06df9ffeb84f6343243d04b281c2c74575 is live after Cloudflare success and ordinary public phone-size verification. App blob 86f96002bf12c519810c08bed7159e46f7331452, 6296126 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). Canonical files are work/final-current-release/. Original artwork, printed Bible pages, 914 songs and Nashville Roadhouse photograph are preserved.
-
-The screen-history repair tracks Prayer/tab, explicit Coloring navigation, existing Puzzle/lobby, game and Granny routes. Journey Color/existing-game clicks are recorded before category teardown can consume their destination. Native-menu Back module is byte-identical to the previous verified version. Source-real category/shared-color/overlay lifecycle checks and exact inverse passed; all 28 script blocks parse. Query-gated public testing verified Prayer Back Home; Journey to Color, guide Back then Color Back Home; existing game36 opens with unchanged board, first Back closes rules and keeps game, next Back Home; existing Duckville puzzle opened at 90 of 510 pieces and Back Home without moving any piece. Ordinary public startup and Prayer/Color Back were rechecked after promotion. Test diagnostics are absent from the release.
-
-Important: Color's automatic guide is a real native dialog. First Back closes it and stays in Color; another Back returns Home. Earlier preliminary reports of a remaining duplicate were corrected after diagnostic evidence identified the guide. Browser Home boundary is not trapped. These are responsive Chrome checks, not physical Android/iPhone/Safari certification. Exact Invite obstruction, further family music, manual timed fades, red-three scoring question, background audio device behavior and full gameplay/device audit remain open. Outfits remain last. Timed-fade blockers are saved in work/music-timed-silence/CURRENT-ASSESSMENT.md; no automatic profanity detection or whole-library cleanliness is claimed. PuzzleRoom storage/bindings/lifecycle were not changed.
-
-The earlier checkpoint/history follows.
-
-# Latest verified checkpoint — printed Bible pages
-
-Release 1edbce3f60f8b97d41ceb488c2a5820fa78b841d is live after Cloudflare success and ordinary public Home verification. App blob b6554e2bdb08ac0e80c3f4868226100f24a61bcd, 6293012 bytes. Worker remains d801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes). All 914 songs, Nashville Roadhouse photo and native-dialog Back repair preserved. Canonical files remain work/final-current-release/.
-
-The entrance Bible now uses two printed columns on each leaf, with book headings and verse references. All eleven original NKJV selections occur once, honestly labeled selected scriptures; original Bible/table artwork and 18px tap-to-read view are unchanged. Query-gated canary deployed and was visually reviewed at 390x844, 768x1024 and 844x390; DOM Range text ink stayed within both page boundaries. Ordinary public phone startup and new columns were verified after promotion. Evidence: work/bible-print-canary/VERIFICATION.md and screenshots. Physical iPhone/Safari is not certified by these responsive Chrome checks.
-
-Native-menu Back repair remains live; physical Android retest and broader nonmodal Prayer/ColorBook/Puzzle route history remain open. First reminder cron invocation succeeded at 03:00:01Z, but actual notification receipt remains unverified. Further Christian country/contemporary/kids/comedy additions, timed profanity fades, exact Invite obstruction, red-three scoring question and full physical-device/gameplay audit are still pending. Outfits stay last. Local preview networking remains denied; do not retry bypass routes or enable public Cloudflare version URLs.
-
-The earlier checkpoint/history follows.
-
-# Latest verified checkpoint — menu Back repair
-
-Release0391a400f1ea7221fa8e496ad6ef4a0e4a11853b is live after Cloudflare build success. App blob111d4f9fd707eca3ec12280374b25cae5b32b67f,6289940 bytes. Worker remainsd801db4e65e0b64f67314acd0bc797c0aa0e3211 (784943 bytes), including72-hour reminders. Canonical app/worker: work/final-current-release/. All914 songs and Nashville Roadhouse photo preserved.
-
-The focused native-dialog Back repair is enabled for everyone; no test query is required. Menus gain history entries, Back closes the current menu before the existing game route handler runs, existing Home controls avoid an extra Back step, Shadow DOM editors are tracked, native form closes are consumed, and stale closed entries are skipped. Late-added existing Home controls remove injected duplicates. Closed tracked dialogs are explicitly hidden because old Settings CSS otherwise rendered the closed menu over the game. Home clears stale Memories state and URL.
-
-Actual canary and ordinary-public browser checks at390×844 passed: Bridge Back and Settings Back return to the exact same Dominoes board/hand/status; no tiles or moves changed. Final closed Settings has open=false and computed display=none. Bridge header has one original Home and no injected duplicate. Existing Home returns to the porch with zero open native dialogs and root URL. Canary Music editor Back returned to the reader without saving; editor Home exited Music. Memories guide Home removed the iframe and restored root URL. Sampled public error logs empty. Screenshot: work/android-back-repair/live-back-to-game-390x844.png. Returning can briefly re-fetch the current game; do not claim zero loading flash.
-
-Physical Android Back/gesture and iPhone/Safari remain unverified. Browser Home boundary is not trapped. The broader nonmodal Prayer/ColorBook/Puzzle route-history replacement remains PRIVATE; it was not included. Existing route-history script, artwork, game engines and worker were preserved; inverse scope and28 inline-script syntax checks passed. Do not apply old full candidates over this release.
-
-The first scheduled reminder invocation is now visible as Success in Cloudflare Cron events at2026-10-17T03:00:01Z (17.201ms CPU). Evidence: work/game-inactivity-reminder/live-first-cron.png. This proves invocation status only, not that any eligible phone received a notification. Local localhost/file preview access remains denied. Cloudflare public version URLs are disabled and were not enabled; gated tests used the existing authorized site.
-
-Remaining: physical-device/full audit, nonmodal route history, Bible printed columns, further Christian country/contemporary/kids/comedy catalog, timed fades, exact Invite obstruction and red-three scoring question. Outfits remain last.
-
-The earlier checkpoint/history follows.
-
-# Latest verified checkpoint — friendly72-hour reminders
-
-Release d3b43e03559006c88aeb10cd32a6239e61abee1c is deployed successfully. Worker blobd801db4e65e0b64f67314acd0bc797c0aa0e3211,784943 bytes. App unchanged: blob285db680a3a80e33c929423d028a2af6a46819fd,6284113 bytes,914 tracks. Canonical files: work/final-current-release/app.html and worker.js.
-
-The old24-hour per-game reminder is replaced by the requested gentle72-hour message, one attempt per member per inactivity period. Human moves reset the timer. Only opted-in members with a still-waiting human multiplayer turn and room membership qualify; bot-game reminder exclusion is preserved. Legacy accounts seed their initial timestamp once from last known visit/creation. Delivery is best effort, not guaranteed receipt.
-
-Fifteen actual SQLite scenarios pass, including repeat/concurrent checks, multiple games, timer resets, committed-move races, opt-out, room removal and delivery failures. Independent review found no release-blocking defect. All worker bytes outside the reminder module, scheduled handler and successful-human-move activity hook remain identical. PuzzleRoom code/storage/bindings/lifecycle are untouched.
-
-Cloudflare production Settings visibly confirms Every hour, next run2026-10-17T03:00:00Z. Live Home finishes loading; sampled browser error logs are empty. No forced production notifications or game moves were sent. Actual scheduled execution and physical phone receipt remain unobserved. Evidence: work/game-inactivity-reminder/live-hourly-trigger.png and test.cjs. At a later heartbeat after03:00Z, inspect the observed cron events page /86e18b73222d2807ad14e2e89bcef365/workers/services/cron-events/ohana-home/production in Cloudflare; do not infer delivery from configuration alone.
-
-Still open: Bible printed columns, full Android Back/Home, further Christian country/contemporary/kids/comedy music, timed fades, exact Invite obstruction, red-three scoring question, physical iPhone and remaining full audit. Outfits stay last.
-
-The earlier checkpoint/history follows.
-
-# Latest verified checkpoint — seven family hymns
-
-Release bbbcd8a73e7fda68b49fbdbeafeb788d07a78205 is live after a successful Cloudflare build. App blob285db680a3a80e33c929423d028a2af6a46819fd (6284113 bytes); worker blob8bedc1d7130636d2ff0c033b6b8a2ee3502a176b (781456 bytes). Canonical local files are work/final-current-release/app.html and worker.js. Use these newest files for future guarded transplants.
-
-Seven public-domain St. Peter Hymns For Life recordings are published. All seven passed official source playback and actual Ohana audio checks at390×844 (readyState4, elapsed time progressing). Traditional Hymns has7 selections, Family & Kids has2, Sunday Best104, Radio810, total914. All original907 catalog records are preserved. The built-in-ID list is the only worker change; PuzzleRoom storage, bindings and lifecycle are unchanged. Nashville Roadhouse photo and module are preserved.
-
-Playback restored to paused, all-song filters restored, Home loads normally and sampled error logs are empty. Evidence: work/licensed-catalog-expansion/live-playback-proof.json and live-hymns-390x844.png. These are responsive Chrome checks, not physical iPhone/Safari certification or complete audition of every recording.
-
-Still pending: country Christian/contemporary worship/clean comedy expansion, timed profanity fades, Bible printed columns, full Android Back/Home,72-hour reminders, exact Invite obstruction, red-three scoring question and remaining full audit. Do not claim the whole library is censored or certified clean. Outfits remain last.
-
-The earlier checkpoint/history follows.
-
-# Latest verified checkpoint — Nashville Roadhouse
-
-Release7c9ca4603f2956cca0938dea28911366bb33624a is live. App blob5a5e0d6bad9cdeb2aa956628f6f78f6876364d6d,6293214 bytes; worker unchanged. Canonical local app is work/final-current-release/app.html.
-
-The user's original Nashville Roadhouse photograph is framed on the Music room wall, with tap-to-enlarge. Live390×844 and844×390 checks passed for image containment, Home, Close, browser Back, Escape, reopening Music and uninterrupted audio. The library target cascade repair is also live: Song+, Playlist+ and Mine are44px high. All907 catalog records are unchanged.
-
-Evidence and limits: docs/OHANA-NASHVILLE-ROADHOUSE.md. Physical iPhone/Safari remains untested; the full saved audit still lists unfinished features. No new songs or profanity filtering were published in this batch. Local preview access is still denied; do not repeatedly retry or bypass session policy.
-
-The earlier checkpoint/history follows.
-
-# Current release checkpoint — October 16
-
-Ready deployment: app 6099743 bytes, blob 1822a9055477588bfd33c23be2165ab8ecd6c475; worker 781217 bytes, blob 4a82cca3152665ea4d8cb2c596f72642243a7772. Includes printed Bible leaves/readable reader, integrated digital jukebox, Bridge ordering/navigation/My Games/guide, gold Journey/setup controls, shared coloring isolation, compact landscape workstation. Combined normal startup, Bible opening, Bridge order passed; individual evidence preserved in work folders. Deployment must be verified before calling live.
-
-Previously confirmed live: 6b42aa7 header, card placement and gestures. Physical Android pinch/pull-refresh needs device confirmation. Remaining: exact covered Invite dialog, physical record-player button polish, red-three scoring choice for eight reds, friendly 72-hour inactivity reminder (not built), member upload sharing defaults, Christian radio, YouTube, timed profanity fades, remaining full-site gameplay/device audit. Tara automatic switching remains resolved by user. Outfits paused. Never change PuzzleRoom Durable Object storage/bindings/lifecycle; preserve bootstrap helper order and compressed assets.
-
-# Ohana Home — current review
-
-Reviewed October 16, 2026. This is a status reconciliation and active audit, not a claim that every game has passed a new end-to-end device test.
-
-## Verified live
-
-Public application matches the last verified repair release: **cc5b759**, 6,149,681 bytes, Git blob `f4356b5017764ed21f2324d0d809f423fb45c856`. GitHub main is **134d84c**, a later handoff/documentation commit with the same application. Home finishes normal signed-in startup.
-
-| Area | Published behavior | Remaining issue or limit |
-|---|---|---|
-| Home | Music, Memories, Blessings, Granny, United, Journey, Shuffle, Tile; active games inside their matching rooms; Play now at top; duplicate Home label removed | Bible presentation remains unacceptable; consistent room headers and inner-room styling still under repair |
-| Bridge | Individual light icon-and-label backing; duplicate legacy icons suppressed; unboxed record-player labels; scroll-reset repair; phone guide | Latest requested order is Player → Room/Volume → Chat → Games/tools. Reported Home/Invite failures are being audited |
-| Music | Digital song banks, search, filters, playlists, shuffle, independent playback, owner edits and visible Share | Redundant title/overlap and clipped cardinal caption need repair. Radio and YouTube are not implemented. Current contribution source support is limited |
-| Sharing | Owner Share for songs/playlists: Only me, everyone in Ohana, selected people; recipient cannot edit; private tracks retain protection | User wants their own new uploads shared broadly; per-member default is not yet implemented. No bulk privacy change was made |
-| Hand and Foot | Original card faces, compact arrangement, score below names; rank positions restored; black threes always zero with legal final-stage meld | Pull-refresh/zoom/reorder, red-three placement, discard count, and book labels have further unpublished patches |
-| Automatic next game | Earlier repairs live; Tara's Android is working by the user's explicit confirmation | Investigation closed. Do not reopen or change it without new evidence |
-| Memory | Two-card reveal pacing and rapid second-tap repair live | Older wrong-position report was not reproduced; separate child-friendly visual redesign remains pending |
-| Dominoes | Large-hand scrolling repair live | No new full match completed in this audit. Draw Dominoes scores at round end; do not invent a hand-size cap |
-| Memories | Album spacing/full-original display/page-turn repairs live; fresh audit opens album and loads photos | Native Home-left/title-right header measured correctly. Physical device/rotation audit remains |
-| Beach games | Chess sand styling and Tic-Tac-Toe shoreline corrections previously published | Full portrait/landscape regression review still required. Checkers in sand remains later work |
-| Rules and updates | Game-type-wide introduction opt-out, illustrated guides, section update cards live | Guide accuracy and header/control consistency must be checked as screens change |
-
-## Active unpublished work
-
-1. **Touch controls:** suppress root pull-to-refresh without blocking native zoom. Hold briefly then slide to rearrange HF/Ohana 10 cards; quick swipe scrolls, a second finger cancels dragging for pinch. Logic tests pass; actual browser checks are underway. Real Android gesture confirmation remains necessary.
-2. **Headers:** one readable Ohana Home at upper left and current Ohana room/game title at upper right. A legacy routine moving Home into the bottom dock was found. The updated game control avoids old icon-only sizing. Native Memory and Journey checks passed; remaining screens are being reviewed.
-3. **Hand and Foot visual repair:** full red-three cards near the owner's foot, count directly below discard, Clean/Dirty labels attached to neat card stacks. Phone-size visual and card-selection checks passed. Final combined review is underway. Opponent red threes must stay on the opponent's side; fixture names must not imply duplicate ownership.
-4. **Bridge/Music/Journey audit:** latest Bridge order; Home/Invite action behavior; redundant music wording and clipped caption; inconsistent blue/white box controls inside Journey. Findings and bounded fixes remain separate until verified.
-
-## Not finished
-
-- **Bible:** research and verse verification are saved, but a convincing printed-page design is not implemented. Preserve approved book/table art; correct scripture typography, page margins, perspective and clipping. No fake filler or silent translation change.
-- **Red-three scoring:** desired +100 after opening meld, four worth 1,000 for each eligible player, caught hand/foot −300 each. Eight-red-three treatment is still undecided. Black-three rules are already live; do not confuse the two.
-- **Shared coloring:** two-member synchronization tests passed; final phone layout and personal-fill persistence remain.
-- **Profanity fading:** prototype exists; accurate word timings and final integration are missing. Songs are not automatically cleaned today.
-- **Christian radio/music expansion:** sources were identified, including worship, old hymns and Christian country. Supported/authorized playback and integration remain. A station website is not automatically an authorized in-app stream.
-- **YouTube:** no implementation or channel connection. A visible player or pause-on-leave choice remains; hidden YouTube audio is not supported. Converting original video files owned by members is saved for another day.
-- **Later:** Checkers sand appearance, Memory visual refresh, smaller landscape workstation, full game/device/rotation audit, removal of redundant processing narration. Outfits alone remain paused.
-
-## Release and continuation rules
-
-Publish verified finished repairs promptly. Keep unfinished candidates out. Check normal startup, exact public version and actual screen behavior; a pushed commit is not proof of a working release. Preserve the early turn-helper startup fix and lossless coloring compression/hosting margin. Never alter PuzzleRoom Durable Object storage, bindings, SQLite exports, migrations or lifecycle. Never play family moves or send invitations/messages merely to test.
-
-The account reset was verified at 0% used, with two resets left at that moment. The user selected Medium reasoning; the active setting cannot be directly verified from the available tools. Continue efficiently without duplicate research.
-
-Canonical continuation: `docs/OHANA-MASTER-HANDOFF.md` in GitHub. Guarded pending patches are under `handoff/2026-10-16/work`. Local canonical application is `work/final-current-release/app.html`; old fixture/candidate whole files must not replace it.
-
-## Finished follow-up release record
-
-The application accompanying this report is 6,158,495 bytes, Git blob `d4def021c2af1fbb9580d99f52c505c42dc9ac5e`. It includes the tested shared header, Hand and Foot placement, and card-gesture repairs listed above. Public deployment must be verified before describing those follow-ups as live. Bridge/Music, Journey styling and Bible prototypes are separate and still under review.
+Every15minutes review finished work and publish only verified items. Notify only meaningful completion/failure/necessary action; keep quiet when unchanged. Never claim workers are busy without checking. Preserve concise current state here and link evidence instead of repeatedly prepending full histories.
 
