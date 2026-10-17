@@ -1,0 +1,22 @@
+{
+  "base": "0854ba63c7ec925d7bf16c3b8b6dbe8887358f9c",
+  "candidate": "376e2dea1b2573c37eaae41465a72fa1e2caf1ef",
+  "bytes": 6415833,
+  "patches": [
+    "guide-save-helper",
+    "guide-checkbox",
+    "section-update-checkbox",
+    "game-intro-checkbox",
+    "game-release-checkbox",
+    "touch-lifecycle-cancellation",
+    "red-three-count",
+    "public-meld-rank-css"
+  ],
+  "exactInverse": true,
+  "scriptsParsed": 26,
+  "workerChanged": false,
+  "puzzleRoomChanged": false,
+  "ownHandArtworkChanged": false,
+  "browserVerified": false,
+  "published": false
+}

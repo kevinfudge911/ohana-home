@@ -1,0 +1,42 @@
+[
+  {
+    "name": "guide-save-helper",
+    "from": "function close(save=true){if(!active)return;const a=active;active=null;if(save&&a.node.querySelector('input')?.checked&&a.key){try{localStorage.setItem(a.key,'1');}catch{}if(identity().member===a.member)try{prefsApi({prefs:{[a.prefKey]:true}}).catch(()=>{});}catch{}}if(a.native)",
+    "to": "function rememberGuide(a){if(a.node.querySelector('input')?.checked&&a.key){try{localStorage.setItem(a.key,'1');}catch{}if(identity().member===a.member)try{prefsApi({prefs:{[a.prefKey]:true}}).catch(()=>{});}catch{}}}\nfunction close(save=true){if(!active)return;const a=active;active=null;if(save)rememberGuide(a);if(a.native)"
+  },
+  {
+    "name": "guide-checkbox",
+    "from": "active={node:d,key:k,member:identity().member,prefKey:prefKey(id,g),focus,native:!modal,host:modal,keydown};d.querySelector('[data-tour-okay]')",
+    "to": "active={node:d,key:k,member:identity().member,prefKey:prefKey(id,g),focus,native:!modal,host:modal,keydown};d.querySelector('input').addEventListener('change',()=>{if(active?.node===d)rememberGuide(active);});d.querySelector('[data-tour-okay]')"
+  },
+  {
+    "name": "section-update-checkbox",
+    "from": "const check=d.querySelector('input');function remember(){newsSetDismissed(items[index].key,check.checked)}function paint()",
+    "to": "const check=d.querySelector('input');function remember(){newsSetDismissed(items[index].key,check.checked)}check.addEventListener('change',remember);function paint()"
+  },
+  {
+    "name": "game-intro-checkbox",
+    "from": "d.querySelector('button').onclick=()=>d.close();d.addEventListener('close',()=>{if(d.querySelector('[data-entry-hide]').checked)hideGameTypeIntro(g.type,member);",
+    "to": "d.querySelector('[data-entry-hide]').addEventListener('change',()=>{if(d.querySelector('[data-entry-hide]').checked)hideGameTypeIntro(g.type,member);});d.querySelector('button').onclick=()=>d.close();d.addEventListener('close',()=>{if(d.querySelector('[data-entry-hide]').checked)hideGameTypeIntro(g.type,member);"
+  },
+  {
+    "name": "game-release-checkbox",
+    "from": "d.querySelector('#game-release-okay').onclick=()=>d.close();",
+    "to": "d.querySelector('#game-release-dont-show').addEventListener('change',()=>{if(d.querySelector('#game-release-dont-show').checked)newsDismiss(key);});d.querySelector('#game-release-okay').onclick=()=>d.close();"
+  },
+  {
+    "name": "touch-lifecycle-cancellation",
+    "from": "b.onpointercancel=clean;b.onlostpointercapture=clean;b.ondragstart=e=>e.preventDefault();",
+    "to": "// Touch Events own the touch reorder lifecycle; Pointer cancellation must not erase it.\n   const cancelPointer=()=>{if(!drag?.touch)clean();};b.onpointercancel=cancelPointer;b.onlostpointercapture=cancelPointer;b.ondragstart=e=>e.preventDefault();"
+  },
+  {
+    "name": "red-three-count",
+    "from": "<b>Red threes · ${st.red3s?.[me]?.length||0}</b><span class=\"hf-owner-red-stack\">${(st.red3s?.[me]||[]).map((c,i)=>`<span class=\"hf-owner-red-card hf-card hf-shaped hf-hand-card red\" style=\"--red-offset:${Math.min(i,3)}\" aria-label=\"${esc(nameOf(me))}: red 3 ${esc(c.suit)}\">${hfCardShape(false)}${face(c)}</span>`).join('')}</span>",
+    "to": "<span class=\"hf-owner-red-stack\">${(st.red3s?.[me]||[]).map((c,i)=>`<span class=\"hf-owner-red-card hf-card hf-shaped hf-hand-card red\" style=\"--red-offset:${Math.min(i,3)}\" aria-label=\"${esc(nameOf(me))}: red 3 ${esc(c.suit)}\">${hfCardShape(false)}${face(c)}</span>`).join('')}</span><b class=\"hf-owner-red-count\" aria-label=\"${st.red3s?.[me]?.length||0} red threes\">${st.red3s?.[me]?.length||0}</b>"
+  },
+  {
+    "name": "public-meld-rank-css",
+    "from": "</head>",
+    "to": "<style id=\"ohana-hf-public-rank-followup-v1\">\n/* Public meld faces only; the player's lower hand and card artwork stay unchanged. */\n:root.ohana-world body #app #game #board#board#board#board[data-type=handfoot] .hf-public-cards>.hf-card>.hf-corner{position:absolute!important;top:auto!important;bottom:10%!important;left:25%!important;right:25%!important;width:auto!important;max-width:50%!important;display:block!important;white-space:nowrap!important;text-align:left!important;font:900 16px/1 Arial,sans-serif!important;letter-spacing:0!important;text-shadow:none!important}\n:root.ohana-world body #app #game #board#board#board#board[data-type=handfoot] .hf-public-cards>.hf-card.hf-foot-card>.hf-corner{left:23%!important;right:27%!important}\n:root.ohana-world body #app #game #board#board#board#board[data-type=handfoot] .hf-public-cards>.hf-card.hf-foot-card>.hf-card-picture{top:42%!important;right:17%!important;bottom:30%!important;left:14%!important}\n</style>\n</head>"
+  }
+]
