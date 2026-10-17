@@ -16864,7 +16864,7 @@ const libraryDrawer=document.createElement('details');libraryDrawer.className='t
 addEventListener('resize',()=>{if(!full.hidden)renderReader()});
 
 function renderReader(){
- const q=search.value.trim().toLowerCase(),pl=playlists.value,cur=JukeboxSys.current();songs.replaceChildren();songs.dataset.view='songs';refreshVisualBrowse();
+ const q=search.value.trim().toLowerCase(),pl=playlists.value,cur=JukeboxSys.current();songs.replaceChildren();songs.dataset.view='songs';refreshVisualBrowse();if(cur){const currentTitle=now.querySelector('.title'),currentArtist=now.querySelector('.artist');if(currentTitle&&!currentTitle.textContent.trim())currentTitle.textContent=cur.title||'Choose a song';if(currentArtist&&!currentArtist.textContent.trim())currentArtist.textContent=cur.artist||cur.handle||'';}
  hmgCredit.replaceChildren();hmgCredit.hidden=!["ohana-ccby-hmg-without-you","ohana-ccby-hmg-the-almighty","ohana-ccby-incompetech-monkeys-spinning-monkeys","ohana-ccby-incompetech-carefree","ohana-ccby-hmg-there-was-a-time","ohana-ccby-hmg-you-showed-me-love","ohana-ccby-hmg-real-freedom","ohana-ccby-hmg-let-not-your-heart-be-troubled","ohana-ccby-hmg-chosen-generation","ohana-ccby-hmg-its-been-awhile","ohana-ccby-hmg-sowing-seeds","ohana-ccby-hmg-abundant-life","ohana-ccby-hmg-you-love-me","ohana-ccby-hmg-watch-today"].includes(cur?.id);if(!hmgCredit.hidden){hmgCredit.append(document.createTextNode(cur.attribution+' '));for(const [text,url]of[['Source',cur.source_url],['CC BY 4.0',cur.license_url]]){const link=document.createElement('a');link.textContent=text;link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.style.cssText='color:#f7d786;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px;padding:2px 5px';link.setAttribute('aria-label',text+' for '+cur.title);hmgCredit.append(link);}}
 
  if(musicMine){for(const list of musicOwned.playlists.filter(p=>!q||p.name.toLowerCase().includes(q))){const line=document.createElement('div');line.className='tunes-own-playlist';const title=document.createElement('strong');title.textContent=list.name+' — Created by '+((S.sync?.members||[]).find(m=>Number(m.id)===Number(list.member_id))?.name||(Number(list.member_id)===Number(S.me?.id)?S.me.name:'Ohana member'))+(list.deleted_at?' · Removed':'');line.append(title);if(list.deleted_at)line.append(musicFlat('Restore',()=>restoreMusic('playlists',list)));else{line.append(musicFlat('Listen',()=>{musicMine=false;mineToggle.setAttribute('aria-pressed','false');playlists.value='list:'+list.id;playlists.dispatchEvent(new Event('change',{bubbles:true}))}),musicFlat('Share',()=>shareMusicItem('playlists',list)),musicFlat('Edit',()=>editMusicPlaylist(list)),musicFlat('Remove',()=>removeMusic('playlists',list)))}songs.append(line)}}
@@ -17049,6 +17049,42 @@ const visualStyles=document.createElement('style');visualStyles.textContent=`
 /* Keep a current title visible in the compact landscape sidebar. */
 @media(max-height:500px) and (min-width:651px){.tunes-playdium .tunes-collection-art>img{max-height:64px}.tunes-playdium .tunes-collection-art .jb-now{display:block!important;padding:3px 0!important}.tunes-playdium .tunes-collection-art .jb-now .title{font-size:13px!important;line-height:1.2!important}.tunes-playdium .tunes-collection-art .jb-now .label,.tunes-playdium .tunes-collection-art .jb-now .artist{display:none!important}.tunes-playdium .tunes-collection-art figcaption{font-size:14px}.tunes-playdium .tunes-collection-art .collection-art-kind{display:none!important}}
 .tunes-playdium .tunes-artist-empty{grid-column:1/-1;font:600 16px/1.5 Nunito,sans-serif;color:#c5d9c9}
+.full .tunes-reader.tunes-modern.tunes-playdium .tunes-record-groove{display:none!important}
+.full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-tabs button{background:none!important;border:0!important;min-height:40px!important;padding:0 3px!important;font-size:18px!important;color:#c3d9cf!important}
+.full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-tabs button[aria-pressed=true]{color:#ffe1a0!important;border-bottom:3px solid #f2c778!important}
+@media(max-height:650px) and (min-width:651px){
+ .full .tunes-reader.tunes-modern.tunes-playdium{grid-template-rows:40px auto minmax(0,1fr) 44px!important;gap:4px!important;padding:4px 14px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-modern-header{min-height:40px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-toolbar{gap:0 12px!important;padding:0 0 2px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-toolbar input[type=search]{min-height:38px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-toolbar button,.full .tunes-reader.tunes-modern.tunes-playdium .tunes-toolbar summary{min-height:36px!important;padding-block:0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-modern-stage{grid-template-columns:145px minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;gap:16px!important;min-height:0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-body{grid-template-rows:34px 24px minmax(0,1fr) 34px!important;gap:3px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium[data-music-view=artists] .tunes-visual-body{grid-template-rows:34px 24px minmax(0,1fr)!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-tabs button{min-height:34px!important;font-size:15px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-heading{min-height:24px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-heading h3{font-size:16px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-bank-nav,.full .tunes-reader.tunes-modern.tunes-playdium .tunes-bank-nav button{min-height:34px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-songs{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-auto-rows:max-content!important;gap:8px!important;--tunes-tile-height:108px}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-managed-row{min-height:0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-song.tunes-title-slip{min-height:0!important;gap:5px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-track-art,.full .tunes-reader.tunes-modern.tunes-playdium .tunes-artist-art{height:54px!important;min-height:54px!important;aspect-ratio:auto!important;flex:none!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-track-art>b{height:34px!important;width:34px!important;font-size:22px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-slip-label{min-height:42px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-slip-label strong{font-size:13px!important;line-height:1.15!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-slip-label small{font-size:11px!important;line-height:1.2!important;margin-top:2px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-collection-art{display:flex!important;flex-direction:column!important;gap:4px!important;overflow:auto!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-collection-art>img{height:70px!important;max-height:70px!important;min-height:70px!important;aspect-ratio:auto!important;object-fit:cover!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-collection-art figcaption{font-size:15px!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-collection-art .collection-art-kind{display:none!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-collection-art .jb-now{display:block!important;padding:3px 0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .jb-now .title{font-size:13px!important;line-height:1.2!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .jb-now .label,.full .tunes-reader.tunes-modern.tunes-playdium .jb-now .artist{display:none!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-collections button{min-height:30px!important;padding:0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-visual-collections small{display:none!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-cabinet-rail{grid-row:4!important;min-height:44px!important;padding-top:0!important}
+ .full .tunes-reader.tunes-modern.tunes-playdium .tunes-artist-art b{font-size:30px!important}
+}
 `;shadow.append(visualStyles);
 renderReader();
 
