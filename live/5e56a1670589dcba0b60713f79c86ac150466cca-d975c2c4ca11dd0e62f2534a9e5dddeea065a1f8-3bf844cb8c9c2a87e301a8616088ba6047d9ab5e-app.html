@@ -6015,6 +6015,15 @@ function ohanaEntranceBible(){
   try{sessionStorage.setItem('ohana-entrance-verse',String(next));}catch{}
  }
  ohanaEntranceWasHome=true;const first=ohanaEntranceVerse,index=OHANA_ENTRANCE_NKJV.indexOf(first),second=Array.from({length:OHANA_ENTRANCE_NKJV.length-1},(_,i)=>OHANA_ENTRANCE_NKJV[(index+i+1)%OHANA_ENTRANCE_NKJV.length]).find(v=>!matchMedia('(max-width:600px)').matches||v.v.length<=55);
+ /* ohana-bible-print-canary */
+ const ohanaBiblePrintEnabled=new URLSearchParams(location.search).get('ohana-bible-preview')==='1';
+ if(ohanaBiblePrintEnabled){
+  document.documentElement.classList.add('ohana-bible-print-preview');
+ const ordered=Array.from({length:OHANA_ENTRANCE_NKJV.length},(_,i)=>OHANA_ENTRANCE_NKJV[(index+i)%OHANA_ENTRANCE_NKJV.length]);
+ const half=ordered.reduce((n,v)=>n+v.v.length+v.r.length,0)/2;let split=0,used=0;while(split<ordered.length-1&&used<half){used+=ordered[split].v.length+ordered[split].r.length;split++;}
+ const leaf=items=>'<div class="bible-print-columns">'+items.map(v=>{const m=v.r.match(/^(.*) (\d+):(\d+)$/);return '<p><strong class="bible-book-head">'+esc(m?.[1]||v.r)+'</strong> <sup>'+esc(m?m[2]+':'+m[3]:'')+'</sup> '+esc(v.v)+'</p>';}).join('')+'</div><small class="bible-selection-label">Selected scriptures · NKJV</small>';
+ return '<section class="ohana-entry-bible" data-open-entry-bible role="button" tabindex="0" aria-label="Read selected scriptures in the family Bible"><img class="ohana-bible-table-art" src="/ohana-family-bible-table-v1.webp" alt="An open family Bible on a carved porch table"><div class="ohana-bible-page ohana-bible-left">'+leaf(ordered.slice(0,split))+'</div><div class="ohana-bible-page ohana-bible-right">'+leaf(ordered.slice(split))+'</div></section>';
+ }
  const leaf=v=>{const match=v.r.match(/^(.*) (\d+):(\d+)$/);return '<small class="bible-selection-label">Selected · NKJV</small><h3>'+esc(match?.[1]||v.r)+'</h3><p class="'+(v.v.length>55?'bible-verse-long':'')+'"><sup>'+esc(match?match[2]+':'+match[3]:'')+'</sup> '+esc(v.v)+'</p>';};
  return '<section class="ohana-entry-bible" data-open-entry-bible role="button" tabindex="0" aria-label="Read selected scriptures in the family Bible"><img class="ohana-bible-table-art" src="/ohana-family-bible-table-v1.webp" alt="An open family Bible on a carved porch table"><div class="ohana-bible-page ohana-bible-left">'+leaf(first)+'</div><div class="ohana-bible-page ohana-bible-right">'+leaf(second)+'</div></section>';
 }
@@ -17068,4 +17077,12 @@ window.addEventListener('popstate',event=>{const wanted=marker(event.state);cons
 const observer=new MutationObserver(()=>{for(const d of document.querySelectorAll('dialog[open]'))register(d);});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});for(const d of document.querySelectorAll('dialog[open]'))register(d);
 })();
 
-}</script>
+}</script><style id="ohana-bible-print-canary-style">
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible{container-type:inline-size!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .ohana-bible-page{display:flex!important;flex-direction:column!important;gap:1px!important;padding:2px 3px!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .bible-print-columns{columns:2!important;column-gap:5px!important;column-rule:0!important;column-fill:balance!important;width:100%!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .bible-print-columns p{font:400 clamp(1.5px,.85cqw,8px)/1.18 Georgia,'Times New Roman',serif!important;letter-spacing:-.015em!important;text-align:justify!important;margin:0 0 .45em!important;padding:0!important;break-inside:avoid!important;overflow-wrap:normal!important;word-break:normal!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .bible-print-columns .bible-book-head{display:block!important;font:700 .88em/1.15 Georgia,serif!important;text-align:center!important;letter-spacing:.035em!important;margin:0 0 .25em!important;color:#211a12!important;text-transform:uppercase!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .bible-print-columns sup{font-size:.63em!important;vertical-align:super!important;line-height:0!important}
+:root.ohana-world.ohana-bible-print-preview body #app .ohana-entry-bible .ohana-bible-page .bible-selection-label{flex:none!important;font:400 clamp(1.3px,.6cqw,3px)/1.1 Georgia,serif!important;margin:0!important;text-align:center!important;white-space:nowrap!important}
+</style>
