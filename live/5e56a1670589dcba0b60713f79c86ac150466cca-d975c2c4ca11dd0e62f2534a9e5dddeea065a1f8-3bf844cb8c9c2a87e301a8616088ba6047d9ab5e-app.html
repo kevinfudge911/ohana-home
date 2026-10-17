@@ -19,10 +19,10 @@
 html,body{margin:0;height:100%;background:var(--ocean);color:var(--sand);font-family:Nunito,system-ui,sans-serif;font-size:16px;line-height:1.45}
 body{display:flex;flex-direction:column;min-height:100dvh;overscroll-behavior:none}
 h1,h2,h3,.disp{font-family:Fredoka,Nunito,sans-serif;font-weight:600;letter-spacing:.01em;margin:0}
-button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:12px 18px;background:var(--coral);color:var(--ink);font-weight:800;font-family:Fredoka,sans-serif;font-size:17px;letter-spacing:.02em}
+button{font:inherit;cursor:pointer;border:0;border-radius:0;padding:12px 18px;background:none;color:inherit;font-weight:800;font-family:Fredoka,sans-serif;font-size:17px;letter-spacing:.02em}
 button:active{transform:translateY(1px)}
 button.ghost{background:transparent;color:var(--sand);border:2px solid var(--mist);font-weight:600}
-button.soft{background:var(--shallow);color:var(--sand)}
+
 button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 input,textarea{font:inherit;width:100%;padding:13px 14px;border-radius:14px;border:2px solid var(--shallow);background:var(--deep);color:var(--sand);font-size:17px}
@@ -229,8 +229,8 @@ body{background:radial-gradient(ellipse at 15% 0%,#37615b 0,transparent 55%),#10
 header{padding:22px 26px 16px;gap:14px}header h1{font-family:Georgia,serif;font-size:30px;letter-spacing:-.8px}header small{font-family:Nunito,sans-serif;font-size:14px;margin-top:4px;color:#dfca9e}
 header .logo{width:48px;height:48px}.home-mark{display:grid;place-items:center;width:50px;height:50px;color:var(--sun);border:1px solid #d6b47770;border-radius:16px;background:linear-gradient(135deg,#37635b,#173d3e);box-shadow:inset 0 1px #ffffff20,0 5px 15px #0002;flex:none}.home-mark svg{width:32px;height:32px}
 main{padding:8px 24px 110px}
-button{border-radius:12px;background:linear-gradient(#f5c393,#e7a372);box-shadow:inset 0 1px #ffffff65,0 3px 0 #925839,0 5px 10px #0002;min-height:44px;font-family:Nunito,sans-serif;font-weight:800;letter-spacing:0}
-button.soft{background:linear-gradient(#366865,#24504f);border:1px solid #94bbb34a;box-shadow:inset 0 1px #ffffff18,0 2px 0 #071f22}
+button{min-height:44px;font-family:Nunito,sans-serif;font-weight:800;letter-spacing:0}
+
 button.ghost{border:1px solid #c8d7cd65;box-shadow:none}button:disabled{box-shadow:none}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
 input,textarea{background:#0c292dc9;border:1px solid #8cac9d66;box-shadow:inset 0 2px 5px #0002;border-radius:12px}input::placeholder,textarea::placeholder{color:#bbc7bd}select{min-height:44px}
 .welcome{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;border:1px solid #e9c48766;min-height:256px;padding:34px;margin:0 0 26px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 34px #00191c55;background:#163b40 url('/ohana-island.webp?asset=ohana-v105-binary-repair-20261011') center/cover}
@@ -327,18 +327,14 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 /* Ohana island cartoon system: clear ink, sunlit color, rounded drawn edges. */
 :root{--island-ink:#113d54;--island-face:#8bdbe9;--island-shadow:#287f9b}
 :where(.gcard,.game-setup,.game-nook,.room-card,.room-game,.room-current,.room-conversation,.room-create,.fam,.ohana-invitation,.ohana-invite-dialog,.game-head,.acts,.gchat-input-row,.compose,.admin,.notification-options,.character-settings,.join,.score-review,#session-reconnect) button:where(:not(.buddy-choice):not([data-av]):not(.sw-toggle):not(.honu-host)),nav.tabs button,.replay-moment,#inviteb,#joinb,#startb,#botb,#wback,#wleave,#rename,#out,#install,#save-character{
- background:var(--island-face)!important;color:var(--island-ink)!important;text-shadow:none!important;
- border:2px solid #17465c!important;border-radius:16px 13px 17px 12px!important;
- box-shadow:inset 0 2px 0 #ffffff90,0 4px 0 var(--island-shadow),0 6px 0 #123e4d44!important;
  font-family:Nunito,system-ui,sans-serif!important;font-size:15px!important;font-weight:800!important;letter-spacing:0!important;line-height:1.25!important;
- min-height:42px;transition:transform .15s,background .15s;
-}
+ min-height:42px;transition:transform .15s,background .15s}
 .game-setup[data-setup-game="memory"]{--island-face:#dac2f7;--island-shadow:#8770b8}.game-setup[data-setup-game="checkers"]{--island-face:#ffb5a3;--island-shadow:#bc786c}.game-setup[data-setup-game="mahjong"]{--island-face:#9fe3d0;--island-shadow:#489581}.game-setup[data-setup-game="words"]{--island-face:#ffe295;--island-shadow:#b5944b}
 .ohana-invite-dialog,.fam .ohana-invite,.ohana-invitation,#inviteb,[data-room-share],.room-theme-flower{--island-face:#ffc1d0;--island-shadow:#b16f8c}
 .game-setup button.setup-choice[aria-pressed="false"]{background:#f4f8eb!important;box-shadow:0 2px 0 #92b1ad!important;border-color:#729995!important;opacity:1;filter:none}
 .game-setup button.setup-choice[aria-pressed="true"]{background:var(--island-face)!important;outline:2px solid #147187;outline-offset:2px}.setup-choice .room-name{color:#113d54!important;text-shadow:none!important}
 :is(.game-setup,.game-nook,.room-card,.fam,.ohana-invitation,.ohana-invite-dialog,.acts) button:enabled:hover{filter:brightness(1.04)}
-:is(.game-setup,.game-nook,.room-card,.fam,.ohana-invitation,.ohana-invite-dialog,.acts) button:enabled:active{transform:translateY(3px);box-shadow:inset 0 2px 0 #fff6,0 1px 0 var(--island-shadow)!important}
+:is(.game-setup,.game-nook,.room-card,.fam,.ohana-invitation,.ohana-invite-dialog,.acts) button:enabled:active{}
 nav.tabs{background:#fff3ddeb!important;border-top:3px solid #1e6678!important;backdrop-filter:blur(12px)}nav.tabs .in{gap:9px;padding:5px 10px 9px}nav.tabs button{min-height:54px;font-size:14px!important;padding:5px 3px;--island-face:#abe1f1;--island-shadow:#5199b7}nav.tabs button[data-tab="chat"]{--island-face:#d6c1f0;--island-shadow:#8b76b0}nav.tabs button[data-tab="family"]{--island-face:#ffb9a6;--island-shadow:#bf8271}nav.tabs button[data-tab="rooms"]{--island-face:#a6dfca;--island-shadow:#659c84}nav.tabs button.on{outline:2px solid #125369;outline-offset:2px}nav.tabs button .ic{font-size:23px;filter:none}
 .acts #play{--island-face:#a8e2b4;--island-shadow:#559970}.acts #shuf{--island-face:#d9c7f6;--island-shadow:#8a77b3}.acts #swap{--island-face:#a9e1f6;--island-shadow:#598ea7}.acts #pass{--island-face:#ffceae;--island-shadow:#bb886d}
 button:focus-visible{outline:3px solid #006e91!important;outline-offset:3px}
@@ -614,7 +610,7 @@ nav.tabs{background:linear-gradient(#164b63f2,#0e344cf7)!important;border-top:2p
 nav.tabs .in{max-width:1100px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:2px;box-sizing:border-box}
 nav.tabs button{position:relative;min-width:0;min-height:56px!important;padding:6px 4px!important;font-family:Fredoka,Nunito,sans-serif!important;font-size:17px!important;font-weight:500!important;border:2px solid #12475d!important;border-radius:18px 18px 13px 13px!important;background:linear-gradient(165deg,#ffffff70,transparent 60%),var(--island-face)!important;box-shadow:inset 0 2px #fff9,0 3px var(--island-shadow)!important;color:#123d50!important;gap:4px;overflow:visible}
 nav.tabs button.on{outline:2px solid #fff0b4;outline-offset:1px;box-shadow:inset 0 2px #fff,0 3px #18546b,0 0 13px #8ae7e866!important}nav.tabs button.on:after{content:'';position:absolute;bottom:3px;width:22px;height:3px;border-radius:3px;background:#155e76}nav.tabs .ic{height:25px!important}nav.tabs .island-icon{width:26px;height:26px}nav.tabs .badge{top:-5px;right:8px;background:#ffcf8d;color:#163e50;border:2px solid #fff3d8}
-:is(.game-head,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog) button:not(.honu-host):not(.buddy-choice):not([data-av]):not(.sw-toggle){border-radius:14px!important;background:linear-gradient(160deg,#ffffff65,transparent 65%),var(--island-face,#a9e6eb)!important;color:#143f55!important;border:2px solid #28758a!important;box-shadow:inset 0 2px #fff8,0 3px var(--island-shadow,#408d9f)!important;min-height:44px;font-family:Nunito,sans-serif!important;font-weight:800!important}
+:is(.game-head,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog) button:not(.honu-host):not(.buddy-choice):not([data-av]):not(.sw-toggle){min-height:44px;font-family:Nunito,sans-serif!important;font-weight:800!important}
 #gb-leave,#hf-discard{--island-face:#ffc5b7;--island-shadow:#b57572}.voice-toggle,#hf-help,#game-help{--island-face:#dfcff6;--island-shadow:#9480b7}#play,#hf-submit,.setup-start{--island-face:#b8edcc;--island-shadow:#548f80}#next-game{--island-face:#ffe29c;--island-shadow:#b19250}#game-width{--island-face:#bde8f4;--island-shadow:#518ca5}
 .room-welcome{padding:6px 0;gap:10px}.room-host img{width:42px;height:50px}.room-welcome h2{font-size:22px;margin:0}.room-welcome p{margin:2px 0;font-size:13px}.room-help{margin:6px 0;font-size:13px}.room-doors{gap:9px}.room-card{padding:10px;gap:7px;border-radius:16px!important}.room-card>div{flex-basis:auto;flex:1 1 160px}.room-card h3{margin:0}.room-card .room-name{font-size:20px!important}.room-card details{margin:0}.room-create{margin:12px 0;padding:12px}
 .fam{padding:9px 10px;border-radius:16px!important;margin:7px 0;gap:9px}.fam b{font-size:19px!important}.fam .av img{width:42px;height:48px;object-fit:contain}.fam .ohana-invite{font-size:13px!important;padding:6px 9px!important;flex:none}.member-about{font-size:13px;margin:3px 0}
@@ -840,22 +836,16 @@ html.ohana-world body #game .world-hand .hf-staged,#game .hf-staged{position:rel
 #game .compact-player.current,#game-head .hf-player.current{border-color:#e1bd68!important;box-shadow:inset 0 0 0 1px #fff5c9,0 0 8px #5ddad433!important}
 /* Enamel faces, fine champagne rims and restrained depth across app controls. */
 body :is(nav.tabs,.acts,.hf-acts,.mj-tools,.game-setup,.room-card,.room-create,.fam,.settings-tools,.ohana-invite-dialog,.setup-choices,.gcard,.join,.compose,.gchat-input-row) button:not(.buddy-choice):not([data-av]):not(.hf-card):not(.rt):not([data-react]),
-#game-head>button,#game .game-tray .acts button,#game .hf-acts button{
- --enamel:#16677d;--enamel-dark:#0b3b51;
- background:linear-gradient(165deg,#ffffff30 0%,#ffffff08 42%,#00000012 43%,#00000000 100%),linear-gradient(135deg,var(--enamel),var(--enamel-dark))!important;
- color:#fff4d9!important;border:1px solid #d7be83!important;border-radius:11px!important;
- box-shadow:inset 0 0 0 1px #ffffff22,inset 0 2px 1px #ffffff35,inset 0 -2px 2px #00000020,0 3px 0 #082d3e,0 4px 7px #052f4233!important;
- font-family:Nunito,sans-serif!important;font-weight:800!important;letter-spacing:.1px;text-shadow:0 1px 1px #001d3355;min-height:44px;
-}
-body :is(#play,#hf-submit,.setup-start,#joinb){--enamel:#27816b!important;--enamel-dark:#105344!important}
-body :is(#next-game){--enamel:#b08031!important;--enamel-dark:#73551f!important}
-body :is(#gb-leave,#hf-discard,#pass){--enamel:#ae6060!important;--enamel-dark:#723c52!important}
-body :is(#shuf,#hf-clear,.voice-toggle,#game-help,#hf-help){--enamel:#77629c!important;--enamel-dark:#483c72!important}
-body nav.tabs button[data-tab=chat]{--enamel:#7960a1;--enamel-dark:#4a386e}
-body nav.tabs button[data-tab=family]{--enamel:#a65d69;--enamel-dark:#693c55}
-body nav.tabs button[data-tab=rooms]{--enamel:#257f70;--enamel-dark:#125047}
+#game-head>button,#game .game-tray .acts button,#game .hf-acts button{font-family:Nunito,sans-serif!important;font-weight:800!important;letter-spacing:.1px;min-height:44px}
+
+
+
+
+
+
+
 body nav.tabs button.on{outline:2px solid #f6d68e;outline-offset:1px}
-body :is(.acts,.hf-acts,nav.tabs,.settings-tools,.game-setup) button:not(:disabled):active,#game-head>button:active{transform:translateY(2px);box-shadow:inset 0 1px 4px #001b3344,0 1px #082d3e!important}
+
 body :is(.acts,.hf-acts) button:disabled{opacity:.55!important;filter:saturate(.45)}
 #game-head .voice-toggle[aria-pressed=true]{--enamel:#536a7e!important;--enamel-dark:#354757!important}
 #game-head .hf-player{flex:0 1 auto!important}
@@ -943,23 +933,12 @@ body :is(.acts,.hf-acts) button:disabled{opacity:.55!important;filter:saturate(.
 
 /* Shared carved island controls, inside tables and throughout the home screens. */
 body :is(#app,#game,#main,.game-tray,dialog,nav.tabs) button.ohana-button,
-body>button.ohana-button{
- --control-light:#c4f8f5;--control-face:#62c7d4;--control-edge:#136680;
- position:relative;isolation:isolate;box-sizing:border-box;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;
- border:3px solid transparent!important;border-radius:15px 11px 15px 11px!important;
- background:radial-gradient(ellipse at 20% 0%,#ffffffd9,transparent 48%) padding-box,
- linear-gradient(173deg,var(--control-light) 0%,var(--control-face) 48%,var(--control-face) 74%,var(--control-edge) 100%) padding-box,
- linear-gradient(130deg,#fff4c4 0%,#c69449 22%,#fff4c8 40%,#a26e2c 66%,#f0cd7b 88%,#fff1be) border-box!important;
- color:#103b4f!important;font:600 16px/1.12 Fredoka,Nunito,sans-serif!important;text-shadow:0 1px #fff8!important;
- padding:8px 12px!important;letter-spacing:.1px;
- box-shadow:inset 0 0 0 1px #164961,inset 0 0 0 3px #fff7d577,inset 0 5px 3px #ffffff70,inset 0 -5px 2px #143d5538,0 3px 0 #143f57,0 5px 7px #072d4b50!important;
- transition:transform .12s,filter .12s;
-}
-body button.ohana-button[data-tone=mango]{--control-light:#fff4bc!important;--control-face:#ffc757!important;--control-edge:#c48a30!important}
-body button.ohana-button[data-tone=orchid]{--control-light:#f3e4ff!important;--control-face:#c2a1eb!important;--control-edge:#8562ae!important}
-body button.ohana-button[data-tone=coral]{--control-light:#ffe8d6!important;--control-face:#f5ab97!important;--control-edge:#bd6e70!important}
-body button.ohana-button[data-tone=palm]{--control-light:#e0f7bd!important;--control-face:#86d5af!important;--control-edge:#438e7c!important}
-body button.ohana-button .island-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:0 0 28px;margin:0 3px 0 0;border-radius:9px;background:linear-gradient(145deg,#fff6cecc,#ffffff18);box-shadow:inset 0 1px #fff9,0 1px 2px #174b5c55;filter:drop-shadow(0 1px #fff6)}
+body>button.ohana-button{position:relative;isolation:isolate;box-sizing:border-box;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;font:600 16px/1.12 Fredoka,Nunito,sans-serif!important;padding:8px 12px!important;letter-spacing:.1px;transition:transform .12s,filter .12s}
+
+
+
+
+body button.ohana-button .island-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:0 0 28px;margin:0 3px 0 0}
 body button.ohana-button .island-icon svg{width:25px;height:25px;filter:drop-shadow(0 1px 1px #17435955)}
 body button.ohana-button:disabled{filter:saturate(.35);opacity:.67;box-shadow:inset 0 1px #fff9,0 1px #45616d!important;cursor:default}
 body button.ohana-button:not(:disabled):hover{filter:brightness(1.06)}
@@ -1332,14 +1311,9 @@ html.less-motion #game-head>#next-game.next-ready{animation:none!important;outli
 
 /* One control finish across home, every game and chat. */
 :root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button.ohana-button.ohana-button,
-:root body .game-settings-menu>summary{
- box-sizing:border-box;min-height:46px!important;border:2px solid #e7c878!important;border-radius:14px!important;
- background:radial-gradient(ellipse at 28% 0%,#ffffffbb,transparent 55%),linear-gradient(175deg,var(--control-light,#c4f8f5),var(--control-face,#62c7d4) 65%,var(--control-edge,#136680))!important;
- color:#103b4f!important;font:600 18px/1.2 Fredoka,Nunito,sans-serif!important;text-shadow:0 1px #ffffff88!important;
- padding:8px 12px!important;gap:6px;box-shadow:inset 0 0 0 1px #225165,inset 0 2px 1px #fff9,inset 0 -3px 1px #0d46502b,0 3px 0 #173f51,0 5px 7px #062b4240!important;
-}
+:root body .game-settings-menu>summary{box-sizing:border-box;min-height:46px!important;font:600 18px/1.2 Fredoka,Nunito,sans-serif!important;padding:8px 12px!important;gap:6px}
 :root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button:disabled{opacity:.65!important;filter:saturate(.3);cursor:default}
-:root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button:not(:disabled):active{transform:translateY(2px);box-shadow:inset 0 2px 4px #16465344,0 1px #173f51!important}
+
 :root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button:focus-visible{outline:3px solid #fff1a0!important;outline-offset:3px}
 :root body #ohana-chat-dialog button.ohana-button[hidden]{display:none!important}
 :root body #ohana-chat-dialog .uc-conversation.ohana-button{justify-content:flex-start;text-align:left;padding:9px!important}
@@ -1544,7 +1518,7 @@ body :is(#app,#game,#main,.game-tray,dialog,nav.tabs) .pz-album-pic.ohana-button
 .pz-album-band{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;text-align:left;background:linear-gradient(180deg,transparent,#0b2f3ae8)}.pz-album-band b{display:block;font:600 16px Fredoka,Nunito;color:#fff0c9;text-shadow:0 2px 0 #5a3d1e;line-height:1.1}.pz-album-band span{font-size:11px;color:#e6f4ef}
 .pz-album-view{border:0;background:transparent;padding:0;max-width:96vw;max-height:96vh}.pz-album-view::backdrop{background:#04151dcc}.pz-album-view img{display:block;max-width:96vw;max-height:80vh;border-radius:16px;border:3px solid #ffe2a5;box-shadow:0 10px 40px #000a}.pz-album-close{position:fixed;top:14px;right:16px;width:44px;height:44px;border-radius:50%;border:2px solid #ffe2a5;background:#173c4d;color:#fff;font-size:20px;cursor:pointer}
 .pz-album-view-foot{max-width:96vw;margin:10px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;text-align:center;color:#e6f4ef;font-size:12px}.pz-album-del{font-size:12px!important;min-height:36px!important;padding:5px 12px!important}
-.pz-pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}.pz-pic{display:grid!important;grid-template-columns:1fr!important;gap:4px;padding:5px!important;min-width:0!important;background:#fff8e6!important;background-image:none!important;border:3px solid #e2bf7e!important;border-radius:14px!important;color:#173c4d!important;font:700 12px Nunito!important;text-shadow:none!important;text-align:center;position:relative;overflow:hidden}.pz-pic img{width:100%;height:70px;object-fit:cover;border-radius:9px}.pz-pic.on{border-color:#1f9d55!important;outline:3px solid #ffe9ad}.pz-photo input{position:absolute;inset:0;opacity:0;cursor:pointer}.pz-photo-icon{display:grid;place-items:center;height:70px;font-size:34px}.pz-photo-x{position:absolute;top:4px;right:4px;z-index:4;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:#d9534f;color:#fff;font:700 13px Nunito;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 2px 5px #0006}.pz-sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pz-size{display:grid!important;grid-template-columns:1fr!important;gap:0;padding:8px 4px!important;min-width:0!important;line-height:1.1}.pz-size b{font:500 22px Fredoka,Nunito}.pz-size small{font-size:11px;opacity:.9}.pz-size.on{outline:3px solid #ffe9ad;outline-offset:2px}.pz-name{width:100%;min-height:44px;border-radius:12px;border:2px solid #e2bf7e;padding:8px 12px;font:600 16px Nunito}
+.pz-pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}.pz-pic{display:grid!important;grid-template-columns:1fr!important;gap:4px;padding:5px!important;min-width:0!important;font:700 12px Nunito!important;text-align:center;position:relative;overflow:hidden}.pz-pic img{width:100%;height:70px;object-fit:cover;border-radius:9px}.pz-pic.on{border-color:#1f9d55!important;outline:3px solid #ffe9ad}.pz-photo input{position:absolute;inset:0;opacity:0;cursor:pointer}.pz-photo-icon{display:grid;place-items:center;height:70px;font-size:34px}.pz-photo-x{position:absolute;top:4px;right:4px;z-index:4;width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:#d9534f;color:#fff;font:700 13px Nunito;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 2px 5px #0006}.pz-sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pz-size{display:grid!important;grid-template-columns:1fr!important;gap:0;padding:8px 4px!important;min-width:0!important;line-height:1.1}.pz-size b{font:500 22px Fredoka,Nunito}.pz-size small{font-size:11px;opacity:.9}.pz-size.on{outline:3px solid #ffe9ad;outline-offset:2px}.pz-name{width:100%;min-height:44px;border-radius:12px;border:2px solid #e2bf7e;padding:8px 12px;font:600 16px Nunito}
 .pz-board{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;color:#fff;background:linear-gradient(#0a2a3a55,#08202e99),url('/ohana-world-scene.webp?asset=ohana-v105-binary-repair-20261011') center top/cover fixed}
 .pz-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(#60311166,#51260999),var(--ohana-wood) center/600px;border-bottom:3px solid #ffd988;box-shadow:0 4px 12px #002e4555}.pz-head h2{flex:1;min-width:0;margin:0;font:500 clamp(18px,4vw,26px) Fredoka,Nunito;color:#ffd166;text-shadow:0 2px 0 #5a2d0c,0 0 12px #0008;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pz-head-right{display:flex;align-items:center;gap:14px}:root body #pz-board .pz-head button.ohana-button.ohana-button.ohana-button,.pz-head button{min-height:40px!important;height:auto!important;padding:2px!important;font-size:16px!important;background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;color:#ffe9c2!important;text-shadow:0 1px 3px #000c!important;font-weight:800!important}
 :root body #pz-board .pz-head button.ohana-button.ohana-button.ohana-button:not(:disabled):active,.pz-head button:not(:disabled):active{transform:none!important;box-shadow:none!important}
@@ -3406,7 +3380,7 @@ body{background:url('/ohana-island.webp?asset=ohana-v105-binary-repair-20261011&
 #app main>ohana-scene{margin:0 -18px 10px!important;width:calc(100% + 36px);max-width:none;border:0!important;border-radius:0!important;box-shadow:none!important}
 #app .game-shelf-tabs{gap:8px!important;padding:10px 0 14px!important;background:none!important}
 :root body :is(#app,#game,#main,#game-head,dialog) button.ohana-button.ohana-button.ohana-button,
-:root body .game-settings-menu>summary{background:linear-gradient(#ffffff75 0%,#ffffff00 40%),linear-gradient(#20cbd4,#008fac 65%,#037295)!important;color:#fff9e5!important;border:2px solid #ffdc8b!important;box-shadow:inset 0 0 0 2px #ffffff66,inset 0 -4px 2px #004f7366,0 3px 0 #69411f,0 5px 8px #002c4555!important;text-shadow:0 2px 1px #00506d!important;border-radius:17px!important;font-family:Fredoka,Nunito,sans-serif!important;font-weight:600!important;letter-spacing:0!important}
+:root body .game-settings-menu>summary{font-family:Fredoka,Nunito,sans-serif!important;font-weight:600!important;letter-spacing:0!important}
 :root body #app .game-shelf-tabs button{min-height:52px!important;font-size:15px!important;line-height:1.2!important;padding:8px 5px!important;min-width:0}
 :root body #app .game-shelf-tabs button[aria-pressed=true],:root body #app .setup-start,:root body #app .nook-card.turn>button{background:linear-gradient(#ffffff65,transparent 40%),linear-gradient(#ff7994,#e63062 70%,#b51a48)!important;color:white!important;text-shadow:0 2px #89163e!important;border-color:#ffe5a2!important}
 #app .game-nook{padding:10px!important;border:3px solid #ffd27a!important;border-radius:26px!important;background:linear-gradient(#874a1722,#6e361a33),var(--ohana-wood) center/600px!important;box-shadow:inset 0 0 0 2px #95521d,0 5px 0 #794716,0 10px 22px #003f4966!important}
@@ -4252,7 +4226,7 @@ html body #app .nook-card.nook-ohana10 .scene-game-buddy{left:23%!important;bott
 html body #app .nook-card.nook-checkers .scene-game-buddy{left:21%!important;bottom:34%!important;width:9%!important}
 
 /* Room entry uses the same illustrated doorway as the live game tile. */
-html body #app .game-setup{overflow:hidden!important;padding:0 0 12px!important;border:3px solid #dba05c!important;border-radius:18px!important;background:linear-gradient(160deg,#f7e5b6,#edcf93)!important;box-shadow:0 5px 0 #8e4a23,0 12px 18px #1d130766!important}
+html body #app .game-setup:not(.pz-setup){overflow:hidden!important;padding:0 0 12px!important;border:3px solid #dba05c!important;border-radius:18px!important;background:linear-gradient(160deg,#f7e5b6,#edcf93)!important;box-shadow:0 5px 0 #8e4a23,0 12px 18px #1d130766!important}
 html body #app .game-setup .setup-banner{position:relative!important;width:100%!important;aspect-ratio:16/9!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
 html body #app .game-setup .setup-banner>img:first-child{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
 html body #app .game-setup .setup-banner .setup-character{position:absolute!important;left:44%!important;bottom:26%!important;width:13%!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;filter:drop-shadow(1px 3px 2px #27190faa)!important}
@@ -4377,7 +4351,7 @@ html.ohana-world[data-ohana-scene=home] body #app .world-home-foyer .ohana-room-
 html.ohana-world body #app .world-catalog{gap:8px!important;padding:8px 16px!important}
 html.ohana-world body #app .world-catalog .game-category{margin:10px 0 0!important;font-size:19px!important;line-height:1.2!important}
 html.ohana-world body #app .world-catalog .coloring-ticket,html.ohana-world body #app .world-catalog .game-setup{margin:0!important}
-html.ohana-world body #app .game-setup{padding:0!important;background:linear-gradient(#a85d2522,#4b230c66),var(--ohana-wood) center/360px!important;border:2px solid #e2ad6f!important;box-shadow:0 4px 0 #723917!important}
+html.ohana-world body #app .game-setup:not(.pz-setup){padding:0!important;background:linear-gradient(#a85d2522,#4b230c66),var(--ohana-wood) center/360px!important;border:2px solid #e2ad6f!important;box-shadow:0 4px 0 #723917!important}
 html.ohana-world body #app .game-setup .setup-wood{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:5px 13px 6px;background:linear-gradient(#a85d2522,#4b230c66),var(--ohana-wood) center/360px;border-top:2px solid #dda35a}
 html.ohana-world body #app .game-setup .setup-options{flex:1;min-width:0;color:#fff0c3;text-shadow:0 2px 2px #4a240c}
 html.ohana-world body #app .game-setup .setup-options>summary{display:list-item;width:max-content;padding:7px 4px;cursor:pointer;font:800 16px Fredoka,Nunito,sans-serif;color:#fff0c3;text-decoration:underline;text-underline-offset:3px}
