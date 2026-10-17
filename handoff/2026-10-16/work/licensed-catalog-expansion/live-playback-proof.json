@@ -1,0 +1,62 @@
+{
+  "release": "bbbcd8a73e7fda68b49fbdbeafeb788d07a78205",
+  "checked": "2026-10-17T02:23:51.848Z",
+  "tracks": [
+    {
+      "title": "It Is Well With My Soul",
+      "duration": 241.536125,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa80dc408147053180b5689/1604849104343/It_Is_Well_With_My_Soul.mp3",
+      "time": 4.099285
+    },
+    {
+      "title": "Great Is Thy Faithfulness",
+      "duration": 212.592438,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa8086bea796d34de07c01d/1604847729886/Great_is_Thy_Faithfulness.mp3",
+      "time": 4.899967
+    },
+    {
+      "title": "What a Friend We Have in Jesus",
+      "duration": 170.639813,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa810e909511e6a4e1bf1e6/1604849902567/What_A_Friend_We_Have_in_Jesus.mp3",
+      "time": 5.306891
+    },
+    {
+      "title": "Jesus Loves Me",
+      "duration": 89.0855,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa80e2c8a3e5f407477a12f/1604849200192/Jesus_Loves_Me.mp3",
+      "time": 3.873538
+    },
+    {
+      "title": "I Am Jesus’ Little Lamb",
+      "duration": 103.714063,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fce5c3c83d2ac65cc4639ef/1607359551886/I_Am_Jesus_Litle_Lamb.mp3",
+      "time": 5.861899
+    },
+    {
+      "title": "Holy, Holy, Holy",
+      "duration": 140.520625,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa8097734227d39e1fe7bad/1604847999878/Holy_Holy_Holy.mp3",
+      "time": 3.569338
+    },
+    {
+      "title": "Rock of Ages",
+      "duration": 155.6455,
+      "paused": false,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa81098b47b7035e11662b7/1604849822039/Rock_of_Ages.mp3",
+      "time": 4.921722
+    }
+  ]
+}
