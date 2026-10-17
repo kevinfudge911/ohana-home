@@ -1,0 +1,14 @@
+{
+  "base": "0854ba63c7ec925d7bf16c3b8b6dbe8887358f9c",
+  "draft": "33850eae50e06e92af986583abbb03cac4c44dff",
+  "bytes": 6404258,
+  "removedStyleLayers": [
+    "slipStyle",
+    "bankStyle",
+    "digitalRepairStyle"
+  ],
+  "scriptsParsed": 26,
+  "cssOnlyInverse": true,
+  "browserVerified": false,
+  "published": false
+}
