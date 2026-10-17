@@ -1,3 +1,17 @@
+# Latest verified checkpoint — friendly72-hour reminders
+
+Release d3b43e03559006c88aeb10cd32a6239e61abee1c is deployed successfully. Worker blobd801db4e65e0b64f67314acd0bc797c0aa0e3211,784943 bytes. App unchanged: blob285db680a3a80e33c929423d028a2af6a46819fd,6284113 bytes,914 tracks. Canonical files: work/final-current-release/app.html and worker.js.
+
+The old24-hour per-game reminder is replaced by the requested gentle72-hour message, one attempt per member per inactivity period. Human moves reset the timer. Only opted-in members with a still-waiting human multiplayer turn and room membership qualify; bot-game reminder exclusion is preserved. Legacy accounts seed their initial timestamp once from last known visit/creation. Delivery is best effort, not guaranteed receipt.
+
+Fifteen actual SQLite scenarios pass, including repeat/concurrent checks, multiple games, timer resets, committed-move races, opt-out, room removal and delivery failures. Independent review found no release-blocking defect. All worker bytes outside the reminder module, scheduled handler and successful-human-move activity hook remain identical. PuzzleRoom code/storage/bindings/lifecycle are untouched.
+
+Cloudflare production Settings visibly confirms Every hour, next run2026-10-17T03:00:00Z. Live Home finishes loading; sampled browser error logs are empty. No forced production notifications or game moves were sent. Actual scheduled execution and physical phone receipt remain unobserved. Evidence: work/game-inactivity-reminder/live-hourly-trigger.png and test.cjs. At a later heartbeat after03:00Z, inspect the observed cron events page /86e18b73222d2807ad14e2e89bcef365/workers/services/cron-events/ohana-home/production in Cloudflare; do not infer delivery from configuration alone.
+
+Still open: Bible printed columns, full Android Back/Home, further Christian country/contemporary/kids/comedy music, timed fades, exact Invite obstruction, red-three scoring question, physical iPhone and remaining full audit. Outfits stay last.
+
+The earlier checkpoint/history follows.
+
 # Latest verified checkpoint — seven family hymns
 
 Release bbbcd8a73e7fda68b49fbdbeafeb788d07a78205 is live after a successful Cloudflare build. App blob285db680a3a80e33c929423d028a2af6a46819fd (6284113 bytes); worker blob8bedc1d7130636d2ff0c033b6b8a2ee3502a176b (781456 bytes). Canonical local files are work/final-current-release/app.html and worker.js. Use these newest files for future guarded transplants.

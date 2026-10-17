@@ -1,0 +1,16 @@
+PASS 71h59m does not remind; exact72h does
+PASS ten waiting games produce one member reminder; next cron stays quiet
+PASS new successful play resets timer and allows one new period
+PASS older activity cannot overwrite newer play
+PASS concurrent scheduler invocations claim once
+PASS play during scheduler scan prevents stale reminder claim
+PASS committed move blocks claim before separate activity write
+PASS recent completed game blocks reminder despite older waiting game
+PASS resign, turn change, membership removal and opt-out during scan block claims
+PASS recent visit seeds legacy baseline once; later visits do not fake moves
+PASS current-turn requirement, bot games and finished games do not nudge others
+PASS push opt-out and room removal prevent reminders
+PASS malformed game does not suppress valid member reminder
+PASS delivery failure is one attempt, does not repeat or block another member
+PASS two members can each receive their own reminder
+PASS 15 SQLite scenarios; activity hook appears once after successful human commit
