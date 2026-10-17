@@ -1,0 +1,14 @@
+{
+  "input": "work/final-current-release/worker.js",
+  "baseBytes": 785386,
+  "outputBytes": 887920,
+  "delta": 102534,
+  "mapBytes": 98583,
+  "catalog": 927,
+  "external": 20,
+  "baseSha": "4c15dc70aea50eb1e9060daeb8f4bf6d7f996e3cb843a1b3813380f0238f9ab9",
+  "outputSha": "5ff2d65f591d59c2091b138c28ca7466e545e90f47a7eaa9c6cb73dd094390f6",
+  "exactInverse": true,
+  "globalStreamValidatorUnchanged": true,
+  "scope": "Authenticated music cue route dispatch + appended authoritative map/cue API only. No canonical or DO edits."
+}

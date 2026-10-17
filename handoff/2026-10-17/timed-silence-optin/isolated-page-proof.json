@@ -1,0 +1,14 @@
+{
+  "pageBytes": 80122,
+  "clientSHA256": "332d8b54c9f9ba6904630619cac0aecbeaf8ccc197f0517a63eb29c259a6b9ce",
+  "toneBytes": 48044,
+  "tracks": [
+    "tone-one",
+    "tone-two"
+  ],
+  "networkTransport": false,
+  "productionIdsOrUrls": false,
+  "storage": "in-memory Map only; reload discards",
+  "default": "native audio unchanged; no cue request until explicit Activate",
+  "browserEvidence": "Not run; private file builder only"
+}

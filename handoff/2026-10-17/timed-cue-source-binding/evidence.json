@@ -1,0 +1,100 @@
+{
+  "result": "PASS",
+  "builtinCount": 927,
+  "externalAccepted": [
+    {
+      "id": "ohana-pd-stpeter-it-is-well",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-great-is-thy-faithfulness",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-what-a-friend",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-jesus-loves-me",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-little-lamb",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-holy-holy-holy",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-rock-of-ages",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-ccby-hmg-without-you",
+      "host": "www.heartfeltmg.com"
+    },
+    {
+      "id": "ohana-ccby-hmg-the-almighty",
+      "host": "www.heartfeltmg.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-mighty-fortress",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-abide-with-me",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-beautiful-savior",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-now-thank-we",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-praise-god",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-praise-to-the-lord",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-lords-my-shepherd",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-all-hail-power",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-eternal-father",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-o-god-our-help",
+      "host": "static1.squarespace.com"
+    },
+    {
+      "id": "ohana-pd-stpeter-church-one-foundation",
+      "host": "static1.squarespace.com"
+    }
+  ],
+  "cases": [
+    "exact official recording accepted",
+    "same-host modified query rejected",
+    "other official track URL rejected",
+    "unknown ID404",
+    "junk/other-Suno/nonstrings rejected",
+    "auth401/membership403",
+    "custom owner/private/selected/room ACL",
+    "revoked/deleted inaccessible",
+    "custom changed recording old URL rejected",
+    "owner spoof ignored",
+    "global Suno validator unchanged"
+  ],
+  "limit": "Actual existing music API and SQLite source tests only. No deployment/browser/audio test. All927 recordings remain unmapped/unverified."
+}
