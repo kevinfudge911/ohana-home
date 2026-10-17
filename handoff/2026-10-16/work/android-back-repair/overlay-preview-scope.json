@@ -1,10 +1,10 @@
 {
   "mode": "preview",
-  "bytes": 6289516,
-  "delta": 5403,
+  "bytes": 6289933,
+  "delta": 5820,
   "scripts": 28,
   "base": "906a8694228474f0b7096d194476e2e91666fa4303b6d298c6f108dd08a490f5",
-  "output": "1d89232789d74f97b6813dcd8b360f8dc852c038711649e9c61fb5e9652fb091",
+  "output": "782d90593c0e8e6a609ef90c45bb4fe0a5ce1eaa6922da63547c95075a813216",
   "exactInverse": true,
   "scope": "Only appended dialog Back handling and missing Home controls; existing route history, artwork, gameplay and worker unchanged."
 }
