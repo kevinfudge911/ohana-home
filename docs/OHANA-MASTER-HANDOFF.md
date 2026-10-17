@@ -1,3 +1,6 @@
+
+CLEANUP VERIFIED: efe8dfac5a1c6db02e6fd1b63ca5ead55efafb80 Cloudflare success. Fresh normal Home loaded, and reloading the former synthetic query now opens normal Home. Sampled errors empty. Production remains929songs; no timed-filter feature published.
+
 # Timing draft browser retest — 2026-10-17 05:50 UTC
 
 Production music remains929selections; baseline app8c6b2a950df14e272c864108f4bece1ff487bdfe,worker4c04306bf8ae95be043415b1da312964d43a46f0. Query-only synthetic canarye66927cfc5717b8ba2769e18d961290efa751bf3 passed Cloudflare deployment and ordinary public Home startup.80086Bfixture,866126Btemporary worker. No family song/account data, production cue API/D1 changes or PuzzleRoom/bindings changes. CSP blocks network connections.

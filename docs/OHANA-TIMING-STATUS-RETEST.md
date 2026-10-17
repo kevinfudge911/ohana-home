@@ -8,3 +8,5 @@ Private source binding regenerated deliberately against929canonical songs and22e
 
 This cleanup commit restores verified baseline worker and removes the synthetic query page. Require deployment success/fresh normal Home startup before declaring cleanup live. Canonical files remain baseline929app/worker. All929songs remain unmapped; no automatic profanity detector or whole-library clean claim. Manual timing feature still not in production. Remaining audible/device/mute/background/rate checks and real opt-in integration are unfinished. Older manifests/full candidates are superseded, never copy over canonical.
 
+CLEANUP VERIFIED: efe8dfac5a1c6db02e6fd1b63ca5ead55efafb80 Cloudflare success. Fresh normal Home loaded, and reloading the former synthetic query now opens normal Home. Sampled errors empty. Production remains929songs; no timed-filter feature published.
+
