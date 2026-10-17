@@ -1,0 +1,14 @@
+{
+  "baseAppBlob": "8c6b2a950df14e272c864108f4bece1ff487bdfe",
+  "appBytes": 6310791,
+  "delta": 3067,
+  "exactInverse": true,
+  "scriptBlocksParsed": 26,
+  "scope": "Optional local MediaSession adapter inside existing music singleton, after final queue installation. No new UI/audio/source/worker/auth/storage/DO change.",
+  "autoplay": false,
+  "networkRequests": false,
+  "browser": "NOT RUN",
+  "physicalDevice": "NOT RUN",
+  "deployment": "NOT DEPLOYED",
+  "warning": "Does not prevent OS suspension or force-close. Supported controls depend on browser/OS."
+}
