@@ -1,0 +1,93 @@
+{
+  "method": "Actual ordinary live phone-size Ohana player; exact selected/current stream, readyState4 and elapsed>=1s; paused each track",
+  "tracks": [
+    {
+      "title": "A Mighty Fortress Is Our God",
+      "duration": 251.279813,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5f79e01bf33e0c309a2f95c0/1601822756914/A_Mighty_Fortress_is_Our_God.mp3",
+      "time": 1.095837
+    },
+    {
+      "title": "Abide with Me",
+      "duration": 171.26675,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5f79de33614c320e21566e5d/1601822267279/Abide_with_Me.mp3",
+      "time": 1.032231
+    },
+    {
+      "title": "Beautiful Savior",
+      "duration": 172.076563,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5f79e97cd5f05a388e96c17f/1601825156806/Beautiful_Savior.mp3",
+      "time": 1.020213
+    },
+    {
+      "title": "Now Thank We All Our God",
+      "duration": 138.848813,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa80fc78657be665efb92aa/1604849614780/Now_Thank_We_All_Our_God.mp3",
+      "time": 1.028967
+    },
+    {
+      "title": "Praise God, from Whom All Blessings Flow",
+      "duration": 44.599,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa8107544651c5602e522d2/1604849784278/Praise_God_from_Whom_All_Blessings_Flow.mp3",
+      "time": 1.007777
+    },
+    {
+      "title": "Praise to the Lord, the Almighty",
+      "duration": 197.0235,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fce5c65eb18547f4bb72220/1607359596528/Praise_to_the_Lord_the_Almighty_Take2.mp3",
+      "time": 1.051382
+    },
+    {
+      "title": "The Lord’s My Shepherd",
+      "duration": 162.280625,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa810cb116faf366cd311db/1604849873990/The_Lords_My_Shepherd_w_Take2_Verse.mp3",
+      "time": 1.000497
+    },
+    {
+      "title": "All Hail the Power of Jesus’ Name",
+      "duration": 115.573688,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5f79e837324a4e19f675d4b8/1601824827730/All_Hail_the_Power_of_Jesus_Name.mp3",
+      "time": 1.044152
+    },
+    {
+      "title": "Eternal Father, Strong to Save",
+      "duration": 92.9255,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5f84af78e6196520ef404250/1602531196191/Eternal_Father_Strong_to_Save.mp3",
+      "time": 1.051829
+    },
+    {
+      "title": "O God, Our Help in Ages Past",
+      "duration": 98.698563,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa80fecb874e907d3d84c89/1604849649131/O_God_Our_Help_in_Ages_Past.mp3",
+      "time": 1.016599
+    },
+    {
+      "title": "The Church’s One Foundation",
+      "duration": 210.084688,
+      "pass": true,
+      "ready": 4,
+      "src": "https://static1.squarespace.com/static/59caf2c049fc2b1be6ce16f3/t/5fa810b3b874e907d3d85f4d/1604849850421/The_Churchs_One_Foundation.mp3",
+      "time": 1.016799
+    }
+  ]
+}

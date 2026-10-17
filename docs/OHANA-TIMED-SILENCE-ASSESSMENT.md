@@ -1,3 +1,7 @@
+# Catalog now927
+
+Eleven additional St. Peter hymns are live. All927 remain unmapped by the unpublished timed-fade draft. Original source-validator limitations persist. Current app6306082/worker785386; read latest checkpoint before applying old candidates.
+
 # Current catalog update
 
 Live catalog now916 (Without You and The Almighty added). The assessment below describes its earlier914-track baseline; both new HMG sources are also outside the unchanged Suno-only cue-save validator. All916 remain unmapped, and the fade draft is still unpublished. Current canonical app6298416/worker785002.

@@ -1,3 +1,15 @@
+# Latest verified checkpoint — eleven more hymns
+
+Release ef141a326a13d3558869c4fcd218260ad5d35ea5 is live after Cloudflare success, normal public Home startup and ALL11 actual Ohana playback checks. App742eb799bf5ac859befbb1bd8bcc2f76f9f752a1,6306082 bytes; worker0c2b503c5f4b06bd64533676b00ffcfa1e53bdf1,785386 bytes. Canonical work/final-current-release/ updated after verification.927 selections, Traditional Hymns18, Sunday Best117; Family & Kids2 and Contemporary Christian2 unchanged.
+
+Added11 public-domain St. Peter recordings: A Mighty Fortress Is Our God, Abide with Me, Beautiful Savior, Now Thank We All Our God, Praise God/from Whom All Blessings Flow, Praise to the Lord/the Almighty, The Lord’s My Shepherd, All Hail the Power of Jesus’ Name, Eternal Father/Strong to Save, O God/Our Help in Ages Past, The Church’s One Foundation. Exact official source links and publisher's recording/public-domain declaration retained in metadata. Actual official elapsed counters advanced, then all11 actual Ohana media checks matched selected/current stream, readyState4, finite duration and elapsed>=1 second; no silent skips. All paused afterward. Search/playlist restored, Home returned and sampled errors empty. Evidence work/hymns-batch-two/VERIFICATION.md and proof JSONs/screenshot.
+
+Only catalog and11 builtin IDs changed. Original916 records, two HMG tracks/visible credits, native close dedupe, Back/route repair, landscape rail fix, original artwork/photo, printed Bible and reminder logic preserved. PuzzleRoom DO/storage/bindings/lifecycle untouched. Older catalog builders expect their old counts and must not overwrite current source. Daystar remains held after prior Ohana auto-skip.
+
+All927 remain unmapped by the PRIVATE timed-fade draft; no automatic word detection or full-library clean certification. Physical iPhone/Android/Safari gestures/audio/background behavior remain unverified. More fun kids/country/comedy music, timed fades, exact Invite obstruction, red-three8-card question and remaining full audit still pending. User was asked the8-red-three scoring choice asynchronously; wait for response. Outfits last. Local preview denied; do not retry denied localhost/file/alternate routes.
+
+The earlier checkpoint/history follows.
+
 # Latest verified checkpoint — Christian music and guide close
 
 Current app release 2adad826229ad6b7fdbc6e4ac8cfc15414790c6d is live, following music release760867e94367cf9fbf0e1330fe163726e916ddef. App blob bf1b6a36663aa50b9113661082b93ddbe17e5d7a,6298416 bytes. Worker45d42751f0d9d8f32662709f304728b3068cd490,785002 bytes. Canonical files work/final-current-release/ updated only after public verification.
