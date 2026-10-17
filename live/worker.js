@@ -11282,6 +11282,64 @@ __name22(prayerApi, "prayerApi");
 __name222(prayerApi, "prayerApi");
 __name2222(prayerApi, "prayerApi");
 __name22222(prayerApi, "prayerApi");
+// Private megaphone responses. Author identity and original recipients are persisted.
+async function ensureOhanaAnnouncementSchema(db){
+ await db.batch([
+  db.prepare("CREATE TABLE IF NOT EXISTS megaphone_announcements(id INTEGER PRIMARY KEY,room_id INTEGER NOT NULL,author_id INTEGER NOT NULL,text TEXT NOT NULL,name TEXT NOT NULL,avatar TEXT NOT NULL,created_at INTEGER NOT NULL)"),
+  db.prepare("CREATE TABLE IF NOT EXISTS megaphone_recipients(announcement_id INTEGER NOT NULL,member_id INTEGER NOT NULL,PRIMARY KEY(announcement_id,member_id))"),
+  db.prepare("CREATE TABLE IF NOT EXISTS megaphone_responses(announcement_id INTEGER NOT NULL,member_id INTEGER NOT NULL,emoji TEXT NOT NULL DEFAULT '',text TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(announcement_id,member_id))")
+ ]);
+}
+async function ohanaAnnouncementRoomAccess(db,roomId,memberId){return !!await db.prepare("SELECT r.id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE r.id=? AND rm.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(roomId,memberId).first();}
+async function createOhanaAnnouncement(db,me,roomId,text){
+ if(!await ohanaAnnouncementRoomAccess(db,roomId,me.id))throw Error('This room is no longer available.');
+ await ensureOhanaAnnouncementSchema(db);const createdAt=now();
+ const inserted=await db.prepare("INSERT INTO megaphone_announcements(id,room_id,author_id,text,name,avatar,created_at) SELECT MAX(?,COALESCE((SELECT MAX(id) FROM megaphone_announcements),0)+1),?,?,?,?,?,?").bind(createdAt,roomId,me.id,text,String(me.name||''),String(me.avatar||''),createdAt).run();
+ const id=Number(inserted.meta.last_row_id);
+ if(!Number.isSafeInteger(id)||id<=0)throw Error('The announcement was not saved. Please try again.');
+ const announcement={id,text,member_id:me.id,name:me.name,avatar:me.avatar,created_at:createdAt,responses_enabled:true};
+ await db.batch([
+  db.prepare("INSERT INTO megaphone_recipients(announcement_id,member_id) SELECT ?,member_id FROM room_members WHERE room_id=? AND member_id<>?").bind(id,roomId,me.id),
+  db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind('announce_room_'+roomId,JSON.stringify(announcement))
+ ]);
+ return announcement;
+}
+async function ohanaAnnouncementResponseApi(req,db,me,roomId,body,url){
+ const p=url.pathname,m=p.match(/^\/api\/announce\/(\d+)\/(responses|respond)$/);
+ if(p!=='/api/announce/mine'&&!m)return null;
+ if(!await ohanaAnnouncementRoomAccess(db,roomId,me.id))return err('This room is no longer available.',403);
+ await ensureOhanaAnnouncementSchema(db);
+ if(p==='/api/announce/mine'){
+  if(req.method!=='GET')return err('Use GET to view your announcements.',405);
+  const announcements=(await db.prepare("SELECT a.id,a.text,a.name,a.avatar,a.created_at,a.author_id AS member_id,(SELECT COUNT(*) FROM megaphone_responses x WHERE x.announcement_id=a.id) AS response_count FROM megaphone_announcements a WHERE a.room_id=? AND a.author_id=? ORDER BY a.id DESC LIMIT 50").bind(roomId,me.id).all()).results;
+  return json({announcements});
+ }
+ const id=Number(m[1]);if(!Number.isSafeInteger(id)||id<=0)return err('This announcement is unavailable.',404);
+ const announcement=await db.prepare("SELECT id,room_id,author_id FROM megaphone_announcements WHERE id=? AND room_id=?").bind(id,roomId).first();
+ if(!announcement)return err('This announcement is unavailable.',404);
+ if(m[2]==='responses'){
+  if(req.method!=='GET')return err('Use GET to view responses.',405);
+  if(Number(announcement.author_id)!==Number(me.id))return err('Only the person who sent this announcement can view its responses.',403);
+  const responses=(await db.prepare("SELECT x.member_id,COALESCE(m.name,'Ohana member') AS name,COALESCE(m.avatar,'') AS avatar,x.emoji,x.text,x.created_at,x.updated_at FROM megaphone_responses x LEFT JOIN members m ON m.id=x.member_id WHERE x.announcement_id=? ORDER BY x.updated_at DESC,x.member_id").bind(id).all()).results;
+  return json({responses});
+ }
+ if(!['GET','POST'].includes(req.method))return err('Use GET or POST for your response.',405);
+ const recipient=await db.prepare("SELECT member_id FROM megaphone_recipients WHERE announcement_id=? AND member_id=?").bind(id,me.id).first();
+ if(!recipient)return err('Only an original recipient can respond to this announcement.',403);
+ if(req.method==='POST'){
+  if((body.text!=null&&typeof body.text!=='string')||(body.emoji!=null&&typeof body.emoji!=='string'))return err('Write a reply or choose a reaction.',400);
+  const text=String(body.text||'').trim(),emoji=String(body.emoji||'');
+  if(text.length>500)return err('Keep your reply to 500 characters.',400);
+  if(emoji&&!['👍','❤️','😂','😮','😢','🙏','🎉'].includes(emoji))return err('Choose one of the available reactions.',400);
+  if(!text&&!emoji)return err('Write a reply or choose a reaction.',400);
+  const at=now();
+  const saved=await db.prepare("INSERT INTO megaphone_responses(announcement_id,member_id,emoji,text,created_at,updated_at) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM room_members WHERE room_id=? AND member_id=?) AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||? AND value<>'') AND EXISTS(SELECT 1 FROM megaphone_recipients WHERE announcement_id=? AND member_id=?) ON CONFLICT(announcement_id,member_id) DO UPDATE SET emoji=excluded.emoji,text=excluded.text,updated_at=excluded.updated_at").bind(id,me.id,emoji,text,at,at,roomId,me.id,roomId,id,me.id).run();
+  if(!saved.meta.changes)return err('This room is no longer available.',403);
+ }
+ const response=await db.prepare("SELECT emoji,text,created_at,updated_at FROM megaphone_responses WHERE announcement_id=? AND member_id=?").bind(id,me.id).first();
+ return json({ok:true,response:response||null});
+}
+
 async function api2(req, env222222, url) {
   const db = env222222.DB;
   const p = url.pathname;
@@ -11713,7 +11771,7 @@ async function api2(req, env222222, url) {
         const a = JSON.parse(raw);
         const ackRaw = await getSetting(db, "announce_ack_" + me.id + "_" + roomId);
         const acked = ackRaw ? Number(ackRaw) : 0;
-        if (a && a.id > acked) announcement = a;
+        if (a && a.id > acked) { announcement = a; if(a.responses_enabled) announcement={...a,can_respond:Number(a.member_id)!==Number(me.id)&&!!await db.prepare("SELECT member_id FROM megaphone_recipients WHERE announcement_id=? AND member_id=?").bind(a.id,me.id).first()}; }
       }
     } catch {
     }
@@ -11726,12 +11784,12 @@ async function api2(req, env222222, url) {
     if (image && image.length > 9e5) throw new Error("That picture is too big.");
     return unifiedChat(req, env222222, me, { conversation: "room:" + roomId, text, image, clientId: "legacy-" + rid(20) }, url);
   }
+  if (p.startsWith("/api/announce/")) { const privateResponse=await ohanaAnnouncementResponseApi(req,db,me,roomId,body,url);if(privateResponse)return privateResponse; }
   if (p === "/api/announce" && req.method === "POST") {
     if (!me.is_admin && await getSetting(db,"announce_access_"+roomId+"_"+me.id)!=="1") return err("Ask an administrator for shout-out access in this room.", 403);
     const text = String(body.text || "").trim().slice(0, 300);
     if (!text) throw new Error("Write something to announce first.");
-    const announcement = { id: now(), text, name: me.name, avatar: me.avatar, created_at: now() };
-    await db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind("announce_room_" + roomId, JSON.stringify(announcement)).run();
+    const announcement = await createOhanaAnnouncement(db,me,roomId,text);
     return json({ ok: true, announcement });
   }
   if (p === "/api/announce/ack" && req.method === "POST") {
