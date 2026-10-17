@@ -1,6 +1,6 @@
 # Island design and expanded chat
 
-The September 14 redesign coordinates the welcome form, Game Nook, rooms, game setup, Words and Mahjong tables, game chat, score receipts, and navigation. Ocean blue, mint, coral, lavender and warm sand replace dark enamel and heavy gold edges. Text uses dark ink on light controls. Original character portraits lead game setup and the signed-in header. Reduced-motion support remains, including a static alternative to the turn diamond glint.
+Current command styling follows [OHANA-DESIGN-RULES.md](OHANA-DESIGN-RULES.md): free-flowing readable words and original illustrations, with a soft individual light backing where needed. Raised blue/enamel/candy button faces and nested decorative command boxes are retired. Preserve approved scene artwork, actual game content, accessibility cues and behavior. The sections below record the historical September14 implementation; their old command finishes are superseded.
 
 No authentication, membership, scoring, game-state, or notification backend changes. Existing sign-ins and room privacy remain intact. Board SVG still paints 225 squares with 225 independent hit areas.
 
