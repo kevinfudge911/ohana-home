@@ -1,0 +1,10 @@
+{
+  "mode": "release",
+  "bytes": 6289940,
+  "delta": 5827,
+  "scripts": 28,
+  "base": "906a8694228474f0b7096d194476e2e91666fa4303b6d298c6f108dd08a490f5",
+  "output": "f5d92885be952f176bd6c12556f1291cc7ece4bd0813e23aec5acbb3d25f666c",
+  "exactInverse": true,
+  "scope": "Only appended dialog Back handling and missing Home controls; existing route history, artwork, gameplay and worker unchanged."
+}
