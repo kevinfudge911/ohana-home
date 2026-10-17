@@ -5795,14 +5795,14 @@ html[data-ohana-game=ohana10] #gb{padding:0!important;background:none!important}
 </style><style id="ohana-blessings-controls-v1">
 /* Blessings owns its controls; shared turquoise button decoration must not override it. */
 html.ohana-world body #app #faith button.ohana-button,
-html.ohana-world body:has(#faith) #app header .ohana-room-guide-help.ohana-button{
+html.ohana-world body:has(#faith) header .ohana-room-guide-help.ohana-button{
  background:linear-gradient(#fff6dc,#ead4a2)!important;color:#493318!important;
  border:2px solid #b88a46!important;border-radius:16px 11px!important;
  box-shadow:inset 0 1px #fff9,0 2px 0 #80582d!important;text-shadow:none!important;
  min-width:0!important;max-width:100%;min-height:44px;padding:8px 10px!important;
  font:700 14px/1.25 Nunito,sans-serif!important;white-space:normal;overflow-wrap:anywhere;
 }
-html.ohana-world body #app #faith :is(.pr-add-btn,.pr-post,#pr-post,.devo-amen,button[aria-pressed="true"]).ohana-button{
+html.ohana-world body #app #faith :is(.pr-add-btn,.pr-post,.devo-amen,button[aria-pressed="true"]).ohana-button{
  background:linear-gradient(#fff0bb,#e9bc65 65%,#d29a43)!important;color:#422b0f!important;border-color:#ffe5a4!important;
 }
 html.ohana-world body #app #faith .pr-lift.on.ohana-button,
@@ -5821,6 +5821,8 @@ html.ohana-world body #app #faith .pr-compose-actions{flex-wrap:wrap;margin-top:
 html.ohana-world body #app #faith .pr-filters{gap:7px}
 html.ohana-world body #app #faith .pr-wall{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
 html.ohana-world body #app #faith button.ohana-button:focus-visible{outline:3px solid #fff0b0!important;outline-offset:3px}
+
+html.ohana-world body #app #faith #pr-post.ohana-button{background:linear-gradient(#fff0bb,#e9bc65 65%,#d29a43)!important;color:#422b0f!important;border-color:#ffe5a4!important}
 
 </style>
 </head>
