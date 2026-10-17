@@ -12406,11 +12406,62 @@ function ohanaMusicText(value, label, limit) {
   if (!text || text.length > limit || /[\u0000-\u001f\u007f]/.test(text)) ohanaMusicFault(400, 'Use a '+label+' from 1 to '+limit+' characters.');
   return text;
 }
+// Resolve only public, allowlisted Mureka sharing pages. No caller credentials leave Ohana.
+function ohanaMurekaPage(value){
+ if(typeof value!=='string'||value.length>2048)ohanaMusicFault(400,'Use a supported song link.');
+ const raw=value.trim(),match=raw.match(/^https:\/\/(?:www\.)?mureka\.ai\/song-detail\/([A-Za-z0-9_-]{8,80})(?:\?[^#]*)?$/i);
+ if(!match)return null;const url=new URL(raw);
+ if(url.username||url.password||url.port||url.hash||!['www.mureka.ai','mureka.ai'].includes(url.hostname))return null;
+ return{url:'https://www.mureka.ai/song-detail/'+match[1],id:match[1]};
+}
+function ohanaMurekaAudio(value){
+ if(typeof value!=='string'||value.length>2048)return null;
+ const raw=value.trim(),absolute=raw.startsWith('cos-prod/song/audio/')?'https://static-cos.mureka.ai/'+raw:raw;
+ if(!/^https:\/\/static-cos\.mureka\.ai\/cos-prod\/song\/audio\/\d{8}\/music_[A-Za-z0-9_-]+\.mp3$/.test(absolute))return null;
+ const url=new URL(absolute);return url.hostname==='static-cos.mureka.ai'&&!url.username&&!url.password&&!url.port&&!url.hash&&!url.search?url.href:null;
+}
+function ohanaParseMurekaPage(html,page){
+ if(typeof html!=='string'||html.length>2*1024*1024)ohanaMusicFault(502,'The Mureka sharing page is too large. Upload your song file instead.');
+ const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match=>match[1].trim()).filter(script=>/^window\.__INITIAL_STATE__\s*=/.test(script));
+ if(scripts.length!==1)ohanaMusicFault(502,'This Mureka sharing page could not be read. Upload your song file instead.');
+ let state;try{state=JSON.parse(scripts[0].replace(/^window\.__INITIAL_STATE__\s*=\s*/,'').replace(/;\s*$/,''));}catch{ohanaMusicFault(502,'This Mureka sharing page could not be read. Upload your song file instead.');}
+ const detail=state?.storeDetailStoreData,info=detail?.info,routeKey=detail?.curDetailIdOrKey?.share_key;
+ if(!info||typeof info!=='object'||Array.isArray(info)||(routeKey!=null&&routeKey!==page.id)||![info.share_key,info.original_share_key].includes(page.id))ohanaMusicFault(502,'Mureka returned a different song. Your shared song was not added.');
+ const stream=ohanaMurekaAudio(info.mp3_url),title=typeof info.title==='string'?info.title.trim():'',artist=typeof info.user?.stage_name==='string'?info.user.stage_name.trim():'';
+ if(!stream||!title||title.length>160||artist.length>120||/[\u0000-\u001f\u007f]/.test(title+artist))ohanaMusicFault(502,'This Mureka song does not have supported song details. Upload your song file instead.');
+ return{title,artist,stream,source_url:page.url,provider:'mureka'};
+}
+async function ohanaResolveMusicLink(value,fetcher=fetch){
+ const page=ohanaMurekaPage(value);
+ if(!page){const stream=ohanaMusicStream(value);return{stream,provider:ohanaMurekaAudio(stream)?'mureka':'suno'};}
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000),limit=2*1024*1024;
+ try{
+  let target=page.url,response;const visited=new Set();
+  for(let redirects=0;redirects<=2;redirects++){
+   if(visited.has(target))ohanaMusicFault(502,'This Mureka sharing link could not be opened.');visited.add(target);
+   response=await fetcher(target,{method:'GET',redirect:'manual',credentials:'omit',headers:{Accept:'text/html'},signal:controller.signal});
+   if([301,302,303,307,308].includes(response.status)){
+    const location=response.headers.get('location');let next;try{next=ohanaMurekaPage(new URL(location,target).href);}catch{}
+    if(!location||!next||next.id!==page.id||redirects===2)ohanaMusicFault(502,'This Mureka sharing link redirected to an unsupported page.');
+    target=next.url;continue;
+   }
+   break;
+  }
+  if(!response?.ok||!/^text\/html\b/i.test(response.headers.get('content-type')||''))ohanaMusicFault(502,'Mureka could not open this shared song. Upload your song file instead.');
+  const length=Number(response.headers.get('content-length'));if(Number.isFinite(length)&&length>limit)ohanaMusicFault(502,'The Mureka sharing page is too large.');
+  if(!response.body)ohanaMusicFault(502,'The Mureka sharing page is unavailable.');
+  const reader=response.body.getReader(),decoder=new TextDecoder();let bytes=0,html='';
+  try{for(;;){const chunk=await reader.read();if(chunk.done)break;bytes+=chunk.value.byteLength;if(bytes>limit){controller.abort();await reader.cancel().catch(()=>{});ohanaMusicFault(502,'The Mureka sharing page is too large.');}html+=decoder.decode(chunk.value,{stream:true});}html+=decoder.decode();}finally{reader.releaseLock();}
+  return ohanaParseMurekaPage(html,page);
+ }catch(error){if(error?.musicStatus)throw error;ohanaMusicFault(502,'Mureka could not open this shared song. Please try again, or upload your song file.');}
+ finally{clearTimeout(timer);}
+}
+
 function ohanaMusicStream(value) {
   const raw = String(value ?? ''); let u;
   try { u = new URL(raw); } catch { ohanaMusicFault(400, 'Use a direct Suno media link.'); }
-  // Current family library uses this media host. No server-side URL fetch occurs.
-  if (raw.length > 2048 || u.protocol !== 'https:' || u.hostname !== 'cdn1.suno.ai' || u.port || u.username || u.password || u.hash || !/\.(mp3|mp4|m4a|ogg|wav)$/i.test(u.pathname)) ohanaMusicFault(400, 'Use a direct https://cdn1.suno.ai media link, not a song webpage.');
+  const mureka=ohanaMurekaAudio(raw);if(mureka)return mureka;
+  if (raw.length > 2048 || u.protocol !== 'https:' || u.hostname !== 'cdn1.suno.ai' || u.port || u.username || u.password || u.hash || !/\.(mp3|mp4|m4a|ogg|wav)$/i.test(u.pathname)) ohanaMusicFault(400, 'Use a direct Suno media link or a Mureka song sharing link.');
   return u.href;
 }
 function ohanaMusicRequestId(body) {
@@ -12452,6 +12503,7 @@ async function ohanaMusicApi(req, db, me, room, body, url) {
     if (!Number.isSafeInteger(room) || !await db.prepare('SELECT 1 FROM room_members WHERE room_id=? AND member_id=?').bind(room, me.id).first()) return reply({error:'You do not belong to this room.'},403);
     await ensureOhanaMusicSchema(db);
     const p = url.pathname, stamp = Date.now(); body = body || {};
+    if(p==='/api/music/resolve-link'&&req.method==='POST')return reply(await ohanaResolveMusicLink(body.url??body.stream));
     if (['/api/music/library','/api/music/mine'].includes(p) && req.method === 'GET') {
       const mine=p==='/api/music/mine',all=(await db.prepare('SELECT * FROM music_tracks WHERE room_id=? ORDER BY created_at,id').bind(room).all()).results;
       const tracks=all.filter(x=>mine?x.member_id===me.id:!x.deleted_at&&ohanaMusicReadable(x,me.id)).map(x=>ohanaMusicTrack(x,me.id));
@@ -12475,7 +12527,7 @@ async function ohanaMusicApi(req, db, me, room, body, url) {
     if (row?.deleted_at) ohanaMusicFault(409,'Restore this item before editing it.');
     const audience=await ohanaMusicAudience(db,room,me.id,body,row);
     if (kind === 'tracks') {
-      const title=ohanaMusicText(body.title,'title',160),artist=ohanaMusicText(body.artist,'artist',120),stream=row&&row.stream_url.startsWith('/api/music/audio/')&&body.stream===row.stream_url?row.stream_url:ohanaMusicStream(body.stream);
+      const title=ohanaMusicText(body.title,'title',160),artist=ohanaMusicText(body.artist,'artist',120),stream=row&&row.stream_url.startsWith('/api/music/audio/')&&body.stream===row.stream_url?row.stream_url:(await ohanaResolveMusicLink(body.stream)).stream;
       const category=body.category||'radio';if(!['radio','sunday'].includes(category)) ohanaMusicFault(400,'Choose Radio or Sunday Best.');
       if (!row) {
         const request=ohanaMusicRequestId(body), existing=await db.prepare('SELECT * FROM music_tracks WHERE room_id=? AND member_id=? AND request_id=?').bind(room,me.id,request).first();
