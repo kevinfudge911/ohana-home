@@ -10206,7 +10206,7 @@ var PuzzleRoom = class {
       const tray = (this.trays || []).find((t) => t.id === +m.id);
       if (!tray) return null;
       if (typeof m.name === "string") tray.name = m.name.trim().slice(0, 28) || "Tray " + tray.id;
-      if (["#247a88", "#547ca2", "#a76075", "#947145", "#4f8557"].includes(m.color)) tray.color = m.color;
+      if (typeof m.color==="string"&&/^#[0-9a-f]{6}$/i.test(m.color)) tray.color = m.color.toLowerCase();
       if (Number.isFinite(m.x)) tray.x = Math.max(0, Math.min(0.85, m.x));
       if (Number.isFinite(m.y)) tray.y = Math.max(0, Math.min(0.85, m.y));
       if (typeof m.docked === "boolean") tray.docked = m.docked;
