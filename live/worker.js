@@ -12618,12 +12618,19 @@ function isSharedColorPage(key){
 
 // Photo feedback stays inside the photo's current, active family room.
 async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
- const route=url.pathname.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})\/(feedback|comments(?:\/([a-f0-9-]{36})(\/remove)?)?|reaction(?:\/([1-9][0-9]*))?)$/);
+ const route=url.pathname.match(/^\/api\/memories\/photo\/([a-f0-9-]{36}|journey-[1-9][0-9]*|album-[1-9][0-9]*|mike-birthday|granny-family-original)\/(feedback|comments(?:\/([a-f0-9-]{36})(\/remove)?)?|reaction(?:\/([1-9][0-9]*))?)$/);
  if(!route)return null;
  const db=env.DB,photoId=route[1],kind=route[2],commentId=route[3],remove=!!route[4],moderation=!!route[5],reactionMember=moderation?Number(route[5]):me.id;
  if(!Number.isSafeInteger(reactionMember))return reply({error:'Invalid reaction member.'},400);
  const emojis=['👍','❤️','😂','😮','😢','🙏','🎉'];
- const photo=await db.prepare("SELECT p.id,r.owner_id FROM ohana_memories p JOIN rooms r ON r.id=p.room_id JOIN room_members rm ON rm.room_id=r.id AND rm.member_id=? WHERE p.id=? AND p.room_id=? AND p.hidden=0 AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(me.id,photoId,room).first();
+ const legacy=photoId.match(/^(journey|album)-([1-9][0-9]*)$/),builtIn=photoId==='mike-birthday'||photoId==='granny-family-original';
+ if(legacy&&!Number.isSafeInteger(Number(legacy[2])))return reply({error:'That photo is unavailable.'},404);
+ if(legacy)await ensureJourneyMemories(db);
+ let subject="EXISTS(SELECT 1 FROM ohana_memories p WHERE p.id=? AND p.room_id=r.id AND p.hidden=0)",subjectArgs=[photoId];
+ if(builtIn){subject='1=1';subjectArgs=[];}
+ else if(legacy&&legacy[1]==='journey'){subject="EXISTS(SELECT 1 FROM ohana_journey_memories j WHERE j.puzzle_id=? AND j.room_id=r.id AND j.image LIKE 'data:image/%')";subjectArgs=[Number(legacy[2])];}
+ else if(legacy){subject="EXISTS(SELECT 1 FROM puzzle_album a WHERE a.id=? AND a.room_id=r.id AND a.image LIKE 'data:image/%' AND NOT EXISTS(SELECT 1 FROM ohana_journey_memories j WHERE j.room_id=a.room_id AND j.image=a.image AND j.name=a.name))";subjectArgs=[Number(legacy[2])];}
+ const photo=await db.prepare("SELECT r.owner_id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE r.id=? AND rm.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'') AND "+subject).bind(room,me.id,...subjectArgs).first();
  if(!photo)return reply({error:'This photo is not available in your family room.'},404);
  const moderate=!!me.is_admin||photo.owner_id===me.id;
  if(moderation&&!moderate)return reply({error:'Only a family admin can change another member’s reaction.'},403);
@@ -12659,8 +12666,8 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  if(previous)return previous.fingerprint===fingerprint?reply({saved:true,...(remove?{removed:true}:{}),id:previous.target_id}):reply({error:'That request was already used. Reopen this photo and try again.'},409);
  const target=create?crypto.randomUUID():(commentId||photoId),token=crypto.randomUUID(),stamp=Date.now();
  // The ledger and feedback write share one transaction; the insert guard rechecks live access.
- let guard="EXISTS(SELECT 1 FROM ohana_memories p JOIN rooms r ON r.id=p.room_id JOIN room_members rm ON rm.room_id=r.id JOIN members m ON m.id=rm.member_id WHERE p.id=? AND p.room_id=? AND p.hidden=0 AND m.id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>''))";
- const args=[photoId,room,me.id];
+ let guard="EXISTS(SELECT 1 FROM rooms r JOIN room_members rm ON rm.room_id=r.id JOIN members m ON m.id=rm.member_id WHERE r.id=? AND m.id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'') AND "+subject+")";
+ const args=[room,me.id,...subjectArgs];
  if(reaction){guard+=' AND COALESCE((SELECT revision FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=?),0)=?';args.push(photoId,room,reactionMember,body.revision);
   if(moderation){const adminName=String(env.ADMIN_NAME||'').toLowerCase();guard+=" AND EXISTS(SELECT 1 FROM rooms r JOIN members m ON m.id=? WHERE r.id=? AND (r.owner_id=m.id OR m.is_admin=1 OR (?<>'' AND LOWER(m.name)=?))) AND EXISTS(SELECT 1 FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=? AND emoji IS NOT NULL)";args.push(me.id,room,adminName,adminName,photoId,room,reactionMember);}
  }
