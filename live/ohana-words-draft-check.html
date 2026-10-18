@@ -1,0 +1,450 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ohana Words isolated draft check</title><style>body{margin:0;padding:10px 10px 180px;background:#eaf0e6;color:#183e3c;font:16px Arial,sans-serif}h1{font-size:22px;margin:0 0 8px}p{line-height:1.35}button{font:700 15px Arial;min-height:44px;min-width:44px;padding:5px 8px;cursor:pointer}#fixture-tools{display:flex;gap:6px;flex-wrap:wrap}#fixture-status{min-height:44px;font-weight:bold}#fixture-counts{position:sticky;top:0;background:#fff8d5;z-index:30;padding:6px}.word-status{display:none}.wbwrap{position:relative;width:min(100%,570px);margin:8px auto}.scrawl,.board-name-watermark,.wb-zoom-hint{display:none}.wb{position:relative;width:100%;aspect-ratio:1}.wb-plane{position:absolute;inset:0}.wb-surface{width:100%;height:100%;display:block}.c{position:absolute;width:6.6666667%;height:6.6666667%;box-sizing:border-box;display:grid;place-items:center;cursor:pointer;font-size:12px}.c:has(.t){background:#f5d99a}.c:has(.t.new){background:#9fdbff;outline:2px solid #086d91;outline-offset:-2px}.t{font:bold 16px Arial;display:flex;gap:1px;align-items:center}.t i{font:9px Arial}.bl{font:8px Arial}.preview-score{min-height:22px;font-weight:bold}.game-tray{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#e5d1a5;border-top:2px solid #79532f;padding:6px;box-sizing:border-box}.rack{display:flex;gap:5px;justify-content:center}.rt{position:relative;background:#f9e3ad;border:1px solid #79532f;min-width:36px;height:44px}.rt.used{opacity:.3}.rt.sel{outline:3px solid #087da1}.rt i{font-size:10px}.acts{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:5px}.drag-ghost{position:fixed;z-index:99;pointer-events:none;background:#9fdbff;padding:8px}.drop-target{outline:3px solid #087da1}.compact-scores,.tray-spacer{display:none}@media(max-width:430px){.t{font-size:13px}}</style><h1>Words private draft check</h1><p>Fictional game only. Actual current Words renderer and draft reconciliation. Zoom, sounds and header adapters are omitted. No family account, game API or persistent browser storage is used.</p><div id="fixture-counts"></div><div id="fixture-tools"><button id="fixture-reset">Reset fictional game</button><button id="fixture-opponent-different">Opponent plays Z at112</button><button id="fixture-opponent-same">Opponent plays A at112</button><button id="fixture-own-turn">Now your turn</button></div><p id="fixture-status" role="status"></p><p id="fixture-square">Square112 is immediately right of C;113 is the next square.</p><div id="game"><div id="board"></div></div><script>(()=>{'use strict';
+// All storage is a fixture-only in-memory adapter. Never read or purge the
+// real app's localStorage, sessions, family games, boards or accounts.
+const fixtureStorage=new Map();const localStorage={get length(){return fixtureStorage.size},key(i){return [...fixtureStorage.keys()][i]??null},getItem:k=>fixtureStorage.get(k)??null,setItem:(k,v)=>fixtureStorage.set(k,String(v)),removeItem:k=>fixtureStorage.delete(k)};
+const WORD_DRAFT_STORAGE_PREFIX='ohana-private-word-draft-v1:';
+const LV={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:5,L:1,M:3,N:1,O:1,P:3,Q:10,R:1,S:1,T:1,U:1,V:4,W:4,X:8,Y:4,Z:10,'?':0};
+const S={me:{id:701},token:'fictional-draft-check-only',room:1701,game:90001,placed:[],sel:null,swapMode:false,swapSel:[],wordOrder:[]};
+const $=q=>document.querySelector(q),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let dragState=null,suppressTileClickUntil=0,moveCalls=0,networkCalls=0;
+const AudioSys={tilePickup(){},tileDrop(){},getCtx(){return null}};
+const nameOf=id=>id===701?'Fictional you':'Fictional opponent',avOf=()=>'',dmAttr=()=>'';
+const initBoardZoom=()=>{},initWordRackPinch=()=>{},mountWorldGame=()=>tagSquares(),mountGameControlDock=()=>{},addNextGameControl=()=>{};
+function tagSquares(){for(const cell of document.querySelectorAll('#board .c')){cell.setAttribute('role','button');cell.tabIndex=0;cell.setAttribute('aria-label','Square '+cell.dataset.i+', '+(cell.querySelector('.tile-glyph')?.textContent||'empty'));cell.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cell.click()}}}}
+function toast(message){$('#fixture-status').textContent=message}function showBlankLetterPicker(i,done){done('A')}
+async function ohanaConfirm(){return false}
+async function move(){moveCalls++;counts();throw Error('Fixture blocks all move submissions.')}
+async function api(url){if(url==='/api/game/'+S.game)return structuredClone(S.gstate);networkCalls++;counts();throw Error('Fixture blocks all network APIs.')}
+window.fetch=()=>{networkCalls++;counts();return Promise.reject(Error('Fixture blocks fetch.'))};
+function counts(){$('#fixture-counts').textContent='Move attempts: '+moveCalls+' · Network attempts: '+networkCalls}
+function renderGame(){renderWords(S.gstate.state,S.gstate,String(S.gstate.players[S.gstate.turn])===String(S.me.id));counts()}
+// BEGIN ACTUAL preparePrivateWordDraftStorage
+async function preparePrivateWordDraftStorage(){
+ const token=S.token,member=String(S.me?.id||'');
+ if(!token||!member)return;
+ if(S.wordDraftStorageToken===token&&S.wordDraftStorageMember===member&&S.wordDraftStorageScope)return;
+ S.wordDraftStorageToken=token;S.wordDraftStorageMember=member;S.wordDraftStorageScope=null;
+ try{
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));
+  if(S.token!==token||String(S.me?.id||'')!==member)return;
+  // Persist only an irreversible fingerprint, never the authentication token.
+  S.wordDraftStorageScope=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
+  S.wordDraftStorageProblem=false;
+  // Only the active authenticated member/session keeps private reload caches.
+  // A normal reload derives the same namespace and preserves its records.
+  const keep=WORD_DRAFT_STORAGE_PREFIX+S.wordDraftStorageScope+':'+member+':',stale=[];
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(WORD_DRAFT_STORAGE_PREFIX)&&!key.startsWith(keep))stale.push(key)}for(const key of stale)localStorage.removeItem(key)}catch{S.wordDraftStorageProblem=true;}
+ }catch{if(S.token===token&&String(S.me?.id||'')===member)S.wordDraftStorageProblem=true;}
+}
+// END ACTUAL preparePrivateWordDraftStorage
+// BEGIN ACTUAL privateWordDraftStorageKey
+function privateWordDraftStorageKey(g){
+ if(!S.wordDraftStorageScope||S.wordDraftStorageToken!==S.token||S.wordDraftStorageMember!==String(S.me?.id||''))return null;
+ return WORD_DRAFT_STORAGE_PREFIX+S.wordDraftStorageScope+':'+privateWordDraftKey(g);
+}
+// END ACTUAL privateWordDraftStorageKey
+// BEGIN ACTUAL readPersistedPrivateWordDraft
+function readPersistedPrivateWordDraft(g){
+ const key=privateWordDraftStorageKey(g);if(!key)return null;
+ try{
+  const raw=localStorage.getItem(key);if(!raw)return null;if(raw.length>32000)return null;
+  const d=JSON.parse(raw);
+  if(d?.version!==1||d.context!==privateWordDraftKey(g)||!Array.isArray(d.rack)||d.rack.length>128||!d.rack.every(x=>typeof x==='string'&&/^[A-Z?]$/.test(x))||!Array.isArray(d.placed)||d.placed.length>d.rack.length||!Array.isArray(d.order)||d.order.length>128)return null;
+  if(!d.placed.every(p=>p&&Number.isInteger(p.i)&&p.i>=0&&p.i<225&&Number.isInteger(p.rackIdx)&&p.rackIdx>=0&&p.rackIdx<d.rack.length&&typeof p.l==='string'&&/^[A-Z]$/.test(p.l)&&typeof p.blank==='boolean'))return null;
+  if(!d.order.every(k=>Number.isInteger(k)&&k>=0&&k<d.rack.length))return null;
+  return{rack:d.rack,placed:d.placed,order:d.order,sel:Number.isInteger(d.sel)&&d.sel>=0&&d.sel<d.rack.length?d.sel:null};
+ }catch{S.wordDraftStorageProblem=true;return null;}
+}
+// END ACTUAL readPersistedPrivateWordDraft
+// BEGIN ACTUAL persistPrivateWordDraft
+function persistPrivateWordDraft(g,entry){
+ const key=privateWordDraftStorageKey(g);if(!key)return;
+ try{
+  if(g.status!=='playing'||g.in_game===false){localStorage.removeItem(key);return;}
+  localStorage.setItem(key,JSON.stringify({version:1,context:privateWordDraftKey(g),rack:entry.rack,placed:entry.placed,order:entry.order,sel:entry.sel}));
+  S.wordDraftStorageProblem=false;
+ }catch{S.wordDraftStorageProblem=true;}
+}
+// END ACTUAL persistPrivateWordDraft
+// BEGIN ACTUAL clearPrivateWordDraftStorage
+function clearPrivateWordDraftStorage(){
+ // Sign-out removes local draft caches from this browser, including caches
+ // from an expired session whose fingerprint has not yet been initialized.
+ try{const keys=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(WORD_DRAFT_STORAGE_PREFIX))keys.push(key)}for(const key of keys)localStorage.removeItem(key)}catch{}
+ S.wordDrafts=new Map();S.wordDraftContext=null;S.placed=[];S.wordOrder=[];S.sel=null;S.wordDraftStorageScope=null;S.wordDraftStorageToken=null;S.wordDraftStorageMember=null;S.wordDraftStorageProblem=false;
+}
+// END ACTUAL clearPrivateWordDraftStorage
+// BEGIN ACTUAL privateWordDraftKey
+function privateWordDraftKey(g){return String(S.me?.id||'')+':'+String(g.room_id||S.room||'')+':'+String(g.id)}
+function rebasePrivateWordDraft(g,st,rack){
+ if(!S.wordDrafts||S.wordDraftToken!==S.token){S.wordDraftToken=S.token;S.wordDrafts=new Map();S.wordDraftContext=null;}
+ const key=privateWordDraftKey(g),same=S.wordDraftContext===key,old=S.wordDrafts.get(key)||readPersistedPrivateWordDraft(g);
+ const prior=same?{rack:old?.rack||rack,placed:S.placed||[],order:S.wordOrder||[],sel:S.sel}:old||{rack,placed:[],order:[],sel:null};
+ const allowed=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
+ const mapping=new Map(),available=new Set(rack.map((_,i)=>i));
+ // Reserve matching rack inventory for still-usable planned tiles first. Two
+ // indistinguishable A tiles must not lose a valid draft merely because the
+ // unplaced A occupied an earlier old rack index.
+ const planned=[],plannedCells=new Set(),plannedTiles=new Set();
+ for(const p of prior.placed)if(allowed&&Number.isInteger(p.i)&&p.i>=0&&p.i<225&&!st.board[p.i]&&!plannedCells.has(p.i)&&Number.isInteger(p.rackIdx)&&!plannedTiles.has(p.rackIdx)&&prior.rack[p.rackIdx]===(p.blank?'?':p.l)&&/^[A-Z]$/.test(p.l)){planned.push(p.rackIdx);plannedCells.add(p.i);plannedTiles.add(p.rackIdx)}
+ const indices=[...new Set([...planned,...prior.rack.map((_,i)=>i)])];
+ for(const i of indices){const letter=prior.rack[i];let at=available.has(i)&&rack[i]===letter?i:[...available].find(k=>rack[k]===letter);if(at!==undefined){mapping.set(i,at);available.delete(at)}}
+ const placed=[],cells=new Set(),tiles=new Set();let returned=0;
+ for(const p of prior.placed){
+  const k=mapping.get(p.rackIdx),letter=p.blank?'?':p.l;
+  if(!allowed||!Number.isInteger(p.i)||p.i<0||p.i>=225||st.board[p.i]||cells.has(p.i)||!Number.isInteger(p.rackIdx)||prior.rack[p.rackIdx]!==letter||k===undefined||rack[k]!==letter||tiles.has(k)||!(/^[A-Z]$/.test(p.l))){returned++;continue}
+  placed.push({i:p.i,l:p.l,blank:!!p.blank,rackIdx:k});cells.add(p.i);tiles.add(k);
+ }
+ let order=(prior.order||[]).map(k=>mapping.get(k)).filter((k,i,a)=>k!==undefined&&a.indexOf(k)===i);
+ for(let i=0;i<rack.length;i++)if(!order.includes(i))order.push(i);
+ S.placed=placed;S.wordOrder=order;S.wordOrderGame=g.id;S.sel=mapping.get(prior.sel)??null;
+ if(!same)S.wordDraftNotice='';
+ if(returned)S.wordDraftNotice='The board changed. '+returned+' planned letter'+(returned===1?' was':'s were')+' returned to your rack. Review your plan.';
+ S.wordDraftContext=key;const entry={rack:[...rack],placed:placed.map(p=>({...p})),order:[...order],sel:S.sel};S.wordDrafts.set(key,entry);persistPrivateWordDraft(g,entry);
+ return{returned,placed};
+}
+// END ACTUAL privateWordDraftKey
+// BEGIN ACTUAL rebasePrivateWordDraft
+function rebasePrivateWordDraft(g,st,rack){
+ if(!S.wordDrafts||S.wordDraftToken!==S.token){S.wordDraftToken=S.token;S.wordDrafts=new Map();S.wordDraftContext=null;}
+ const key=privateWordDraftKey(g),same=S.wordDraftContext===key,old=S.wordDrafts.get(key)||readPersistedPrivateWordDraft(g);
+ const prior=same?{rack:old?.rack||rack,placed:S.placed||[],order:S.wordOrder||[],sel:S.sel}:old||{rack,placed:[],order:[],sel:null};
+ const allowed=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
+ const mapping=new Map(),available=new Set(rack.map((_,i)=>i));
+ // Reserve matching rack inventory for still-usable planned tiles first. Two
+ // indistinguishable A tiles must not lose a valid draft merely because the
+ // unplaced A occupied an earlier old rack index.
+ const planned=[],plannedCells=new Set(),plannedTiles=new Set();
+ for(const p of prior.placed)if(allowed&&Number.isInteger(p.i)&&p.i>=0&&p.i<225&&!st.board[p.i]&&!plannedCells.has(p.i)&&Number.isInteger(p.rackIdx)&&!plannedTiles.has(p.rackIdx)&&prior.rack[p.rackIdx]===(p.blank?'?':p.l)&&/^[A-Z]$/.test(p.l)){planned.push(p.rackIdx);plannedCells.add(p.i);plannedTiles.add(p.rackIdx)}
+ const indices=[...new Set([...planned,...prior.rack.map((_,i)=>i)])];
+ for(const i of indices){const letter=prior.rack[i];let at=available.has(i)&&rack[i]===letter?i:[...available].find(k=>rack[k]===letter);if(at!==undefined){mapping.set(i,at);available.delete(at)}}
+ const placed=[],cells=new Set(),tiles=new Set();let returned=0;
+ for(const p of prior.placed){
+  const k=mapping.get(p.rackIdx),letter=p.blank?'?':p.l;
+  if(!allowed||!Number.isInteger(p.i)||p.i<0||p.i>=225||st.board[p.i]||cells.has(p.i)||!Number.isInteger(p.rackIdx)||prior.rack[p.rackIdx]!==letter||k===undefined||rack[k]!==letter||tiles.has(k)||!(/^[A-Z]$/.test(p.l))){returned++;continue}
+  placed.push({i:p.i,l:p.l,blank:!!p.blank,rackIdx:k});cells.add(p.i);tiles.add(k);
+ }
+ let order=(prior.order||[]).map(k=>mapping.get(k)).filter((k,i,a)=>k!==undefined&&a.indexOf(k)===i);
+ for(let i=0;i<rack.length;i++)if(!order.includes(i))order.push(i);
+ S.placed=placed;S.wordOrder=order;S.wordOrderGame=g.id;S.sel=mapping.get(prior.sel)??null;
+ if(!same)S.wordDraftNotice='';
+ if(returned)S.wordDraftNotice='The board changed. '+returned+' planned letter'+(returned===1?' was':'s were')+' returned to your rack. Review your plan.';
+ S.wordDraftContext=key;const entry={rack:[...rack],placed:placed.map(p=>({...p})),order:[...order],sel:S.sel};S.wordDrafts.set(key,entry);persistPrivateWordDraft(g,entry);
+ return{returned,placed};
+}
+// END ACTUAL rebasePrivateWordDraft
+// BEGIN ACTUAL wordDraftReviewState
+function wordDraftReviewState(g){const st=g.state;return JSON.stringify({status:g.status,turn:g.turn,board:st.board,rack:st.racks[S.me.id]})}
+async function submitPrivateWordDraft(){
+ const game=S.gstate,member=String(S.me?.id||''),token=S.token,room=S.room,id=S.game;
+ if(S.wordDraftSubmitting||S.movePending||game?.type!=='words'||game.status!=='playing'||String(game.players[game.turn])!==member||!S.placed.length)return;
+ const current=()=>S.game===id&&S.token===token&&String(S.me?.id||'')===member&&S.room===room&&S.gstate?.type==='words';
+ const reviewed=wordDraftReviewState(game),plan=JSON.stringify(S.placed);S.wordDraftSubmitting=true;
+ document.getElementById('play')?.setAttribute('disabled','');
+ try{
+  const fresh=await api('/api/game/'+id);if(!current()||S.movePending)return;
+  if(fresh.type!=='words'||String(fresh.id)!==String(id)||!fresh.players.some(p=>String(p)===member))return;
+  if(JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Your plan changed. Review it, then choose Play again.';renderGame();return}
+  S.gstate=fresh;rebasePrivateWordDraft(fresh,fresh.state,fresh.state.racks[S.me.id]||[]);
+  if(wordDraftReviewState(fresh)!==reviewed||JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Board updated—review your plan, then choose Play when it is your turn.';renderGame();return}
+  if(fresh.status!=='playing'||String(fresh.players[fresh.turn])!==member||!S.placed.length){renderGame();return}
+  await move({action:'play',placements:S.placed.map(p=>({i:p.i,l:p.l,blank:p.blank}))},()=>{S.placed=[];S.sel=null;S.wordDraftNotice='';});
+ }catch(error){if(current()){S.wordDraftNotice='Could not refresh the board. Your private plan is saved. Try Play again when connected.';renderGame();}}
+ finally{S.wordDraftSubmitting=false;if(current())renderGame();}
+}
+// END ACTUAL wordDraftReviewState
+// BEGIN ACTUAL submitPrivateWordDraft
+async function submitPrivateWordDraft(){
+ const game=S.gstate,member=String(S.me?.id||''),token=S.token,room=S.room,id=S.game;
+ if(S.wordDraftSubmitting||S.movePending||game?.type!=='words'||game.status!=='playing'||String(game.players[game.turn])!==member||!S.placed.length)return;
+ const current=()=>S.game===id&&S.token===token&&String(S.me?.id||'')===member&&S.room===room&&S.gstate?.type==='words';
+ const reviewed=wordDraftReviewState(game),plan=JSON.stringify(S.placed);S.wordDraftSubmitting=true;
+ document.getElementById('play')?.setAttribute('disabled','');
+ try{
+  const fresh=await api('/api/game/'+id);if(!current()||S.movePending)return;
+  if(fresh.type!=='words'||String(fresh.id)!==String(id)||!fresh.players.some(p=>String(p)===member))return;
+  if(JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Your plan changed. Review it, then choose Play again.';renderGame();return}
+  S.gstate=fresh;rebasePrivateWordDraft(fresh,fresh.state,fresh.state.racks[S.me.id]||[]);
+  if(wordDraftReviewState(fresh)!==reviewed||JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Board updated—review your plan, then choose Play when it is your turn.';renderGame();return}
+  if(fresh.status!=='playing'||String(fresh.players[fresh.turn])!==member||!S.placed.length){renderGame();return}
+  await move({action:'play',placements:S.placed.map(p=>({i:p.i,l:p.l,blank:p.blank}))},()=>{S.placed=[];S.sel=null;S.wordDraftNotice='';});
+ }catch(error){if(current()){S.wordDraftNotice='Could not refresh the board. Your private plan is saved. Try Play again when connected.';renderGame();}}
+ finally{S.wordDraftSubmitting=false;if(current())renderGame();}
+}
+// END ACTUAL submitPrivateWordDraft
+// BEGIN ACTUAL calcPreviewScore
+function calcPreviewScore(st, placed) {
+  if (!placed.length) return { total: 0, words: [] };
+  const board = st.board.slice();
+  const placedSet = new Set();
+  for (const t of placed) {
+    board[t.i] = { l: t.l, v: t.blank ? 0 : LV[t.l], blank: t.blank };
+    placedSet.add(t.i);
+  }
+  const rows = new Set(placed.map(t => Math.floor(t.i / 15)));
+  const cols = new Set(placed.map(t => t.i % 15));
+  let dir;
+  if (placed.length > 1) dir = rows.size === 1 ? 1 : 15;
+  else {
+    const hc = pCollect(board, placed[0].i, 1);
+    dir = hc.length > 1 ? 1 : 15;
+  }
+  const main = pCollect(board, placed[0].i, dir);
+  const wordsFormed = [];
+  if (main.length > 1) wordsFormed.push(main);
+  for (const t of placed) {
+    const cross = pCollect(board, t.i, dir === 1 ? 15 : 1);
+    if (cross.length > 1) wordsFormed.push(cross);
+  }
+  // dedupe
+  const seen = new Set(); const uniq = [];
+  for (const w of wordsFormed) { const k = w.join(','); if (!seen.has(k)) { seen.add(k); uniq.push(w); } }
+  let total = 0; const detail = [];
+  for (const w of uniq) {
+    let sum = 0, mult = 1;
+    for (const i of w) {
+      let v = board[i].v;
+      if (placedSet.has(i)) {
+        const b = st.bonus[i];
+        if (b === 'DL') v *= 2;
+        if (b === 'TL') v *= 3;
+        if (b === 'DW') mult *= 2;
+        if (b === 'TW') mult *= 3;
+      }
+      sum += v;
+    }
+    total += sum * mult;
+    detail.push({ word: w.map(i => board[i].l).join(''), score: sum * mult });
+  }
+  if (placed.length === 7) total += 50;
+  return { total, words: detail };
+}
+// END ACTUAL calcPreviewScore
+// BEGIN ACTUAL pCollect
+function pCollect(board, i, dir) {
+  const row = Math.floor(i / 15);
+  const inLine = j => dir === 1 ? Math.floor(j / 15) === row : true;
+  let start = i;
+  while (true) { const prev = start - dir; if (prev < 0 || !inLine(prev) || !board[prev]) break; start = prev; }
+  const idx = []; let j = start;
+  while (j < 225 && inLine(j) && board[j]) { idx.push(j); j += dir; if (dir === 1 && j % 15 === 0) break; }
+  return idx;
+}
+// END ACTUAL pCollect
+// BEGIN ACTUAL placeDraftTile
+function placeDraftTile(st, rack, rackIdx, i, blankPlaced) {
+  if (!Number.isInteger(i) || i<0 || i>=225 || st.board[i]) return false;
+  const existing=S.placed.find(p=>p.rackIdx===rackIdx);
+  if(S.placed.some(p=>p.i===i && p!==existing))return false;
+  if(existing){existing.i=i;return true;}
+  let l=rack[rackIdx],blank=false;if(!l)return false;
+  if(l==='?'){const context={game:S.game,member:S.me?.id,token:S.token,room:S.room};showBlankLetterPicker(i,a=>{if(S.game!==context.game||S.me?.id!==context.member||S.token!==context.token||S.room!==context.room)return;const live=S.gstate?.type==='words'?S.gstate.state:null;if(live&&(live.board[i]||JSON.stringify(live.racks[S.me.id])!==JSON.stringify(rack)))return;if(st.board[i]||S.placed.some(p=>p.i===i||p.rackIdx===rackIdx)||rack[rackIdx]!=='?')return;S.placed.push({i,l:a,blank:true,rackIdx});S.sel=null;AudioSys.tileDrop();blankPlaced?.();});return false;}
+  S.placed.push({i,l,blank,rackIdx});return true;
+}
+// END ACTUAL placeDraftTile
+// BEGIN ACTUAL positionWordTray
+function positionWordTray(){
+ const tray=document.querySelector('.game-tray');if(!tray)return;
+ const v=window.visualViewport,scale=v?.scale||1,vw=v?.width||window.innerWidth,vh=v?.height||window.innerHeight;
+ const width=Math.min(620,vw*scale);
+ Object.assign(tray.style,{width:width+'px',maxWidth:'none',margin:'0',right:'auto',bottom:'auto',transformOrigin:'top left',transform:`scale(${1/scale})`});
+ tray.style.left=((v?.offsetLeft||0)+(vw-width/scale)/2)+'px';
+ tray.style.top=((v?.offsetTop||0)+vh-tray.offsetHeight/scale)+'px';
+ const game=document.getElementById('game');if(game)game.style.paddingBottom=(tray.offsetHeight/scale+24)+'px';
+}
+// END ACTUAL positionWordTray
+// BEGIN ACTUAL cancelWordDrag
+function cancelWordDrag(){
+ const d=dragState;if(!d)return;dragState=null;
+ cancelAnimationFrame(d.scrollFrame);d.ghost?.remove();d.source?.classList.remove('dragging');
+ document.querySelectorAll('.drop-target,.tray-drop-target').forEach(e=>e.classList.remove('drop-target','tray-drop-target'));
+ if(d.moved)suppressTileClickUntil=Date.now()+450;
+ try{if(d.source?.hasPointerCapture?.(d.id))d.source.releasePointerCapture(d.id);}catch{}
+}
+// END ACTUAL cancelWordDrag
+// BEGIN ACTUAL initDragDrop
+function initDragDrop(st, g, myTurn, rack, rerender) {
+  const canDraft=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
+  // Swapping uses multi-select taps, never tile dragging or rack reordering.
+  if(S.swapMode)return;
+  const bd=$('#board');
+  const trayEl=document.querySelector('.game-tray');
+  const rackTiles=trayEl?[...trayEl.querySelectorAll('.rt:not(.used)')]:[...bd.querySelectorAll('.rt:not(.used)')];
+  const sources=[...rackTiles,...(canDraft?[...bd.querySelectorAll('.c')]:[])].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
+  const scrollWhileDragging=()=>{
+    const d=dragState;if(!d)return;
+    const edge=72,h=window.visualViewport?.height||window.innerHeight;
+    const y=d.currentY-(window.visualViewport?.offsetTop||0);
+    const speed=y<edge?-Math.min(22,Math.max(0,(edge-y)/3)):y>h-edge?Math.min(22,Math.max(0,(y-h+edge)/3)):0;
+    if(speed)window.scrollBy(0,speed);
+    d.scrollFrame=requestAnimationFrame(scrollWhileDragging);
+  };
+  sources.forEach(el=>{
+    const staged=el.matches('.c')?S.placed.find(p=>p.i===+el.dataset.i):null;
+    const k=staged?staged.rackIdx:+el.dataset.r;
+    el.style.touchAction='none';el.style.cursor='grab';
+    el.onpointerdown=e=>{
+      if(window._wbPinching||window._wordRackPinching||!e.isPrimary||e.button!==0||dragState)return;
+      el.setPointerCapture?.(e.pointerId);
+      dragState={id:e.pointerId,x:e.clientX,y:e.clientY,currentY:e.clientY,moved:false,source:el,k,ghost:null};
+      const c=AudioSys.getCtx();if(c?.state==='suspended')c.resume();
+    };
+    el.onpointermove=e=>{
+      const d=dragState;if(!d||d.source!==el||d.id!==e.pointerId)return;
+      d.currentY=e.clientY;
+      if(!d.moved && Math.hypot(e.clientX-d.x,e.clientY-d.y)>6){
+        if(S.swapMode)return;
+        d.moved=true;AudioSys.tilePickup();d.ghost=document.createElement('div');d.ghost.className='drag-ghost';d.ghost.textContent=staged?.l||rack[k];document.body.append(d.ghost);el.classList.add('dragging');
+        d.scrollFrame=requestAnimationFrame(scrollWhileDragging);
+      }
+      if(!d.moved)return;e.preventDefault();
+      bd.querySelectorAll('.drop-target').forEach(c=>c.classList.remove('drop-target'));
+      trayEl?.querySelectorAll('.tray-drop-target').forEach(t=>t.classList.remove('tray-drop-target'));
+      const cell=document.elementFromPoint(e.clientX,e.clientY)?.closest('.c');
+      const trayTarget=document.elementFromPoint(e.clientX,e.clientY)?.closest('.game-tray .rt:not(.used)');
+      const ok=canDraft&&cell&&bd.contains(cell)&&!st.board[+cell.dataset.i]&&!S.placed.some(p=>p.i===+cell.dataset.i&&p.rackIdx!==k);
+      if(ok){cell.classList.add('drop-target');const r=cell.getBoundingClientRect();Object.assign(d.ghost.style,{left:(r.left+r.width/2)+'px',top:(r.top+r.height/2)+'px',width:Math.max(30,r.width-4)+'px',height:Math.max(30,r.height-4)+'px',fontSize:Math.max(16,r.width*.55)+'px'});d.ghost.classList.add('snapped');}
+      else{if(trayTarget&&el.matches('.rt'))trayTarget.classList.add('tray-drop-target');Object.assign(d.ghost.style,{left:e.clientX+'px',top:(e.clientY-(e.pointerType==='touch'?34:0))+'px',width:'',height:'',fontSize:''});d.ghost.classList.remove('snapped');}
+    };
+    const finish=(e,cancelled)=>{
+      const d=dragState;if(!d||d.source!==el||d.id!==e.pointerId)return;
+      cancelAnimationFrame(d.scrollFrame);
+      dragState=null;d.ghost?.remove();el.classList.remove('dragging');bd.querySelectorAll('.drop-target').forEach(c=>c.classList.remove('drop-target'));trayEl?.querySelectorAll('.tray-drop-target').forEach(t=>t.classList.remove('tray-drop-target'));
+      if(!d.moved)return;
+      suppressTileClickUntil=Date.now()+450;
+      if(!cancelled){
+        const target=document.elementFromPoint(e.clientX,e.clientY);const cell=target?.closest('.c'),tile=target?.closest('.game-tray .rt:not(.used)');
+        if(el.matches('.rt')&&tile&&+tile.dataset.r!==k){const order=S.wordOrder||[],from=order.indexOf(k),to=order.indexOf(+tile.dataset.r);if(from>=0&&to>=0){order.splice(from,1);order.splice(to,0,k);AudioSys.tileDrop();}}
+        else if(canDraft&&cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i,rerender))AudioSys.tileDrop();
+        else if(staged&&(()=>{const r=trayEl?.querySelector('.rack')?.getBoundingClientRect();return !!r&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;})()){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tileDrop();}
+      }
+      S.sel=null;rerender();
+    };
+    el.onpointerup=e=>finish(e,false);el.onpointercancel=e=>finish(e,true);el.onlostpointercapture=e=>finish(e,true);
+  });
+}
+// END ACTUAL initDragDrop
+// BEGIN ACTUAL wordBoardSurface
+function wordBoardSurface(st,placed){
+  const pending=new Map(placed.map(p=>[p.i,p]));const surprises=new Set(st.surprises||[]);const found=st.foundSurprises||{};
+  const defs=`<defs><linearGradient id="wb-sea" x2="1" y2="1"><stop stop-color="#e8f4de"/><stop offset="1" stop-color="#d5e9d0"/></linearGradient><linearGradient id="wb-DL" x2="0" y2="1"><stop stop-color="#80cbd7"/><stop offset="1" stop-color="#3d929f"/></linearGradient><linearGradient id="wb-TL" x2="0" y2="1"><stop stop-color="#207ca1"/><stop offset="1" stop-color="#15435e"/></linearGradient><linearGradient id="wb-DW" x2="0" y2="1"><stop stop-color="#e9aaa9"/><stop offset="1" stop-color="#c87b8e"/></linearGradient><linearGradient id="wb-TW" x2="0" y2="1"><stop stop-color="#bf6a74"/><stop offset="1" stop-color="#80384f"/></linearGradient><radialGradient id="wb-surprise"><stop stop-color="#ba83d4"/><stop offset="1" stop-color="#553b79"/></radialGradient><radialGradient id="wb-ctr"><stop stop-color="#fff6df"/><stop offset="1" stop-color="#f6dca0"/></radialGradient><radialGradient id="wb-hibglow"><stop stop-color="#fff3c9" stop-opacity=".95"/><stop offset="1" stop-color="#fff3c9" stop-opacity="0"/></radialGradient><radialGradient id="wb-hib" cx=".5" cy=".8"><stop stop-color="#ffe1ea"/><stop offset=".55" stop-color="#ff9cb8"/><stop offset="1" stop-color="#ec6f96"/></radialGradient><radialGradient id="wb-hibc"><stop stop-color="#fff4b8"/><stop offset="1" stop-color="#f2a63a"/></radialGradient></defs>`;
+  const cells=Array.from({length:225},(_,i)=>{
+    const x=i%15*100,y=Math.floor(i/15)*100,b=st.bonus[i],occupied=st.board[i]||pending.has(i),surprise=surprises.has(i)&&!found[i]&&!occupied;
+    const fill=found[i]?'#cfe9d7':surprise?'url(#wb-surprise)':i===112?'url(#wb-ctr)':['DL','TL','DW','TW'].includes(b)?'url(#wb-'+b+')':'url(#wb-sea)';
+    const label=!occupied&&!surprise&&i!==112&&st.star!==i&&['DL','TL','DW','TW'].includes(b)?b:'';
+    return `<rect data-square="${i}" x="${x}" y="${y}" width="100" height="100" fill="${fill}" stroke="#80a89a" stroke-width="2"/>${label?`<text x="${x+50}" y="${y+58}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="31" fill="${b==='DL'?'#082b37':b==='DW'?'#431e32':'#fff0cf'}">${label}</text>`:''}`;
+  });
+  const centerOccupied=st.board[112]||pending.has(112);
+  const emblem=centerOccupied?'':wordCenterEmblem();
+  return `<svg class="wb-surface" viewBox="0 0 1500 1500" aria-hidden="true" focusable="false">${defs}${cells.join('')}${emblem}</svg>`;
+}
+// END ACTUAL wordBoardSurface
+// BEGIN ACTUAL wordCenterEmblem
+function wordCenterEmblem(){
+  const cx=750,cy=750;
+  const rays=Array.from({length:12},(_,k)=>{const a=k*30;return `<rect x="${cx-3}" y="${cy-64}" width="6" height="20" rx="3" fill="#ffcf6e" opacity=".85" transform="rotate(${a} ${cx} ${cy})"/>`;}).join('');
+  const petals=[0,72,144,216,288].map(a=>`<ellipse cx="${cx}" cy="${cy-25}" rx="16" ry="29" fill="url(#wb-hib)" stroke="#d76d90" stroke-width="1.4" transform="rotate(${a} ${cx} ${cy})"/>`).join('');
+  const stamen=[0,72,144,216,288].map(a=>`<circle cx="${cx}" cy="${cy-16}" r="2.6" fill="#ff8f5e" transform="rotate(${a+36} ${cx} ${cy})"/>`).join('');
+  return `<circle cx="${cx}" cy="${cy}" r="52" fill="url(#wb-hibglow)"/>${rays}${petals}<circle cx="${cx}" cy="${cy}" r="12" fill="url(#wb-hibc)"/>${stamen}<circle cx="${cx}" cy="${cy}" r="4" fill="#ffb638"/>`;
+}
+// END ACTUAL wordCenterEmblem
+// BEGIN ACTUAL renderPlayBreakdown
+function renderPlayBreakdown(st) {
+  const g=S.gstate;const last=[...(st.history||[])].reverse().find(h=>h.words?.length);
+  if(document.documentElement.classList.contains('ohana-world'))return '';
+  if(!last&&!(g&&g.players))return '';
+  const turnId=g&&g.status==='playing'?g.players[g.turn]:null;
+  const scores='';
+  if(!last)return '';
+  const wordChips=last.words.map(w=>`<span class="sign-word">${esc(w.word)}${last.words.length>1?`<b>+${w.score}</b>`:''}</span>`).join('')+(last.note?`<span class="sign-note">${esc(last.note)}</span>`:'');
+  return `<section class="play-receipt ohana-sign" aria-label="Scoreboard and last play">${scores}<div class="moment-stage revealed sign-last" data-points="${last.score}"><span class="sign-last-label">Last play</span><span class="sign-last-who">${esc(nameOf(last.p))}</span><span class="sign-words">${wordChips}</span><strong class="moment-points">+${last.score}</strong></div></section>`;
+}
+// END ACTUAL renderPlayBreakdown
+// BEGIN ACTUAL renderWords
+function renderWords(st, g, myTurn) {
+  cancelWordDrag();
+  const bd = $('#board'); const meId = S.me.id; const rack = Array.isArray(st.racks[meId]) ? st.racks[meId] : [];
+  rebasePrivateWordDraft(g,st,rack);
+  const canDraft=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(meId));
+  if(S.wordOrderGame!==g.id){S.wordOrderGame=g.id;S.wordOrder=[];}
+  S.wordOrder=(S.wordOrder||[]).filter((k,i,all)=>Number.isInteger(k)&&k>=0&&k<rack.length&&all.indexOf(k)===i);
+  for(let k=0;k<rack.length;k++)if(!S.wordOrder.includes(k))S.wordOrder.push(k);
+  const usedIdx = new Set(S.placed.map(p => p.rackIdx));
+  const cells = [];
+  const surpriseSet = new Set(st.surprises || []);
+  const found = st.foundSurprises || {};
+  for (let i = 0; i < 225; i++) {
+    const t = st.board[i]; const pl = S.placed.find(p => p.i === i); const bn = st.bonus[i];
+    const isSurp = surpriseSet.has(i) && !found[i] && !t && !pl;
+    const wasSurp = !!found[i];
+    let cls = 'c ' + (bn || '') + (i === 112 ? ' ctr' : '') + (st.star === i ? ' star' : '') + (isSurp ? ' surp' : '') + (wasSurp ? ' surp-found' : '');
+    let inner = t ? `<span class="t ${st.lastMove.includes(i) ? 'last' : ''} ${t.blank ? 'blank' : ''} ${(t.v ?? 0) >= 10 ? 'double-points' : ''}"><span class="tile-glyph">${t.l}</span><i>${t.v}</i></span>` : pl ? `<span class="t new ${pl.blank ? 'blank' : ''} ${(pl.blank ? 0 : LV[pl.l]) >= 10 ? 'double-points' : ''}"><span class="tile-glyph">${pl.l}</span><i>${pl.blank ? 0 : LV[pl.l]}</i></span>` : (i === 112 ? '' : st.star === i ? '🌺' : isSurp ? '<span class="mystery-mark" aria-label="Mystery square">?</span>'  : bn ? `<span class="bl">${bn}</span>` : '');
+    cells.push(`<div class="${cls}" data-i="${i}" style="left:${i%15*100/15}%;top:${Math.floor(i/15)*100/15}%">${inner}</div>`);
+  }
+  // Live score preview
+  const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
+  const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
+
+  bd.innerHTML = `<div class="word-status"><span aria-label="${st.bag} tiles remaining">${st.bag}</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"${dmAttr(p)}><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap wb-zoomable"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="board-name-watermark" aria-hidden="true">Ohana Words</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div><div class="wb-zoom-hint">Pinch to zoom the board · drag to move it · pinch back out for the whole board</div></div>
+
+    <p class="word-private-draft-hint" role="status" style="margin:4px 0;color:inherit;font:700 16px/1.35 Nunito,sans-serif">${esc((S.wordDraftNotice||(!myTurn?'Plan privately while you wait. Only you can see your unplayed letters.':'Your unplayed letters are private. Review your plan, then choose Play.'))+(S.wordDraftStorageProblem?' This browser could not save your plan across a reload. Keep this page open to retain it.':''))}</p>
+    ${previewHtml}
+    ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
+    `;
+  const hasRack = g.status === 'playing' && rack.length;
+  const rackHtml = hasRack ? `${S.swapMode ? '<p class="swap-instructions" role="status">Select letters, then tap Swap. Tap a selected letter to keep it.</p>' : ''}<div class="rack">${S.wordOrder.map(k => {const l=rack[k];return `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''} ${LV[l] >= 10 ? 'double-points' : ''}" data-r="${k}" aria-pressed="${S.swapMode ? S.swapSel.includes(k) : S.sel===k}" aria-description="${S.swapMode ? 'Select or deselect this letter for swapping.' : 'Drag to rearrange your tray. Alt plus arrow keys also moves this letter.'}"><span class="tile-glyph">${l === '?' ? '' : l}</span><i>${LV[l]}</i></button>`;}).join('')}</div>
+    <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Cancel</button>` :
+      `<button class="soft" id="recall" ${!S.placed.length ? 'disabled' : ''}>Recall</button><button class="soft" id="shuf">Shuffle</button><button class="soft" id="swap" ${!myTurn || st.bag < 7 ? 'disabled' : ''}>Swap</button><button class="ghost" id="pass" ${!myTurn ? 'disabled' : ''}>Pass</button><button id="play" ${!myTurn || !S.placed.length ? 'disabled' : ''}>Play${preview.total ? ' +' + preview.total : ''}</button>`}</div>` : '';
+  let tray = document.querySelector('.game-tray');
+  if (hasRack) {
+    if (!tray) { tray = document.createElement('div'); tray.className = 'game-tray'; document.body.appendChild(tray); }
+    const tools=tray.querySelector('.dock-tools');tray.innerHTML = rackHtml;if(tools)tray.append(tools);positionWordTray();
+  } else if (tray) { tray.remove(); }
+  bd.querySelector('.wbwrap').insertAdjacentHTML('beforebegin',renderPlayBreakdown(st));
+  const existingHead=document.querySelector('#game-head.word-toolbar');if(existingHead){existingHead.querySelector('.word-status')?.remove();existingHead.append(bd.querySelector('.word-status'));}
+  const replay=bd.querySelector('.replay-moment');if(replay)replay.onclick=()=>runLastReveal(true,false);
+  // Keep the board exactly where it is on screen when a letter is placed or picked up (no page jump).
+  const rerender = () => {const w0=document.querySelector('#board .wbwrap');const top0=w0?w0.getBoundingClientRect().top:null;const sy=window.scrollY;renderWords(st,g,myTurn);mountWorldGame(g,st);mountGameControlDock();const fix=()=>{const w1=document.querySelector('#board .wbwrap');if(w1&&top0!=null){const d=w1.getBoundingClientRect().top-top0;if(Math.abs(d)>0.5)window.scrollBy(0,d);}else window.scrollTo(0,sy);};fix();requestAnimationFrame(()=>{fix();setTimeout(fix,120);});};
+  initBoardZoom(g);initWordRackPinch(g);
+
+  // Tap-to-select (still works alongside drag)
+  const trayEl = document.querySelector('.game-tray');
+  (trayEl||bd).querySelectorAll('.rt').forEach(btn => btn.onclick = () => {
+    const k = +btn.dataset.r; if (usedIdx.has(k)) {S.placed=S.placed.filter(p=>p.rackIdx!==k);S.sel=null;AudioSys.tileDrop();return rerender();}
+    if (S.swapMode) { S.swapSel = S.swapSel.includes(k) ? S.swapSel.filter(x => x !== k) : [...S.swapSel, k]; return rerender(); }
+    S.sel = S.sel === k ? null : k; rerender();
+  });
+  (trayEl||bd).querySelectorAll('.rt').forEach(btn=>btn.onkeydown=e=>{if(S.swapMode||!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const k=+btn.dataset.r,i=S.wordOrder.indexOf(k),j=i+(e.key==='ArrowLeft'?-1:1);if(j<0||j>=S.wordOrder.length)return;[S.wordOrder[i],S.wordOrder[j]]=[S.wordOrder[j],S.wordOrder[i]];rerender();document.querySelector('.game-tray [data-r="'+k+'"]')?.focus({preventScroll:true});});
+  bd.querySelectorAll('.c').forEach(c => c.onclick = () => {
+    const i = +c.dataset.i; if (!canDraft || S.swapMode || st.board[i]) return;
+    const pk = S.placed.findIndex(p => p.i === i);
+    if (pk >= 0) { const k=S.placed[pk].rackIdx;S.sel=S.sel===k?null:k;AudioSys.tilePickup();return rerender(); }
+    if(S.sel===null)return;
+    if(placeDraftTile(st,rack,S.sel,i,rerender)){S.sel=null;AudioSys.tileDrop();rerender();}
+  });
+
+  const selectedDraft=S.placed.find(p=>p.rackIdx===S.sel);
+  if(selectedDraft)bd.querySelector('[data-i="'+selectedDraft.i+'"]')?.classList.add('draft-selected');
+  // Init drag-and-drop
+  initDragDrop(st, g, myTurn, rack, rerender);
+
+  const on = (id, fn) => { const e = $('#' + id); if (e) e.onclick = fn; };
+  addNextGameControl();
+  mountWorldGame(g,st);
+  on('recall', () => { S.placed = []; S.sel = null; rerender(); });
+  on('shuf', () => { if (S.placed.length) return; for (let i = S.wordOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [S.wordOrder[i], S.wordOrder[j]] = [S.wordOrder[j], S.wordOrder[i]]; } rerender(); });
+  on('swap', () => { if(!myTurn||S.movePending)return;S.swapMode = true; S.swapSel = []; S.placed = []; S.sel = null; rerender(); });
+  on('swapx', () => { S.swapMode = false; S.swapSel = []; rerender(); });
+  on('swapgo', () => { if(!myTurn||!S.swapSel.length||S.movePending)return;const letters=S.swapSel.map(k=>rack[k]);return move({ action: 'swap', letters }, () => { S.swapMode = false; S.swapSel = []; S.sel=null;toast('Swapped '+letters.length+' letter'+(letters.length===1?'':'s')+'.'); }); });
+  on('pass', async () => { if(!myTurn||S.movePending)return;if (await ohanaConfirm('Pass your turn?',{cancelLabel:'Keep playing',confirmLabel:'Pass'})) move({ action: 'pass' }); });
+  on('play',submitPrivateWordDraft);
+}
+// END ACTUAL renderWords
+function reset(){moveCalls=0;networkCalls=0;S.wordDrafts=new Map();S.wordDraftContext=null;S.placed=[];S.sel=null;S.wordOrder=[];S.swapMode=false;S.swapSel=[];S.game=90001;S.gstate={id:90001,room_id:1701,type:'words',status:'playing',in_game:true,players:[701,702],turn:1,state:{board:Array(225).fill(null),racks:{701:['A','T','E','R','S','N','?']},bonus:Array(225).fill(null),star:112,surprises:[],foundSurprises:{},lastMove:[],scores:{701:0,702:0},history:[],bag:70}};S.gstate.state.board[111]={l:'C',v:3,blank:false};fixtureStorage.clear();renderGame();$('#fixture-status').textContent='Opponent turn. Tap rack A then square112 (next to C), then rack T and square113. Blue tiles are your private draft.'}
+function ready(){const a=S.placed.find(p=>p.i===112&&p.l==='A'&&p.rackIdx===0&&!p.blank),t=S.placed.find(p=>p.i===113&&p.l==='T'&&p.rackIdx===1&&!p.blank);if(!a||!t){toast('First place your rack A on112 and T on113. Use the labeled board squares.');return false}return true}
+function simulate(letter){if(!ready())return;S.gstate.state.board[112]={l:letter,v:LV[letter],blank:false};S.gstate.state.lastMove=[112];renderGame();const remaining=S.placed.some(p=>p.i===113&&p.l==='T'&&p.rackIdx===1),collision=S.placed.some(p=>p.i===112),rack=document.querySelector('.game-tray [data-r="0"]'),rackAvailable=!!rack&&!rack.classList.contains('used'),domClear=!document.querySelector('.c[data-i="112"] .t.new'),domKept=document.querySelector('.c[data-i="113"] .t.new .tile-glyph')?.textContent==='T';toast((remaining&&!collision&&rackAvailable&&domClear&&domKept&&moveCalls===0&&networkCalls===0?'PASS':'CHECK')+': opponent committed '+letter+' at112; own A returned to rack, private T remains at113. No automatic submission.')}
+$('#fixture-reset').onclick=reset;$('#fixture-opponent-different').onclick=()=>simulate('Z');$('#fixture-opponent-same').onclick=()=>simulate('A');
+$('#fixture-own-turn').onclick=()=>{S.gstate.turn=0;renderGame();toast((moveCalls===0&&networkCalls===0?'PASS':'CHECK')+': now your turn; private plan retained. No automatic Play. Leave Play untouched during this check.')};
+document.addEventListener('click',e=>{const square=e.target.closest('.c');if(square)$('#fixture-square').textContent='Last square selected: '+square.dataset.i});
+(async()=>{await preparePrivateWordDraftStorage();reset()})();
+})();</script></html>

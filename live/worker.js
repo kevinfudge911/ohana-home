@@ -91,6 +91,7 @@ import MEMORIES_HTML from "./ohana-memories.html";
 import SPADES_BID_CHECK_HTML from "./ohana-spades-bid-check.html";
 import MEMORIES_LAYOUT_CHECK_HTML from "./ohana-memories-layout-check.html";
 import O10_TOUCH_CHECK_HTML from "./ohana-o10-touch-check.html";
+import WORDS_DRAFT_CHECK_HTML from "./ohana-words-draft-check.html";
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -10804,6 +10805,7 @@ if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(O
     if(p==='/ohana-spades-bid-check.html' && req.method==='GET')return new Response(SPADES_BID_CHECK_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     if(p==='/ohana-memories-layout-check.html' && req.method==='GET')return new Response(MEMORIES_LAYOUT_CHECK_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     if(p==='/ohana-o10-touch-check.html' && req.method==='GET')return new Response(O10_TOUCH_CHECK_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+    if(p==='/ohana-words-draft-check.html' && req.method==='GET')return new Response(WORDS_DRAFT_CHECK_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:"}});
     if(p==='/memories' && req.method==='GET')return new Response(MEMORIES_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     if(p==='/memories/incoming' && req.method==='POST') {try{return await memoriesIncoming(req);}catch{return new Response('These photos could not be received. Open Ohana Memories and choose Add photos.',{status:400});}}
     if(p==='/api/coloring/table')return sharedColoringApi(req,env222222,url);

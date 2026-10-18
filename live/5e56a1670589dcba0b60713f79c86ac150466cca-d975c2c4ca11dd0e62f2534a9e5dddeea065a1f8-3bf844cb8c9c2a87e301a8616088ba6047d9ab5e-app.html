@@ -15785,6 +15785,15 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
      for(const group of dock.querySelectorAll('.dock-actions > :not(button)'))set(group,{flex:'0 0 auto','min-width':'0','max-width':'none','flex-wrap':'nowrap',gap:'2px'});
      for(const select of dock.querySelectorAll('.dock-actions select'))set(select,{'min-width':'44px','max-width':'100%','min-height':'44px'});
      for(const row of dock.querySelectorAll(':scope > .dock-bottom-tools'))set(row,{'grid-column':'1 / -1','grid-row':'3','max-width':'100%'});
+     // Spades keeps its hint above the cardinal, with one full-width grid track.
+     if(dock.dataset.gameType==='spades'){
+      set(dock,{'grid-template-columns':'minmax(0,1fr)','grid-template-rows':'44px auto var(--landscape-player-row,112px) auto'});
+      for(const row of dock.querySelectorAll(':scope > .dock-command-row'))set(row,{'grid-column':'1 / -1','grid-row':'1'});
+      for(const guide of dock.querySelectorAll(':scope > .dock-guide'))set(guide,{'grid-column':'1 / -1','grid-row':'2','justify-self':'stretch',width:'100%','min-width':'0','max-width':'100%',margin:'0',padding:'0','white-space':'normal','overflow-wrap':'anywhere'});
+      for(const row of dock.querySelectorAll(':scope > .dock-player'))set(row,{'grid-column':'1 / -1','grid-row':'3','justify-self':'start'});
+      for(const row of dock.querySelectorAll(':scope > .dock-bottom-tools'))set(row,{'grid-column':'1 / -1','grid-row':'4'});
+     }
+
     }
     if(dock.id==='cb-workstation'){
      set(dock,{position:'relative',display:'grid','grid-template-columns':'minmax(0,1fr)','align-items':'center'});
