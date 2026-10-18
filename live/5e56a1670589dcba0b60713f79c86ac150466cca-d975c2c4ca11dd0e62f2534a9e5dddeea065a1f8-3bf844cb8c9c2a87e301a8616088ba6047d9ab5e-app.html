@@ -14202,16 +14202,16 @@ function bindHandArrange(buttons,attribute,hand,reorder){
  const cards=[...buttons];
  for(const b of cards){
   const id=Number(b.getAttribute(attribute));let drag=null;
-  const directTouchArrange=attribute==='data-o10-card'&&!!S.o10ArrangeMode;
+  const directTouchArrange=attribute==='data-o10-card';
   if(directTouchArrange)b.style.setProperty('touch-action','pinch-zoom','important');
-  b.setAttribute('aria-description',directTouchArrange?'Slide this card to rearrange it, or tap it and use Move earlier or Move later. Use two fingers to zoom.':'Hold a card, then slide to rearrange. Swipe promptly to scroll; use two fingers to zoom. Alt plus arrow keys also moves this card.');
+  b.setAttribute('aria-description',directTouchArrange?'Slide this card to rearrange your hand. Tap to select a card for play on your turn. Use two fingers to zoom; Alt plus arrow keys also rearranges.':'Hold a card, then slide to rearrange. Swipe promptly to scroll; use two fingers to zoom. Alt plus arrow keys also moves this card.');
   b.addEventListener('click',e=>{if(Date.now()<(S.handArrangeIgnoreUntil||0)){e.preventDefault();e.stopImmediatePropagation();}},true);
   b.onkeydown=e=>{if(!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const i=hand.findIndex(c=>c.id===id),delta=e.key==='ArrowLeft'?-1:1,target=hand[i+delta];if(target)reorder(id,target.id,delta>0);};
   let pressTimer=null;const clean=()=>{clearTimeout(pressTimer);pressTimer=null;drag?.ghost?.remove();b.classList.remove('o10-dragging','hand-reorder-ready');cards.forEach(c=>c.classList.remove('hand-drop-before','hand-drop-after'));drag=null;};
   b.onpointerdown=e=>{if(!e.isPrimary||e.button!==0||e.pointerType==='touch')return;drag={pointer:e.pointerId,x:e.clientX,y:e.clientY,started:Date.now(),touch:e.pointerType==='touch'};try{b.setPointerCapture(e.pointerId);}catch{}};
   b.onpointermove=e=>{
    if(!drag||drag.pointer!==e.pointerId)return;
-   if(!drag.ghost){const distance=Math.hypot(e.clientX-drag.x,e.clientY-drag.y);if(distance<(drag.touch?12:7))return;if(drag.touch&&!drag.direct&&Date.now()-drag.started<250){clean();return;}}
+   if(!drag.ghost){const distance=Math.hypot(e.clientX-drag.x,e.clientY-drag.y);if(distance<(drag.direct?6:drag.touch?12:7))return;if(drag.touch&&!drag.direct&&Date.now()-drag.started<250){clean();return;}}
    if(!drag.ghost){const rect=b.getBoundingClientRect();drag.ghost=b.cloneNode(true);drag.ghost.removeAttribute(attribute);drag.ghost.removeAttribute('id');drag.ghost.setAttribute('aria-hidden','true');drag.ghost.classList.add('hand-arrange-ghost');drag.ghost.style.cssText='position:fixed!important;pointer-events:none!important;z-index:10000!important;width:'+rect.width+'px!important;height:'+rect.height+'px!important;margin:0!important;';drag.ghost.tabIndex=-1;b.parentElement.append(drag.ghost);drag.width=rect.width;drag.height=rect.height;b.classList.add('o10-dragging');}
    e.preventDefault();drag.ghost.style.left=(e.clientX-drag.width/2)+'px';drag.ghost.style.top=(e.clientY-drag.height/2)+'px';
    cards.forEach(c=>c.classList.remove('hand-drop-before','hand-drop-after'));
@@ -14221,41 +14221,23 @@ function bindHandArrange(buttons,attribute,hand,reorder){
   };
   b.onpointerup=e=>{if(!drag||drag.pointer!==e.pointerId)return;const {target,after,ghost}=drag;if(ghost){e.preventDefault();S.handArrangeIgnoreUntil=Date.now()+450;}clean();if(ghost&&target!=null){reorder(id,target,after);accessibleAnnounce('Card moved in your hand.');}};
   b.addEventListener('touchstart',e=>{clean();if(e.touches.length!==1){S.handArrangeIgnoreUntil=Date.now()+450;return;}const t=e.touches[0];drag={pointer:t.identifier,x:t.clientX,y:t.clientY,started:Date.now(),touch:true,armed:directTouchArrange,direct:directTouchArrange,moved:false};if(directTouchArrange){b.classList.add('hand-reorder-ready');return;}pressTimer=setTimeout(()=>{if(drag?.pointer===t.identifier){drag.armed=true;b.classList.add('hand-reorder-ready');}},350);},{passive:true});
-  b.addEventListener('touchmove',e=>{if(!drag?.touch)return;if(drag.direct&&(!S.o10ArrangeMode||!b.isConnected)){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}if(e.touches.length!==1){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}const t=e.touches[0];if(drag.direct&&Math.hypot(t.clientX-drag.x,t.clientY-drag.y)>8)drag.moved=true;if(!drag.armed){if(Math.hypot(t.clientX-drag.x,t.clientY-drag.y)>8)clean();return;}if(e.cancelable)e.preventDefault();b.onpointermove({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});},{passive:false});
-  b.addEventListener('touchend',e=>{if(!drag?.touch)return;const t=[...e.changedTouches].find(t=>t.identifier===drag.pointer);if(!t)return;const direct=drag.direct,tap=direct&&!drag.ghost&&!drag.moved;if(direct&&(!S.o10ArrangeMode||!b.isConnected)){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}b.onpointerup({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});if(direct){if(e.cancelable)e.preventDefault();S.handArrangeIgnoreUntil=Date.now()+450;if(tap)b.onclick?.();}},{passive:false});
+  b.addEventListener('touchmove',e=>{if(!drag?.touch)return;if(drag.direct&&!b.isConnected){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}if(e.touches.length!==1){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}const t=e.touches[0];if(drag.direct&&Math.hypot(t.clientX-drag.x,t.clientY-drag.y)>8)drag.moved=true;if(!drag.armed){if(Math.hypot(t.clientX-drag.x,t.clientY-drag.y)>8)clean();return;}if(e.cancelable)e.preventDefault();b.onpointermove({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});},{passive:false});
+  b.addEventListener('touchend',e=>{if(!drag?.touch)return;const t=[...e.changedTouches].find(t=>t.identifier===drag.pointer);if(!t)return;const direct=drag.direct,tap=direct&&!drag.ghost&&!drag.moved;if(direct&&!b.isConnected){S.handArrangeIgnoreUntil=Date.now()+450;clean();return;}b.onpointerup({pointerId:t.identifier,clientX:t.clientX,clientY:t.clientY,preventDefault(){if(e.cancelable)e.preventDefault();}});if(direct){if(e.cancelable)e.preventDefault();S.handArrangeIgnoreUntil=Date.now()+450;if(tap)b.onclick?.();}},{passive:false});
   b.addEventListener('touchcancel',()=>{if(drag?.direct)S.handArrangeIgnoreUntil=Date.now()+450;clean();},{passive:true});
   // Touch Events own the touch reorder lifecycle; Pointer cancellation must not erase it.
    const cancelPointer=()=>{if(!drag?.touch)clean();};b.onpointercancel=cancelPointer;b.onlostpointercapture=cancelPointer;b.ondragstart=e=>e.preventDefault();
  }
 }
 
-function mountO10HandArrangeControls(hand,reorder,rerender){
- const rack=document.querySelector('#board .o10-hand');if(!rack)return;
- document.getElementById('o10-hand-arrange-controls')?.remove();
- const bar=document.createElement('section');bar.id='o10-hand-arrange-controls';bar.setAttribute('aria-label','Arrange your cards');
- bar.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:6px 0';
- const button=(label,id,click)=>{const b=document.createElement('button');b.type='button';b.id=id;b.textContent=label;b.onclick=click;b.style.cssText='min-height:44px;min-width:44px;background:none;border:0;box-shadow:none;color:inherit;font:700 17px Nunito,sans-serif;text-decoration:underline;text-underline-offset:3px';bar.append(b);return b};
- const active=!!S.o10ArrangeMode;
- const toggle=button(active?'Done arranging':'Arrange cards','o10-arrange-toggle',()=>{S.o10ArrangeMode=!active;S.o10ArrangeCard=null;rerender();document.getElementById('o10-arrange-toggle')?.focus({preventScroll:true})});toggle.setAttribute('aria-pressed',String(active));
- if(active){
-  const card=hand.find(c=>c.id===S.o10ArrangeCard),index=card?hand.indexOf(card):-1;
-  const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='flex:1 1 100%;margin:0';status.textContent=card?(card.wild?'Ohana Star':card.n+', '+card.color)+' selected for arranging. Slide it to move it, or use the buttons.': 'Slide a card with your finger to move it. Or tap a card, then use Move earlier or Move later. Your cards stay in your hand.';bar.append(status);
-  const move=(delta,id)=>{const target=hand[index+delta];if(card&&target){reorder(card.id,target.id,delta>0);document.getElementById(id)?.focus({preventScroll:true})}};
-  const earlier=button('Move earlier','o10-arrange-earlier',()=>move(-1,'o10-arrange-earlier'));earlier.disabled=index<=0;
-  const later=button('Move later','o10-arrange-later',()=>move(1,'o10-arrange-later'));later.disabled=index<0||index===hand.length-1;
-  // Arranging is local display state. Complete it before playing a card.
-  for(const id of ['o10-meld','o10-discard-card','o10-deck','o10-discard']){const action=document.getElementById(id);if(action)action.disabled=true}
- }
- rack.before(bar);
-}
 function o10OrderedHand(st,g,me){
- const cards=Array.isArray(st.hands[me])?[...st.hands[me]]:[],key='o10:'+me+':'+g.id+':'+(st.voyage||1)+':'+(st.journeys[me]||0);
- if(S.o10OrderKey!==key){S.o10OrderKey=key;S.o10Order=readHandOrder(key);S.o10Sort='auto';S.o10Target=null;S.o10ArrangeMode=false;S.o10ArrangeCard=null;}
+ const cards=Array.isArray(st.hands[me])?[...st.hands[me]]:[],key='o10:'+me+':'+g.id+':'+(st.voyage||1);
+ if(S.o10OrderKey!==key){S.o10OrderKey=key;S.o10Order=readHandOrder(key)||readHandOrder(key+':'+(st.journeys[me]||0));S.o10Sort='auto';S.o10Target=null;}
+ const journeyKey=key+':'+(st.journeys[me]||0);if(S.o10JourneyKey!==journeyKey){S.o10JourneyKey=journeyKey;S.o10Target=null;}
  const byColor=[2,3,9].includes(st.journeys[me]);
  const colors=['coral','ocean','sun','leaf'];
  const byRules=(a,b)=>Number(!!a.wild)-Number(!!b.wild)||(byColor?colors.indexOf(a.color)-colors.indexOf(b.color)||a.n-b.n:a.n-b.n||colors.indexOf(a.color)-colors.indexOf(b.color))||a.id-b.id;
  cards.sort(byRules);
- if(S.o10Order){const saved=[...new Set(S.o10Order)].map(id=>cards.find(c=>c.id===id)).filter(Boolean);for(const card of cards){if(saved.some(c=>c.id===card.id))continue;const i=saved.findIndex(c=>byRules(c,card)>0);saved.splice(i<0?saved.length:i,0,card);}cards.splice(0,cards.length,...saved);} 
+ if(S.o10Order){const saved=[...new Set(S.o10Order)].map(id=>cards.find(c=>c.id===id)).filter(Boolean);for(const card of cards){if(saved.some(c=>c.id===card.id))continue;saved.push(card);}cards.splice(0,cards.length,...saved);S.o10Order=cards.map(c=>c.id);saveHandOrder(key,S.o10Order);} 
  return cards;
 }
 // Compare stable card IDs, not sorted positions. Never highlight an initial deal.
@@ -14328,12 +14310,12 @@ function renderOhana10(st,g,myTurn){
  };
  $('#board').querySelectorAll('[data-o10-card]').forEach(b=>{
   const id=+b.dataset.o10Card;let drag=null;
-  b.onclick=()=>{if(S.o10ArrangeMode){S.o10ArrangeCard=id;rerender();return;}if(!myTurn||Date.now()<(S.o10IgnoreClickUntil||0))return;if(S.o10Sel.includes(id)){S.o10Sel=S.o10Sel.filter(x=>x!==id);delete S.o10Wild[id];}else{S.o10Sel.push(id);}rerender();};
+  b.onclick=()=>{if(!myTurn||Date.now()<(S.o10IgnoreClickUntil||0))return;if(S.o10Sel.includes(id)){S.o10Sel=S.o10Sel.filter(x=>x!==id);delete S.o10Wild[id];}else{S.o10Sel.push(id);}rerender();};
   b.onkeydown=e=>{if(S.swapMode||!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const i=hand.findIndex(c=>c.id===id),delta=e.key==='ArrowLeft'?-1:1,target=hand[i+delta];if(target)reorder(id,target.id,delta>0);};
 
  });
  bindHandArrange($('#board').querySelectorAll('[data-o10-card]'),'data-o10-card',hand,reorder);
- mountO10HandArrangeControls(hand,reorder,rerender);
+
  /* Ohana Star wilds now drop into place automatically — no dropdown needed. */
  $('#board').querySelectorAll('[data-o10-target]').forEach(b=>b.onclick=()=>{S.o10Target=S.o10Target===b.dataset.o10Target?null:b.dataset.o10Target;rerender();});
  $('#o10-meld').onclick=()=>{const target=S.o10Target?S.o10Target.split(':'):null;move({action:st.completed[me]?'hit':'journey',cardIds:[...S.o10Sel],wildAssignments:S.o10Wild,...(st.completed[me]&&target?{owner:+target[0],meld:+target[1]}:{})},()=>{S.o10Sel=[];S.o10Target=null;S.o10Wild={};});};
