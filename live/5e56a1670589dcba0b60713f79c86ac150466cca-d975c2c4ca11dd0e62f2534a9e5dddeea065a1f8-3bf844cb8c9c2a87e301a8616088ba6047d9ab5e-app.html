@@ -16346,6 +16346,10 @@ const clean=()=>{const d=document.querySelector('#ohana-chat-dialog');if(!d?.ope
 }
 </style>
 <script id="ohana-room-next-count-refresh">new MutationObserver(()=>refreshRoomNextControls()).observe(document.body,{subtree:true,childList:true});</script>
+
+<style id="ohana-color-single-room-header">@layer ohanaApproved{
+:root.ohana-world body #app:has(>#main>#ohana-journey-room)>header{display:none!important}
+}</style>
 </body>
 </html>
 
