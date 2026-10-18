@@ -14481,7 +14481,7 @@ function renderSpades(st,g,myTurn){
   // Choosing a bid is local; only deliberate confirmation submits the existing bid action.
   const bidChoices=[...$('#board').querySelectorAll('[data-bid],[data-nil]')],bidConfirm=$('#board').querySelector('[data-sp-confirm-bid]');
   const paintBid=()=>{for(const button of bidChoices){const chosen=button.hasAttribute('data-nil')?spDraft?.nil===true:spDraft?.amount===Number(button.dataset.bid);button.setAttribute('aria-pressed',String(chosen));}if(bidConfirm){bidConfirm.disabled=!spDraft;bidConfirm.textContent=spDraft?'Confirm '+(spDraft.nil?'Nil':'bid '+spDraft.amount):'Choose your bid first';}};
-  for(const button of bidChoices)button.onclick=()=>{if(!myTurn||st.phase!=='bidding')return;spDraft=button.hasAttribute('data-nil')?{nil:true}:{amount:Number(button.dataset.bid)};S.spBidDraft={key:spBidKey,value:spDraft};paintBid();};
+  for(const button of bidChoices)button.onclick=()=>{if(!myTurn||st.phase!=='bidding')return;spDraft=button.hasAttribute('data-nil')?{nil:true}:{amount:Number(button.dataset.bid)};S.spBidDraft={key:spBidKey,value:spDraft};paintBid();if(bidConfirm)bidConfirm.scrollIntoView({block:'start',inline:'nearest',behavior:'instant'});};
   if(bidConfirm)bidConfirm.onclick=()=>{if(!myTurn||st.phase!=='bidding'||!spDraft||bidConfirm.disabled)return;bidConfirm.disabled=true;move(spDraft.nil?{action:'bid',nil:true}:{action:'bid',amount:spDraft.amount});};paintBid();
  $('#board').querySelectorAll('[data-cid]').forEach(b=>b.onclick=()=>move({action:'play',cardId:+b.dataset.cid}));
  $('#board').querySelectorAll('[data-zoom]').forEach(el=>el.onclick=()=>openPhotoZoom(el.dataset.zoom));
@@ -16104,7 +16104,13 @@ const clean=()=>{const d=document.querySelector('#ohana-chat-dialog');if(!d?.ope
  renderColorBook=function(){if(T.room!==null&&T.room!==S.room){T.active=false;CB.page=null;CB.pageObj=null;}if(!T.active){original.render();decorate();return;}const page=CB.page,obj=CB.pageObj;CB.page=null;original.render();const library=document.querySelector('.journey-picture-library');library?.remove();CB.page=page;CB.pageObj=obj;original.render();if(library)document.querySelector('#ohana-journey-room').append(library);decorate();const back=document.querySelector('#cb-back');if(back&&library)back.onclick=()=>library.scrollIntoView({behavior:'smooth',block:'start'});};
  setInterval(()=>{drain();if(document.visibilityState==='visible')poll();},2000);
 })();
-</script></body>
+</script><style id="ohana-spades-confirm-clearance-v1">@layer ohanaApproved {
+/* The fixed Bridge/cardinal stays usable while bids can scroll above it. */
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{padding-bottom:calc(max(var(--game-rail-space,112px),var(--landscape-hub-height,112px)) + env(safe-area-inset-bottom,0px) + 24px)!important;scroll-padding-block:var(--ohana-game-header-space,96px) calc(max(var(--game-rail-space,112px),var(--landscape-hub-height,112px)) + env(safe-area-inset-bottom,0px) + 24px)!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board [data-sp-confirm-bid]{scroll-margin-block-start:calc(var(--ohana-game-header-space,96px) + 12px)!important;scroll-margin-block-end:12px!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-bidbar{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(44px,1fr))!important;gap:5px!important;width:100%!important;min-width:0!important;max-width:620px!important;box-sizing:border-box!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-bidbar button{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;letter-spacing:normal!important;min-width:44px!important;max-width:none!important;width:100%!important;min-height:48px!important;padding:6px 2px!important;font:800 23px/1.2 Fredoka,Nunito,sans-serif!important;box-sizing:border-box!important}
+}</style></body>
 </html>
 
 <style id="ohana-v59-coloring-contrast">
