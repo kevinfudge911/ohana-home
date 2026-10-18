@@ -5966,7 +5966,7 @@ function showSessionReconnect(){
  bar.innerHTML='<span>Your seat is saved. Let’s reconnect.</span><button class="soft" data-retry-session>Retry</button><button class="ghost" data-signin-session>Sign in another way</button>';
  document.body.append(bar);
  bar.querySelector('[data-retry-session]').onclick=async()=>{try{await sync();render();bar.remove();}catch(e){toast('Still reconnecting. Your saved sign-in has been kept.');}};
- bar.querySelector('[data-signin-session]').onclick=()=>{S.token=null;S.me=null;S.sync=null;S.game=null;localStorage.removeItem('ohana_token');bar.remove();render();};
+ bar.querySelector('[data-signin-session]').onclick=()=>{clearPrivateWordDraftStorage();S.token=null;S.me=null;S.sync=null;S.game=null;localStorage.removeItem('ohana_token');bar.remove();render();};
 }
 function roomTheme(name,id){return /flower|rose|bloom/i.test(name||'')?'flower':id===1?'home':'private';}
 function roomIcon(name,id){return roomTheme(name,id)==='flower'?'🌺':id===1?'🏡':'🌙';}
@@ -11784,11 +11784,13 @@ async function openGame(id) { S.wordDraftContext=null; S.gameEntryVisit=(S.gameE
 async function loadGame(force=false) {
   if (!S.game || (S.movePending&&!force)) return;
   const gameId=S.game,readEpoch=S.gameReadEpoch=(S.gameReadEpoch||0)+1;
+  const wordDraftReadContext={token:S.token,member:S.me?.id,room:S.room};
   // Also sync member online status in background
   sync().catch(() => {});
   try {
     const d = await api(`/api/game/${gameId}`);
     if(S.game!==gameId||readEpoch!==S.gameReadEpoch)return;
+    if(d.type==='words'){if(S.token!==wordDraftReadContext.token||S.me?.id!==wordDraftReadContext.member||S.room!==wordDraftReadContext.room)return;await preparePrivateWordDraftStorage();if(S.game!==gameId||readEpoch!==S.gameReadEpoch||S.token!==wordDraftReadContext.token||S.me?.id!==wordDraftReadContext.member||S.room!==wordDraftReadContext.room)return;}
     const oldState = S.gstate;
     const changed = JSON.stringify(d.names) !== JSON.stringify(oldState?.names) || JSON.stringify(d.score_review) !== JSON.stringify(oldState?.score_review) || JSON.stringify(d.state) !== JSON.stringify(oldState?.state) || d.status !== oldState?.status || d.players.length !== oldState?.players?.length;
     S.gstate = d;S.gameConnectionLost=false;
@@ -12614,10 +12616,58 @@ function wordCenterEmblem(){
   const stamen=[0,72,144,216,288].map(a=>`<circle cx="${cx}" cy="${cy-16}" r="2.6" fill="#ff8f5e" transform="rotate(${a+36} ${cx} ${cy})"/>`).join('');
   return `<circle cx="${cx}" cy="${cy}" r="52" fill="url(#wb-hibglow)"/>${rays}${petals}<circle cx="${cx}" cy="${cy}" r="12" fill="url(#wb-hibc)"/>${stamen}<circle cx="${cx}" cy="${cy}" r="4" fill="#ffb638"/>`;
 }
+const WORD_DRAFT_STORAGE_PREFIX='ohana-private-word-draft-v1:';
+async function preparePrivateWordDraftStorage(){
+ const token=S.token,member=String(S.me?.id||'');
+ if(!token||!member)return;
+ if(S.wordDraftStorageToken===token&&S.wordDraftStorageMember===member&&S.wordDraftStorageScope)return;
+ S.wordDraftStorageToken=token;S.wordDraftStorageMember=member;S.wordDraftStorageScope=null;
+ try{
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));
+  if(S.token!==token||String(S.me?.id||'')!==member)return;
+  // Persist only an irreversible fingerprint, never the authentication token.
+  S.wordDraftStorageScope=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
+  S.wordDraftStorageProblem=false;
+  // Only the active authenticated member/session keeps private reload caches.
+  // A normal reload derives the same namespace and preserves its records.
+  const keep=WORD_DRAFT_STORAGE_PREFIX+S.wordDraftStorageScope+':'+member+':',stale=[];
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(WORD_DRAFT_STORAGE_PREFIX)&&!key.startsWith(keep))stale.push(key)}for(const key of stale)localStorage.removeItem(key)}catch{S.wordDraftStorageProblem=true;}
+ }catch{if(S.token===token&&String(S.me?.id||'')===member)S.wordDraftStorageProblem=true;}
+}
+function privateWordDraftStorageKey(g){
+ if(!S.wordDraftStorageScope||S.wordDraftStorageToken!==S.token||S.wordDraftStorageMember!==String(S.me?.id||''))return null;
+ return WORD_DRAFT_STORAGE_PREFIX+S.wordDraftStorageScope+':'+privateWordDraftKey(g);
+}
+function readPersistedPrivateWordDraft(g){
+ const key=privateWordDraftStorageKey(g);if(!key)return null;
+ try{
+  const raw=localStorage.getItem(key);if(!raw)return null;if(raw.length>32000)return null;
+  const d=JSON.parse(raw);
+  if(d?.version!==1||d.context!==privateWordDraftKey(g)||!Array.isArray(d.rack)||d.rack.length>128||!d.rack.every(x=>typeof x==='string'&&/^[A-Z?]$/.test(x))||!Array.isArray(d.placed)||d.placed.length>d.rack.length||!Array.isArray(d.order)||d.order.length>128)return null;
+  if(!d.placed.every(p=>p&&Number.isInteger(p.i)&&p.i>=0&&p.i<225&&Number.isInteger(p.rackIdx)&&p.rackIdx>=0&&p.rackIdx<d.rack.length&&typeof p.l==='string'&&/^[A-Z]$/.test(p.l)&&typeof p.blank==='boolean'))return null;
+  if(!d.order.every(k=>Number.isInteger(k)&&k>=0&&k<d.rack.length))return null;
+  return{rack:d.rack,placed:d.placed,order:d.order,sel:Number.isInteger(d.sel)&&d.sel>=0&&d.sel<d.rack.length?d.sel:null};
+ }catch{S.wordDraftStorageProblem=true;return null;}
+}
+function persistPrivateWordDraft(g,entry){
+ const key=privateWordDraftStorageKey(g);if(!key)return;
+ try{
+  if(g.status!=='playing'||g.in_game===false){localStorage.removeItem(key);return;}
+  localStorage.setItem(key,JSON.stringify({version:1,context:privateWordDraftKey(g),rack:entry.rack,placed:entry.placed,order:entry.order,sel:entry.sel}));
+  S.wordDraftStorageProblem=false;
+ }catch{S.wordDraftStorageProblem=true;}
+}
+function clearPrivateWordDraftStorage(){
+ // Sign-out removes local draft caches from this browser, including caches
+ // from an expired session whose fingerprint has not yet been initialized.
+ try{const keys=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(WORD_DRAFT_STORAGE_PREFIX))keys.push(key)}for(const key of keys)localStorage.removeItem(key)}catch{}
+ S.wordDrafts=new Map();S.wordDraftContext=null;S.placed=[];S.wordOrder=[];S.sel=null;S.wordDraftStorageScope=null;S.wordDraftStorageToken=null;S.wordDraftStorageMember=null;S.wordDraftStorageProblem=false;
+}
+
 function privateWordDraftKey(g){return String(S.me?.id||'')+':'+String(g.room_id||S.room||'')+':'+String(g.id)}
 function rebasePrivateWordDraft(g,st,rack){
  if(!S.wordDrafts||S.wordDraftToken!==S.token){S.wordDraftToken=S.token;S.wordDrafts=new Map();S.wordDraftContext=null;}
- const key=privateWordDraftKey(g),same=S.wordDraftContext===key,old=S.wordDrafts.get(key);
+ const key=privateWordDraftKey(g),same=S.wordDraftContext===key,old=S.wordDrafts.get(key)||readPersistedPrivateWordDraft(g);
  const prior=same?{rack:old?.rack||rack,placed:S.placed||[],order:S.wordOrder||[],sel:S.sel}:old||{rack,placed:[],order:[],sel:null};
  const allowed=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
  const mapping=new Map(),available=new Set(rack.map((_,i)=>i));
@@ -12639,7 +12689,7 @@ function rebasePrivateWordDraft(g,st,rack){
  S.placed=placed;S.wordOrder=order;S.wordOrderGame=g.id;S.sel=mapping.get(prior.sel)??null;
  if(!same)S.wordDraftNotice='';
  if(returned)S.wordDraftNotice='The board changed. '+returned+' planned letter'+(returned===1?' was':'s were')+' returned to your rack. Review your plan.';
- S.wordDraftContext=key;S.wordDrafts.set(key,{rack:[...rack],placed:placed.map(p=>({...p})),order:[...order],sel:S.sel});
+ S.wordDraftContext=key;const entry={rack:[...rack],placed:placed.map(p=>({...p})),order:[...order],sel:S.sel};S.wordDrafts.set(key,entry);persistPrivateWordDraft(g,entry);
  return{returned,placed};
 }
 function wordDraftReviewState(g){const st=g.state;return JSON.stringify({status:g.status,turn:g.turn,board:st.board,rack:st.racks[S.me.id]})}
@@ -12687,7 +12737,7 @@ function renderWords(st, g, myTurn) {
 
   bd.innerHTML = `<div class="word-status"><span aria-label="${st.bag} tiles remaining">${st.bag}</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"${dmAttr(p)}><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap wb-zoomable"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="board-name-watermark" aria-hidden="true">Ohana Words</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div><div class="wb-zoom-hint">Pinch to zoom the board · drag to move it · pinch back out for the whole board</div></div>
 
-    <p class="word-private-draft-hint" role="status" style="margin:4px 0;color:inherit;font:700 16px/1.35 Nunito,sans-serif">${esc(S.wordDraftNotice||(!myTurn?'Plan privately while you wait. Only you can see your unplayed letters.':'Your unplayed letters are private. Review your plan, then choose Play.'))}</p>
+    <p class="word-private-draft-hint" role="status" style="margin:4px 0;color:inherit;font:700 16px/1.35 Nunito,sans-serif">${esc((S.wordDraftNotice||(!myTurn?'Plan privately while you wait. Only you can see your unplayed letters.':'Your unplayed letters are private. Review your plan, then choose Play.'))+(S.wordDraftStorageProblem?' This browser could not save your plan across a reload. Keep this page open to retain it.':''))}</p>
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
     `;
@@ -13719,6 +13769,7 @@ function bindSettings(container, closeDialog=null) {
   if (outBtn) outBtn.onclick = async () => {
     if (!await ohanaConfirm('Sign out on this device? You will need your name and PIN to come back.')) return;
     if (closeDialog) closeDialog();
+    clearPrivateWordDraftStorage();
     localStorage.removeItem('ohana_token');
     localStorage.removeItem('ohana_room');
     S.token = null; S.me = null; S.sync = null; S.room = 0; S.msgs = []; S.lastMsg = 0; S.game = null;
