@@ -9876,6 +9876,29 @@ __name2(puzzleEdges, "puzzleEdges");
 __name22(puzzleEdges, "puzzleEdges");
 __name222(puzzleEdges, "puzzleEdges");
 __name2222(puzzleEdges, "puzzleEdges");
+function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null){
+ const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P))return {moves:[],reason:'not-ready'};
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
+ const group=pc=>pc.g??pc.i,sizes=new Map();for(const pc of P)sizes.set(group(pc),(sizes.get(group(pc))||0)+1);
+ const requested=Array.isArray(requestedIds)?new Set(requestedIds):null,edge=pc=>pc.r===0||pc.c===0||pc.r===rows-1||pc.c===cols-1;
+ const targets=P.filter(pc=>!pc.l&&!pc.h&&sizes.get(group(pc))===1&&(!edgesOnly||edge(pc))&&(!requested||requested.has(pc.i))&&(pc.tray||!pc.onTable||pc.catalogReady));
+ if(!targets.length)return {moves:[],reason:'none'};
+ const work=P.map(pc=>({...pc})),byId=new Map(work.map(pc=>[pc.i,pc])),pad=Math.min(pw,ph)*.36,tol=Math.min(pw,ph)*.3,slots=[],moves=[];
+ for(let y=pad;y+ph<=h-pad+.001;y+=ph*1.8)for(let x=pad;x+pw<=w-pad+.001;x+=pw*1.8)slots.push([Math.round(x),Math.round(y)]);
+ const free=(pc,x,y)=>{
+  if(x<pad||x+pw>w-pad||y<pad||y+ph>h-pad)return false;
+  if(Math.abs(x-pc.c*pw)<tol&&Math.abs(y-pc.r*ph)<tol)return false;
+  for(const q of work)if(q.i!==pc.i&&!q.tray&&Math.abs(q.x-x)<pw+pad*2-.5&&Math.abs(q.y-y)<ph+pad*2-.5)return false;
+  for(const [dr,dc]of [[0,1],[0,-1],[1,0],[-1,0]]){const nr=pc.r+dr,nc=pc.c+dc;if(nr<0||nc<0||nr>=rows||nc>=cols)continue;const nb=work.find(q=>q.r===nr&&q.c===nc);if(nb&&!nb.l&&!nb.tray&&group(nb)!==group(pc)&&Math.abs(x-(nb.x-dc*pw))<tol&&Math.abs(y-(nb.y-dr*ph))<tol)return false;}
+  return true;
+ };
+ let cursor=0;
+ for(const target of targets){const pc=byId.get(target.i);let spot=null;while(cursor<slots.length){const [x,y]=slots[cursor++];if(free(pc,x,y)){spot=[x,y];break;}}
+  if(!spot)return {moves:[],reason:'crowded'};
+  moves.push({i:pc.i,x:spot[0],y:spot[1]});pc.x=spot[0];pc.y=spot[1];pc.tray=null;pc.onTable=true;pc.catalogReady=false;
+ }
+ return {moves,reason:''};
+}
 function puzzleWorkspace(meta){
  const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,t=meta.table||{};
  const side=Math.max(pw*3,w*.35),top=Math.max(ph*3,h*.22),pad=Math.min(pw,ph)*.4;
@@ -10159,6 +10182,16 @@ var PuzzleRoom = class {
     const group4 = /* @__PURE__ */ __name2222((g) => P.filter((q) => q.g === g && !q.l), "group");
     const heldByOther = (q) => q.h && q.h !== me.id && q.ht && now2 - q.ht < 15000;
     const deny = (pc) => ({ t: "deny", p: m.p, people: this.people(), pieces: pc ? P.filter(q => q.g === pc.g).map(q => ({ ...q })) : [] });
+    if (m.t === "deploy") {
+      const ids=Array.isArray(m.ids)?m.ids.filter(Number.isInteger):null;
+      if(m.edges!==true&&!ids?.length)return null;
+      const plan=puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},m.edges===true,ids);
+      if(!plan.moves.length)return {t:"tray-deny",text:plan.reason==="crowded"?"There is not enough open space inside the puzzle to deploy safely. Your pieces are unchanged.":"No eligible loose pieces are available. Placed, held and joined pieces stay put."};
+      for(const move of plan.moves){const q=P[move.i];q.x=move.x;q.y=move.y;q.tray=null;q.onTable=true;q.catalogReady=false;q.h=null;q.ht=null;}
+      this.scheduleSave();
+      this.broadcast({t:"tray-piece",ids:plan.moves.map(q=>q.i),tray:null,pieces:plan.moves.map(q=>[q.i,q.x,q.y]),deployed:true,edges:m.edges===true,by:me.id});
+      return null;
+    }
     if (m.t === "tray-create") {
       this.trays = this.trays || [];
       const id = [1, 2, 3, 4, 5].find((n) => !this.trays.some((t) => t.id === n));
