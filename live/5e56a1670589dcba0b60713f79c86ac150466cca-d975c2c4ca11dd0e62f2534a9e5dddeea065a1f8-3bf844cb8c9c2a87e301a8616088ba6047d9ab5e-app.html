@@ -11780,7 +11780,7 @@ async function maybeGameEntryIntro(g){
 
 
 
-async function openGame(id) { S.gameEntryVisit=(S.gameEntryVisit||0)+1;leaveGrannyContext();if(PZ.id)closePuzzle(); S.hfChoosingMeld=false;S.hfQueue=[];S.hfSel=[];S.hfMeldTarget=null;S.o10Sel=[];S.o10Target=null;S.o10Wild={};S.dominoSel=null;S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; S.chsFrom = null; render(); await loadGame(); }
+async function openGame(id) { S.wordDraftContext=null; S.gameEntryVisit=(S.gameEntryVisit||0)+1;leaveGrannyContext();if(PZ.id)closePuzzle(); S.hfChoosingMeld=false;S.hfQueue=[];S.hfSel=[];S.hfMeldTarget=null;S.o10Sel=[];S.o10Target=null;S.o10Wild={};S.dominoSel=null;S.game = id; S.gstate = null; S.sel = null; S.placed = []; S.swapMode = false; S.swapSel = []; S.chkFrom = null; S.chsFrom = null; render(); await loadGame(); }
 async function loadGame(force=false) {
   if (!S.game || (S.movePending&&!force)) return;
   const gameId=S.game,readEpoch=S.gameReadEpoch=(S.gameReadEpoch||0)+1;
@@ -11828,7 +11828,7 @@ async function loadGame(force=false) {
 }
 function openGameSay(){if(S.game&&S.gstate?.conversation){openChatInbox(S.gstate.conversation);}else openChatInbox();}
 window.openGameSay=openGameSay;
-function closeGame() { cancelWordDrag(); S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); const tr = document.querySelector('.game-tray'); if (tr) tr.remove(); sync().then(render); render(); }
+function closeGame() { S.wordDraftContext=null;cancelWordDrag(); S.game = null; S.gstate = null; _lastChatLen = 0; document.body.classList.remove('in-game'); const bp = document.querySelector('.game-bottom'); if (bp) bp.remove(); const tr = document.querySelector('.game-tray'); if (tr) tr.remove(); sync().then(render); render(); }
 
 function mountGameControlDock(){
  installDrawIndicatorDismissal();
@@ -12401,7 +12401,7 @@ function placeDraftTile(st, rack, rackIdx, i, blankPlaced) {
   if(S.placed.some(p=>p.i===i && p!==existing))return false;
   if(existing){existing.i=i;return true;}
   let l=rack[rackIdx],blank=false;if(!l)return false;
-  if(l==='?'){showBlankLetterPicker(i,a=>{if(st.board[i]||S.placed.some(p=>p.i===i||p.rackIdx===rackIdx)||rack[rackIdx]!=='?')return;S.placed.push({i,l:a,blank:true,rackIdx});S.sel=null;AudioSys.tileDrop();blankPlaced?.();});return false;}
+  if(l==='?'){const context={game:S.game,member:S.me?.id,token:S.token,room:S.room};showBlankLetterPicker(i,a=>{if(S.game!==context.game||S.me?.id!==context.member||S.token!==context.token||S.room!==context.room)return;const live=S.gstate?.type==='words'?S.gstate.state:null;if(live&&(live.board[i]||JSON.stringify(live.racks[S.me.id])!==JSON.stringify(rack)))return;if(st.board[i]||S.placed.some(p=>p.i===i||p.rackIdx===rackIdx)||rack[rackIdx]!=='?')return;S.placed.push({i,l:a,blank:true,rackIdx});S.sel=null;AudioSys.tileDrop();blankPlaced?.();});return false;}
   S.placed.push({i,l,blank,rackIdx});return true;
 }
 function positionWordTray(){
@@ -12427,12 +12427,13 @@ function cancelWordDrag(){
 window.addEventListener('blur',cancelWordDrag);
 
 function initDragDrop(st, g, myTurn, rack, rerender) {
+  const canDraft=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
   // Swapping uses multi-select taps, never tile dragging or rack reordering.
   if(S.swapMode)return;
   const bd=$('#board');
   const trayEl=document.querySelector('.game-tray');
   const rackTiles=trayEl?[...trayEl.querySelectorAll('.rt:not(.used)')]:[...bd.querySelectorAll('.rt:not(.used)')];
-  const sources=[...rackTiles,...(myTurn?[...bd.querySelectorAll('.c')]:[])].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
+  const sources=[...rackTiles,...(canDraft?[...bd.querySelectorAll('.c')]:[])].filter(el=>el.matches('.rt')||S.placed.some(p=>p.i===+el.dataset.i));
   const scrollWhileDragging=()=>{
     const d=dragState;if(!d)return;
     const edge=72,h=window.visualViewport?.height||window.innerHeight;
@@ -12464,7 +12465,7 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
       trayEl?.querySelectorAll('.tray-drop-target').forEach(t=>t.classList.remove('tray-drop-target'));
       const cell=document.elementFromPoint(e.clientX,e.clientY)?.closest('.c');
       const trayTarget=document.elementFromPoint(e.clientX,e.clientY)?.closest('.game-tray .rt:not(.used)');
-      const ok=myTurn&&cell&&bd.contains(cell)&&!st.board[+cell.dataset.i]&&!S.placed.some(p=>p.i===+cell.dataset.i&&p.rackIdx!==k);
+      const ok=canDraft&&cell&&bd.contains(cell)&&!st.board[+cell.dataset.i]&&!S.placed.some(p=>p.i===+cell.dataset.i&&p.rackIdx!==k);
       if(ok){cell.classList.add('drop-target');const r=cell.getBoundingClientRect();Object.assign(d.ghost.style,{left:(r.left+r.width/2)+'px',top:(r.top+r.height/2)+'px',width:Math.max(30,r.width-4)+'px',height:Math.max(30,r.height-4)+'px',fontSize:Math.max(16,r.width*.55)+'px'});d.ghost.classList.add('snapped');}
       else{if(trayTarget&&el.matches('.rt'))trayTarget.classList.add('tray-drop-target');Object.assign(d.ghost.style,{left:e.clientX+'px',top:(e.clientY-(e.pointerType==='touch'?34:0))+'px',width:'',height:'',fontSize:''});d.ghost.classList.remove('snapped');}
     };
@@ -12477,7 +12478,7 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
       if(!cancelled){
         const target=document.elementFromPoint(e.clientX,e.clientY);const cell=target?.closest('.c'),tile=target?.closest('.game-tray .rt:not(.used)');
         if(el.matches('.rt')&&tile&&+tile.dataset.r!==k){const order=S.wordOrder||[],from=order.indexOf(k),to=order.indexOf(+tile.dataset.r);if(from>=0&&to>=0){order.splice(from,1);order.splice(to,0,k);AudioSys.tileDrop();}}
-        else if(myTurn&&cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i,rerender))AudioSys.tileDrop();
+        else if(canDraft&&cell&&bd.contains(cell)&&placeDraftTile(st,rack,k,+cell.dataset.i,rerender))AudioSys.tileDrop();
         else if(staged&&(()=>{const r=trayEl?.querySelector('.rack')?.getBoundingClientRect();return !!r&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;})()){S.placed=S.placed.filter(p=>p.rackIdx!==k);AudioSys.tileDrop();}
       }
       S.sel=null;rerender();
@@ -12613,9 +12614,58 @@ function wordCenterEmblem(){
   const stamen=[0,72,144,216,288].map(a=>`<circle cx="${cx}" cy="${cy-16}" r="2.6" fill="#ff8f5e" transform="rotate(${a+36} ${cx} ${cy})"/>`).join('');
   return `<circle cx="${cx}" cy="${cy}" r="52" fill="url(#wb-hibglow)"/>${rays}${petals}<circle cx="${cx}" cy="${cy}" r="12" fill="url(#wb-hibc)"/>${stamen}<circle cx="${cx}" cy="${cy}" r="4" fill="#ffb638"/>`;
 }
+function privateWordDraftKey(g){return String(S.me?.id||'')+':'+String(g.room_id||S.room||'')+':'+String(g.id)}
+function rebasePrivateWordDraft(g,st,rack){
+ if(!S.wordDrafts||S.wordDraftToken!==S.token){S.wordDraftToken=S.token;S.wordDrafts=new Map();S.wordDraftContext=null;}
+ const key=privateWordDraftKey(g),same=S.wordDraftContext===key,old=S.wordDrafts.get(key);
+ const prior=same?{rack:old?.rack||rack,placed:S.placed||[],order:S.wordOrder||[],sel:S.sel}:old||{rack,placed:[],order:[],sel:null};
+ const allowed=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(S.me?.id));
+ const mapping=new Map(),available=new Set(rack.map((_,i)=>i));
+ // Reserve matching rack inventory for still-usable planned tiles first. Two
+ // indistinguishable A tiles must not lose a valid draft merely because the
+ // unplaced A occupied an earlier old rack index.
+ const planned=[],plannedCells=new Set(),plannedTiles=new Set();
+ for(const p of prior.placed)if(allowed&&Number.isInteger(p.i)&&p.i>=0&&p.i<225&&!st.board[p.i]&&!plannedCells.has(p.i)&&Number.isInteger(p.rackIdx)&&!plannedTiles.has(p.rackIdx)&&prior.rack[p.rackIdx]===(p.blank?'?':p.l)&&/^[A-Z]$/.test(p.l)){planned.push(p.rackIdx);plannedCells.add(p.i);plannedTiles.add(p.rackIdx)}
+ const indices=[...new Set([...planned,...prior.rack.map((_,i)=>i)])];
+ for(const i of indices){const letter=prior.rack[i];let at=available.has(i)&&rack[i]===letter?i:[...available].find(k=>rack[k]===letter);if(at!==undefined){mapping.set(i,at);available.delete(at)}}
+ const placed=[],cells=new Set(),tiles=new Set();let returned=0;
+ for(const p of prior.placed){
+  const k=mapping.get(p.rackIdx),letter=p.blank?'?':p.l;
+  if(!allowed||!Number.isInteger(p.i)||p.i<0||p.i>=225||st.board[p.i]||cells.has(p.i)||!Number.isInteger(p.rackIdx)||prior.rack[p.rackIdx]!==letter||k===undefined||rack[k]!==letter||tiles.has(k)||!(/^[A-Z]$/.test(p.l))){returned++;continue}
+  placed.push({i:p.i,l:p.l,blank:!!p.blank,rackIdx:k});cells.add(p.i);tiles.add(k);
+ }
+ let order=(prior.order||[]).map(k=>mapping.get(k)).filter((k,i,a)=>k!==undefined&&a.indexOf(k)===i);
+ for(let i=0;i<rack.length;i++)if(!order.includes(i))order.push(i);
+ S.placed=placed;S.wordOrder=order;S.wordOrderGame=g.id;S.sel=mapping.get(prior.sel)??null;
+ if(!same)S.wordDraftNotice='';
+ if(returned)S.wordDraftNotice='The board changed. '+returned+' planned letter'+(returned===1?' was':'s were')+' returned to your rack. Review your plan.';
+ S.wordDraftContext=key;S.wordDrafts.set(key,{rack:[...rack],placed:placed.map(p=>({...p})),order:[...order],sel:S.sel});
+ return{returned,placed};
+}
+function wordDraftReviewState(g){const st=g.state;return JSON.stringify({status:g.status,turn:g.turn,board:st.board,rack:st.racks[S.me.id]})}
+async function submitPrivateWordDraft(){
+ const game=S.gstate,member=String(S.me?.id||''),token=S.token,room=S.room,id=S.game;
+ if(S.wordDraftSubmitting||S.movePending||game?.type!=='words'||game.status!=='playing'||String(game.players[game.turn])!==member||!S.placed.length)return;
+ const current=()=>S.game===id&&S.token===token&&String(S.me?.id||'')===member&&S.room===room&&S.gstate?.type==='words';
+ const reviewed=wordDraftReviewState(game),plan=JSON.stringify(S.placed);S.wordDraftSubmitting=true;
+ document.getElementById('play')?.setAttribute('disabled','');
+ try{
+  const fresh=await api('/api/game/'+id);if(!current()||S.movePending)return;
+  if(fresh.type!=='words'||String(fresh.id)!==String(id)||!fresh.players.some(p=>String(p)===member))return;
+  if(JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Your plan changed. Review it, then choose Play again.';renderGame();return}
+  S.gstate=fresh;rebasePrivateWordDraft(fresh,fresh.state,fresh.state.racks[S.me.id]||[]);
+  if(wordDraftReviewState(fresh)!==reviewed||JSON.stringify(S.placed)!==plan){S.wordDraftNotice='Board updated—review your plan, then choose Play when it is your turn.';renderGame();return}
+  if(fresh.status!=='playing'||String(fresh.players[fresh.turn])!==member||!S.placed.length){renderGame();return}
+  await move({action:'play',placements:S.placed.map(p=>({i:p.i,l:p.l,blank:p.blank}))},()=>{S.placed=[];S.sel=null;S.wordDraftNotice='';});
+ }catch(error){if(current()){S.wordDraftNotice='Could not refresh the board. Your private plan is saved. Try Play again when connected.';renderGame();}}
+ finally{S.wordDraftSubmitting=false;if(current())renderGame();}
+}
+
 function renderWords(st, g, myTurn) {
   cancelWordDrag();
   const bd = $('#board'); const meId = S.me.id; const rack = Array.isArray(st.racks[meId]) ? st.racks[meId] : [];
+  rebasePrivateWordDraft(g,st,rack);
+  const canDraft=g.status==='playing'&&g.in_game!==false&&g.players.some(p=>String(p)===String(meId));
   if(S.wordOrderGame!==g.id){S.wordOrderGame=g.id;S.wordOrder=[];}
   S.wordOrder=(S.wordOrder||[]).filter((k,i,all)=>Number.isInteger(k)&&k>=0&&k<rack.length&&all.indexOf(k)===i);
   for(let k=0;k<rack.length;k++)if(!S.wordOrder.includes(k))S.wordOrder.push(k);
@@ -12637,6 +12687,7 @@ function renderWords(st, g, myTurn) {
 
   bd.innerHTML = `<div class="word-status"><span aria-label="${st.bag} tiles remaining">${st.bag}</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"${dmAttr(p)}><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap wb-zoomable"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="board-name-watermark" aria-hidden="true">Ohana Words</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div><div class="wb-zoom-hint">Pinch to zoom the board · drag to move it · pinch back out for the whole board</div></div>
 
+    <p class="word-private-draft-hint" role="status" style="margin:4px 0;color:inherit;font:700 16px/1.35 Nunito,sans-serif">${esc(S.wordDraftNotice||(!myTurn?'Plan privately while you wait. Only you can see your unplayed letters.':'Your unplayed letters are private. Review your plan, then choose Play.'))}</p>
     ${previewHtml}
     ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
     `;
@@ -12665,7 +12716,7 @@ function renderWords(st, g, myTurn) {
   });
   (trayEl||bd).querySelectorAll('.rt').forEach(btn=>btn.onkeydown=e=>{if(S.swapMode||!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const k=+btn.dataset.r,i=S.wordOrder.indexOf(k),j=i+(e.key==='ArrowLeft'?-1:1);if(j<0||j>=S.wordOrder.length)return;[S.wordOrder[i],S.wordOrder[j]]=[S.wordOrder[j],S.wordOrder[i]];rerender();document.querySelector('.game-tray [data-r="'+k+'"]')?.focus({preventScroll:true});});
   bd.querySelectorAll('.c').forEach(c => c.onclick = () => {
-    const i = +c.dataset.i; if (!myTurn || S.swapMode || st.board[i]) return;
+    const i = +c.dataset.i; if (!canDraft || S.swapMode || st.board[i]) return;
     const pk = S.placed.findIndex(p => p.i === i);
     if (pk >= 0) { const k=S.placed[pk].rackIdx;S.sel=S.sel===k?null:k;AudioSys.tilePickup();return rerender(); }
     if(S.sel===null)return;
@@ -12682,11 +12733,11 @@ function renderWords(st, g, myTurn) {
   mountWorldGame(g,st);
   on('recall', () => { S.placed = []; S.sel = null; rerender(); });
   on('shuf', () => { if (S.placed.length) return; for (let i = S.wordOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [S.wordOrder[i], S.wordOrder[j]] = [S.wordOrder[j], S.wordOrder[i]]; } rerender(); });
-  on('swap', () => { S.swapMode = true; S.swapSel = []; S.placed = []; S.sel = null; rerender(); });
+  on('swap', () => { if(!myTurn||S.movePending)return;S.swapMode = true; S.swapSel = []; S.placed = []; S.sel = null; rerender(); });
   on('swapx', () => { S.swapMode = false; S.swapSel = []; rerender(); });
   on('swapgo', () => { if(!myTurn||!S.swapSel.length||S.movePending)return;const letters=S.swapSel.map(k=>rack[k]);return move({ action: 'swap', letters }, () => { S.swapMode = false; S.swapSel = []; S.sel=null;toast('Swapped '+letters.length+' letter'+(letters.length===1?'':'s')+'.'); }); });
-  on('pass', async () => { if (await ohanaConfirm('Pass your turn?',{cancelLabel:'Keep playing',confirmLabel:'Pass'})) move({ action: 'pass' }); });
-  on('play', () => move({ action: 'play', placements: S.placed.map(p => ({ i: p.i, l: p.l, blank: p.blank })) }, () => { S.placed = []; S.sel = null; }));
+  on('pass', async () => { if(!myTurn||S.movePending)return;if (await ohanaConfirm('Pass your turn?',{cancelLabel:'Keep playing',confirmLabel:'Pass'})) move({ action: 'pass' }); });
+  on('play',submitPrivateWordDraft);
 }
 // Compact Ohana confirmations; cancelling always leaves the current action untouched.
 function announcementContext(){const member=String(S.me?.id||''),room=String(S.room||''),token=S.token;return{room:S.room,valid:()=>String(S.me?.id||'')===member&&String(S.room||'')===room&&S.token===token};}
