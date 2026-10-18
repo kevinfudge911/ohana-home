@@ -14125,9 +14125,28 @@ function bindHandArrange(buttons,attribute,hand,reorder){
  }
 }
 
+function mountO10HandArrangeControls(hand,reorder,rerender){
+ const rack=document.querySelector('#board .o10-hand');if(!rack)return;
+ document.getElementById('o10-hand-arrange-controls')?.remove();
+ const bar=document.createElement('section');bar.id='o10-hand-arrange-controls';bar.setAttribute('aria-label','Arrange your cards');
+ bar.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:6px 0';
+ const button=(label,id,click)=>{const b=document.createElement('button');b.type='button';b.id=id;b.textContent=label;b.onclick=click;b.style.cssText='min-height:44px;min-width:44px;background:none;border:0;box-shadow:none;color:inherit;font:700 17px Nunito,sans-serif;text-decoration:underline;text-underline-offset:3px';bar.append(b);return b};
+ const active=!!S.o10ArrangeMode;
+ const toggle=button(active?'Done arranging':'Arrange cards','o10-arrange-toggle',()=>{S.o10ArrangeMode=!active;S.o10ArrangeCard=null;rerender();document.getElementById('o10-arrange-toggle')?.focus({preventScroll:true})});toggle.setAttribute('aria-pressed',String(active));
+ if(active){
+  const card=hand.find(c=>c.id===S.o10ArrangeCard),index=card?hand.indexOf(card):-1;
+  const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='flex:1 1 100%;margin:0';status.textContent=card?(card.wild?'Ohana Star':card.n+', '+card.color)+' selected for arranging.': 'Tap a card, then move it earlier or later. Your cards stay in your hand.';bar.append(status);
+  const move=(delta,id)=>{const target=hand[index+delta];if(card&&target){reorder(card.id,target.id,delta>0);document.getElementById(id)?.focus({preventScroll:true})}};
+  const earlier=button('Move earlier','o10-arrange-earlier',()=>move(-1,'o10-arrange-earlier'));earlier.disabled=index<=0;
+  const later=button('Move later','o10-arrange-later',()=>move(1,'o10-arrange-later'));later.disabled=index<0||index===hand.length-1;
+  // Arranging is local display state. Complete it before playing a card.
+  for(const id of ['o10-meld','o10-discard-card','o10-deck','o10-discard']){const action=document.getElementById(id);if(action)action.disabled=true}
+ }
+ rack.before(bar);
+}
 function o10OrderedHand(st,g,me){
- const cards=Array.isArray(st.hands[me])?[...st.hands[me]]:[],key=g.id+':'+(st.voyage||1)+':'+(st.journeys[me]||0)+':'+handMembershipKey(cards);
- if(S.o10OrderKey!==key){S.o10OrderKey=key;S.o10Order=null;S.o10Sort='auto';S.o10Target=null;}
+ const cards=Array.isArray(st.hands[me])?[...st.hands[me]]:[],key='o10:'+me+':'+g.id+':'+(st.voyage||1)+':'+(st.journeys[me]||0);
+ if(S.o10OrderKey!==key){S.o10OrderKey=key;S.o10Order=readHandOrder(key);S.o10Sort='auto';S.o10Target=null;S.o10ArrangeMode=false;S.o10ArrangeCard=null;}
  const byColor=[2,3,9].includes(st.journeys[me]);
  const colors=['coral','ocean','sun','leaf'];
  const byRules=(a,b)=>Number(!!a.wild)-Number(!!b.wild)||(byColor?colors.indexOf(a.color)-colors.indexOf(b.color)||a.n-b.n:a.n-b.n||colors.indexOf(a.color)-colors.indexOf(b.color))||a.id-b.id;
@@ -14200,16 +14219,17 @@ function renderOhana10(st,g,myTurn){
  const reorder=(id,target,after)=>{
   const ids=hand.map(c=>c.id).filter(x=>x!==id),index=ids.indexOf(target);
   if(index<0||id===target)return;
-  ids.splice(index+(after?1:0),0,id);S.o10Order=ids;rerender();
+  ids.splice(index+(after?1:0),0,id);S.o10Order=ids;saveHandOrder(S.o10OrderKey,ids);rerender();
   $('#board').querySelector('[data-o10-card="'+id+'"]')?.focus({preventScroll:true});
  };
  $('#board').querySelectorAll('[data-o10-card]').forEach(b=>{
   const id=+b.dataset.o10Card;let drag=null;
-  b.onclick=()=>{if(!myTurn||Date.now()<(S.o10IgnoreClickUntil||0))return;if(S.o10Sel.includes(id)){S.o10Sel=S.o10Sel.filter(x=>x!==id);delete S.o10Wild[id];}else{S.o10Sel.push(id);}rerender();};
+  b.onclick=()=>{if(S.o10ArrangeMode){S.o10ArrangeCard=id;rerender();return;}if(!myTurn||Date.now()<(S.o10IgnoreClickUntil||0))return;if(S.o10Sel.includes(id)){S.o10Sel=S.o10Sel.filter(x=>x!==id);delete S.o10Wild[id];}else{S.o10Sel.push(id);}rerender();};
   b.onkeydown=e=>{if(S.swapMode||!e.altKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const i=hand.findIndex(c=>c.id===id),delta=e.key==='ArrowLeft'?-1:1,target=hand[i+delta];if(target)reorder(id,target.id,delta>0);};
 
  });
  bindHandArrange($('#board').querySelectorAll('[data-o10-card]'),'data-o10-card',hand,reorder);
+ mountO10HandArrangeControls(hand,reorder,rerender);
  /* Ohana Star wilds now drop into place automatically — no dropdown needed. */
  $('#board').querySelectorAll('[data-o10-target]').forEach(b=>b.onclick=()=>{S.o10Target=S.o10Target===b.dataset.o10Target?null:b.dataset.o10Target;rerender();});
  $('#o10-meld').onclick=()=>{const target=S.o10Target?S.o10Target.split(':'):null;move({action:st.completed[me]?'hit':'journey',cardIds:[...S.o10Sel],wildAssignments:S.o10Wild,...(st.completed[me]&&target?{owner:+target[0],meld:+target[1]}:{})},()=>{S.o10Sel=[];S.o10Target=null;S.o10Wild={};});};
