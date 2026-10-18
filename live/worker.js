@@ -88,6 +88,7 @@ import OHANA_GRANNY_ROOM_V89 from "./ohana-granny-room-v89.webp";
 import OHANA_MEMORIES_ROOM_V89 from "./ohana-memories-room-v89.webp";
 import OHANA_GRANNY_NOOK_V86 from "./ohana-granny-nook-v86.webp";
 import MEMORIES_HTML from "./ohana-memories.html";
+import SPADES_BID_CHECK_HTML from "./ohana-spades-bid-check.html";
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -10798,6 +10799,7 @@ if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(O
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
     try{const senior=await seniorRoute(req,env222222,url,{auth,childPolicy,grannyApi,unifiedChat,page:APP_HTML,setup:SENIOR_SETUP_HTML,api:api2,grannyWordCheck,wardrobeApi,memoriesApi,memoriesPage:MEMORIES_HTML,puzzleWs,puzzlePoll,ctx});if(senior)return senior;}catch(e){return Response.json({error:'Could not open this invitation. Please try again.'},{status:500,headers:{'cache-control':'no-store'}});}
+    if(p==='/ohana-spades-bid-check.html' && req.method==='GET')return new Response(SPADES_BID_CHECK_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     if(p==='/memories' && req.method==='GET')return new Response(MEMORIES_HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     if(p==='/memories/incoming' && req.method==='POST') {try{return await memoriesIncoming(req);}catch{return new Response('These photos could not be received. Open Ohana Memories and choose Add photos.',{status:400});}}
     if(p==='/api/coloring/table')return sharedColoringApi(req,env222222,url);
