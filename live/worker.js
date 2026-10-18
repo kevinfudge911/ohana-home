@@ -12618,25 +12618,29 @@ function isSharedColorPage(key){
 
 // Photo feedback stays inside the photo's current, active family room.
 async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
- const route=url.pathname.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})\/(feedback|comments(?:\/([a-f0-9-]{36})(\/remove)?)?|reaction)$/);
+ const route=url.pathname.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})\/(feedback|comments(?:\/([a-f0-9-]{36})(\/remove)?)?|reaction(?:\/([1-9][0-9]*))?)$/);
  if(!route)return null;
- const db=env.DB,photoId=route[1],kind=route[2],commentId=route[3],remove=!!route[4];
+ const db=env.DB,photoId=route[1],kind=route[2],commentId=route[3],remove=!!route[4],moderation=!!route[5],reactionMember=moderation?Number(route[5]):me.id;
+ if(!Number.isSafeInteger(reactionMember))return reply({error:'Invalid reaction member.'},400);
  const emojis=['👍','❤️','😂','😮','😢','🙏','🎉'];
  const photo=await db.prepare("SELECT p.id,r.owner_id FROM ohana_memories p JOIN rooms r ON r.id=p.room_id JOIN room_members rm ON rm.room_id=r.id AND rm.member_id=? WHERE p.id=? AND p.room_id=? AND p.hidden=0 AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(me.id,photoId,room).first();
  if(!photo)return reply({error:'This photo is not available in your family room.'},404);
+ const moderate=!!me.is_admin||photo.owner_id===me.id;
+ if(moderation&&!moderate)return reply({error:'Only a family admin can change another member’s reaction.'},403);
  await db.batch([
   db.prepare('CREATE TABLE IF NOT EXISTS ohana_photo_comments(id TEXT PRIMARY KEY,photo_id TEXT NOT NULL,room_id INTEGER NOT NULL,member_id INTEGER NOT NULL,author TEXT NOT NULL,text TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,revision INTEGER NOT NULL DEFAULT 1,deleted_at INTEGER,edited_by INTEGER)'),
   db.prepare('CREATE INDEX IF NOT EXISTS ohana_photo_comments_photo ON ohana_photo_comments(room_id,photo_id,deleted_at,created_at)'),
   db.prepare('CREATE TABLE IF NOT EXISTS ohana_photo_reactions(photo_id TEXT NOT NULL,room_id INTEGER NOT NULL,member_id INTEGER NOT NULL,emoji TEXT,revision INTEGER NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(photo_id,room_id,member_id))'),
+  db.prepare('CREATE TABLE IF NOT EXISTS ohana_photo_reaction_moderation(room_id INTEGER NOT NULL,photo_id TEXT NOT NULL,member_id INTEGER NOT NULL,actor_id INTEGER NOT NULL,request_id TEXT NOT NULL,previous_emoji TEXT NOT NULL,new_emoji TEXT,previous_revision INTEGER NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(room_id,actor_id,request_id))'),
   db.prepare('CREATE TABLE IF NOT EXISTS ohana_photo_feedback_requests(room_id INTEGER NOT NULL,member_id INTEGER NOT NULL,request_id TEXT NOT NULL,fingerprint TEXT NOT NULL,target_id TEXT NOT NULL,mutation_token TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(room_id,member_id,request_id))')
  ]);
  if(kind==='feedback'&&req.method==='GET'){
   const rows=(await db.prepare('SELECT id,member_id,author,text,created_at,updated_at,revision FROM ohana_photo_comments WHERE photo_id=? AND room_id=? AND deleted_at IS NULL ORDER BY created_at DESC,id DESC LIMIT 501').bind(photoId,room).all()).results;
   const hasMore=rows.length>500;if(hasMore)rows.pop();rows.reverse();
-  const moderate=!!me.is_admin||photo.owner_id===me.id;
   const reactions=(await db.prepare('SELECT emoji,COUNT(*) AS count,MAX(CASE WHEN member_id=? THEN 1 ELSE 0 END) AS mine FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND emoji IS NOT NULL GROUP BY emoji').bind(me.id,photoId,room).all()).results.map(r=>({...r,mine:!!r.mine}));
   const own=await db.prepare('SELECT emoji,revision FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=?').bind(photoId,room,me.id).first();
-  return reply({comments:rows.map(c=>({...c,can_edit:moderate||c.member_id===me.id,can_remove:moderate||c.member_id===me.id})),has_more_comments:hasMore,reactions,my_reaction:own?.emoji||null,reaction_revision:own?.revision||0,allowed_emojis:emojis,can_comment:true});
+  const reactionDetails=moderate?(await db.prepare('SELECT pr.member_id,m.name AS author,pr.emoji,pr.revision FROM ohana_photo_reactions pr JOIN members m ON m.id=pr.member_id WHERE pr.photo_id=? AND pr.room_id=? AND pr.emoji IS NOT NULL ORDER BY pr.member_id').bind(photoId,room).all()).results.map(r=>({...r,can_edit:true,can_remove:true})):[];
+  return reply({can_moderate_reactions:moderate,reaction_details:reactionDetails,comments:rows.map(c=>({...c,can_edit:moderate||c.member_id===me.id,can_remove:moderate||c.member_id===me.id})),has_more_comments:hasMore,reactions,my_reaction:own?.emoji||null,reaction_revision:own?.revision||0,allowed_emojis:emojis,can_comment:true});
  }
  if(req.method!=='POST'||kind==='feedback')return reply({error:'This photo action is not supported.'},405);
  if(Number(req.headers.get('content-length'))>6000)return reply({error:'Keep photo feedback short.'},413);
@@ -12644,7 +12648,8 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  if(raw.length>6000)return reply({error:'Keep photo feedback short.'},413);
  let body;try{body=JSON.parse(raw);}catch{return reply({error:'Please try that photo action again.'},400);}
  if(!body||typeof body!=='object'||Array.isArray(body)||typeof body.request_id!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(body.request_id))return reply({error:'Please reopen this photo and try again.'},400);
- const reaction=kind==='reaction',create=kind==='comments';
+ const reaction=kind==='reaction'||moderation,create=kind==='comments';
+ if(moderation){const existing=await db.prepare('SELECT emoji FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=?').bind(photoId,room,reactionMember).first();if(!existing||existing.emoji===null){const retry=await db.prepare('SELECT fingerprint FROM ohana_photo_feedback_requests WHERE room_id=? AND member_id=? AND request_id=?').bind(room,me.id,body.request_id).first();if(!retry)return reply({error:'That reaction is no longer available.'},404);}}
  const text=!reaction&&!remove&&typeof body.text==='string'?body.text.trim():'';
  if(!reaction&&!remove&&(!text||text.length>500||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)))return reply({error:'Write a comment from 1 to 500 characters.'},400);
  if(reaction&&body.emoji!==null&&!emojis.includes(body.emoji))return reply({error:'Choose one of the photo reactions.'},400);
@@ -12656,7 +12661,9 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  // The ledger and feedback write share one transaction; the insert guard rechecks live access.
  let guard="EXISTS(SELECT 1 FROM ohana_memories p JOIN rooms r ON r.id=p.room_id JOIN room_members rm ON rm.room_id=r.id JOIN members m ON m.id=rm.member_id WHERE p.id=? AND p.room_id=? AND p.hidden=0 AND m.id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>''))";
  const args=[photoId,room,me.id];
- if(reaction){guard+=' AND COALESCE((SELECT revision FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=?),0)=?';args.push(photoId,room,me.id,body.revision);}
+ if(reaction){guard+=' AND COALESCE((SELECT revision FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=?),0)=?';args.push(photoId,room,reactionMember,body.revision);
+  if(moderation){const adminName=String(env.ADMIN_NAME||'').toLowerCase();guard+=" AND EXISTS(SELECT 1 FROM rooms r JOIN members m ON m.id=? WHERE r.id=? AND (r.owner_id=m.id OR m.is_admin=1 OR (?<>'' AND LOWER(m.name)=?))) AND EXISTS(SELECT 1 FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=? AND emoji IS NOT NULL)";args.push(me.id,room,adminName,adminName,photoId,room,reactionMember);}
+ }
  else if(!create){
   const adminName=String(env.ADMIN_NAME||'').toLowerCase();
   guard+=" AND EXISTS(SELECT 1 FROM ohana_photo_comments c JOIN rooms r ON r.id=c.room_id JOIN members m ON m.id=? WHERE c.id=? AND c.photo_id=? AND c.room_id=? AND c.deleted_at IS NULL AND c.revision=? AND (c.member_id=m.id OR r.owner_id=m.id OR m.is_admin=1 OR (?<>'' AND LOWER(m.name)=?)))";
@@ -12669,10 +12676,11 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  const applied='EXISTS(SELECT 1 FROM ohana_photo_feedback_requests WHERE room_id=? AND member_id=? AND request_id=? AND mutation_token=?)';
  const appliedArgs=[room,me.id,body.request_id,token];let write;
  if(create)write=db.prepare('INSERT INTO ohana_photo_comments(id,photo_id,room_id,member_id,author,text,created_at,updated_at) SELECT ?,?,?,?,?,?,?,? WHERE '+applied).bind(target,photoId,room,me.id,me.name,text,stamp,stamp,...appliedArgs);
- else if(reaction)write=db.prepare('INSERT INTO ohana_photo_reactions(photo_id,room_id,member_id,emoji,revision,updated_at) SELECT ?,?,?,?,?,? WHERE '+applied+' ON CONFLICT(photo_id,room_id,member_id) DO UPDATE SET emoji=excluded.emoji,revision=excluded.revision,updated_at=excluded.updated_at').bind(photoId,room,me.id,body.emoji,body.revision+1,stamp,...appliedArgs);
+ else if(reaction)write=db.prepare('INSERT INTO ohana_photo_reactions(photo_id,room_id,member_id,emoji,revision,updated_at) SELECT ?,?,?,?,?,? WHERE '+applied+' ON CONFLICT(photo_id,room_id,member_id) DO UPDATE SET emoji=excluded.emoji,revision=excluded.revision,updated_at=excluded.updated_at').bind(photoId,room,reactionMember,body.emoji,body.revision+1,stamp,...appliedArgs);
  else if(remove)write=db.prepare('UPDATE ohana_photo_comments SET deleted_at=?,updated_at=?,edited_by=?,revision=revision+1 WHERE id=? AND photo_id=? AND room_id=? AND '+applied).bind(stamp,stamp,me.id,commentId,photoId,room,...appliedArgs);
  else write=db.prepare('UPDATE ohana_photo_comments SET text=?,updated_at=?,edited_by=?,revision=revision+1 WHERE id=? AND photo_id=? AND room_id=? AND '+applied).bind(text,stamp,me.id,commentId,photoId,room,...appliedArgs);
- await db.batch([ledger,write]);
+ const audit=moderation?db.prepare('INSERT INTO ohana_photo_reaction_moderation(room_id,photo_id,member_id,actor_id,request_id,previous_emoji,new_emoji,previous_revision,created_at) SELECT ?,?,?,?,?,emoji,?,revision,? FROM ohana_photo_reactions WHERE photo_id=? AND room_id=? AND member_id=? AND '+applied).bind(room,photoId,reactionMember,me.id,body.request_id,body.emoji,stamp,photoId,room,reactionMember,...appliedArgs):null;
+ await db.batch(audit?[ledger,audit,write]:[ledger,write]);
  const result=await db.prepare('SELECT fingerprint,target_id FROM ohana_photo_feedback_requests WHERE room_id=? AND member_id=? AND request_id=?').bind(room,me.id,body.request_id).first();
  if(!result||result.fingerprint!==fingerprint)return reply({error:'The photo or its feedback changed. Reopen it and try again.'},409);
  return reply({saved:true,...(remove?{removed:true}:{}),id:result.target_id});
