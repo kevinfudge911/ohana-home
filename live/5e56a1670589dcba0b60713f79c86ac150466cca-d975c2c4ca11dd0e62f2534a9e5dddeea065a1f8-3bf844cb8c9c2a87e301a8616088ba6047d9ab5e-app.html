@@ -17692,3 +17692,18 @@ const observer=new MutationObserver(()=>{for(const d of document.querySelectorAl
 :root.ohana-world body #app #game #game-head#game-head#game-head#game-head#game-head#game-head>#next-game:focus-visible,:root.ohana-world body #app #game #game-head#game-head#game-head#game-head#game-head#game-head>#ohana-game-home:focus-visible{outline:3px solid #ffe4a0!important;outline-offset:2px!important}
 }
 </style>
+
+<style id="ohana-hf-table-approved-face-proportions">
+@layer ohanaApproved {
+/* Keep the approved own-hand face proportions on smaller table-card canvases.
+   Rotation remains on the existing far-side row; shape and face rotate together. */
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] :is(.hf-public-cards>.hf-card,#hf-pickup-btn:has(>.hf-shape),.hf-owner-red-card){container-type:inline-size!important}
+/* The older non-book rule sets flex-basis:66px even when a later width is48px.
+   Use one 2:3 canvas so SVG, picture and rank share the same coordinate frame. */
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] .hf-public-cards>.hf-card{width:48px!important;min-width:48px!important;max-width:48px!important;height:72px!important;min-height:72px!important;max-height:72px!important;flex:0 0 48px!important;box-sizing:border-box!important;aspect-ratio:2 / 3!important}
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] :is(.hf-public-cards>.hf-card,#hf-pickup-btn:has(>.hf-shape),.hf-owner-red-card)>.hf-card-picture{position:absolute!important;inset:30% 12% 30% 14%!important;width:auto!important;height:auto!important;overflow:visible!important}
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] :is(.hf-public-cards>.hf-card,#hf-pickup-btn:has(>.hf-shape),.hf-owner-red-card)>.hf-card-picture>img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:50% 50%!important;transform:none!important}
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] :is(.hf-public-cards>.hf-card,#hf-pickup-btn:has(>.hf-shape),.hf-owner-red-card)>.hf-corner{position:absolute!important;top:auto!important;left:25%!important;right:auto!important;bottom:10%!important;width:auto!important;max-width:50%!important;display:block!important;white-space:nowrap!important;text-align:left!important;font:900 28.125cqw/1 Arial,sans-serif!important;letter-spacing:0!important;text-shadow:none!important}
+:root.ohana-world body #app #game #board#board#board#board#board[data-type=handfoot] :is(.hf-public-cards>.hf-card,#hf-pickup-btn:has(>.hf-shape),.hf-owner-red-card).hf-foot-card>.hf-corner{left:23%!important}
+}
+</style>
