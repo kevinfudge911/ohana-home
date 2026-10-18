@@ -1,0 +1,572 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'unsafe-inline';style-src 'unsafe-inline';connect-src 'none';form-action 'none';base-uri 'none'"><title>Isolated puzzle edge deployment check</title><style>body{margin:0;padding:12px;background:#123b3d;color:#fff1cf;font:17px/1.4 Arial,sans-serif}main{max-width:1100px;margin:auto}h1{font-size:24px;margin:4px 0}button{font:700 19px Arial;color:#fff1cf;background:none;border:0;padding:10px;min-height:44px;text-decoration:underline;cursor:pointer}button:focus-visible{outline:3px dashed #8effbc}#pz-canvas{display:block;width:100%;height:55vh;min-height:280px;max-height:650px;background:#926b49}#fixture-tray{overflow-wrap:anywhere;margin:8px 0}p{margin:8px 0}#fixture-audit{font-weight:700}</style></head><body><main><h1>Isolated puzzle edges and boundary check</h1><p>Fictional 6 × 4 puzzle. Actual candidate UI and unchanged server handler run only in memory. No network, storage, or family data.</p><button id="fixture-deploy">Deploy edges</button><button id="fixture-reset">Reset fictional puzzle</button><p id="fixture-message" role="status"></p><canvas id="pz-canvas" aria-label="Fictional main puzzle table; outlined rectangle is the full puzzle boundary"></canvas><p id="fixture-audit" role="status"></p><h2>Fictional loose-piece tray</h2><p id="fixture-tray"></p><p id="fixture-sorting"></p></main><script>/* Actual unchanged server helpers and handle method. RAM-only fixture object supplies storage/broadcast adapters. */
+const __name=fn=>fn,__name2=fn=>fn,__name22=fn=>fn,__name222=fn=>fn,__name2222=fn=>fn;function puzzleWorkspace(meta){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,t=meta.table||{};
+ const side=Math.max(pw*3,w*.35),top=Math.max(ph*3,h*.22),pad=Math.min(pw,ph)*.4;
+ const n=Math.max(1,Math.floor((w+side*2-pad*2-pw)/(pw*1.8))+1);
+ const bottom=h+pad*2+(Math.ceil(cols*rows*1.15/n)-1)*ph*1.8+ph+pad;
+ return {x0:Math.min(-side,t.x0??0),y0:Math.min(-top,t.y0??0),x1:Math.max(w+side,t.x1??w),y1:Math.max(bottom,t.y1??h)};
+}
+function puzzleGridSlots(meta){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,b=puzzleWorkspace(meta),pad=Math.min(pw,ph)*.4;
+ const n=Math.max(1,Math.floor((b.x1-b.x0-pad*2-pw)/(pw*1.8))+1),slots=[];
+ for(let r=0;r<Math.ceil(cols*rows*1.15/n);r++)for(let c=0;c<n;c++)slots.push([Math.round(b.x0+pad+c*pw*1.8),Math.round(h+pad*2+r*ph*1.8)]);
+ return slots;
+}
+function puzzleOnTable(meta,q){const pw=meta.w/meta.cols,ph=meta.h/meta.rows;return !!(q.l||q.h||q.onTable||(q.x+pw*.5>=0&&q.x+pw*.5<=meta.w&&q.y+ph*.5>=0&&q.y+ph*.5<=meta.h));}
+function puzzleFindSpot(meta,pieces,members,tx,ty,rows,limits=null){
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows,pad=Math.min(pw,ph)*(rows?.36:.18),b=puzzleWorkspace(meta),base=members[0];
+ if(!base)return [tx,ty];
+ const offsets=members.map(q=>({x:q.x-base.x,y:q.y-base.y})),ids=new Set(members.map(q=>q.i));
+ // Unplaced off-picture pieces are represented in the virtual tray, not on the table.
+ const others=pieces.filter(q=>!q.tray&&!ids.has(q.i)&&(rows||puzzleOnTable(meta,q)));
+ const xmin=Math.ceil(Math.max(b.x0+pad,limits?.x0??-Infinity)-Math.min(...offsets.map(q=>q.x))),xmax=Math.floor(Math.min(b.x1-pw-pad,limits?.x1??Infinity)-Math.max(...offsets.map(q=>q.x)));
+ const ymin=Math.ceil(Math.max(b.y0+pad,limits?.y0??-Infinity)-Math.min(...offsets.map(q=>q.y))),ymax=Math.floor(Math.min(b.y1-ph-pad,limits?.y1??Infinity)-Math.max(...offsets.map(q=>q.y)));
+ if(xmin>xmax||ymin>ymax)return null;
+ const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+ tx=clamp(Math.round(tx),xmin,xmax);ty=clamp(Math.round(ty),ymin,ymax);
+ const gx=pw+pad*2-.5,gy=ph+pad*2-.5;
+ const free=(x,y)=>x>=xmin&&x<=xmax&&y>=ymin&&y<=ymax&&!offsets.some(o=>others.some(q=>Math.abs(q.x-x-o.x)<gx&&Math.abs(q.y-y-o.y)<gy));
+ // Clear drops stay where the player puts them. Initial scatter and Tidy still arrange rows.
+ if(free(tx,ty))return [tx,ty];
+ const candidates=[],seen=new Set(),xs=new Set([tx]),ys=new Set([ty]);
+ const add=(x,y)=>{x=clamp(Math.round(x),xmin,xmax);y=clamp(Math.round(y),ymin,ymax);const key=x+','+y;if(!seen.has(key)){seen.add(key);candidates.push([x,y]);}};
+ for(const o of offsets)for(const q of others){
+  const left=Math.floor(q.x-o.x-gx),right=Math.ceil(q.x-o.x+gx),above=Math.floor(q.y-o.y-gy),below=Math.ceil(q.y-o.y+gy);
+  add(left,ty);add(right,ty);add(tx,above);add(tx,below);
+  if(Math.abs(q.x-tx-o.x)<gx&&Math.abs(q.y-ty-o.y)<gy){xs.add(left);xs.add(right);ys.add(above);ys.add(below);}
+ }
+ for(const x of xs)for(const y of ys)add(x,y);
+ if(rows)for(const [x,y] of puzzleGridSlots(meta))add(x,y);
+ if(limits)for(let y=ymin;y<=ymax;y+=gy)for(let x=xmin;x<=xmax;x+=gx)add(x,y);
+ add(xmin,ty);add(xmax,ty);add(tx,ymin);add(tx,ymax);
+ const distance=p=>(p[0]-tx)**2+(p[1]-ty)**2;
+ candidates.sort((a,b)=>distance(a)-distance(b)||a[1]-b[1]||a[0]-b[0]);
+ for(const [x,y] of candidates)if((rows||limits||Math.hypot(x-tx,y-ty)<=Math.max(pw,ph)*1.25)&&free(x,y))return [x,y];
+ return null;
+}
+function puzzleTidyAround(meta,pieces,targets){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,b=puzzleWorkspace(meta),gx=pw*1.72,gy=ph*1.72,pad=Math.min(pw,ph)*.4;
+ const buckets=[[],[],[],[]],slots=[],ids=new Set(targets.map(p=>p.i)),occupied=pieces.filter(p=>!p.tray&&!ids.has(p.i)&&(p.l||p.onTable||p.h||puzzleOnTable(meta,p)));
+ // Each ring contributes the top, right, bottom and left before expanding out.
+ for(let ring=0;ring<Math.ceil(Math.max(b.x1-b.x0,b.y1-b.y0)/Math.min(gx,gy));ring++){
+  const top=-ph-pad-ring*gy,bottom=h+pad+ring*gy,left=-pw-pad-ring*gx,right=w+pad+ring*gx;
+  if(top>=b.y0+pad)for(let x=0;x<=w-pw;x+=gx)buckets[0].push([x,top]);
+  if(right<=b.x1-pw-pad)for(let y=0;y<=h-ph;y+=gy)buckets[1].push([right,y]);
+  if(bottom<=b.y1-ph-pad)for(let x=0;x<=w-pw;x+=gx)buckets[2].push([x,bottom]);
+  if(left>=b.x0+pad)for(let y=0;y<=h-ph;y+=gy)buckets[3].push([left,y]);
+ }
+ for(let i=0;i<Math.max(...buckets.map(q=>q.length));i++)for(const side of buckets)if(side[i])slots.push(side[i]);
+ let k=0;for(const pc of targets){let spot;
+  while(k<slots.length){const p=slots[k++];if(!occupied.some(q=>Math.abs(q.x-p[0])<gx-1&&Math.abs(q.y-p[1])<gy-1)){spot=p;break;}}
+  if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,false,b);
+  if(spot){pc.x=Math.round(spot[0]);pc.y=Math.round(spot[1]);pc.onTable=true;}occupied.push(pc);
+ }
+}
+function puzzleArrangeRows(meta,pieces,targets){
+ const ids=new Set(targets.map(q=>q.i)),occupied=pieces.filter(q=>!ids.has(q.i)),slots=puzzleGridSlots(meta);
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows,pad=Math.min(pw,ph)*.36;let k=0;
+ for(const pc of targets){let spot=null;
+  while(k<slots.length){const s=slots[k++];if(!occupied.some(q=>!q.tray&&Math.abs(q.x-s[0])<pw+pad*2-.5&&Math.abs(q.y-s[1])<ph+pad*2-.5)){spot=s;break;}}
+  if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,true);
+  if(spot){pc.x=spot[0];pc.y=spot[1];pc.onTable=false;}occupied.push(pc);
+ }
+}
+function puzzleScatter(meta,pieces,rng2,onlyLoose){
+ const targets=pieces.filter(pc=>!onlyLoose||(!pc.l&&!pc.h&&!pc.tray));
+ for(let i=targets.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[targets[i],targets[j]]=[targets[j],targets[i]];}
+ puzzleArrangeRows(meta,pieces,targets);
+}
+__name(puzzleScatter, "puzzleScatter");
+__name2(puzzleScatter, "puzzleScatter");
+__name22(puzzleScatter, "puzzleScatter");
+__name222(puzzleScatter, "puzzleScatter");
+__name2222(puzzleScatter, "puzzleScatter");
+function puzzleSlots(meta){return puzzleGridSlots(meta);}
+__name(puzzleSlots, "puzzleSlots");
+__name2(puzzleSlots, "puzzleSlots");
+__name22(puzzleSlots, "puzzleSlots");
+__name222(puzzleSlots, "puzzleSlots");
+__name2222(puzzleSlots, "puzzleSlots");
+function puzzleTable(w,h,cols,rows){return puzzleWorkspace({w,h,cols,rows});}
+__name(puzzleTable, "puzzleTable");
+__name2(puzzleTable, "puzzleTable");
+__name22(puzzleTable, "puzzleTable");
+__name222(puzzleTable, "puzzleTable");
+__name2222(puzzleTable, "puzzleTable");
+
+const fixtureServerHandle=({  handle(me, m, ws) {
+    const P = this.pieces;
+    if (!P) return null;
+    const piece = /* @__PURE__ */ __name2222((id) => P[id], "piece");
+    const now2 = Date.now();
+    if (m.t === "cursor") {
+      me.x = m.x;
+      me.y = m.y;
+      if (ws) ws.serializeAttachment(me);
+      else if (this.pollers?.[me.id]) {
+        this.pollers[me.id].x = m.x;
+        this.pollers[me.id].y = m.y;
+      }
+      this.broadcast({ t: "cursor", id: me.id, x: m.x, y: m.y }, ws);
+      return null;
+    }
+    const group4 = /* @__PURE__ */ __name2222((g) => P.filter((q) => q.g === g && !q.l), "group");
+    const heldByOther = (q) => q.h && q.h !== me.id && q.ht && now2 - q.ht < 15000;
+    const deny = (pc) => ({ t: "deny", p: m.p, people: this.people(), pieces: pc ? P.filter(q => q.g === pc.g).map(q => ({ ...q })) : [] });
+    if (m.t === "tray-create") {
+      this.trays = this.trays || [];
+      const id = [1, 2, 3, 4, 5].find((n) => !this.trays.some((t) => t.id === n));
+      if (!id) return { t: "tray-deny", text: "Five trays are already on the table." };
+      const tray = { id, name: "Tray " + id, color: "#247a88", x: Math.min(0.65, 0.08 + (id - 1) * 0.11), y: Math.min(0.55, 0.1 + (id - 1) * 0.1), docked: false };
+      this.trays.push(tray);
+      this.scheduleSave();
+      this.broadcast({ t: "tray-update", tray });
+      return null;
+    }
+    if (m.t === "tray-update") {
+      const tray = (this.trays || []).find((t) => t.id === +m.id);
+      if (!tray) return null;
+      if (typeof m.name === "string") tray.name = m.name.trim().slice(0, 28) || "Tray " + tray.id;
+      if (["#247a88", "#547ca2", "#a76075", "#947145", "#4f8557"].includes(m.color)) tray.color = m.color;
+      if (Number.isFinite(m.x)) tray.x = Math.max(0, Math.min(0.85, m.x));
+      if (Number.isFinite(m.y)) tray.y = Math.max(0, Math.min(0.85, m.y));
+      if (typeof m.docked === "boolean") tray.docked = m.docked;
+      this.scheduleSave();
+      this.broadcast({ t: "tray-update", tray: { ...tray } });
+      return null;
+    }
+    if (m.t === "tray-delete") {
+      const tray = (this.trays || []).find((t) => t.id === +m.id);
+      if (!tray || P.some((pc) => pc.tray === tray.id)) return { t: "tray-deny", text: "Empty the tray before removing it." };
+      this.trays = this.trays.filter((t) => t.id !== tray.id);
+      this.scheduleSave();
+      this.broadcast({ t: "tray-delete", id: tray.id });
+      return null;
+    }
+    if (m.t === "tray-add") {
+      const pc = piece(m.p), tray = (this.trays || []).find((t) => t.id === +m.id);
+      if (!pc || !tray || pc.l || pc.tray === tray.id) return { t: "tray-deny", text: "That piece cannot go in this tray." };
+      const members = group4(pc.g);
+      if (members.some((q) => q.tray !== pc.tray || q.h && q.h !== me.id && q.ht && now2 - q.ht < 15e3)) return { t: "tray-deny", text: "Someone else has that piece." };
+      for (const q of members) {
+        q.tray = tray.id;
+        q.h = null;
+        q.ht = null;
+      }
+      this.scheduleSave();
+      this.broadcast({ t: "tray-piece", ids: members.map((q) => q.i), tray: tray.id });
+      return null;
+    }
+    if (m.t === "tray-out") {
+      const pc = piece(m.p);
+      if (!pc || !pc.tray || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
+      const members = group4(pc.g).filter((q) => q.tray === pc.tray);
+      if (members.some(heldByOther)) return deny(pc);
+      const surface=puzzleWorkspace(this.meta);
+      const dx=Math.max(surface.x0,Math.min(surface.x1,m.x))-pc.x;
+      const dy=Math.max(surface.y0,Math.min(surface.y1,m.y))-pc.y;
+      for (const q of members) {
+        q.tray = null;
+        q.x += dx;
+        q.y += dy;
+        q.onTable = true;
+        q.h = null;
+        q.ht = null;
+      }
+      this.scheduleSave();
+      this.broadcast({ t: "tray-piece", ids: members.map((q) => q.i), tray: null, pieces: members.map((q) => [q.i, q.x, q.y]) });
+      return null;
+    }
+    if (m.t === "tray-return") {
+      const pc=piece(m.p);if(!pc||pc.l||group4(pc.g).some(heldByOther))return deny(pc);
+      const members=group4(pc.g),pw=this.meta.w/this.meta.cols,ph=this.meta.h/this.meta.rows,b=puzzleWorkspace(this.meta);
+      let spot=puzzleFindSpot(this.meta,P,members,b.x0+pw,this.meta.h+ph,true,{y0:this.meta.h+ph*.4,y1:b.y1-ph});
+      // These pieces are displayed in the virtual bottom tray, not the table.
+      // A crowded off-picture staging area must never prevent returning a group.
+      if(!spot){const base=members[0],minX=Math.min(...members.map(q=>q.x-base.x)),minY=Math.min(...members.map(q=>q.y-base.y));spot=[b.x0+pw-minX,this.meta.h+ph-minY];}
+      const dx=spot[0]-members[0].x,dy=spot[1]-members[0].y;
+      for(const q of members){q.x+=dx;q.y+=dy;q.onTable=false;q.tray=null;q.h=null;q.ht=null;delete q._pzOriginX;delete q._pzOriginY;}
+      this.scheduleSave();this.broadcast({t:"tray-return",by:me.id,pieces:members.map(q=>({...q}))});return null;
+    }
+    if (m.t === "grab") {
+      const pc = piece(m.p);
+      if (!pc || pc.l || pc.tray) return deny(pc);
+      const members = group4(pc.g);
+      if (members.some(heldByOther)) return deny(pc);
+      for (const q of members) {
+        if(q.h!==me.id){q._pzOriginX=q.x;q._pzOriginY=q.y;}
+        q.h = me.id;
+        q.ht = now2;
+        q.catalogReady = false;
+      }
+      this.broadcast({ t: "grab", p: m.p, g: pc.g, by: me.id }, ws);
+      return null;
+    }
+    if (m.t === "move") {
+      const pc = piece(m.p);
+      if (!pc || pc.l || pc.tray || group4(pc.g).some(heldByOther)) return deny(pc);
+      if (!Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
+      const dx = m.x - pc.x, dy = m.y - pc.y;
+      if (!dx && !dy) return null;
+      for (const q of group4(pc.g)) {
+        q.x += dx;
+        q.y += dy;
+        q.onTable = true;
+        q.catalogReady = false;
+        q.ht = now2;
+      }
+      this.broadcast({ t: "move", p: m.p, x: pc.x, y: pc.y, g: pc.g, by: me.id }, ws);
+      return null;
+    }
+    if (m.t === "drop") {
+      const pc = piece(m.p);
+      if (!pc || pc.l || pc.tray || group4(pc.g).some(heldByOther)) return deny(pc);
+      if (!Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
+      const {cols,rows,w,h}=this.meta,table4=puzzleWorkspace(this.meta),pw=w/cols,ph=h/rows;
+      const tol = Math.min(pw, ph) * 0.3;
+      let members = group4(pc.g);
+      let dx = Math.max(table4.x0, Math.min(table4.x1 - pw, m.x)) - pc.x, dy = Math.max(table4.y0, Math.min(table4.y1 - ph, m.y)) - pc.y;
+      for (const q of members) {
+        q.x += dx;
+        q.y += dy;
+        q.onTable = true;
+        q.catalogReady = false;
+        q.h = null;
+        q.ht = null;
+      }
+      let locked = false, joined = false;
+      const onSpot = members.find((q) => Math.abs(q.x - q.c * pw) < tol && Math.abs(q.y - q.r * ph) < tol);
+      if (onSpot) {
+        for (const q of members) {
+          q.x = q.c * pw;
+          q.y = q.r * ph;
+          q.l = true;
+          q.h = null;
+        }
+        locked = true;
+      } else {
+        for (let pass = 0; pass < 4; pass++) {
+          let merged = false;
+          outer: for (const q of members) for (const [dr, dc] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+            const nr = q.r + dr, nc = q.c + dc;
+            if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
+            const nb = P[nr * cols + nc];
+            if (!nb || nb.l || nb.tray || (m.looseView!==true&&!puzzleOnTable(this.meta,nb)) || nb.g === q.g || group4(nb.g).some(heldByOther)) continue;
+            const ex = nb.x - dc * pw, ey = nb.y - dr * ph;
+            if (Math.abs(q.x - ex) < tol && Math.abs(q.y - ey) < tol) {
+              const sx = ex - q.x, sy = ey - q.y, newG = nb.g;
+              for (const r2 of members) {
+                r2.x += sx;
+                r2.y += sy;
+                r2.g = newG;
+              }
+              members = group4(newG);
+              merged = joined = true;
+              break outer;
+            }
+          }
+          if (!merged) break;
+        }
+      }
+      if(!locked&&!joined&&m.staged===true){
+        const spot=puzzleFindSpot(this.meta,P,members,members[0].x,members[0].y,false,puzzleWorkspace(this.meta));
+        if(spot){const dx=spot[0]-members[0].x,dy=spot[1]-members[0].y;for(const q of members){q.x+=dx;q.y+=dy;}}else{if(m.staged===true){for(const q of members){q.x=Number.isFinite(q._pzOriginX)?q._pzOriginX:q.x;q.y=Number.isFinite(q._pzOriginY)?q._pzOriginY:q.y;q.onTable=false;q.h=null;q.ht=null;delete q._pzOriginX;delete q._pzOriginY;}this.scheduleSave();this.broadcast({t:'stage-denied',by:me.id,pieces:members.map(q=>({...q}))});return null;}for(const q of members){q.h=me.id;q.ht=now2;}this.scheduleSave();this.broadcast({t:'drop-blocked',p:m.p,by:me.id,pieces:members.map(q=>[q.i,q.x,q.y])});return null;}
+      }
+      for(const q of members){delete q._pzOriginX;delete q._pzOriginY;}
+      this.scheduleSave();
+      if (locked || joined) {
+        const st = this.stats[me.id] || (this.stats[me.id] = { name: me.name, avatar: me.avatar, placed: 0, joins: 0 });
+        if (locked) st.placed += members.length;
+        else st.joins += 1;
+        this.ctx.storage.put("stats", this.stats).catch(() => {
+        });
+      }
+      const lockedCount = P.filter((q) => q.l).length;
+      this.broadcast({ t: "drop", p: m.p, g: members[0].g, pieces: members.map((q) => [q.i, q.x, q.y]), l: locked, joined, by: me.id, byName: me.name, clientAction:typeof m.clientAction==="string"&&m.clientAction.length<=100?m.clientAction:void 0, locked: lockedCount, stats: locked || joined ? this.stats : void 0 });
+      if (lockedCount === P.length && !this.meta.done) {
+        this.meta.done = now2;
+        this.ctx.storage.put("meta", this.meta).catch(() => {
+        });
+        this.broadcast({ t: "done", at: now2, by: me.name, stats: this.stats });
+        this.announceDone().catch(() => {
+        });
+      }
+      return null;
+    }
+    if (m.t === "release") {
+      const pc = piece(m.p);
+      if (pc && pc.h === me.id) {
+        for (const q of group4(pc.g)) {
+          q.h = null;
+          q.ht = null;
+        }
+        this.broadcast({ t: "release", p: m.p, g: pc.g }, ws);
+      }
+      return null;
+    }
+    if (m.t === "tidy") {
+      const rng2 = puzzleRng(now2 & 65535);
+      for (const pc of P) if (pc.h && now2 - (pc.ht || 0) > 15e3) {
+        pc.h = null;
+        pc.ht = null;
+      }
+      const sizes = {};
+      for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
+      const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1 && puzzleOnTable(this.meta,pc));
+      // Mix before laying out: array/solution index must never reveal the picture.
+      for(let i=singles.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[singles[i],singles[j]]=[singles[j],singles[i]];}
+      puzzleTidyAround(this.meta,P,singles);
+      for(const q of singles)q.catalogReady=true;
+      this.scheduleSave();
+      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true, catalogReady:true });
+      return null;
+    }
+    if (m.t === "shuffle") {
+      const rng2 = puzzleRng((now2 ^ this.seq * 2654435761) & 2147483647);
+      for (const pc of P) if (pc.h && now2 - (pc.ht || 0) > 15e3) {
+        pc.h = null;
+        pc.ht = null;
+      }
+      const sizes = {};
+      for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
+      const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1);
+      for (let i = singles.length - 1; i > 0; i--) {
+        const j = Math.floor(rng2() * (i + 1));
+        [singles[i], singles[j]] = [singles[j], singles[i]];
+      }
+      puzzleArrangeRows(this.meta,P,singles);
+      this.scheduleSave();
+      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, shuffle: true });
+      return null;
+    }
+    if (m.t === "recall") {
+      const rng2 = puzzleRng(now2 & 65535);
+      for (const pc of P) if (pc.h && now2 - (pc.ht || 0) > 15e3) {
+        pc.h = null;
+        pc.ht = null;
+      }
+      const slots = puzzleSlots(this.meta);
+      for (let i = slots.length - 1; i > 0; i--) {
+        const j = Math.floor(rng2() * (i + 1));
+        [slots[i], slots[j]] = [slots[j], slots[i]];
+      }
+      const pw = this.meta.w / this.meta.cols, ph = this.meta.h / this.meta.rows;
+      const groups = {};
+      for (const pc of P) {
+        if (pc.l || pc.h || pc.tray) continue;
+        (groups[pc.g] = groups[pc.g] || []).push(pc);
+      }
+      const moved = [];
+      let k = 0;
+      for (const g in groups) {
+        const mem = groups[g];
+        const ax = Math.min(...mem.map((p) => p.x)), ay = Math.min(...mem.map((p) => p.y));
+        const s = slots[k % slots.length];
+        k++;
+        const tx = Math.round(s[0] + (rng2() - 0.5) * pw * 0.25), ty = Math.round(s[1] + (rng2() - 0.5) * ph * 0.25);
+        const dx = tx - ax, dy = ty - ay;
+        for (const p of mem) {
+          p.x = Math.round(p.x + dx);
+          p.y = Math.round(p.y + dy);
+          p.onTable = false;
+          moved.push([p.i, p.x, p.y]);
+        }
+      }
+      this.scheduleSave();
+      this.broadcast({ t: "tidy", pieces: moved, by: me.name, recall: true });
+      return null;
+    }
+    if (m.t === "restyle") {
+      const style = PUZZLE_STYLES[m.style] ? m.style : "mix";
+      this.meta.style = style;
+      this.meta.edges = puzzleEdges(this.meta.cols, this.meta.rows, (this.meta.seed || 1) + (Date.now() & 4095), style);
+      this.ctx.storage.put("meta", this.meta).catch(() => {
+      });
+      this.broadcast({ t: "restyle", style, edges: this.meta.edges, by: me.name });
+      return null;
+    }
+    if (m.t === "recount") {
+      if (!me.admin) return { t: "denyRecount" };
+      const allowed = [24, 48, 100, 200, 300, 500, 750, 1e3];
+      const n = allowed.includes(+m.pieces) ? +m.pieces : 100;
+      const ar = this.meta.w / this.meta.h;
+      let cols = Math.max(2, Math.round(Math.sqrt(n * ar))), rows = Math.max(2, Math.round(n / cols));
+      while (cols * rows > 1050) cols--;
+      const big = n >= 500 ? 2400 : n >= 200 ? 2e3 : 1600;
+      const W = ar >= 1 ? big : Math.round(big * ar), H = ar >= 1 ? Math.round(big / ar) : big;
+      const seed = Math.floor(Math.random() * 2e9);
+      const rng2 = puzzleRng(seed + 7);
+      const table4 = puzzleTable(W, H, cols, rows);
+      const pieces = [];
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) pieces.push({ i: pieces.length, r, c, x: 0, y: 0, l: false, h: null, g: pieces.length });
+      this.meta.cols = cols;
+      this.meta.rows = rows;
+      this.meta.w = W;
+      this.meta.h = H;
+      this.meta.seed = seed;
+      this.meta.table = table4;
+      this.meta.edges = puzzleEdges(cols, rows, seed, this.meta.style || "mix");
+      this.meta.done = 0;
+      puzzleScatter(this.meta, pieces, rng2, false);
+      this.pieces = pieces;
+      this.stats = {};
+      this.ctx.storage.put({ meta: this.meta, pieces: this.pieces, stats: {} }).catch(() => {
+      });
+      if (this.meta.puzzleId && this.env.DB) {
+        this.env.DB.prepare("UPDATE puzzles SET cols=?,rows=?,w=?,h=? WHERE id=?").bind(cols, rows, W, H, this.meta.puzzleId).run().catch(() => {
+        });
+      }
+      this.broadcast({ t: "recount", cols, rows, w: W, h: H, edges: this.meta.edges, table: table4, pieces, stats: {}, by: me.name });
+      return null;
+    }
+    if (m.t === "arrange") {
+      const sizes = {};
+      for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
+      const ok = new Set(P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1).map((pc) => pc.i));
+      const order = (Array.isArray(m.order) ? m.order : []).filter((i) => ok.has(i));
+      puzzleArrangeRows(this.meta,P,[...new Set(order)].map(i=>P[i]));
+      this.scheduleSave();
+      this.broadcast({ t: "tidy", pieces: order.map((i) => [i, P[i].x, P[i].y]), by: me.name, sorted: !m.edges&&!m.rows, edges: !!m.edges, rows: !!m.rows });
+      return null;
+    }
+    if (m.t === "typing") {
+      this.broadcast({ t: "typing", id: me.id, on: !!m.on }, ws);
+      return null;
+    }
+    if (m.t === "chat") {
+      const text = String(m.text || "").trim().slice(0, 240);
+      if (!text) return null;
+      const entry = { id: me.id, name: me.name, avatar: me.avatar, text, at: now2 };
+      this.chat.push(entry);
+      if (this.chat.length > 80) this.chat = this.chat.slice(-80);
+      this.ctx.storage.put("chat", this.chat).catch(() => {
+      });
+      this.broadcast({ t: "chat", ...entry });
+      if (this.meta && this.meta.roomId && me.id > 0) {
+        try {
+          this.env.DB.prepare("INSERT OR IGNORE INTO chat_messages(conversation,sender,text,image,created_at,source) VALUES(?,?,?,?,?,?)").bind("room:" + this.meta.roomId, me.id, text, null, now2, "pz:" + (this.meta.puzzleId || 0) + ":" + me.id + ":" + now2).run().catch(() => {
+          });
+        } catch {
+        }
+      }
+      return null;
+    }
+    if (m.t === "ping") return { t: "pong", people: this.people() };
+    return null;
+  }
+}).handle;
+const S={me:{id:7,name:'Fixture player'}},fixtureMemory={getItem:()=>null,setItem(){}},PZ={id:1,mode:'poll',data:null,geo:{pw:100,ph:100,off:18},strip:{lift:null,catalogOrder:[]},view:{s:1,x:0,y:0},dpr:1,sprites:[],doneLayer:document.createElement('canvas'),sparks:[],cursors:{},preview:false,people:{}},$=s=>document.querySelector(s);
+let server,queue=[],baseline,eligible=[],broadcasts=[],saves=0,spriteCache={};
+function makeData(){const meta={w:600,h:400,cols:6,rows:4},slots=puzzleGridSlots(meta),pieces=Array.from({length:24},(_,i)=>({i,r:Math.floor(i/6),c:i%6,g:i,x:slots[i][0],y:slots[i][1],l:false,h:null,ht:null,tray:null,onTable:false,catalogReady:true}));pieces[0]={...pieces[0],l:true,x:0,y:0};pieces[1]={...pieces[1],h:99,ht:Date.now()};pieces[5]={...pieces[5],x:500,y:0,onTable:true,catalogReady:false};pieces[6]={...pieces[6],g:66,x:40,y:160,onTable:true,catalogReady:false};pieces[7]={...pieces[7],g:66,x:140,y:160,onTable:true,catalogReady:false};pieces[23].tray=1;return{meta,pieces};}
+function pzSend(m){queue.push(structuredClone(m));}function pzRaise(i){PZ.order=null;}function pzToast(t){$('#fixture-message').textContent=t;}function pzPaintTrays(){}function pzPaintHeldOverlay(){}function pzRefreshDone(){}function pzBoardHex(){return '#926b49';}function pzHeldByOther(q){return q.h&&q.h!==S.me.id;}function pzPaintStrip(){paintTray();}
+function pzSprite(i){if(spriteCache[i])return spriteCache[i];const c=document.createElement('canvas');c.width=136;c.height=136;const x=c.getContext('2d');x.fillStyle=['#68b8bd','#e6ae5c','#b799c7','#a7ba70'][i%4];x.fillRect(18,18,100,100);x.strokeStyle='#183f44';x.lineWidth=3;x.strokeRect(18,18,100,100);x.font='bold 25px Arial';x.fillStyle='#153b40';x.textAlign='center';x.fillText(String(i),68,76);return spriteCache[i]=c;}
+function pzEdgeDeploymentPlan(data){
+ const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P))return {moves:[],reason:'not-ready'};
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
+ const group=pc=>pc.g??pc.i,sizes=new Map();for(const pc of P)sizes.set(group(pc),(sizes.get(group(pc))||0)+1);
+ const edge=pc=>pc.r===0||pc.c===0||pc.r===rows-1||pc.c===cols-1;
+ const targets=P.filter(pc=>!pc.l&&!pc.h&&sizes.get(group(pc))===1&&edge(pc)&&(pc.tray||!pc.onTable||pc.catalogReady));
+ if(!targets.length)return {moves:[],reason:'none'};
+ const work=P.map(pc=>({...pc})),byId=new Map(work.map(pc=>[pc.i,pc])),table=puzzleWorkspace(meta),pad=Math.min(pw,ph)*.36,tol=Math.min(pw,ph)*.3;
+ const slots=puzzleGridSlots(meta).map(([x,y])=>[Math.round(x),Math.round(y)]),moves=[];let cursor=0;
+ const free=(pc,x,y)=>{
+  if(x<table.x0+pad||x+pw>table.x1-pad||y<h+ph*.7||y+ph>table.y1-pad)return false;
+  if(Math.abs(x-pc.c*pw)<tol&&Math.abs(y-pc.r*ph)<tol)return false;
+  for(const q of work)if(q.i!==pc.i&&!q.tray&&Math.abs(q.x-x)<pw+pad*2-.5&&Math.abs(q.y-y)<ph+pad*2-.5)return false;
+  // Never let deployment accidentally solve or join a piece through normal drop snapping.
+  for(const [dr,dc]of [[0,1],[0,-1],[1,0],[-1,0]]){const nr=pc.r+dr,nc=pc.c+dc;if(nr<0||nc<0||nr>=rows||nc>=cols)continue;const nb=work.find(q=>q.r===nr&&q.c===nc);if(nb&&!nb.l&&!nb.tray&&group(nb)!==group(pc)&&Math.abs(x-(nb.x-dc*pw))<tol&&Math.abs(y-(nb.y-dr*ph))<tol)return false;}
+  return true;
+ };
+ for(const target of targets){const pc=byId.get(target.i);let spot=null;while(cursor<slots.length){const [x,y]=slots[cursor++];if(free(pc,x,y)){spot=[x,y];break;}}
+  if(!spot)return {moves:[],reason:'crowded'};
+  slots.push([Math.round(pc.x),Math.round(pc.y)]);moves.push({i:pc.i,x:spot[0],y:spot[1],tray:pc.tray||null});pc.x=spot[0];pc.y=spot[1];pc.tray=null;pc.onTable=true;pc.catalogReady=false;
+ }
+ return {moves,reason:''};
+}
+function pzGatherEdges(){
+ if(!PZ.data||!PZ.id)return;
+ if(PZ.drag||PZ.carry||PZ.strip?.lift!=null){pzToast('Finish placing the piece in your hand, then deploy the edges.');return;}
+ if(PZ.mode==='ws'&&PZ.ws?.readyState!==1){pzToast('The puzzle is reconnecting. Try Deploy edges when it is connected.');return;}
+ const plan=pzEdgeDeploymentPlan(PZ.data);
+ if(!plan.moves.length){pzToast(plan.reason==='crowded'?'There is not enough open table space to deploy every loose edge safely. Your pieces are unchanged.':'Loose edges are already on the table, placed, joined, or being held.');return;}
+ const {pw,ph}=PZ.geo;
+ for(const move of plan.moves){const pc=PZ.data.pieces.find(q=>q.i===move.i);if(!pc||pc.l||pc.h)continue;
+  if(pc.tray){pzTakeFromTray(pc.i,move.x+pw/2,move.y+ph/2);pc.catalogReady=false;}
+  else{pzSend({t:'grab',p:pc.i});pc.x=move.x;pc.y=move.y;pc.onTable=true;pc.catalogReady=false;pc.h=null;pzRaise(pc.i);pzSend({t:'drop',p:pc.i,x:move.x,y:move.y});}
+ }
+ pzPaintStrip();pzPaintTrays();pzFitTidiedPieces();PZ.needDraw=true;
+}
+function pzDrawPuzzleBoundary(ctx,w,h,scale){
+ const pixel=(PZ.dpr||1)/Math.max(.001,scale);ctx.save();ctx.globalAlpha=1;ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.setLineDash([]);ctx.lineJoin='miter';ctx.strokeStyle='#172b32';ctx.lineWidth=6*pixel;ctx.strokeRect(0,0,w,h);ctx.strokeStyle='#fff0bb';ctx.lineWidth=2.5*pixel;ctx.strokeRect(0,0,w,h);ctx.restore();
+}
+
+function pzTakeFromTray(i,x,y){const pc=PZ.data?.pieces[i];if(!pc||!pc.tray)return;const {pw,ph}=PZ.geo;const dx=x-pw/2-pc.x,dy=y-ph/2-pc.y;
+ for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;q.tray=null;q.onTable=true;q.h=null;pzRaise(q.i);}
+ pzSend({t:'tray-out',p:i,x:Math.round(pc.x),y:Math.round(pc.y)});pzSend({t:'drop',p:i,x:Math.round(pc.x),y:Math.round(pc.y)});PZ.needDraw=true;pzPaintTrays();pzPaintStrip();}
+
+function pzFitTidiedPieces(){
+ const cv=$('#pz-canvas'),d=PZ.data;if(!cv||!d)return;const {pw,ph,off}=PZ.geo;
+ const pieces=d.pieces.filter(q=>!q.tray&&(q.l||q.onTable)),b={x0:0,y0:0,x1:d.meta.w,y1:d.meta.h};
+ for(const q of pieces){b.x0=Math.min(b.x0,q.x-off);b.y0=Math.min(b.y0,q.y-off);b.x1=Math.max(b.x1,q.x+pw+off);b.y1=Math.max(b.y1,q.y+ph+off);}
+ b.x0-=pw*.25;b.y0-=ph*.25;b.x1+=pw*.25;b.y1+=ph*.25;
+ PZ.view.s=Math.min(cv.width/(b.x1-b.x0),cv.height/(b.y1-b.y0));PZ.view.x=(cv.width-(b.x1-b.x0)*PZ.view.s)/2-b.x0*PZ.view.s;PZ.view.y=(cv.height-(b.y1-b.y0)*PZ.view.s)/2-b.y0*PZ.view.s;PZ.needDraw=true;
+}
+
+function pzDraw(){const cv=$('#pz-canvas');const d=PZ.data;if(!cv||!d||!PZ.sprites)return;const x=cv.getContext('2d');const {s,x:vx,y:vy}=PZ.view;const {pw,ph,off}=PZ.geo;const {w,h}=d.meta;
+ // One flat color, whatever each player picked — no wood texture, no frame, no border. It just lays flat like a real table.
+ x.setTransform(1,0,0,1,0,0);x.fillStyle=pzBoardHex();x.fillRect(0,0,cv.width,cv.height);x.setTransform(s,0,0,s,vx,vy);
+ if(PZ.preview){x.globalAlpha=0.28;x.drawImage(PZ.base,0,0,w,h);x.globalAlpha=1;}
+ // done layer (locked pieces)
+ pzRefreshDone();x.drawImage(PZ.doneLayer,0,0);
+ // viewport in board coords
+ const vx0=(-vx)/s,vy0=(-vy)/s,vx1=(cv.width-vx)/s,vy1=(cv.height-vy)/s;const m=Math.max(pw,ph);
+ const P=d.pieces;if(!PZ.order||PZ.order.length!==P.length)PZ.order=P.map(p=>p.i);
+ const meId=S.me?.id;
+ pzPaintHeldOverlay();const lifted=P[PZ.drag?.p??PZ.carry?.p??PZ.strip?.lift];
+ const inTray=PZ.strip&&PZ.strip.set||null;
+ for(const i of PZ.order){const pc=P[i];if(pc.l||pc.tray||(lifted&&pc.g===lifted.g))continue;/* Main tray is a catalog of the same board pieces; it never hides board artwork. */if(pc.x+pw+m<vx0||pc.x-m>vx1||pc.y+ph+m<vy0||pc.y-m>vy1)continue;
+  const held=pzHeldByOther(pc);const dim=PZ.edges&&!pzIsEdge(pc);
+  if(dim)x.globalAlpha=0.22;
+  if(pc.h===meId||held){x.shadowColor='rgba(0,0,0,.5)';x.shadowBlur=16;x.shadowOffsetY=6;}
+  x.drawImage(pzSprite(i),pc.x-off,pc.y-off,pw+2*off,ph+2*off);
+  x.shadowColor='transparent';x.shadowBlur=0;x.shadowOffsetY=0;x.globalAlpha=1;
+  if(held){const p=PZ.people[pc.h];x.strokeStyle='#ffd166';x.lineWidth=3/s;x.strokeRect(pc.x,pc.y,pw,ph);if(p&&s*pw>28){x.font=`bold ${Math.max(11/s,pw*0.18)}px Nunito`;x.fillStyle='#ffd166';x.strokeStyle='rgba(0,0,0,.6)';x.lineWidth=3/s;x.strokeText(p.name,pc.x,pc.y-5/s);x.fillText(p.name,pc.x,pc.y-5/s);}}}
+ pzDrawPuzzleBoundary(x,w,h,s);
+ const now=Date.now();PZ.sparks=PZ.sparks.filter(k=>now-k.at<800);for(const k of PZ.sparks){const t=(now-k.at)/800;x.globalAlpha=1-t;x.strokeStyle='#ffe9a8';x.lineWidth=3/s;x.beginPath();x.arc(k.x,k.y,Math.min(pw,ph)*(0.3+t*1.2),0,Math.PI*2);x.stroke();x.globalAlpha=1;}
+ if(PZ.hintPulse){const pc=P[PZ.hintPulse.p];const t=(now-PZ.hintPulse.at)/1000;if(t>6||pc.l)PZ.hintPulse=null;else{x.save();x.strokeStyle='#ffe066';x.lineWidth=(4+Math.sin(t*8)*2)/s;x.shadowColor='#ffe066';x.shadowBlur=18;x.strokeRect(pc.x-6/s,pc.y-6/s,pw+12/s,ph+12/s);x.restore();}}
+ for(const [id,c] of Object.entries(PZ.cursors)){if(now-c.at>6000)continue;const p=PZ.people[id];if(!p||+id===meId)continue;const r=13/s*PZ.dpr;x.beginPath();x.arc(c.x,c.y,r,0,Math.PI*2);x.fillStyle='rgba(255,209,102,.92)';x.fill();x.strokeStyle='#123';x.lineWidth=2/s;x.stroke();const img=PZ.avImg(p.avatar);if(img)x.drawImage(img,c.x-r*0.8,c.y-r*0.8,r*1.6,r*1.6);x.font=`bold ${13/s*PZ.dpr}px Nunito`;x.fillStyle='#fff';x.strokeStyle='rgba(0,0,0,.65)';x.lineWidth=3/s;x.strokeText(p.name,c.x+r+4/s,c.y+5/s);x.fillText(p.name,c.x+r+4/s,c.y+5/s);}
+}
+function pzStripPieces(){
+ const d=PZ.data;if(!d)return [];
+ const {w,h}=d.meta,pw=PZ.geo?.pw||0,ph=PZ.geo?.ph||0;
+ const offBoard=q=>q.x+pw*0.5<0||q.x+pw*0.5>w||q.y+ph*0.5<0||q.y+ph*0.5>h;
+ // Surface ONE tray entry per loose group sitting off the picture — singles AND joined chunks —
+ // so a piece (or a joined pair) can never hide off the edge. Lifting the entry brings its whole chunk.
+ const membersOf={};for(const q of d.pieces)if(!q.l&&!q.tray)(membersOf[q.g]=membersOf[q.g]||[]).push(q);
+ const seen=new Set(),out=[];
+ for(const q of d.pieces){
+  if(q.l||q.tray||PZ.strip.lift===q.i||seen.has(q.g))continue;
+  if(pzHeldByOther(q))continue;
+  const mem=membersOf[q.g]||[q];
+  if(mem.some(p=>p.h===S.me?.id||(p.onTable&&!p.catalogReady)))continue;
+  // Off-picture and table groups share one main-tray catalog entry and one piece identity.
+  seen.add(q.g);out.push(q);
+ }
+ // Order the tray by where each piece actually sits, so Shuffle jumbles the tray,
+ // Tidy lines it up, and Sort-by-color groups it — the tray follows the table.
+ // Stable catalog order must not follow Tidy's new board coordinates.
+ if(!PZ.strip.catalogOrder){let saved=[];try{saved=JSON.parse(fixtureMemory.getItem('ohana_pz_catalog_'+PZ.id)||'[]');}catch{}PZ.strip.catalogOrder=Array.isArray(saved)?saved:[];}
+ const order=PZ.strip.catalogOrder;
+ for(const q of out.slice().sort((a,b)=>a.y-b.y||a.x-b.x||a.i-b.i))if(!order.includes(q.i))order.push(q.i);
+ out.sort((a,b)=>order.indexOf(a.i)-order.indexOf(b.i));
+ try{fixtureMemory.setItem('ohana_pz_catalog_'+PZ.id,JSON.stringify(order));}catch{}
+ return out;
+}
+
+function paintTray(){if(!PZ.data)return;const pieces=pzStripPieces();$('#fixture-tray').textContent=pieces.map(p=>p.i+(pzIsEdge(p)?' edge':'')).join(' · ')||'No catalog pieces';$('#fixture-sorting').textContent='Sorting tray: '+(PZ.data.pieces.filter(p=>p.tray).map(p=>p.i).join(', ')||'empty');}
+function pzIsEdge(p){return p.r===0||p.c===0||p.r===PZ.data.meta.rows-1||p.c===PZ.data.meta.cols-1;}
+function paint(){const cv=$('#pz-canvas');PZ.dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(cv.clientWidth*PZ.dpr);cv.height=Math.round(cv.clientHeight*PZ.dpr);pzFitTidiedPieces();pzDraw();paintTray();}
+function audit(){const changed=PZ.data.pieces.filter((p,i)=>JSON.stringify(p)!==JSON.stringify(baseline.pieces[i]));const lockedChanged=baseline.pieces.filter(p=>p.l).filter(p=>JSON.stringify(p)!==JSON.stringify(PZ.data.pieces[p.i])).length,groupChanged=baseline.pieces.filter(p=>p.g===66).filter(p=>JSON.stringify(p)!==JSON.stringify(PZ.data.pieces[p.i])).length;$('#fixture-audit').textContent='Fictional edges deployed: '+eligible.filter(i=>PZ.data.pieces[i].onTable&&!PZ.data.pieces[i].catalogReady&&!PZ.data.pieces[i].tray).length+' / '+eligible.length+' · Locked pieces changed: '+lockedChanged+' · Joined pieces changed: '+groupChanged+' · Shared progress changed: '+(JSON.stringify(server.stats)!==JSON.stringify(baseline.stats))+' · RAM protocol messages: '+broadcasts.length;}
+function reset(){const d=makeData(),stats={7:{name:'Fixture player',placed:1,joins:2}};queue=[];broadcasts=[];saves=0;server={meta:structuredClone(d.meta),pieces:structuredClone(d.pieces),stats:structuredClone(stats),trays:[{id:1}],people:()=>[],scheduleSave(){saves++;},broadcast:m=>broadcasts.push(structuredClone(m)),ctx:{storage:{put:()=>Promise.resolve()}},announceDone:()=>Promise.resolve()};PZ.data=d;PZ.strip.catalogOrder=[];PZ.order=null;baseline={pieces:structuredClone(d.pieces),stats:structuredClone(stats)};eligible=pzEdgeDeploymentPlan(d).moves.map(m=>m.i);$('#fixture-message').textContent='Fictional pieces only. Boundary is visible before deploying.';paint();audit();}
+$('#fixture-deploy').onclick=()=>{queue=[];pzGatherEdges();for(const message of queue){const reply=fixtureServerHandle.call(server,{id:7,name:'Fixture player',avatar:''},message,null);if(reply)broadcasts.push(reply);}PZ.data.pieces=structuredClone(server.pieces);PZ.order=null;paint();audit();};$('#fixture-reset').onclick=reset;window.addEventListener('resize',paint);reset();
+</script></body></html>
