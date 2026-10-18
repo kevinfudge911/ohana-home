@@ -6670,6 +6670,7 @@ function renderColorBook(){
   ${mine.length?`<h3 class="shelf">My surprise pages<small>pick up where you left off</small></h3><div class="cb-mine">${mine.map(p=>`<button class="soft" data-cb-page="${p.id}">🖍 ${esc(p.name)}</button>`).join('')}</div>`:''}
   <h3 class="shelf">Island pictures<small>classic pages</small></h3><div class="cb-pages">${CB_PAGES.map(p=>`<button class="cb-page" data-cb-page="${p.id}" aria-label="Color ${esc(p.name)}">${cbSvg(p.id,cbFillsOf(p.id))}<b>${esc(p.name)}</b>${cbHasWork(p.id)?'<small>✎ in progress</small>':''}</button>`).join('')}</div></div></section>`;
   $('#cb-back').onclick=closeColorBook;$('#cb-surprise').onclick=cbSurprise;
+  mountRoomNext(m.querySelector('.journey-room-heading'),()=>closeColorBook());
   m.querySelectorAll('[data-cb-page]').forEach(b=>b.onclick=()=>{b.disabled=true;openColorBook(b.dataset.cbPage);});
   return;
  }
@@ -11147,8 +11148,8 @@ function renderGranny(force=false){
  if(!force&&document.getElementById('gr-main')){grStatus();return;}
  const oldRoot=document.getElementById('gr-main'),oldV=document.getElementById('gr-viewport'),oldScroll=oldV?{key:oldRoot?.dataset.record,x:oldV.scrollLeft,y:oldV.scrollTop}:null;
  const p=grPrefs(),r=grRecord();if(Number.isInteger(p.theme))GR.theme=p.theme;if(!p.bookLayout){p.text=Math.max(26,+p.text||26);if(r&&r.state.kind!=='wordmix'){const d=grDefinition();p.cell=Math.max(48,Math.min(72,Math.floor(Math.min((app.clientWidth-64)/d.rows[0].length,(window.innerHeight-360)/d.rows.length))));}p.bookLayout=true;grDirty('preferences');}const readableCell=grReadableCell(p.cell);if(p.cell!==readableCell){p.cell=readableCell;grDirty('preferences');}if(p.defaultCell&&p.defaultCell!==grReadableCell(p.defaultCell)){p.defaultCell=grReadableCell(p.defaultCell);grDirty('preferences');}const text=Math.max(18,Math.min(72,Number(p.text)||22));const cell=grReadableCell(p.cell);
- app.innerHTML=`<div id="gr-main" data-record="${GR.record||''}" class="gr-root ${p.contrast==='dark'?'gr-dark':''}" style="--gr-text:${text}px;--gr-cell:${cell}px"><header class="gr-header">${roomHomeControl('data-gr-exit')}<h1>Ohana Granny’s</h1>${roomBackControl('data-gr-back '+(r?'':'hidden'),'Back to Granny puzzles')}</header>${r?`<main class="gr-playing gr-playing-${r.state.kind}"><div class="gr-puzzle-heading"><h2>${esc(GR_CATALOG[r.state.theme].title)}</h2><span>${esc(grKinds[r.state.kind])} · <span id="gr-progress">${esc(grProgress(r))}</span></span></div>${r.state.kind==='crossword'?grCrossword():r.state.kind==='wordfind'?grWordFind():grMix()}</main>`:`<main>${grHub()}</main>`}<footer id="gr-workstation" class="gr-workspace ohana-workstation">${r?grTools():'<button data-gr-settings aria-label="Puzzle settings">⚙</button>'}<p id="gr-feedback" role="status" aria-live="polite">${esc(GR.feedback|| (r?.state.finished?'Well done! Your puzzle is finished.':''))}</p><div class="gr-save-row dock-player">${worldPortrait(S.me.id).replace(/<\/div>$/,'<small id="gr-save" role="status">'+esc(GR.status)+'</small><button id="gr-retry" hidden>Retry</button></div>')}</div></footer></div>`;
- app.querySelector('[data-gr-exit]').onclick=closeGranny;app.querySelector('[data-gr-back]').onclick=()=>r?grToHub():closeGranny();
+ app.innerHTML=`<div id="gr-main" data-record="${GR.record||''}" class="gr-root ${p.contrast==='dark'?'gr-dark':''}" style="--gr-text:${text}px;--gr-cell:${cell}px"><header class="gr-header">${roomHomeControl('data-gr-exit')}<h1>${r?esc(grKinds[r.state.kind])+' · ':''}Ohana Granny’s</h1></header>${r?`<main class="gr-playing gr-playing-${r.state.kind}"><div class="gr-puzzle-heading"><h2>${esc(GR_CATALOG[r.state.theme].title)}</h2><span>${esc(grKinds[r.state.kind])} · <span id="gr-progress">${esc(grProgress(r))}</span></span></div>${r.state.kind==='crossword'?grCrossword():r.state.kind==='wordfind'?grWordFind():grMix()}</main>`:`<main>${grHub()}</main>`}<footer id="gr-workstation" class="gr-workspace ohana-workstation">${r?grTools():'<button data-gr-settings aria-label="Puzzle settings">⚙</button>'}<p id="gr-feedback" role="status" aria-live="polite">${esc(GR.feedback|| (r?.state.finished?'Well done! Your puzzle is finished.':''))}</p><div class="gr-save-row dock-player">${worldPortrait(S.me.id).replace(/<\/div>$/,'<small id="gr-save" role="status">'+esc(GR.status)+'</small><button id="gr-retry" hidden>Retry</button></div>')}</div></footer></div>`;
+ app.querySelector('[data-gr-exit]').onclick=closeGranny;mountRoomNext(app.querySelector('.gr-header'),()=>closeGranny());
  app.querySelector('[data-gr-settings]').onclick=grSettings;app.querySelector('[data-gr-home]')?.addEventListener('click',grToHub);
  app.querySelector('#gr-retry').onclick=()=>GR.conflict?grConflict():grLoad();
  app.querySelectorAll('[data-new]').forEach(b=>b.onclick=()=>grNew(b.dataset.new));app.querySelectorAll('[data-resume]').forEach(b=>b.onclick=()=>grOpen(b.dataset.resume));
@@ -11297,6 +11298,7 @@ function render() {
   if(logo){logo.style.cursor='pointer';logo.setAttribute('role','button');logo.setAttribute('tabindex','0');logo.onclick=goHomePorch;logo.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();goHomePorch();}};}
   updatePushControls();
   mountCoordinatedUnitedHeader();
+  if(S.tab==='faith')mountRoomNext(app.querySelector(':scope>header'));
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
   if(S.tab==='chat'){S.tab='family';openChatInbox();}
   if (S.tab === 'games') { if (S.colorBook) renderColorBook(); else if (PZ.lobby) renderPuzzleLobby(); else renderGames(); } else if(S.tab==='rooms')renderRooms(); else if(S.tab==='faith')renderFaithRoom(); else if(S.tab==='settings')renderSettings(); else renderFamily();
@@ -11403,6 +11405,7 @@ function showGameSetup(id='words',profileMember=null){
  d.innerHTML='<header>'+roomHomeControl('data-setup-home')+'<h2 id="game-setup-title">'+esc(S.sync.types[id].name)+'</h2>'+roomBackControl('data-words-back')+'</header>'+gameSetupCard(id,S.sync,true);
  d.querySelector('.setup-options').open=true;d.querySelector('[data-setup-home]').onclick=()=>{d.close();goHomePorch();};
  d.querySelector('[data-words-back]').onclick=()=>d.close();d.addEventListener('close',()=>d.remove());
+ mountRoomDialogNavigation(d,d.querySelector('[data-words-back]'),'Back to game room');
  document.body.append(d);bindGameSetups(d);d.showModal();
 }
 function showSetupInvite(id,cfg){
@@ -11412,6 +11415,7 @@ function showSetupInvite(id,cfg){
  const mode=id==='words'?(cfg.mode==='random'?'Random Random board':'Classic board'):id==='domino'?({draw:'Draw',block:'Block',allfives:'All Fives',mexican:'Mexican Train',chicken:'Chicken Foot',double15:'Double 15'})[cfg.mode]:'';
  d.innerHTML=`<header>${roomHomeControl('data-setup-home')}<h2 id="game-setup-title">Invite to ${esc(type.name)}</h2>${roomBackControl('data-setup-back')}</header><p class="setup-invite-context">${esc(room?.name||S.sync.familyName)}${mode?' · '+esc(mode):''} · ${cfg.players} players</p><p>Choose up to ${Math.max(1,cfg.players-1)} ${cfg.players===2?'person':'people'} to join your table.</p><div class="invite-people setup-invite-people" role="group" aria-label="Choose players">${people.map(m=>`<label class="invite-person"><input type="checkbox" value="${m.id}"><span class="invite-character">${avatarMarkup(m.avatar)}</span><strong>${esc(m.name)}</strong><span class="invite-selection" aria-hidden="true">✓</span></label>`).join('')}</div><p class="invite-error" role="status" aria-live="polite"></p><p class="setup-invite-count" role="status">0 selected</p><div class="setup-invite-actions"><button type="button" data-setup-send disabled>Invite</button><button type="button" data-setup-close>Close</button></div>`;
  d.querySelector('[data-setup-home]').onclick=()=>{d.close();goHomePorch();};d.querySelector('[data-setup-back]').onclick=()=>{const person=d.dataset.profileMember;d.close();showGameSetup(id,person);};d.querySelector('[data-setup-close]').onclick=()=>d.close();
+ mountRoomDialogNavigation(d,d.querySelector('[data-setup-back]'),'Back to setup');
  const selected=()=>[...d.querySelectorAll('.invite-person input:checked')].map(x=>Number(x.value));
  d.querySelectorAll('.invite-person input').forEach(input=>input.onchange=()=>{const ids=selected(),over=ids.length>Math.max(1,cfg.players-1);d.querySelector('.setup-invite-count').textContent=ids.length+' selected';d.querySelector('[data-setup-send]').disabled=!ids.length||over;d.querySelector('.invite-error').textContent=over?'Choose fewer people or go Back to add seats.':'';});
  const profileChoice=d.dataset.profileMember&&d.querySelector('.invite-person input[value="'+Number(d.dataset.profileMember)+'"]');if(profileChoice){profileChoice.checked=true;profileChoice.onchange();}
@@ -14978,13 +14982,43 @@ async function goToNextGame(){
  }catch(e){toast(e.message||'Could not check your next game. Please try again.');}
  finally{S.nextGamePending=false;document.getElementById('next-game')?.removeAttribute('disabled');}
 }
+let roomNextPending=false;
+function refreshRoomNextControls(){
+ const current=typeof S.game==='object'?S.game?.id:S.game;
+ const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
+ for(const button of document.querySelectorAll('[data-room-next]')){
+  if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');button.title=count?'Another table is ready for you':'No other turns waiting';}
+  button.disabled=!!(roomNextPending||S.nextGamePending||S.autoAdvancePending||S.movePending);
+ }
+}
+function mountRoomNext(header,before){
+ if(!header||header.querySelector('[data-room-next]'))return;
+ const button=document.createElement('button');button.type='button';button.dataset.roomNext='';
+ button.style.cssText='display:inline-flex!important;align-items:center!important;justify-content:center!important;grid-column:3!important;grid-row:1!important;width:48px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;margin:0!important;background:none!important;border:0!important;box-shadow:none!important;position:static!important';
+ button.onclick=async()=>{
+  if(roomNextPending||S.nextGamePending||S.autoAdvancePending||S.movePending)return;
+  roomNextPending=true;refreshRoomNextControls();
+  try{if(before)await before();await goToNextGame();}
+  catch(e){toast(e.message||'Could not open your next game. Please try again.');}
+  finally{roomNextPending=false;refreshRoomNextControls();}
+ };
+ header.append(button);refreshRoomNextControls();
+}
+function mountRoomDialogNavigation(dialog,back,label){
+ if(back){back.classList.add('room-context-back');back.removeAttribute('style');back.textContent=label;back.setAttribute('aria-label',label);back.title=label;dialog.append(back);}
+ mountRoomNext(dialog.querySelector('header'),()=>{
+  if(typeof window.ohanaCloseOverlayForNext!=='function')throw Error('Navigation is still opening. Please try again.');
+  return window.ohanaCloseOverlayForNext(dialog);
+ });
+}
 function updateNextGameAlert(){
+ refreshRoomNextControls();
  const button=document.getElementById('next-game');if(!button)return;
  const current=typeof S.game==='object'?S.game?.id:S.game;
  const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
  button.classList.toggle('next-ready',count>0);
  button.innerHTML=gameControlIcon('next',count);
- button.setAttribute('aria-label','Your turn, '+count+' other games waiting for your move. Go to the next game.');
+ button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');
  button.title=count?'Another table is ready for you':'No other turns waiting';
 }
 function addNextGameControl(){
@@ -16304,7 +16338,15 @@ const clean=()=>{const d=document.querySelector('#ohana-chat-dialog');if(!d?.ope
 :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board [data-sp-confirm-bid]{scroll-margin-block-start:calc(var(--ohana-game-header-space,96px) + 12px)!important;scroll-margin-block-end:12px!important}
 :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-bidbar{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(44px,1fr))!important;gap:5px!important;width:100%!important;min-width:0!important;max-width:620px!important;box-sizing:border-box!important}
 :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-bidbar button{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;letter-spacing:normal!important;min-width:44px!important;max-width:none!important;width:100%!important;min-height:48px!important;padding:6px 2px!important;font:800 23px/1.2 Fredoka,Nunito,sans-serif!important;box-sizing:border-box!important}
-}</style></body>
+}</style><style id="ohana-room-next-navigation">
+@layer ohanaApproved{
+:root.ohana-world body [data-room-next] svg{display:block!important;width:44px!important;height:33px!important;max-width:none!important;max-height:none!important}
+:root.ohana-world body dialog :is(.room-context-back){display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:44px!important;min-height:44px!important;margin:12px 8px 4px!important;padding:4px 8px!important;background:none!important;border:0!important;box-shadow:none!important;font:700 17px/1.3 Nunito,sans-serif!important;text-decoration:underline!important;text-underline-offset:4px!important;color:#fff4d6!important}
+:root.ohana-world body [data-room-next]:focus-visible{outline:2px solid #ffe395!important;outline-offset:3px!important}
+}
+</style>
+<script id="ohana-room-next-count-refresh">new MutationObserver(()=>refreshRoomNextControls()).observe(document.body,{subtree:true,childList:true});</script>
+</body>
 </html>
 
 <style id="ohana-v59-coloring-contrast">
@@ -17801,7 +17843,7 @@ let queued=false;const queue=()=>{if(queued)return;queued=true;requestAnimationF
 #ohana-bible-reader::backdrop{background:#1d211dcc}#ohana-bible-reader header{display:flex;align-items:center;gap:8px;margin-bottom:18px}#ohana-bible-reader header h2{margin:0 0 0 auto;font:700 22px Fredoka,Nunito,sans-serif;text-align:right}#ohana-bible-reader header button{background:none;border:0;border-radius:0;box-shadow:none;color:#503c27;min-height:44px;font:700 17px Nunito,sans-serif}#ohana-bible-reader .room-home-control{display:flex;align-items:center;width:180px;min-height:44px;padding:0;background:none;border:0}#ohana-bible-reader .room-home-wordmark{display:block;width:145px;height:44px;background:var(--ohana-logo) center/contain no-repeat;font-size:0}#ohana-bible-reader .room-home-arrow{font-size:26px}#ohana-bible-reader .bible-reader-note{font:400 14px Georgia,serif;text-align:center;margin:0 0 22px}#ohana-bible-reader .bible-reader-leaves{columns:2;column-gap:48px;column-rule:1px solid #a9906155}#ohana-bible-reader article{break-inside:avoid;margin:0 0 24px}#ohana-bible-reader h3{font:400 19px/1.25 Georgia,serif!important;color:#211a12!important;text-shadow:none!important;margin:0 0 7px}#ohana-bible-reader p{font:400 18px/1.55 Georgia,'Times New Roman',serif;margin:0;color:#211a12}#ohana-bible-reader sup{font-size:11px;vertical-align:super;line-height:0}@media(max-width:600px){#ohana-bible-reader{padding:12px 16px}#ohana-bible-reader .bible-reader-leaves{columns:1}#ohana-bible-reader header h2{font-size:19px}#ohana-bible-reader .room-home-control{width:155px}#ohana-bible-reader p{font-size:18px}}
 @media(max-width:600px){:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page{padding:1px 3px!important;gap:1px!important;height:31%!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page p{font-size:5.5px!important;line-height:1.05!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page h3{font-size:6px!important;margin-bottom:1px!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page .bible-selection-label{font-size:4.5px!important;margin-bottom:1px!important}}@media(max-width:600px){:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page p.bible-verse-long{font-size:4.8px!important;line-height:1.05!important}}</style>
 <script id="ohana-bible-reader-v3">(()=>{
-function open(){if(document.getElementById('ohana-bible-reader'))return;const before=document.activeElement,d=document.createElement('dialog');d.id='ohana-bible-reader';d.setAttribute('aria-labelledby','ohana-bible-reader-title');d.innerHTML='<header>'+roomHomeControl('data-bible-home')+'<h2 id="ohana-bible-reader-title">Ohana Bible</h2>'+roomBackControl('data-bible-back')+'</header><p class="bible-reader-note">Selected scriptures · New King James Version (NKJV)<br>Individual verses from different books, gathered for encouragement.</p><div class="bible-reader-leaves">'+OHANA_ENTRANCE_NKJV.map(v=>{const m=v.r.match(/^(.*) (\d+):(\d+)$/);return '<article><h3>'+esc(m?.[1]||v.r)+'</h3><p><sup>'+esc(m?m[2]+':'+m[3]:'')+'</sup> '+esc(v.v)+'</p></article>';}).join('')+'</div>';d.querySelector('[data-bible-back]').onclick=()=>d.close();d.querySelector('[data-bible-home]').onclick=()=>{d.close();goHomePorch()};d.onclose=()=>{d.remove();before?.isConnected&&before.focus({preventScroll:true})};document.body.append(d);d.showModal();d.querySelector('h2').tabIndex=-1;d.querySelector('h2').focus()}
+function open(){if(document.getElementById('ohana-bible-reader'))return;const before=document.activeElement,d=document.createElement('dialog');d.id='ohana-bible-reader';d.setAttribute('aria-labelledby','ohana-bible-reader-title');d.innerHTML='<header>'+roomHomeControl('data-bible-home')+'<h2 id="ohana-bible-reader-title">Ohana Bible</h2>'+roomBackControl('data-bible-back')+'</header><p class="bible-reader-note">Selected scriptures · New King James Version (NKJV)<br>Individual verses from different books, gathered for encouragement.</p><div class="bible-reader-leaves">'+OHANA_ENTRANCE_NKJV.map(v=>{const m=v.r.match(/^(.*) (\d+):(\d+)$/);return '<article><h3>'+esc(m?.[1]||v.r)+'</h3><p><sup>'+esc(m?m[2]+':'+m[3]:'')+'</sup> '+esc(v.v)+'</p></article>';}).join('')+'</div>';d.querySelector('[data-bible-back]').onclick=()=>d.close();d.querySelector('[data-bible-home]').onclick=()=>{d.close();goHomePorch()};mountRoomDialogNavigation(d,d.querySelector('[data-bible-back]'),'Close Bible');d.onclose=()=>{d.remove();before?.isConnected&&before.focus({preventScroll:true})};document.body.append(d);d.showModal();d.querySelector('h2').tabIndex=-1;d.querySelector('h2').focus()}
 document.addEventListener('click',e=>{if(e.target.closest('[data-open-entry-bible]'))open()});document.addEventListener('keydown',e=>{if(e.target.closest('[data-open-entry-bible]')&&['Enter',' '].includes(e.key)){e.preventDefault();open()}});
 })();</script>
 
@@ -17893,6 +17935,18 @@ function addHome(d){
 }
 function finishClose(d,token){if(d.dataset.ohanaNavigationOpen!=='true')return;if(d.dataset.ohanaNavigationToken!==token)return;d.dataset.ohanaNavigationOpen='false';entries.delete(token);homeObservers.get(d)?.disconnect();homeObservers.delete(d);if(token&&!handling&&marker(history.state)===token)queueMicrotask(()=>{if(marker(history.state)===token)history.back();});}
 function register(d){if(!d.open)return;if(d.dataset.ohanaNavigationOpen==='true'){refreshHome(d);return;}refreshHome(d);const localObserver=new MutationObserver(()=>refreshHome(d));localObserver.observe(d,{childList:true,subtree:true});homeObservers.set(d,localObserver);const token='overlay-'+Date.now().toString(36)+'-'+(++serial);d.dataset.ohanaNavigationOpen='true';d.dataset.ohanaNavigationToken=token;entries.set(token,d);if(!d.dataset.ohanaNavigationCancelBound){d.dataset.ohanaNavigationCancelBound='true';d.addEventListener('close',()=>{if(!d.open)finishClose(d,d.dataset.ohanaNavigationToken);});d.addEventListener('cancel',event=>{if(!d.open||d.dataset.ohanaNavigationOpen!=='true')return;event.preventDefault();d.close();});}const prior=history.state&&typeof history.state==='object'?history.state:{};history.pushState({...prior,ohanaOverlayNav:token},'',location.href);}
+window.ohanaCloseOverlayForNext=function(d){
+ const token=d.dataset.ohanaNavigationToken;
+ if(!d.open)return Promise.resolve();
+ if(!token||marker(history.state)!==token){d.close();return new Promise(resolve=>setTimeout(resolve,0));}
+ return new Promise((resolve,reject)=>{
+  let timer;
+  const settled=()=>{if(marker(history.state)===token)return;clearTimeout(timer);window.removeEventListener('popstate',settled);setTimeout(resolve,0);};
+  window.addEventListener('popstate',settled);
+  timer=setTimeout(()=>{window.removeEventListener('popstate',settled);reject(Error('The previous page is still closing. Please try Next again from the room.'));},4000);
+  try{d.close();}catch(e){clearTimeout(timer);window.removeEventListener('popstate',settled);reject(e);}
+ });
+};
 HTMLDialogElement.prototype.showModal=function(...args){const wasOpen=this.open,result=nativeShow.apply(this,args);if(!wasOpen)register(this);return result;};
 if(nativePlainShow)HTMLDialogElement.prototype.show=function(...args){const wasOpen=this.open,result=nativePlainShow.apply(this,args);if(!wasOpen)register(this);return result;};
 HTMLDialogElement.prototype.close=function(...args){const token=this.dataset.ohanaNavigationToken,result=nativeClose.apply(this,args);finishClose(this,token);return result;};
