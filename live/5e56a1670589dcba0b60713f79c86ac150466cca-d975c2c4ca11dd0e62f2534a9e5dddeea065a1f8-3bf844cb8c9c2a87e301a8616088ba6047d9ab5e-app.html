@@ -5853,7 +5853,7 @@ html.ohana-world body #app #faith button.ohana-button::after{display:none!import
 :root.ohana-world body #app #game #game-head#game-head#game-head#game-head#game-head#game-head>#gb-back{min-width:44px!important;min-height:44px!important;background:none!important;border:0!important;box-shadow:none!important}
 </style>
 <style id="ohana-puzzle-header-title-only">@layer ohanaApproved{#app>header[data-puzzle-coordinated-header=lobby] .room-current-heading h1{font:inherit!important;text-align:left!important;margin:0!important;padding:0!important;white-space:normal!important}#pz-board .pz-head[data-puzzle-coordinated-header] .game-control-icon{width:24px!important;height:24px!important;min-width:24px!important;flex-shrink:0!important}#pz-board .pz-head[data-puzzle-coordinated-header] #pz-next-game .next-count{display:inline!important;position:static!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-width:0!important;font:700 14px/1 Nunito,sans-serif!important;color:inherit!important}}</style>
-<style id="ohana-edge-finder-style">#pz-board.pz-locating-edge #pz-float-layer{visibility:hidden;pointer-events:none}.pz-edge-list{max-height:50dvh;overflow:auto}.pz-edge-row{padding:12px 0;border-bottom:1px solid #547ca2}.pz-edge-row span{display:block}.pz-edge-row button{min-height:44px}</style></head>
+<style id="ohana-edge-finder-style">#pz-board.pz-locating-edge #pz-float-layer{visibility:hidden;pointer-events:none}:root.ohana-world body #app #pz-board#pz-board .pz-float-pieces button.pz-located-piece{outline:3px solid #fff0bb!important;outline-offset:-4px;box-shadow:inset 0 0 0 6px #172b32!important}.pz-edge-list{max-height:50dvh;overflow:auto}.pz-edge-row{padding:12px 0;border-bottom:1px solid #547ca2}.pz-edge-row span{display:block}.pz-edge-row button{min-height:44px}</style></head>
 <body>
 <div id="app"></div>
 <script>
@@ -7050,7 +7050,7 @@ function pzPaintTrays(){if(document.querySelector('.pz-float-tray[data-pinching=
  const scrollPositions=new Map([...layer.querySelectorAll('.pz-float-tray')].map(el=>[+el.dataset.tray,el.querySelector('.pz-float-pieces')?.scrollTop||0]));
  layer.innerHTML='';dock.innerHTML='';
  for(const tray of PZ.trays){const pieces=PZ.data.pieces.filter(q=>q.tray===tray.id&&!q.l);
-  const number=PZ.trays.indexOf(tray)+1,chip=document.createElement('button');chip.textContent='Tray '+number+' · '+pieces.length;chip.title=tray.name;chip.setAttribute('aria-label',(tray.docked?'Open ':'Minimize ')+'Tray '+number+', '+pieces.length+' pieces');chip.setAttribute('aria-pressed',String(!tray.docked));chip.onclick=()=>pzSend({t:'tray-update',id:tray.id,docked:!tray.docked});dock.append(chip);if(tray.docked)continue;
+  const number=PZ.trays.indexOf(tray)+1,edgeCount=pieces.filter(pzIsEdge).length,edgeLabel=edgeCount?' · '+edgeCount+' edge'+(edgeCount===1?'':'s'):'',chip=document.createElement('button');chip.textContent='Tray '+number+' · '+pieces.length+edgeLabel;chip.title=tray.name;chip.setAttribute('aria-label',(tray.docked?'Open ':'Minimize ')+'Tray '+number+', '+pieces.length+' pieces'+(edgeCount?', '+edgeCount+' edge'+(edgeCount===1?'':'s'):''));chip.setAttribute('aria-pressed',String(!tray.docked));chip.onclick=()=>pzSend({t:'tray-update',id:tray.id,docked:!tray.docked});dock.append(chip);if(tray.docked)continue;
   const expanded=PZ_TRAY_EXPANDED.has(tray.id),zoom=PZ_TRAY_ZOOM.get(tray.id)||1,pieceSize=pzSortingPieceSize(zoom);
   const el=document.createElement('section');el.className='pz-float-tray'+(expanded?' expanded':'');el.dataset.tray=tray.id;el.style.setProperty('--tray-color',tray.color||PZ_TRAY_COLORS[0]);el.style.setProperty('--pz-tray-piece',pieceSize+'px');el.setAttribute('aria-label',tray.name+' puzzle tray');el.style.setProperty('--sorting-width',Math.min(640,Math.max(expanded?520:400,Math.ceil(Math.sqrt(Math.max(10,pieces.length)*1.7))*(pieceSize+8)+64))+'px');el.style.setProperty('--sorting-rows',String(Math.max(2,Math.ceil(pieces.length/5))));
   el.innerHTML='<div class="pz-float-head"><strong>'+esc(tray.name)+'</strong><button data-act="zoom-out" data-icon="−" title="Zoom out pieces" aria-label="Zoom out '+esc(tray.name)+' pieces" '+(zoom<=.65?'disabled':'')+'></button><button data-act="zoom-in" data-icon="+" title="Zoom in pieces" aria-label="Zoom in '+esc(tray.name)+' pieces" '+(zoom===2.5?'disabled':'')+'></button><button data-act="expand" data-icon="'+(expanded?'↙':'⤢')+'" title="'+(expanded?'Shrink':'Enlarge')+' tray" aria-label="'+(expanded?'Shrink':'Enlarge')+' '+esc(tray.name)+' tray"></button><button data-act="options" data-icon="◉" title="Tray colors, size and options" aria-label="Colors, size and options for '+esc(tray.name)+'"></button></div><div class="pz-float-pieces"></div>';
@@ -7068,6 +7068,7 @@ function pzPaintTrays(){if(document.querySelector('.pz-float-tray[data-pinching=
   head.onpointerup=()=>{if(!drag)return;drag=null;tray.x=el.offsetLeft/stage.clientWidth;tray.y=el.offsetTop/stage.clientHeight;pzSend({t:'tray-update',id:tray.id,x:tray.x,y:tray.y});};head.onpointercancel=head.onpointerup;
   head.onkeydown=e=>{const step={ArrowLeft:[-24,0],ArrowRight:[24,0],ArrowUp:[0,-24],ArrowDown:[0,24]}[e.key];if(!step)return;e.preventDefault();tray.x=Math.max(0,Math.min(0.85,(el.offsetLeft+step[0])/stage.clientWidth));tray.y=Math.max(0,Math.min(0.85,(el.offsetTop+step[1])/stage.clientHeight));place();pzSend({t:'tray-update',id:tray.id,x:tray.x,y:tray.y});};
  }
+ pzRevealLocatedTrayPiece();
 }
 function pzPutInTray(pc,id){if(!pc||pc.l)return;PZ.carry=null;if(id===0){PZ.drag=null;PZ.strip.lift=null;pzSend({t:'tray-return',p:pc.i});return;}if(pc.tray===id)return;pzSend({t:'tray-add',p:pc.i,id});}
 function pzTakeFromTray(i,x,y){const pc=PZ.data?.pieces[i];if(!pc||!pc.tray)return;const {pw,ph}=PZ.geo;const dx=x-pw/2-pc.x,dy=y-ph/2-pc.y;
@@ -7145,10 +7146,24 @@ function puzzleEdgeInventory(data,trays=[],view=null,geo=null,order=null,context
  }
  const missingIds=[];for(let i=0;i<m.rows*m.cols;i++)if(!ids.has(i))missingIds.push(i+1);edges.sort((a,b)=>a.number-b.number);return {expected,present:cells.size,locked:[...cells.values()].filter(a=>a.some(q=>q.l)).length,missing,duplicate,missingIds,edges};
 }
-function pzClearEdgeLocate(){clearTimeout(PZ.edgeLocateTimer);PZ.edgeLocateTimer=null;PZ.edgeLocate=null;document.getElementById('pz-board')?.classList.remove('pz-locating-edge');PZ.needDraw=true;}
+function pzClearTrayLocate(){clearTimeout(PZ.trayLocateTimer);PZ.trayLocateTimer=null;PZ.trayLocate=null;document.querySelectorAll('.pz-located-piece').forEach(el=>el.classList.remove('pz-located-piece'));}
+function pzRevealLocatedTrayPiece(){
+ const target=PZ.trayLocate;if(!target||target.puzzle!==PZ.id)return;
+ const q=PZ.data?.pieces[target.id];if(!q||q.l||q.tray!==target.tray){pzClearTrayLocate();return;}
+ const el=document.querySelector('.pz-float-tray[data-tray="'+target.tray+'"] [data-piece="'+target.id+'"]');if(!el)return;
+ el.classList.add('pz-located-piece');
+ if(!target.focused){target.focused=true;el.scrollIntoView({block:'nearest',inline:'nearest'});el.focus({preventScroll:true});clearTimeout(PZ.trayLocateTimer);PZ.trayLocateTimer=setTimeout(pzClearTrayLocate,6000);pzToast('Piece '+(q.i+1)+' highlighted in '+target.name+'. No pieces moved.');}
+}
+function pzLocateTrayPiece(q){
+ const tray=PZ.trays.find(t=>t.id===q.tray);if(!tray){pzToast('Piece '+(q.i+1)+' belongs to an unavailable sorting tray. Its data has been left unchanged.');return;}
+ pzClearEdgeLocate();PZ.trayLocate={puzzle:PZ.id,id:q.i,tray:tray.id,name:tray.name,focused:false};
+ PZ.trayLocateTimer=setTimeout(()=>{const waiting=PZ.trayLocate&&!PZ.trayLocate.focused;pzClearTrayLocate();if(waiting)pzToast('The tray has not opened yet. Check the puzzle connection and try Locate again.');},8000);
+ if(tray.docked){pzToast('Opening '+tray.name+' to show piece '+(q.i+1)+'…');pzSend({t:'tray-update',id:tray.id,docked:false});}else pzRevealLocatedTrayPiece();
+}
+function pzClearEdgeLocate(){pzClearTrayLocate();clearTimeout(PZ.edgeLocateTimer);PZ.edgeLocateTimer=null;PZ.edgeLocate=null;document.getElementById('pz-board')?.classList.remove('pz-locating-edge');PZ.needDraw=true;}
 function pzLocateEdge(id){
  const records=PZ.data?.pieces.filter(p=>p?.i===id)||[],q=records[0];if(records.length!==1||!Number.isInteger(id)||id<0||PZ.data.pieces[id]!==q){pzToast('This piece has an invalid or duplicate ID. Its data has been left unchanged.');return;}if(q.l){pzToast('That edge has already been placed.');return;}
- if(q.tray){const tray=PZ.trays.find(t=>t.id===q.tray),el=document.querySelector('.pz-float-tray[data-tray="'+q.tray+'"] [data-piece="'+q.i+'"]');if(el){el.scrollIntoView({block:'nearest',inline:'nearest'});el.focus();}pzToast('Piece '+(q.i+1)+' is in '+(tray?.name||'an unavailable sorting tray')+(tray?.docked?'. Open that tray to see it.':'.'));return;}
+ if(q.tray){pzLocateTrayPiece(q);return;}
  if(!Number.isFinite(q.x)||!Number.isFinite(q.y)){pzToast('This piece has an invalid saved position. Its data has been left unchanged.');return;}
  const cv=$('#pz-canvas');if(!cv||!PZ.geo)return;const {pw,ph}=PZ.geo;pzClearEdgeLocate();
  const strip=$('#pz-strip'),covered=strip&&!strip.hidden?Math.max(0,cv.getBoundingClientRect().bottom-strip.getBoundingClientRect().top)*(PZ.dpr||1):0,visibleHeight=Math.max(80,cv.height-covered),s=Math.min(cv.width/(pw*4),visibleHeight/(ph*4));
