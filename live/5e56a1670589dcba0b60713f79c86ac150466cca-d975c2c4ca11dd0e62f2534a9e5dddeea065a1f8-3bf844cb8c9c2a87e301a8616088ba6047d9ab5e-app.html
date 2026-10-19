@@ -6639,7 +6639,7 @@ function bindOhanaInviteResponses(root,dialog=null){
  root.querySelectorAll('[data-accept-invite],[data-decline-invite]').forEach(button=>button.onclick=async()=>{
   const game=Number(button.dataset.acceptInvite||button.dataset.declineInvite),accept=!!button.dataset.acceptInvite;if(OHANA_INVITE_ACTIONS.has(game)||dialog?.dataset.busy==='1')return;
   const lock={};OHANA_INVITE_ACTIONS.set(game,lock);if(dialog)dialog.dataset.busy='1';(dialog||root).querySelectorAll('button').forEach(b=>b.disabled=true);const status=dialog?.querySelector('[data-ohana-invite-status]');if(status)status.textContent=accept?'Opening your game…':'Declining invitation…';
-  try{if(accept)await acceptInvite(game,Number(button.dataset.inviteRoom),button);else{const room=Number(button.dataset.inviteRoom);if(room>0&&room!==S.room)await enterRoom(room);await declineInvite(game,button);}
+  try{if(accept)await acceptInvite(game,Number(button.dataset.inviteRoom),button);else await declineInvite(game,button,Number(button.dataset.inviteRoom)||S.room);
    const remains=ohanaUniqueInvites(S.sync?.invitations).some(i=>Number(i.game_id)===game);
    if(remains){if(status)status.textContent='The invitation is still waiting. Check your connection and try again.';}
    else if(accept&&dialog?.isConnected)dialog.close();else if(status)status.textContent='Invitation declined.';
@@ -13929,9 +13929,9 @@ async function acceptInvite(gameId,roomId,btn){
  try{await enterRoom(roomId);await api(`/api/game/${gameId}/join`,{});document.querySelectorAll('.invite-pop').forEach(p=>{if(+p.dataset.gameId===gameId)p.remove();});await sync();await openGame(gameId);}
  catch(e){toast(e.message);if(btn)btn.disabled=false;await sync();}
 }
-async function declineInvite(gameId,btn){
+async function declineInvite(gameId,btn,room=S.room){
  if(btn)btn.disabled=true;
- try{await api(`/api/game/${gameId}/decline`,{});document.querySelectorAll('.invite-pop').forEach(p=>{if(+p.dataset.gameId===gameId)p.remove();});await sync();if(S.tab==='games')render();}
+ try{await api(`/api/game/${gameId}/decline`,{},'POST',room);document.querySelectorAll('.invite-pop').forEach(p=>{if(+p.dataset.gameId===gameId)p.remove();});await sync();if(S.tab==='games')render();}
  catch(e){toast(e.message);if(btn)btn.disabled=false;}
 }
 // A floating, can't-miss card for a fresh game invite — pops up wherever you are in the app,
