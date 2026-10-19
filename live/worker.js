@@ -9876,7 +9876,7 @@ __name2(puzzleEdges, "puzzleEdges");
 __name22(puzzleEdges, "puzzleEdges");
 __name222(puzzleEdges, "puzzleEdges");
 __name2222(puzzleEdges, "puzzleEdges");
-function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null){
+function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null,area=null){
  const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P))return {moves:[],reason:'not-ready'};
  const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
  const group=pc=>pc.g??pc.i,sizes=new Map();for(const pc of P)sizes.set(group(pc),(sizes.get(group(pc))||0)+1);
@@ -9884,9 +9884,21 @@ function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null){
  const targets=P.filter(pc=>!pc.l&&!pc.h&&sizes.get(group(pc))===1&&(!edgesOnly||edge(pc))&&(!requested||requested.has(pc.i))&&(pc.tray||!pc.onTable||pc.catalogReady));
  if(!targets.length)return {moves:[],reason:'none'};
  const work=P.map(pc=>({...pc})),byId=new Map(work.map(pc=>[pc.i,pc])),pad=Math.min(pw,ph)*.36,tol=Math.min(pw,ph)*.3,slots=[],moves=[];
- for(let y=pad;y+ph<=h-pad+.001;y+=ph*1.8)for(let x=pad;x+pw<=w-pad+.001;x+=pw*1.8)slots.push([Math.round(x),Math.round(y)]);
+ let x0=pad,y0=pad,x1=w-pad,y1=h-pad;const blocked=[];
+ if(area!==null){
+  if(!area||!['x0','y0','x1','y1'].every(key=>Number.isFinite(area[key]))||area.x1<=area.x0||area.y1<=area.y0)return {moves:[],reason:'view-unavailable'};
+  x0=Math.max(x0,area.x0+pad);y0=Math.max(y0,area.y0+pad);x1=Math.min(x1,area.x1-pad);y1=Math.min(y1,area.y1-pad);
+  if(area.blocked!==undefined){if(!Array.isArray(area.blocked)||area.blocked.length>5)return {moves:[],reason:'view-unavailable'};for(const rect of area.blocked){if(!rect||!['x0','y0','x1','y1'].every(key=>Number.isFinite(rect[key]))||rect.x1<=rect.x0||rect.y1<=rect.y0)return {moves:[],reason:'view-unavailable'};blocked.push(rect);}}
+ }
+ const xmin=Math.ceil(x0),ymin=Math.ceil(y0),xmax=Math.floor(x1-pw),ymax=Math.floor(y1-ph),crowded=area===null?'crowded':'visible-crowded';
+ if(xmin>xmax||ymin>ymax)return {moves:[],reason:crowded};
+ if(area!==null)slots.push([Math.round((xmin+xmax)/2),Math.round((ymin+ymax)/2)]);
+ for(let y=ymin;y<=ymax;y+=ph*1.8)for(let x=xmin;x<=xmax;x+=pw*1.8)slots.push([Math.round(x),Math.round(y)]);
+ if(area!==null){slots.push([xmin,ymin],[xmax,ymin],[xmin,ymax],[xmax,ymax]);const cx=(xmin+xmax)/2,cy=(ymin+ymax)/2;slots.sort((a,b)=>(a[0]-cx)**2+(a[1]-cy)**2-((b[0]-cx)**2+(b[1]-cy)**2));}
+ if(blocked.length){const xs=new Set([xmin,xmax,Math.round((xmin+xmax)/2)]),ys=new Set([ymin,ymax,Math.round((ymin+ymax)/2)]);for(const rect of blocked){xs.add(Math.floor(rect.x0-pw-pad));xs.add(Math.ceil(rect.x1+pad));ys.add(Math.floor(rect.y0-ph-pad));ys.add(Math.ceil(rect.y1+pad));}for(const x of xs)for(const y of ys)slots.push([x,y]);const cx=(xmin+xmax)/2,cy=(ymin+ymax)/2;slots.sort((a,b)=>(a[0]-cx)**2+(a[1]-cy)**2-((b[0]-cx)**2+(b[1]-cy)**2));}
  const free=(pc,x,y)=>{
-  if(x<pad||x+pw>w-pad||y<pad||y+ph>h-pad)return false;
+  if(x<x0||x+pw>x1||y<y0||y+ph>y1)return false;
+  if(blocked.some(rect=>x+pw+pad>rect.x0&&x-pad<rect.x1&&y+ph+pad>rect.y0&&y-pad<rect.y1))return false;
   if(Math.abs(x-pc.c*pw)<tol&&Math.abs(y-pc.r*ph)<tol)return false;
   for(const q of work)if(q.i!==pc.i&&!q.tray&&Math.abs(q.x-x)<pw+pad*2-.5&&Math.abs(q.y-y)<ph+pad*2-.5)return false;
   for(const [dr,dc]of [[0,1],[0,-1],[1,0],[-1,0]]){const nr=pc.r+dr,nc=pc.c+dc;if(nr<0||nc<0||nr>=rows||nc>=cols)continue;const nb=work.find(q=>q.r===nr&&q.c===nc);if(nb&&!nb.l&&!nb.tray&&group(nb)!==group(pc)&&Math.abs(x-(nb.x-dc*pw))<tol&&Math.abs(y-(nb.y-dr*ph))<tol)return false;}
@@ -9894,7 +9906,7 @@ function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null){
  };
  let cursor=0;
  for(const target of targets){const pc=byId.get(target.i);let spot=null;while(cursor<slots.length){const [x,y]=slots[cursor++];if(free(pc,x,y)){spot=[x,y];break;}}
-  if(!spot)return {moves:[],reason:'crowded'};
+  if(!spot)return {moves:[],reason:crowded};
   moves.push({i:pc.i,x:spot[0],y:spot[1]});pc.x=spot[0];pc.y=spot[1];pc.tray=null;pc.onTable=true;pc.catalogReady=false;
  }
  return {moves,reason:''};
@@ -10185,8 +10197,11 @@ var PuzzleRoom = class {
     if (m.t === "deploy") {
       const ids=Array.isArray(m.ids)?m.ids.filter(Number.isInteger):null;
       if(m.edges!==true&&!ids?.length)return null;
-      const plan=puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},m.edges===true,ids);
-      if(!plan.moves.length)return {t:"tray-deny",text:plan.reason==="crowded"?"There is not enough open space inside the puzzle to deploy safely. Your pieces are unchanged.":"No eligible loose pieces are available. Placed, held and joined pieces stay put."};
+      const hasArea=m.edges!==true&&ids?.length===1&&Object.prototype.hasOwnProperty.call(m,"area");
+      if(hasArea&&(!m.area||typeof m.area!=="object"||Array.isArray(m.area)))return {t:"tray-deny",text:"The visible puzzle area is unavailable. Try again without moving any pieces."};
+      const area=hasArea?m.area:null;
+      const plan=puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},m.edges===true,ids,area);
+      if(!plan.moves.length)return {t:"tray-deny",text:plan.reason==="visible-crowded"||plan.reason==="view-unavailable"?"There is no clear space in the visible puzzle area. Clear a space or zoom out, then try again. Your pieces are unchanged.":plan.reason==="crowded"?"There is not enough open space inside the puzzle to deploy safely. Your pieces are unchanged.":"No eligible loose pieces are available. Placed, held and joined pieces stay put."};
       for(const move of plan.moves){const q=P[move.i];q.x=move.x;q.y=move.y;q.tray=null;q.onTable=true;q.catalogReady=false;q.h=null;q.ht=null;}
       this.scheduleSave();
       this.broadcast({t:"tray-piece",ids:plan.moves.map(q=>q.i),tray:null,pieces:plan.moves.map(q=>[q.i,q.x,q.y]),deployed:true,edges:m.edges===true,by:me.id});
@@ -11383,6 +11398,32 @@ async function ohanaAnnouncementResponseApi(req,db,me,roomId,body,url){
  return json({ok:true,response:response||null});
 }
 
+async function ohanaCreateReplay(db,env,me,g,players,names){
+ if(g.status!=='finished'||!players.includes(me.id))throw Error('Finish this game before replaying.');
+ await db.prepare('CREATE TABLE IF NOT EXISTS game_replays (original_game_id INTEGER PRIMARY KEY, new_game_id INTEGER NOT NULL DEFAULT 0)').run();
+ const existing=await db.prepare('SELECT new_game_id FROM game_replays WHERE original_game_id=?').bind(g.id).first();
+ if(existing?.new_game_id>0)return {id:existing.new_game_id,existing:true};
+ if(existing?.new_game_id<0)throw Error('This replay is still being prepared. Check My games before trying again.');
+ const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>id!==BOT_ID),withBot=seats.includes(BOT_ID);
+ if(!type||seats.length!==players.length||!human.every(id=>Number.isInteger(id)&&id>0&&names[id])||seats.length<type.min||seats.length>type.max)throw Error('The original players are no longer all available for this game. Your finished game is unchanged.');
+ if(withBot&&(human.length!==1||seats.length!==2||!['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong'].includes(g.type)))throw Error('This replay needs the original family players. Your finished game is unchanged.');
+ for(const member of human)await allowGame(db,member,g.type);
+ const recipients=human.filter(id=>id!==me.id),ts=now(),inviteCode=rid(6),max=seats.length,started=withBot||max===1;
+ const nextSeats=started?(withBot?[me.id,BOT_ID]:[me.id]):[me.id];let state=null;
+ if(started){state=initState(g.type,nextSeats,g.id*7919+ts%100000,g.mode||'classic');if(withBot)state.bot={id:BOT_ID,name:'Ohana Robot',avatar:'@hon',difficulty:JSON.parse(g.state||'{}').bot?.difficulty||'easy',memory:{},moves:0};}
+ await db.prepare('INSERT OR IGNORE INTO game_replays(original_game_id,new_game_id) VALUES(?,0)').bind(g.id).run();
+ const batch=[
+  db.prepare('INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id,state) SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM game_replays WHERE original_game_id=? AND new_game_id=0)').bind(g.type,JSON.stringify(nextSeats),max,started?'playing':'waiting',state&&Number.isInteger(state.nextTurn)?state.nextTurn:0,me.id,ts,ts,g.mode||'classic',inviteCode,g.room_id,state?JSON.stringify(state):null,g.id),
+  db.prepare('UPDATE game_replays SET new_game_id=(SELECT id FROM games WHERE invite_code=? AND created_by=? AND created_at=? AND room_id=? ORDER BY id DESC LIMIT 1) WHERE original_game_id=? AND new_game_id=0').bind(inviteCode,me.id,ts,g.room_id,g.id)
+ ];
+ if(!started)for(const member of recipients)batch.push(db.prepare("INSERT OR IGNORE INTO game_invitations(game_id,member_id,sender_id,status,created_at) SELECT r.new_game_id,?,?,'pending',? FROM game_replays r JOIN games child ON child.id=r.new_game_id WHERE r.original_game_id=? AND r.new_game_id>0 AND child.invite_code=? AND child.created_by=? AND child.created_at=?").bind(member,me.id,ts,g.id,inviteCode,me.id,ts));
+ const results=await db.batch(batch),mapped=await db.prepare('SELECT new_game_id FROM game_replays WHERE original_game_id=?').bind(g.id).first();
+ if(!(mapped?.new_game_id>0))throw Error('Could not confirm the replay. Check My games before trying again.');
+ const created=!!results[0]?.meta?.changes;
+ if(created&&!started&&recipients.length)env.ctx?.waitUntil?.(notifyMembers(db,recipients,{type:'invite',title:me.name+' invited you to replay',body:'Join '+(type.name||g.type)+' in Ohana Home.',tag:'ohana-replay-'+mapped.new_game_id}).catch(()=>{}));
+ return {id:mapped.new_game_id,existing:!created};
+}
+
 async function api2(req, env222222, url) {
   const db = env222222.DB;
   const p = url.pathname;
@@ -11959,40 +12000,11 @@ async function api2(req, env222222, url) {
         }
       }
       const invited_members = players.includes(me.id) && g.status === "waiting" ? (await db.prepare("SELECT member_id FROM game_invitations WHERE game_id=? AND status='pending'").bind(id).all()).results.map((i) => i.member_id) : [];
-      return json({ ...gameRow(g, me.id), state: st, names, invited_members });
+      let replay=null;
+      if(g.status==="waiting")try{const found=await db.prepare("SELECT r.original_game_id,g.players FROM game_replays r JOIN games g ON g.id=r.original_game_id WHERE r.new_game_id=?").bind(id).first();if(found&&JSON.parse(found.players).includes(me.id))replay=found;}catch(error){if(!/no such table:\s*game_replays/i.test(error.message))throw error;}
+      return json({ ...gameRow(g, me.id), state: st, names, invited_members,...(replay?{replay_of:replay.original_game_id,replay_players:JSON.parse(replay.players)}:{}) });
     }
-    if (action === "replay" && req.method === "POST") {
-      if (g.status !== "finished" || !players.includes(me.id)) throw new Error("Finish this game before replaying.");
-      await db.prepare("CREATE TABLE IF NOT EXISTS game_replays (original_game_id INTEGER PRIMARY KEY, new_game_id INTEGER NOT NULL DEFAULT 0)").run();
-      await db.prepare("INSERT OR IGNORE INTO game_replays(original_game_id,new_game_id) VALUES(?,0)").bind(id).run();
-      const existing = await db.prepare("SELECT new_game_id FROM game_replays WHERE original_game_id=?").bind(id).first();
-      if (existing.new_game_id) return json({ id: existing.new_game_id, existing: true });
-      const reserved = await db.prepare("UPDATE game_replays SET new_game_id=-1 WHERE original_game_id=? AND new_game_id=0").bind(id).run();
-      if (!reserved.meta.changes) throw new Error("Replay is being prepared. Try again in a moment.");
-      try {
-        const withBot = players.includes(BOT_ID), humanPlayers = players.filter((p2) => p2 !== BOT_ID);
-        const max = Math.max(1, players.length), inviteCode = rid(6), ts = now();
-        const created = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(g.type, JSON.stringify([me.id]), max, "waiting", 0, me.id, ts, ts, g.mode || "classic", inviteCode, g.room_id).run();
-        const newId = created.meta.last_row_id;
-        if (withBot || max === 1) {
-          const seats = withBot ? [me.id, BOT_ID] : [me.id];
-          const st = initState(g.type, seats, newId * 7919 + ts % 1e5, g.mode || "classic");
-          if (withBot) st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: JSON.parse(g.state || "{}").bot?.difficulty || "easy", memory: {}, moves: 0 };
-          await db.prepare("UPDATE games SET players=?,state=?,status='playing',turn=? WHERE id=?").bind(JSON.stringify(seats), JSON.stringify(st), Number.isInteger(st.nextTurn) ? st.nextTurn : 0, newId).run();
-        } else {
-          for (const recipient of humanPlayers.filter((p2) => p2 !== me.id)) {
-            await db.prepare("INSERT INTO game_invitations(game_id,member_id,sender_id,status,created_at) VALUES(?,?,?,'pending',?)").bind(newId, recipient, me.id, ts).run();
-          }
-          env222222.ctx?.waitUntil?.(notifyMembers(db, humanPlayers.filter((p2) => p2 !== me.id), { type: "invite", title: me.name + " invited you to replay", body: "Join " + (GAME_TYPES[g.type]?.name || g.type) + " in Ohana Home.", tag: "ohana-replay-" + newId }).catch(() => {
-          }));
-        }
-        await db.prepare("UPDATE game_replays SET new_game_id=? WHERE original_game_id=? AND new_game_id=-1").bind(newId, id).run();
-        return json({ id: newId });
-      } catch (e) {
-        await db.prepare("UPDATE game_replays SET new_game_id=0 WHERE original_game_id=? AND new_game_id=-1").bind(id).run();
-        throw e;
-      }
-    }
+    if (action === "replay" && req.method === "POST") return json(await ohanaCreateReplay(db,env222222,me,g,players,names));
     if (action === "bot" && req.method === "POST") {
       if (g.status !== "waiting") throw new Error("This game already started.");
       if (g.created_by !== me.id && !(me.is_admin && g.room_id === 1)) throw new Error("Only the person who made the game can add Honu.");
