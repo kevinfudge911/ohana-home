@@ -5882,6 +5882,14 @@ dialog#ohana-start-game#ohana-start-game{position:fixed!important;inset:0!import
 #ohana-start-game small{display:block;font:400 17px/1.35 Nunito,Arial,sans-serif!important;color:#375b60!important;margin-top:3px}
 #ohana-start-game .ohana-start-opponents{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:16px}
 #ohana-start-game .ohana-start-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+#ohana-start-game .ohana-start-person-copy{min-width:0;flex:1;max-width:100%}
+#ohana-start-game .ohana-start-person-name{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-width:0}
+#ohana-start-game .ohana-start-person-name>span:first-child{min-width:0;overflow-wrap:anywhere}
+#ohana-start-game .ohana-start-playing-dot{font-size:16px;line-height:1;flex:none}
+#ohana-start-game .ohana-start-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+#ohana-start-game .ohana-start-word-modes{margin:0 0 20px;padding:0;border:0;min-width:0}
+#ohana-start-game .ohana-start-word-modes legend{font-weight:700;margin-bottom:4px}
+#ohana-start-game .ohana-start-word-modes>div{display:flex;flex-wrap:wrap;gap:4px 16px}
 #ohana-start-game .ohana-start-people label{display:flex;align-items:center;gap:14px;min-height:64px;cursor:pointer;font-size:23px;overflow-wrap:anywhere}
 #ohana-start-game .ohana-start-people input{appearance:auto!important;flex:0 0 26px;width:26px!important;height:26px!important;accent-color:#126c7a}
 #ohana-start-game dl{margin:12px 0 20px}#ohana-start-game dt{font-weight:700}#ohana-start-game dd{margin:0 0 16px;overflow-wrap:anywhere}
@@ -6582,8 +6590,13 @@ function ohanaStartPersonStatus(memberId,gameId,sy){
  const pending=(sy?.sentInvitations||[]).some(inv=>{if(inv.type!==gameId||Number(inv.member_id)!==person)return false;const game=games.get(Number(inv.game_id));return !game||(game.status==='waiting'&&!(game.players||[]).some(id=>Number(id)===person));});
  return playing?(pending?'Playing · invite pending':'Playing'):(pending?'Invite pending':'');
 }
+function ohanaStartPersonLabel(person,gameId,sy){
+ const status=ohanaStartPersonStatus(person.id,gameId,sy),playing=status==='Playing'||status==='Playing · invite pending',pending=status==='Invite pending'||status==='Playing · invite pending';
+ return '<span class="ohana-start-person-copy"><span class="ohana-start-person-name"><span>'+esc(person.name)+'</span>'+(playing?'<span class="ohana-start-playing-dot" aria-hidden="true">🟢</span>':'')+'</span>'+(playing?'<span class="ohana-start-sr-only">'+esc('Already playing '+(sy.types?.[gameId]?.name||'this game')+' together')+'</span>':'')+(pending?'<small class="ohana-start-person-status">Invite pending</small>':'')+'</span>';
+}
 function ohanaStartPlan(state,sy){
  const rules=ohanaStartRules(state.game,sy);if(!rules)throw new Error('Please choose an available game.');
+ if(state.game==='words'&&state.mode!==undefined&&!['classic','random'].includes(state.mode))throw new Error('Choose Classic or Random Random.');
  const members=ohanaStartPeople(sy),ids=[...new Set(state.people||[])];let players;
  if(state.opponent==='bot'){if(!rules.robot)throw new Error('This game needs family players.');players=2;}
  else if(state.opponent==='solo'){if(!rules.solo)throw new Error('This game needs another player.');players=1;}
@@ -6591,7 +6604,7 @@ function ohanaStartPlan(state,sy){
   if(ids.some(id=>!members.some(p=>p.id===id)))throw new Error('Please choose someone from this room.');
   players=ids.length+1;if(players<rules.min||players>rules.max)throw new Error(rules.min===rules.max?'Choose '+(rules.min-1)+' people to join you.':'Choose '+(rules.min-1)+' to '+(rules.max-1)+' people to join you.');
  }else throw new Error('Please choose who to play with.');
- return {type:state.game,opponent:state.opponent,difficulty:'easy',max_players:players,mode:state.game==='domino'?'draw':'classic'};
+ return {type:state.game,opponent:state.opponent,difficulty:'easy',max_players:players,mode:state.game==='domino'?'draw':state.game==='words'?(state.mode||'classic'):'classic'};
 }
 async function ohanaStartSubmit(state,sy,request=api){
  if(state.uncertain)throw new Error('We could not confirm the game. Check Your games before starting another.');
@@ -6603,7 +6616,7 @@ async function ohanaStartSubmit(state,sy,request=api){
 }
 function showOhanaStartGame(initialGame=null){
  const open=document.getElementById('ohana-start-game');if(open){open.focus();return;}if(!S.sync||!S.me)return;
- const sy=S.sync,initial=typeof initialGame==='string'&&sy.types?.[initialGame]?initialGame:null,state={stage:initial?'people':'game',game:initial,opponent:'family',people:[],room:sy.roomId||S.room||1,busy:false};
+ const sy=S.sync,initial=typeof initialGame==='string'&&sy.types?.[initialGame]?initialGame:null,state={stage:initial?'people':'game',game:initial,mode:'classic',opponent:'family',people:[],room:sy.roomId||S.room||1,busy:false};
  const dialog=document.createElement('dialog');dialog.id='ohana-start-game';dialog.setAttribute('aria-labelledby','ohana-start-title');dialog.tabIndex=-1;
  const draw=()=>{
   const rules=ohanaStartRules(state.game,sy),type=sy.types?.[state.game],people=ohanaStartPeople(sy),family=state.opponent==='family';
@@ -6615,19 +6628,20 @@ function showOhanaStartGame(initialGame=null){
   }
   else if(state.stage==='people'){
    const instruction=rules.min===rules.max?'Choose '+(rules.min-1)+' '+(rules.min===2?'person':'people')+' to join you.':'Choose '+(rules.min-1)+' to '+(rules.max-1)+' people to join you.';
-   content='<h3>'+esc(type.name)+'</h3><p>Who would you like to play with?</p><div class="ohana-start-opponents"><button type="button" data-start-opponent="family" aria-pressed="'+family+'">Family or friend</button>'+(rules.robot?'<button type="button" data-start-opponent="bot" aria-pressed="'+(state.opponent==='bot')+'">Ohana Robot</button>':'')+(rules.solo?'<button type="button" data-start-opponent="solo" aria-pressed="'+(state.opponent==='solo')+'">Play by myself</button>':'')+'</div>';
-   if(family)content+='<p>'+instruction+(state.game==='spades'?' Spades is a four-person partner game.':'')+'</p><div class="ohana-start-people" role="group" aria-label="Choose family players">'+people.map(p=>'<label><input type="'+(rules.max===2?'radio':'checkbox')+'" name="start-family" value="'+p.id+'" '+(state.people.includes(p.id)?'checked':'')+'><span>'+esc(p.name)+(ohanaStartPersonStatus(p.id,state.game,sy)?'<small class="ohana-start-person-status">'+esc(ohanaStartPersonStatus(p.id,state.game,sy))+'</small>':'')+'</span></label>').join('')+'</div>'+(!people.length?'<p>No other family members are in this room yet.</p>':'');
+   content='<h3>'+esc(type.name)+'</h3>'+(state.game==='words'?'<fieldset class="ohana-start-word-modes"><legend>Board</legend><div>'+[['classic','Classic'],['random','Random Random']].map(([mode,label])=>'<button type="button" data-start-word-mode="'+mode+'" aria-pressed="'+(state.mode===mode)+'">'+label+'</button>').join('')+'</div></fieldset>':'')+'<p>Who would you like to play with?</p><div class="ohana-start-opponents"><button type="button" data-start-opponent="family" aria-pressed="'+family+'">Family or friend</button>'+(rules.robot?'<button type="button" data-start-opponent="bot" aria-pressed="'+(state.opponent==='bot')+'">Ohana Robot</button>':'')+(rules.solo?'<button type="button" data-start-opponent="solo" aria-pressed="'+(state.opponent==='solo')+'">Play by myself</button>':'')+'</div>';
+   if(family)content+='<p>'+instruction+(state.game==='spades'?' Spades is a four-person partner game.':'')+'</p><div class="ohana-start-people" role="group" aria-label="Choose family players">'+people.map(p=>'<label><input type="'+(rules.max===2?'radio':'checkbox')+'" name="start-family" value="'+p.id+'" '+(state.people.includes(p.id)?'checked':'')+'>'+ohanaStartPersonLabel(p,state.game,sy)+'</label>').join('')+'</div>'+(!people.length?'<p>No other family members are in this room yet.</p>':'');
    else content+='<p>'+(state.opponent==='bot'?'Ohana Robot is the computer player. We will start on Easy.':'Enjoy a game on your own.')+'</p>';
    content+='<p data-start-count role="status"></p><button type="button" data-start-review>Next: review game</button>';
   }else{
    const chosen=state.opponent==='bot'?'Ohana Robot':state.opponent==='solo'?'Just you':state.people.map(id=>people.find(p=>p.id===id)?.name||'Family member').join(', ');
-   content='<h3>Ready to play?</h3><dl><dt>Game</dt><dd>'+esc(type.name)+'</dd><dt>With</dt><dd>'+esc(chosen)+'</dd></dl><p>'+(family?'We will send '+(state.people.length===1?'an invitation.':'invitations.')+' Your game starts when everyone joins.':'The game starts when you tap below.')+'</p><button type="button" data-start-confirm>'+(family?'Send invitation'+(state.people.length===1?'':'s'):'Start game')+'</button>';
+   content='<h3>Ready to play?</h3><dl><dt>Game</dt><dd>'+esc(type.name)+'</dd>'+(state.game==='words'?'<dt>Board</dt><dd>'+(state.mode==='random'?'Random Random':'Classic')+'</dd>':'')+'<dt>With</dt><dd>'+esc(chosen)+'</dd></dl><p>'+(family?'We will send '+(state.people.length===1?'an invitation.':'invitations.')+' Your game starts when everyone joins.':'The game starts when you tap below.')+'</p><button type="button" data-start-confirm>'+(family?'Send invitation'+(state.people.length===1?'':'s'):'Start game')+'</button>';
   }
   dialog.innerHTML='<header>'+back+'<h2 id="ohana-start-title">Start a game</h2><button type="button" data-start-close>Close</button></header><div class="ohana-start-content">'+content+'<p class="ohana-start-error" role="status" aria-live="polite"></p></div>';
   dialog.querySelector('[data-start-close]').onclick=()=>dialog.close();
   const backButton=dialog.querySelector('[data-start-back]');if(backButton)backButton.onclick=()=>{state.stage=state.stage==='review'?'people':'game';draw();};
   dialog.querySelectorAll('[data-start-game]').forEach(b=>b.onclick=()=>{state.game=b.dataset.startGame;state.opponent='family';state.people=[];state.stage='people';draw();});
   dialog.querySelectorAll('[data-start-opponent]').forEach(b=>b.onclick=()=>{state.opponent=b.dataset.startOpponent;draw();});
+  dialog.querySelectorAll('[data-start-word-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.startWordMode;draw();});
   const update=()=>{const count=dialog.querySelector('[data-start-count]'),next=dialog.querySelector('[data-start-review]');if(!next)return;try{ohanaStartPlan(state,sy);next.disabled=false;count.textContent=family?state.people.length+' selected':'';}catch(error){next.disabled=true;count.textContent=family?state.people.length+' selected':'';}};
   dialog.querySelectorAll('.ohana-start-people input').forEach(input=>input.onchange=()=>{state.people=[...dialog.querySelectorAll('.ohana-start-people input:checked')].map(el=>Number(el.value));update();});
   const review=dialog.querySelector('[data-start-review]');if(review)review.onclick=()=>{try{ohanaStartPlan(state,sy);state.stage='review';draw();}catch(error){dialog.querySelector('.ohana-start-error').textContent=error.message;}};
