@@ -1,3 +1,4 @@
+import SHUFFLE_FICTIONAL_CHECK from "./ohana-shuffle-fictional-check.html";
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
@@ -10963,6 +10964,14 @@ if(req.method==='GET'&&p==='/ohana-journey-entrance-v1.webp')return new Response
     if (req.method === "GET" && p === "/dad-cardinal.webp") return new Response(TSCMS_DAD_CARDINAL_V1,{headers:{"content-type":"image/webp","cache-control":"public,max-age=3600"}});
     if (req.method === "GET" && p === "/ohana-workstation-v103.webp") return new Response(OHANA_WORKSTATION_V103, {headers:{"content-type":"image/webp","cache-control":"public,max-age=31536000,immutable"}});
     if (req.method === "GET" && p === "/ohana-teal-mat-v103.webp") return new Response(OHANA_TEAL_MAT_V103, {headers:{"content-type":"image/webp","cache-control":"public,max-age=31536000,immutable"}});
+    if (req.method === "GET" && p === "/ohana-shuffle-check") {
+      if (url.searchParams.get("fictional") !== "1") return new Response("Not found", {status:404});
+      const styles = APP_HTML.match(/<style(?:\s[^>]*)?>[\s\S]*?<\/style>/g) || [];
+      const before = (APP_HTML.slice(0,APP_HTML.indexOf("<script")).match(/<style(?:\s[^>]*)?>[\s\S]*?<\/style>/g) || []).length;
+      const own = SHUFFLE_FICTIONAL_CHECK.match(/<style>[\s\S]*?<\/style>/)[0];
+      styles.splice(before,0,own);
+      return new Response(SHUFFLE_FICTIONAL_CHECK.replace(own,styles.join("\n")), {headers:{"content-type":"text/html;charset=utf-8","cache-control":"no-store","x-ohana-preview":"fictional-api-free"}});
+    }
     if (req.method === "GET" && p === "/layout-preview") {
       const width = Math.max(320, Math.min(1600, Number(url.searchParams.get("width")) || 864));
       const height = Math.max(480, Math.min(1800, Number(url.searchParams.get("height")) || 1e3));
