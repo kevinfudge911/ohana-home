@@ -1,6 +1,8 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),crypto=require('crypto');
+const signing=crypto.createECDH('prime256v1');signing.setPrivateKey(Buffer.alloc(32,1));
 let src=fs.readFileSync('worker.js','utf8').replace(/^import (\w+) from .*;$/gm,'const $1=null;').replace(/^import .*;$/gm,'').replace(/export\s*\{[\s\S]*?\};\s*$/,'');
-let request;const c=vm.createContext({console,URL,Response,TextEncoder,Uint8Array,DataView,crypto:crypto.webcrypto,atob,btoa,fetch:async(url,opts)=>{request=opts;return {status:201}}});vm.runInContext(fs.readFileSync('mahjong.js','utf8').replaceAll('export function','function')+'\n'+src,c);
+src=src.replace(/((?:const|var) VAPID_PUBLIC_KEY = )["'][^"']+["'];/,'$1'+JSON.stringify(signing.getPublicKey().toString('base64url'))+';');
+let request;const c=vm.createContext({OHANA_PUSH_ENV:{VAPID_PRIVATE_KEY:signing.getPrivateKey().toString('base64url')},console,URL,Response,TextEncoder,Uint8Array,DataView,crypto:crypto.webcrypto,atob,btoa,fetch:async(url,opts)=>{request=opts;return {status:201}}});vm.runInContext(fs.readFileSync('mahjong.js','utf8').replaceAll('export function','function')+'\n'+src,c);
 (async()=>{const ua=crypto.createECDH('prime256v1');ua.generateKeys();const auth=crypto.randomBytes(16),payload={title:'Your turn!',body:'Pe-paw, your table is ready.'};const sub={endpoint:'https://fcm.googleapis.com/example',p256dh:ua.getPublicKey().toString('base64url'),auth:auth.toString('base64url')};
 assert.equal(await c.sendPush(sub,payload),201);assert.equal(request.headers['Content-Encoding'],'aes128gcm');assert.equal(request.headers.Urgency,'high');assert(request.headers.Authorization.startsWith('vapid t='));
 const data=Buffer.from(request.body),salt=data.subarray(0,16),server=data.subarray(21,86);assert.equal(data.readUInt32BE(16),4096);assert.equal(data[20],65);

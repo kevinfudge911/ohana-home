@@ -1,3 +1,4 @@
+import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
 import OHANA_SHUFFLE_ENTRANCE from "./ohana-shuffle-entrance-v1.webp";
@@ -9645,7 +9646,14 @@ __name2222(gameRow, "gameRow");
 __name22222(gameRow, "gameRow");
 __name222222(gameRow, "gameRow");
 var VAPID_PUBLIC_KEY = "BD0GDGi2zMk91cWmhOB9CK9bLx8t53cJhTiLLm8TDSHycDV6b5ndcTUwRrzK5VstUuBkX34fSfYeT61r047zuwc";
-var VAPID_PRIVATE_KEY = "B5fR7FoT4AW0ZlOBVfKcKRt6BBhna-YXcNID4H2_Eqc";
+// Read the encrypted Worker binding when signing; never cache or embed its value.
+function ohanaVapidPrivateKey() {
+  const value = OHANA_PUSH_ENV.VAPID_PRIVATE_KEY;
+  if (typeof value !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(value) || b64urlDecode(value).length !== 32) {
+    throw new Error("Push signing is not configured.");
+  }
+  return value;
+}
 var VAPID_SUBJECT = "mailto:kevin.fudge911@gmail.com";
 function b64urlDecode(s) {
   s = s.replace(/-/g, "+").replace(/_/g, "/");
@@ -9682,7 +9690,7 @@ async function createVapidJwt(audience) {
   const encHeader = b64urlEncode(new TextEncoder().encode(JSON.stringify(header)));
   const encPayload = b64urlEncode(new TextEncoder().encode(JSON.stringify(payload)));
   const unsigned = `${encHeader}.${encPayload}`;
-  const rawKey = b64urlDecode(VAPID_PRIVATE_KEY);
+  const rawKey = b64urlDecode(ohanaVapidPrivateKey());
   const pubKey = b64urlDecode(VAPID_PUBLIC_KEY);
   const jwk = {
     kty: "EC",
@@ -9767,6 +9775,7 @@ __name22222(hkdfExpand, "hkdfExpand");
 __name222222(hkdfExpand, "hkdfExpand");
 async function sendPush(subscription, payloadObj) {
   try {
+    ohanaVapidPrivateKey(); // Missing configuration must stop before encryption or delivery.
     const payloadText = JSON.stringify(payloadObj);
     const { encrypted, salt, ephemeralPublicRaw } = await encryptPayload(subscription.p256dh, subscription.auth, payloadText);
     const endpoint = subscription.endpoint;
