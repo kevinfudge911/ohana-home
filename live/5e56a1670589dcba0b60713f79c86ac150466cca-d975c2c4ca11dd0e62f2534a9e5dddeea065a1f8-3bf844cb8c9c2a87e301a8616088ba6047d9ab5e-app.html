@@ -5853,7 +5853,59 @@ html.ohana-world body #app #faith button.ohana-button::after{display:none!import
 :root.ohana-world body #app #game #game-head#game-head#game-head#game-head#game-head#game-head>#gb-back{min-width:44px!important;min-height:44px!important;background:none!important;border:0!important;box-shadow:none!important}
 </style>
 <style id="ohana-puzzle-header-title-only">@layer ohanaApproved{#app>header[data-puzzle-coordinated-header=lobby] .room-current-heading h1{font:inherit!important;text-align:left!important;margin:0!important;padding:0!important;white-space:normal!important}#pz-board .pz-head[data-puzzle-coordinated-header] .game-control-icon{width:24px!important;height:24px!important;min-width:24px!important;flex-shrink:0!important}#pz-board .pz-head[data-puzzle-coordinated-header] #pz-next-game .next-count{display:inline!important;position:static!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-width:0!important;font:700 14px/1 Nunito,sans-serif!important;color:inherit!important}}</style>
-<style id="ohana-edge-finder-style">#pz-board.pz-locating-edge #pz-float-layer{visibility:hidden;pointer-events:none}:root.ohana-world body #app #pz-board#pz-board .pz-float-pieces button.pz-located-piece{outline:3px solid #fff0bb!important;outline-offset:-4px;box-shadow:inset 0 0 0 6px #172b32!important}.pz-edge-list{max-height:50dvh;overflow:auto}.pz-edge-row{padding:12px 0;border-bottom:1px solid #547ca2}.pz-edge-row span{display:block}.pz-edge-row button{min-height:44px}</style></head>
+<style id="ohana-edge-finder-style">#pz-board.pz-locating-edge #pz-float-layer{visibility:hidden;pointer-events:none}:root.ohana-world body #app #pz-board#pz-board .pz-float-pieces button.pz-located-piece{outline:3px solid #fff0bb!important;outline-offset:-4px;box-shadow:inset 0 0 0 6px #172b32!important}.pz-edge-list{max-height:50dvh;overflow:auto}.pz-edge-row{padding:12px 0;border-bottom:1px solid #547ca2}.pz-edge-row span{display:block}.pz-edge-row button{min-height:44px}</style><style id="ohana-home-start-game-style">
+:root.ohana-world body #app#app#app .world-home-table>.ohana-home-start{
+ order:3!important;display:block!important;align-self:center!important;position:static!important;width:auto!important;max-width:100%!important;min-height:60px!important;margin:0 auto 18px!important;padding:8px 18px!important;background:none!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#79f2ee!important;font:700 clamp(26px,6vw,36px)/1.25 Fredoka,Nunito,sans-serif!important;text-shadow:0 2px 3px #173e43!important;cursor:pointer!important;transform:none!important
+}
+:root.ohana-world body #app#app#app .ohana-home-start::before,:root.ohana-world body #app#app#app .ohana-home-start::after{content:none!important;display:none!important}
+.ohana-home-start:focus-visible{outline:3px solid #fff0bb!important;outline-offset:3px!important}
+dialog#ohana-start-game#ohana-start-game{position:fixed!important;inset:0!important;margin:auto!important;box-sizing:border-box!important;width:min(700px,calc(100vw - 20px))!important;max-width:700px!important;max-height:92dvh!important;padding:0!important;border:0!important;border-radius:12px!important;background:#fff8df!important;background-image:none!important;color:#173e43!important;overflow:auto!important;font:400 21px/1.45 Nunito,Arial,sans-serif!important;text-shadow:none!important}
+#ohana-start-game::backdrop{background:#123b44aa}
+#ohana-start-game#ohana-start-game header{position:sticky!important;top:0!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;margin:0!important;padding:12px!important;min-height:0!important;background:#fff8df!important;background-image:none!important;color:#173e43!important;border:0!important;box-shadow:none!important;z-index:1!important}
+#ohana-start-game#ohana-start-game h2{flex:1!important;margin:0!important;font:700 27px/1.2 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important}
+#ohana-start-game#ohana-start-game h3{margin:4px 0 14px!important;font:700 25px/1.3 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important}
+#ohana-start-game#ohana-start-game button{appearance:none!important;display:block!important;position:static!important;min-height:56px!important;padding:12px!important;margin:0!important;max-width:100%!important;background:none!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#126c7a!important;text-shadow:none!important;font:700 22px/1.3 Nunito,Arial,sans-serif!important;white-space:normal!important;cursor:pointer!important}
+#ohana-start-game#ohana-start-game button::before,#ohana-start-game#ohana-start-game button::after{content:none!important;display:none!important}
+#ohana-start-game#ohana-start-game button:focus-visible,#ohana-start-game input:focus-visible{outline:3px solid #126c7a!important;outline-offset:-3px!important}
+#ohana-start-game#ohana-start-game button[aria-pressed=true]{text-decoration:underline!important;text-underline-offset:6px!important;color:#173e43!important}
+#ohana-start-game#ohana-start-game button:disabled{opacity:.5!important;cursor:default!important}
+#ohana-start-game .ohana-start-content{padding:4px 20px 24px!important}
+#ohana-start-game p{margin:8px 0 16px!important;font:inherit!important;color:inherit!important;text-shadow:none!important}
+#ohana-start-game .ohana-start-games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+#ohana-start-game .ohana-start-games button{text-align:left!important;min-height:84px!important}
+#ohana-start-game .ohana-start-games strong{font:inherit!important}
+#ohana-start-game small{display:block;font:400 17px/1.35 Nunito,Arial,sans-serif!important;color:#375b60!important;margin-top:3px}
+#ohana-start-game .ohana-start-opponents{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:16px}
+#ohana-start-game .ohana-start-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+#ohana-start-game .ohana-start-people label{display:flex;align-items:center;gap:14px;min-height:64px;cursor:pointer;font-size:23px;overflow-wrap:anywhere}
+#ohana-start-game .ohana-start-people input{appearance:auto!important;flex:0 0 26px;width:26px!important;height:26px!important;accent-color:#126c7a}
+#ohana-start-game dl{margin:12px 0 20px}#ohana-start-game dt{font-weight:700}#ohana-start-game dd{margin:0 0 16px;overflow-wrap:anywhere}
+#ohana-start-game .ohana-start-error{color:#7c2d20!important}
+@media(max-width:460px){#ohana-start-game .ohana-start-games,#ohana-start-game .ohana-start-people{grid-template-columns:minmax(0,1fr)}#ohana-start-game#ohana-start-game header{gap:4px!important}#ohana-start-game#ohana-start-game h2{font-size:24px!important}#ohana-start-game#ohana-start-game header button{font-size:20px!important;padding:10px 8px!important}}
+
+</style><style id="ohana-home-game-hub-style">
+:root.ohana-world body #app#app#app .world-home-table>.ohana-home-actions{order:3!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:6px 20px!important;width:100%!important;margin:0 auto 18px!important;padding:0 12px!important;box-sizing:border-box!important;background:none!important;border:0!important;box-shadow:none!important}
+:root.ohana-world body #app#app#app .ohana-home-actions button{position:static!important;display:block!important;min-height:60px!important;max-width:100%!important;margin:0!important;padding:8px 12px!important;background:none!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#79f2ee!important;font:700 clamp(24px,5.5vw,34px)/1.25 Fredoka,Nunito,sans-serif!important;text-shadow:0 2px 3px #173e43!important;white-space:normal!important;transform:none!important}
+:root.ohana-world body #app#app#app .ohana-home-actions button::before,:root.ohana-world body #app#app#app .ohana-home-actions button::after{display:none!important;content:none!important}
+.ohana-home-actions button:focus-visible{outline:3px solid #fff0bb!important;outline-offset:2px}.ohana-home-invite-count{font:inherit}
+:root.ohana-world body #app#app#app .world-home-table>.ohana-home-games{order:3!important;width:calc(100% - 24px)!important;max-width:900px!important;margin:0 auto 22px!important;padding:16px!important;box-sizing:border-box!important;border:0!important;border-radius:6px!important;box-shadow:none!important;background:#fff8df!important;color:#173e43!important;text-shadow:none!important;scroll-margin-top:16px}
+#ohana-home-games h2{font:700 28px/1.3 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important;margin:0 0 12px!important}
+#ohana-home-games .ohana-home-game-row{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:12px!important;padding:14px 0!important;border-bottom:1px solid #b6cbc9!important;box-shadow:none!important;background:none!important}
+#ohana-home-games .ohana-home-game-row>div{min-width:0!important}#ohana-home-games h3{margin:0 0 4px!important;font:700 23px/1.3 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important}
+#ohana-home-games p{margin:3px 0!important;font:400 21px/1.4 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important;overflow-wrap:anywhere}
+#ohana-home-games small{display:block!important;font:400 17px/1.3 Nunito,Arial,sans-serif!important;color:#375b60!important;text-shadow:none!important}.ohana-home-turn{display:block!important;font:700 21px/1.4 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important}
+:root.ohana-world body #app#app#app #ohana-home-games button{position:static!important;flex:0 0 auto!important;min-height:56px!important;min-width:64px!important;margin:0!important;padding:12px!important;background:none!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;font:700 22px/1.3 Nunito,Arial,sans-serif!important;color:#126c7a!important;text-shadow:none!important}
+dialog#ohana-invited-games#ohana-invited-games{position:fixed!important;inset:0!important;margin:auto!important;width:min(700px,calc(100vw - 20px))!important;max-width:700px!important;max-height:92dvh!important;padding:0!important;border:0!important;border-radius:12px!important;box-sizing:border-box!important;background:#fff8df!important;background-image:none!important;color:#173e43!important;text-shadow:none!important;overflow:auto!important;font:400 21px/1.45 Nunito,Arial,sans-serif!important}
+#ohana-invited-games::backdrop{background:#123b44aa}#ohana-invited-games#ohana-invited-games header{position:sticky!important;top:0!important;display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;padding:12px!important;margin:0!important;background:#fff8df!important;background-image:none!important;border:0!important;color:#173e43!important;z-index:1!important}
+#ohana-invited-games h2{flex:1!important;margin:0!important;font:700 27px/1.3 Nunito,Arial,sans-serif!important;color:#173e43!important;text-shadow:none!important}#ohana-invited-games .ohana-invited-content{padding:4px 20px 24px}
+#ohana-invited-games#ohana-invited-games button{appearance:none!important;position:static!important;display:block!important;min-height:56px!important;max-width:100%!important;padding:12px!important;margin:0!important;background:none!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;font:700 22px/1.3 Nunito,Arial,sans-serif!important;color:#126c7a!important;text-shadow:none!important;white-space:normal!important}
+#ohana-invited-games button::before,#ohana-invited-games button::after{display:none!important;content:none!important}#ohana-invited-games button:disabled{opacity:.5!important}#ohana-invited-games button:focus-visible,#ohana-home-games button:focus-visible{outline:3px solid #126c7a!important;outline-offset:-3px}
+.ohana-simple-invite{padding:16px 0;border-bottom:1px solid #b6cbc9}.ohana-simple-invite h4{margin:0 0 4px;font:700 23px/1.3 Nunito,Arial,sans-serif;color:#173e43}.ohana-simple-invite p{margin:4px 0;font:400 21px/1.4 Nunito,Arial,sans-serif;overflow-wrap:anywhere}.ohana-simple-invite small{font:400 17px/1.3 Nunito,Arial,sans-serif;color:#375b60}.ohana-invite-response{display:flex;flex-wrap:wrap;gap:4px 16px}
+@media(max-width:460px){:root.ohana-world body #app#app#app .ohana-home-actions{gap:2px 12px!important}#ohana-home-games .ohana-home-game-row{align-items:flex-start!important}#ohana-invited-games h2{font-size:24px!important}}
+
+#ohana-home-games h3,#ohana-home-games small,#ohana-home-games .ohana-home-turn{overflow-wrap:anywhere!important}
+
+</style></head>
 <body>
 <div id="app"></div>
 <script>
@@ -5975,8 +6027,8 @@ function roomTitle(name,id){const theme=roomTheme(name,id);return `<span class="
 function toast(t, ms = 2600) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), ms); }
 function fmtTime(ts) { const d = new Date(ts); return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
 function ohanaDiscoverablePerson(person){return String(person?.name||'').normalize('NFKC').trim().toLowerCase()!=='codextest';}
-function nameOf(id) { if(id===-1)return "Honu · computer"; const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.name : (S.gstate?.names?.[id]?.name || 'Someone'); }
-function avOf(id) { if(id===-1)return `<span class="ohana-buddy" title="Honu · computer">${avatarMarkup("@hon")}</span>`; const m = (S.sync?.members || []).find(x => x.id === id); return `<span class="ohana-buddy" title="${esc(buddyName(m ? m.avatar : S.gstate?.names?.[id]?.avatar))}">${avatarMarkup(m ? m.avatar : (S.gstate?.names?.[id]?.avatar || '🙂'))}</span>`; }
+function nameOf(id) { if(id===-1)return "Ohana Robot"; const m = (S.sync?.members || []).find(x => x.id === id); return m ? m.name : (S.gstate?.names?.[id]?.name || 'Someone'); }
+function avOf(id) { if(id===-1)return `<span class="ohana-buddy" title="Ohana Robot">${avatarMarkup("@hon")}</span>`; const m = (S.sync?.members || []).find(x => x.id === id); return `<span class="ohana-buddy" title="${esc(buddyName(m ? m.avatar : S.gstate?.names?.[id]?.avatar))}">${avatarMarkup(m ? m.avatar : (S.gstate?.names?.[id]?.avatar || '🙂'))}</span>`; }
 
 // ---------- PUSH NOTIFICATIONS ----------
 function notificationControl(){return `<details class="notification-control"><summary aria-label="Notification settings">🔔 Notifications <span data-push-indicator>${S.pushReady?'On':'Off'}</span></summary><div class="notification-options"><p data-push-status></p><div><button type="button" data-push-action="enable">Enable notifications</button><button type="button" data-push-action="test">Send test</button><button type="button" class="ghost" data-push-action="off">Turn off</button></div><small>Turn alerts work separately from game voices and sound.</small></div></details>`;}
@@ -6470,6 +6522,7 @@ function decorateWorldRooms(){
 }
 
 function mountHomeWorkstation(m,tabs){
+ tabs.querySelector('[data-game-shelf="invites"]')?.remove();
  const dock=document.createElement('nav');dock.id='home-controls-dock';dock.className='ohana-workstation';dock.setAttribute('aria-label','Ohana Home workstation');
  tabs.classList.add('dock-actions');tabs.setAttribute('aria-label','Your game destinations');
  const player=document.createElement('div');player.className='dock-player';player.innerHTML=worldPortrait(S.me.id);
@@ -6482,8 +6535,138 @@ function mountHomeWorkstation(m,tabs){
  dock.append(tabs,tools,player);m.append(dock);observeGameRail(dock,'--home-workstation-space');
 }
 
+const OHANA_START_GAMES=[['words','Word game'],['domino','Dominoes'],['tictac','Tic-Tac-Toe'],['memory','Memory Match'],['checkers','Checkers'],['chess','Chess'],['handfoot','Hand & Foot'],['ohana10','Ohana 10'],['spades','Spades'],['mahjong','Mahjong']];
+const OHANA_ROBOT_GAMES=new Set(['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong']);
+function ohanaStartRules(id,sy){
+ const type=sy?.types?.[id];if(!type)return null;
+ const min=Math.max(1,Number(type.min)||2),max=Math.max(min,Number(type.max)||min);
+ return {min:Math.max(2,min),max,robot:OHANA_ROBOT_GAMES.has(id)&&min<=2&&max>=2,solo:min===1};
+}
+function ohanaStartPeople(sy){return (sy?.members||[]).filter(p=>Number.isInteger(p.id)&&p.id>0&&p.id!==S.me.id&&ohanaDiscoverablePerson(p));}
+function ohanaStartPlan(state,sy){
+ const rules=ohanaStartRules(state.game,sy);if(!rules)throw new Error('Please choose an available game.');
+ const members=ohanaStartPeople(sy),ids=[...new Set(state.people||[])];let players;
+ if(state.opponent==='bot'){if(!rules.robot)throw new Error('This game needs family players.');players=2;}
+ else if(state.opponent==='solo'){if(!rules.solo)throw new Error('This game needs another player.');players=1;}
+ else if(state.opponent==='family'){
+  if(ids.some(id=>!members.some(p=>p.id===id)))throw new Error('Please choose someone from this room.');
+  players=ids.length+1;if(players<rules.min||players>rules.max)throw new Error(rules.min===rules.max?'Choose '+(rules.min-1)+' people to join you.':'Choose '+(rules.min-1)+' to '+(rules.max-1)+' people to join you.');
+ }else throw new Error('Please choose who to play with.');
+ return {type:state.game,opponent:state.opponent,difficulty:'easy',max_players:players,mode:state.game==='domino'?'draw':'classic'};
+}
+async function ohanaStartSubmit(state,sy,request=api){
+ if(state.uncertain)throw new Error('We could not confirm the game. Check Your games before starting another.');
+ const plan=ohanaStartPlan(state,sy);
+ if(!state.table){let result;try{result=await request('/api/game/create',plan,'POST',state.room);}catch(error){state.uncertain=true;throw error;}if(!Number.isInteger(result?.id)||result.id<1){state.uncertain=true;throw new Error('We could not confirm the game. Check Your games before starting another.');}state.table=result.id;}
+ state.sent||=[];
+ if(state.opponent==='family')for(const id of state.people)if(!state.sent.includes(id)){await request('/api/game/'+state.table+'/invite',{member_id:id},'POST',state.room);state.sent.push(id);}
+ return state.table;
+}
+function showOhanaStartGame(initialGame=null){
+ const open=document.getElementById('ohana-start-game');if(open){open.focus();return;}if(!S.sync||!S.me)return;
+ const sy=S.sync,initial=typeof initialGame==='string'&&sy.types?.[initialGame]?initialGame:null,state={stage:initial?'people':'game',game:initial,opponent:'family',people:[],room:sy.roomId||S.room||1,busy:false};
+ const dialog=document.createElement('dialog');dialog.id='ohana-start-game';dialog.setAttribute('aria-labelledby','ohana-start-title');dialog.tabIndex=-1;
+ const draw=()=>{
+  const rules=ohanaStartRules(state.game,sy),type=sy.types?.[state.game],people=ohanaStartPeople(sy),family=state.opponent==='family';
+  const back=state.stage==='game'?'':`<button type="button" data-start-back>‹ Back</button>`;
+  let content;
+  if(state.stage==='game')content='<p>What would you like to play?</p><div class="ohana-start-games">'+OHANA_START_GAMES.filter(([id])=>sy.types?.[id]).map(([id,label])=>'<button type="button" data-start-game="'+id+'"><strong>'+esc(label)+'</strong>'+(sy.types[id].name!==label?'<small>'+esc(sy.types[id].name)+'</small>':'')+'</button>').join('')+'</div>';
+  else if(state.stage==='people'){
+   const instruction=rules.min===rules.max?'Choose '+(rules.min-1)+' '+(rules.min===2?'person':'people')+' to join you.':'Choose '+(rules.min-1)+' to '+(rules.max-1)+' people to join you.';
+   content='<h3>'+esc(type.name)+'</h3><p>Who would you like to play with?</p><div class="ohana-start-opponents"><button type="button" data-start-opponent="family" aria-pressed="'+family+'">Family or friend</button>'+(rules.robot?'<button type="button" data-start-opponent="bot" aria-pressed="'+(state.opponent==='bot')+'">Ohana Robot</button>':'')+(rules.solo?'<button type="button" data-start-opponent="solo" aria-pressed="'+(state.opponent==='solo')+'">Play by myself</button>':'')+'</div>';
+   if(family)content+='<p>'+instruction+(state.game==='spades'?' Spades is a four-person partner game.':'')+'</p><div class="ohana-start-people" role="group" aria-label="Choose family players">'+people.map(p=>'<label><input type="'+(rules.max===2?'radio':'checkbox')+'" name="start-family" value="'+p.id+'" '+(state.people.includes(p.id)?'checked':'')+'><span>'+esc(p.name)+'</span></label>').join('')+'</div>'+(!people.length?'<p>No other family members are in this room yet.</p>':'');
+   else content+='<p>'+(state.opponent==='bot'?'Ohana Robot is the computer player. We will start on Easy.':'Enjoy a game on your own.')+'</p>';
+   content+='<p data-start-count role="status"></p><button type="button" data-start-review>Next: review game</button>';
+  }else{
+   const chosen=state.opponent==='bot'?'Ohana Robot':state.opponent==='solo'?'Just you':state.people.map(id=>people.find(p=>p.id===id)?.name||'Family member').join(', ');
+   content='<h3>Ready to play?</h3><dl><dt>Game</dt><dd>'+esc(type.name)+'</dd><dt>With</dt><dd>'+esc(chosen)+'</dd></dl><p>'+(family?'We will send '+(state.people.length===1?'an invitation.':'invitations.')+' Your game starts when everyone joins.':'The game starts when you tap below.')+'</p><button type="button" data-start-confirm>'+(family?'Send invitation'+(state.people.length===1?'':'s'):'Start game')+'</button>';
+  }
+  dialog.innerHTML='<header>'+back+'<h2 id="ohana-start-title">Start a game</h2><button type="button" data-start-close>Close</button></header><div class="ohana-start-content">'+content+'<p class="ohana-start-error" role="status" aria-live="polite"></p></div>';
+  dialog.querySelector('[data-start-close]').onclick=()=>dialog.close();
+  const backButton=dialog.querySelector('[data-start-back]');if(backButton)backButton.onclick=()=>{state.stage=state.stage==='review'?'people':'game';draw();};
+  dialog.querySelectorAll('[data-start-game]').forEach(b=>b.onclick=()=>{state.game=b.dataset.startGame;state.opponent='family';state.people=[];state.stage='people';draw();});
+  dialog.querySelectorAll('[data-start-opponent]').forEach(b=>b.onclick=()=>{state.opponent=b.dataset.startOpponent;draw();});
+  const update=()=>{const count=dialog.querySelector('[data-start-count]'),next=dialog.querySelector('[data-start-review]');if(!next)return;try{ohanaStartPlan(state,sy);next.disabled=false;count.textContent=family?state.people.length+' selected':'';}catch(error){next.disabled=true;count.textContent=family?state.people.length+' selected':'';}};
+  dialog.querySelectorAll('.ohana-start-people input').forEach(input=>input.onchange=()=>{state.people=[...dialog.querySelectorAll('.ohana-start-people input:checked')].map(el=>Number(el.value));update();});
+  const review=dialog.querySelector('[data-start-review]');if(review)review.onclick=()=>{try{ohanaStartPlan(state,sy);state.stage='review';draw();}catch(error){dialog.querySelector('.ohana-start-error').textContent=error.message;}};
+  const confirm=dialog.querySelector('[data-start-confirm]');if(confirm)confirm.onclick=async()=>{
+   if(state.busy||state.uncertain)return;state.busy=true;dialog.querySelectorAll('button').forEach(b=>b.disabled=true);const status=dialog.querySelector('.ohana-start-error');status.textContent=family?'Sending your invitation…':'Starting your game…';
+   try{const id=await ohanaStartSubmit(state,sy);dialog.close();if(state.room!==S.room)await enterRoom(state.room);await sync();await openGame(id);}
+   catch(error){if(!dialog.isConnected){toast(error.message);return;}if(!state.table&&error.name==='OhanaConnectionError')state.uncertain=true;status.textContent=state.uncertain?'We could not confirm the game. Close this and check Your games before starting another.':error.message;dialog.querySelectorAll('button').forEach(b=>b.disabled=false);const back=dialog.querySelector('[data-start-back]');if(back&&state.table)back.disabled=true;confirm.disabled=!!state.uncertain;if(state.table&&family)confirm.textContent='Retry invitations';}
+   finally{state.busy=false;}
+  };
+  update();dialog.querySelector('h2').tabIndex=-1;dialog.querySelector('h2').focus({preventScroll:true});
+ };
+ dialog.addEventListener('cancel',e=>{if(state.busy)e.preventDefault();});dialog.addEventListener('close',()=>{dialog.remove();document.querySelector('.ohana-home-start')?.focus({preventScroll:true});});
+ document.body.append(dialog);draw();dialog.showModal();dialog.querySelector('h2').focus({preventScroll:true});
+}
+
+function ohanaUniqueGames(sy,meId){
+ const stamp=g=>Number.isFinite(Number(g.updated_at))?Number(g.updated_at):Date.parse(g.updated_at)||0;
+ const byId=new Map();for(const g of [...(sy?.allGames||[]),...(sy?.games||[])]){const id=Number(g?.id);if(!Number.isSafeInteger(id)||id<1)continue;const prior=byId.get(id);if(!prior||stamp(g)>=stamp(prior))byId.set(id,g);}
+ return [...byId.values()].filter(g=>(g.in_game||(g.players||[]).some(id=>Number(id)===Number(meId)))&&['playing','waiting'].includes(g.status)).sort((a,b)=>Number(!!b.my_turn)-Number(!!a.my_turn)||Number(b.updated_at||0)-Number(a.updated_at||0)||Number(a.id)-Number(b.id));
+}
+function ohanaUniqueInvites(items,sent=false){
+ const byId=new Map();for(const i of items||[]){const game=Number(i?.game_id),room=Number(i?.room_id);if(!Number.isSafeInteger(game)||game<1||!Number.isSafeInteger(room)||room<1)continue;const recipient=Number(i.member_id);if(sent&&(!Number.isSafeInteger(recipient)||recipient<1))continue;byId.set(sent?game+':'+recipient:String(game),i);}return [...byId.values()];
+}
+function ohanaGamePerson(g,id,sy){if(Number(id)===-1)return 'Ohana Robot';return g.names?.[id]?.name||[...(sy?.ohanaMembers||[]),...(sy?.members||[])].find(m=>Number(m.id)===Number(id))?.name||'Family member';}
+function ohanaGameRoom(g,sy){return g.room_name||(sy?.rooms||[]).find(r=>Number(r.id)===Number(g.room_id))?.name||sy?.familyName||'Ohana';}
+function ohanaHomeRowsHtml(sy,meId){
+ const games=ohanaUniqueGames(sy,meId);if(!games.length)return '<p class="ohana-home-games-empty">You are not in any games yet. Choose Start a game to invite someone or play with Ohana Robot.</p>';
+ return games.map(g=>{const people=(g.players||[]).map(id=>ohanaGamePerson(g,id,sy)).join(', '),turn=g.status==='waiting'?'Waiting for players':g.my_turn?'Your turn':(g.players?.[g.turn]!=null?ohanaGamePerson(g,g.players[g.turn],sy)+'’s turn':'Waiting for the next turn'),name=g.name||sy.types?.[g.type]?.name||'Game';return '<article class="ohana-home-game-row" data-home-game="'+Number(g.id)+'"><div><h3>'+esc(name)+'</h3><p>'+esc(people)+'</p><small>'+esc(ohanaGameRoom(g,sy))+'</small><strong class="ohana-home-turn">'+esc(turn)+'</strong></div><button type="button" data-home-open="'+Number(g.id)+'" data-home-room="'+Number(g.room_id||sy.roomId||1)+'" aria-label="'+esc((g.my_turn?'Play ':'Open ')+name+' with '+people)+'">'+(g.my_turn?'Play':'Open')+'</button></article>';}).join('');
+}
+function mountOhanaHomeGames(main,table,nook){
+ nook?.remove();main.querySelectorAll('.invite-reminder,.invite-alert,.invite-hub,.ohana-home-actions,.ohana-home-games').forEach(el=>el.remove());
+ const received=ohanaUniqueInvites(S.sync?.invitations),sent=ohanaUniqueInvites(S.sync?.sentInvitations,true),count=received.length+sent.length;
+ const actions=document.createElement('nav');actions.className='ohana-home-actions';actions.setAttribute('aria-label','Start, invitations and your games');
+ actions.innerHTML='<button type="button" class="ohana-home-start">Start a game</button><button type="button" class="ohana-home-invited" aria-label="Invited games, '+received.length+' received, '+sent.length+' sent">Invited games <span class="ohana-home-invite-count" aria-hidden="true">'+count+'</span></button><button type="button" class="ohana-home-my-games">My games</button>';
+ const section=document.createElement('section');section.className='ohana-home-games';section.id='ohana-home-games';section.setAttribute('aria-labelledby','ohana-home-games-title');section.innerHTML='<h2 id="ohana-home-games-title" tabindex="-1">My games</h2><div class="ohana-home-game-rows">'+ohanaHomeRowsHtml(S.sync,S.me.id)+'</div><p class="ohana-home-games-status" role="status"></p>';
+ table.append(actions,section);actions.querySelector('.ohana-home-start').onclick=showOhanaStartGame;actions.querySelector('.ohana-home-invited').onclick=()=>showOhanaInvitedGames(false);actions.querySelector('.ohana-home-my-games').onclick=()=>{section.scrollIntoView({block:'start'});section.querySelector('h2').focus({preventScroll:true});};
+ let opening=false;section.querySelectorAll('[data-home-open]').forEach(b=>b.onclick=async()=>{if(opening)return;opening=true;b.disabled=true;section.querySelector('.ohana-home-games-status').textContent='Opening game…';try{const room=Number(b.dataset.homeRoom);if(room!==S.room)await enterRoom(room);await openGame(Number(b.dataset.homeOpen));}catch(error){if(section.isConnected)section.querySelector('.ohana-home-games-status').textContent=error.message;else toast(error.message);}finally{opening=false;b.disabled=false;}});
+}
+const OHANA_INVITE_ACTIONS=new Map();
+function ohanaInvitedHtml(sy){
+ const received=ohanaUniqueInvites(sy?.invitations),sent=ohanaUniqueInvites(sy?.sentInvitations,true);
+ const incoming=received.length?'<h3>Invitations for you</h3>'+received.map(i=>'<article class="ohana-simple-invite" data-invitation-key="received:'+Number(i.game_id)+'"><h4>'+esc(sy.types?.[i.type]?.name||'Game')+'</h4><p>From '+esc(i.sender_name||'a family member')+'</p><small>'+esc(i.room_name||ohanaGameRoom(i,sy))+'</small><div class="ohana-invite-response"><button type="button" data-accept-invite="'+Number(i.game_id)+'" data-invite-room="'+Number(i.room_id)+'">Accept invitation</button><button type="button" data-decline-invite="'+Number(i.game_id)+'" data-invite-room="'+Number(i.room_id)+'">Decline invitation</button></div></article>').join(''):'<p class="ohana-invites-empty">No invitations for you right now.</p>';
+ const outgoing=sent.length?'<h3>Invitations you sent</h3>'+sent.map(i=>'<article class="ohana-simple-invite" data-invitation-key="sent:'+Number(i.game_id)+':'+Number(i.member_id)+'"><h4>'+esc(sy.types?.[i.type]?.name||'Game')+'</h4><p>To '+esc(i.recipient_name||'a family member')+' · Waiting for a reply</p><small>'+esc(i.room_name||ohanaGameRoom(i,sy))+'</small></article>').join(''):'';
+ return incoming+outgoing;
+}
+function ohanaPaintInvitedGames(dialog,force=false){
+ if(dialog.dataset.busy==='1')return;const signature=JSON.stringify([ohanaUniqueInvites(S.sync?.invitations),ohanaUniqueInvites(S.sync?.sentInvitations,true)]);if(!force&&dialog.dataset.signature===signature)return;dialog.dataset.signature=signature;
+ const list=dialog.querySelector('[data-ohana-invite-list]');list.innerHTML=ohanaInvitedHtml(S.sync);bindOhanaInviteResponses(list,dialog);for(const i of ohanaUniqueInvites(S.sync?.invitations))arrivalInviteSeen.add(Number(i.game_id));
+}
+function bindOhanaInviteResponses(root,dialog=null){
+ root.querySelectorAll('[data-accept-invite],[data-decline-invite]').forEach(button=>button.onclick=async()=>{
+  const game=Number(button.dataset.acceptInvite||button.dataset.declineInvite),accept=!!button.dataset.acceptInvite;if(OHANA_INVITE_ACTIONS.has(game)||dialog?.dataset.busy==='1')return;
+  const lock={};OHANA_INVITE_ACTIONS.set(game,lock);if(dialog)dialog.dataset.busy='1';(dialog||root).querySelectorAll('button').forEach(b=>b.disabled=true);const status=dialog?.querySelector('[data-ohana-invite-status]');if(status)status.textContent=accept?'Opening your game…':'Declining invitation…';
+  try{if(accept)await acceptInvite(game,Number(button.dataset.inviteRoom),button);else{const room=Number(button.dataset.inviteRoom);if(room>0&&room!==S.room)await enterRoom(room);await declineInvite(game,button);}
+   const remains=ohanaUniqueInvites(S.sync?.invitations).some(i=>Number(i.game_id)===game);
+   if(remains){if(status)status.textContent='The invitation is still waiting. Check your connection and try again.';}
+   else if(accept&&dialog?.isConnected)dialog.close();else if(status)status.textContent='Invitation declined.';
+  }catch(error){if(status)status.textContent=error.message;else toast(error.message);}
+  finally{if(OHANA_INVITE_ACTIONS.get(game)===lock)OHANA_INVITE_ACTIONS.delete(game);if(dialog?.isConnected){dialog.dataset.busy='0';dialog.querySelectorAll('button').forEach(b=>b.disabled=false);ohanaPaintInvitedGames(dialog,true);}else root.querySelectorAll('button').forEach(b=>b.disabled=false);}
+ });
+}
+function showOhanaInvitedGames(automatic=false){
+ let dialog=document.getElementById('ohana-invited-games');if(dialog){if(!automatic)dialog.dataset.automatic='0';ohanaPaintInvitedGames(dialog);return;}
+ dialog=document.createElement('dialog');dialog.id='ohana-invited-games';dialog.dataset.automatic=automatic?'1':'0';dialog.setAttribute('aria-labelledby','ohana-invited-title');
+ dialog.innerHTML='<header><h2 id="ohana-invited-title" tabindex="-1">Invited games</h2><button type="button" data-ohana-invite-close>Close</button></header><div class="ohana-invited-content"><div data-ohana-invite-list></div><p data-ohana-invite-status role="status" aria-live="polite"></p><button type="button" data-ohana-invite-refresh>Refresh invitations</button><button type="button" data-ohana-invite-start>Start a game</button></div>';
+ dialog.querySelector('[data-ohana-invite-close]').onclick=()=>{if(dialog.dataset.busy!=='1')dialog.close();};dialog.querySelector('[data-ohana-invite-start]').onclick=()=>{if(dialog.dataset.busy==='1')return;dialog.close();showOhanaStartGame();};
+ dialog.querySelector('[data-ohana-invite-refresh]').onclick=async()=>{if(dialog.dataset.busy==='1')return;const before=S.sync,status=dialog.querySelector('[data-ohana-invite-status]');dialog.dataset.busy='1';status.textContent='Checking invitations…';dialog.querySelectorAll('button').forEach(b=>b.disabled=true);try{await sync();status.textContent=S.sync===before?'Could not refresh. Your invitations are still here. Try again.':'Invitations are up to date.';}catch(error){status.textContent=error.message;}finally{if(dialog.isConnected){dialog.dataset.busy='0';dialog.querySelectorAll('button').forEach(b=>b.disabled=false);ohanaPaintInvitedGames(dialog,true);}}};
+ dialog.addEventListener('cancel',e=>{if(dialog.dataset.busy==='1')e.preventDefault();});dialog.addEventListener('close',()=>{dialog.remove();document.querySelector('.ohana-home-invited')?.focus({preventScroll:true});});document.body.append(dialog);ohanaPaintInvitedGames(dialog,true);dialog.showModal();dialog.querySelector('h2').focus({preventScroll:true});
+ for(const i of ohanaUniqueInvites(S.sync?.invitations))arrivalInviteSeen.add(Number(i.game_id));
+}
+function showOhanaFreshInvites(invitations){
+ const owner=String(S.me?.id||'')+':'+String(S.token||'');if(!S.me||!S.token){document.getElementById('ohana-invited-games')?.close();return;}
+ if(owner!==arrivalInviteSession){arrivalInviteSession=owner;arrivalInviteSeen=new Set();}
+ const pending=ohanaUniqueInvites(invitations),dialog=document.getElementById('ohana-invited-games');
+ if(dialog){if(!pending.length&&dialog.dataset.automatic==='1'&&dialog.dataset.busy!=='1')dialog.close();else ohanaPaintInvitedGames(dialog);return;}
+ if(!pending.some(i=>!arrivalInviteSeen.has(Number(i.game_id))))return;showOhanaInvitedGames(true);
+}
+
 function mountFamilyWelcome(main,table,nook){
  const greeting=document.createElement('p');greeting.className='ohana-home-welcome';greeting.textContent="There’s always a place for you.";table.append(greeting);
+ mountOhanaHomeGames(main,table,nook);
  if(!nook)return;
  const members=(S.sync?.members||[]).filter(p=>ohanaDiscoverablePerson(p)&&Number(p.id)>0&&Number(p.id)!==Number(S.me.id));
  const family=document.createElement('section');family.className='ohana-family-seats';family.setAttribute('aria-label','Your Ohana in this room');
@@ -11450,7 +11633,7 @@ function gameSetupCard(id,sy,insideSetup=false){
  if(!insideSetup)return `<article class="gcard game-setup" data-setup-game="${id}"><div class="setup-banner setup-scene-${id}"><img src="/${({spades:'ohana-mikes-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103',handfoot:'ohana-handfoot-cards-v4',chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3'})[id]||'ohana-'+id+'-sign-v2'}.webp?asset=ohana-v105-binary-repair-20261011" alt="${esc(gt.name)} game room"></div><div class="setup-wood"><button class="setup-start" data-open-game-setup="${id}">Go</button></div></article>`;
 
  const choices=(key,items)=>`<div class="setup-choices" role="group" aria-label="${key}">${items.map(([value,label])=>`<button type="button" class="setup-choice" data-setup-key="${key}" data-setup-value="${value}" aria-pressed="${String(cfg[key])===String(value)}">${key==='room'?roomTitle(rooms.find(r=>r.id===Number(value))?.name,Number(value)):esc(label)}</button>`).join('')}</div>`;
- return `<article class="gcard game-setup" data-setup-game="${id}"><div class="setup-banner setup-scene-${id}"><img src="/${({spades:'ohana-mikes-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103',handfoot:'ohana-handfoot-cards-v4',chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3'})[id]||'ohana-'+id+'-sign-v2'}.webp?asset=ohana-v105-binary-repair-20261011" alt="${esc(gt.name)} game room"><img class="setup-character" src="/${({spades:'eddie-limo',domino:'buddy-reef',handfoot:'buddy-eddie',words:'honu',chess:'buddy-flora',tictac:'buddy-sunny',mahjong:'ohana-splash-fish-v1',ohana10:'buddy-flora',checkers:'buddy-mango',memory:'buddy-kiko'})[id]||'honu'}.webp?asset=ohana-v105-binary-repair-20261011" alt=""></div><div class="setup-wood"><details class="setup-options"><summary>Set up</summary><div class="setup-fields"><div class="setup-field"><small>Room</small>${choices('room',rooms.map(r=>[r.id,r.name]))}</div><div class="setup-field"><small>Play</small>${choices('opponent',[['family','Ohana'],['bot','Honu'],...(id==='mahjong'||id==='memory'?[['solo','Solo']]:[])])}</div>${cfg.opponent==='bot'?`<div class="setup-field"><small>Level</small>${choices('difficulty',[['easy','Easy'],['medium','Medium'],['hard','Hard']])}</div>`:cfg.opponent==='family'&&gt.max>2?`<div class="setup-field"><small>Seats</small>${choices('players',Array.from({length:gt.max-1},(_,i)=>[i+2,String(i+2)]))}</div>`:''}${id==='mahjong'&&cfg.opponent!=='solo'?`<div class="setup-field"><small>Rounds</small>${choices('mode',[['classic','4'],['rounds8','8']])}</div>`:''}${id==='domino'?`<div class="setup-field"><small>Version</small>${choices('mode',[['draw','Draw'],['block','Block'],['allfives','All Fives'],['mexican','Mexican Train'],['chicken','Chicken Foot'],['double15','Double 15']])}</div>`:''}</div></details>${id==='words'?`<div class="setup-field words-board-choice" role="group" aria-label="Ohana Words board style"><small>Board</small>${choices('mode',[['classic','Classic'],['random','Random Random']])}<p>${cfg.mode==='random'?'Unused double and triple letter/word squares move after each valid word.':'Double and triple letter/word squares stay in place.'}</p></div>`:''}<button class="setup-start" data-new="${id}">Go</button></div></article>`;
+ return `<article class="gcard game-setup" data-setup-game="${id}"><div class="setup-banner setup-scene-${id}"><img src="/${({spades:'ohana-mikes-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103',handfoot:'ohana-handfoot-cards-v4',chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3'})[id]||'ohana-'+id+'-sign-v2'}.webp?asset=ohana-v105-binary-repair-20261011" alt="${esc(gt.name)} game room"><img class="setup-character" src="/${({spades:'eddie-limo',domino:'buddy-reef',handfoot:'buddy-eddie',words:'honu',chess:'buddy-flora',tictac:'buddy-sunny',mahjong:'ohana-splash-fish-v1',ohana10:'buddy-flora',checkers:'buddy-mango',memory:'buddy-kiko'})[id]||'honu'}.webp?asset=ohana-v105-binary-repair-20261011" alt=""></div><div class="setup-wood"><details class="setup-options"><summary>Set up</summary><div class="setup-fields"><div class="setup-field"><small>Room</small>${choices('room',rooms.map(r=>[r.id,r.name]))}</div><div class="setup-field"><small>Play</small>${choices('opponent',[['family','Ohana'],['bot','Ohana Robot'],...(id==='mahjong'||id==='memory'?[['solo','Solo']]:[])])}</div>${cfg.opponent==='bot'?`<div class="setup-field"><small>Level</small>${choices('difficulty',[['easy','Easy'],['medium','Medium'],['hard','Hard']])}</div>`:cfg.opponent==='family'&&gt.max>2?`<div class="setup-field"><small>Seats</small>${choices('players',Array.from({length:gt.max-1},(_,i)=>[i+2,String(i+2)]))}</div>`:''}${id==='mahjong'&&cfg.opponent!=='solo'?`<div class="setup-field"><small>Rounds</small>${choices('mode',[['classic','4'],['rounds8','8']])}</div>`:''}${id==='domino'?`<div class="setup-field"><small>Version</small>${choices('mode',[['draw','Draw'],['block','Block'],['allfives','All Fives'],['mexican','Mexican Train'],['chicken','Chicken Foot'],['double15','Double 15']])}</div>`:''}</div></details>${id==='words'?`<div class="setup-field words-board-choice" role="group" aria-label="Ohana Words board style"><small>Board</small>${choices('mode',[['classic','Classic'],['random','Random Random']])}<p>${cfg.mode==='random'?'Unused double and triple letter/word squares move after each valid word.':'Double and triple letter/word squares stay in place.'}</p></div>`:''}<button class="setup-start" data-new="${id}">Go</button></div></article>`;
 }
 function roomBackControl(attributes='',label='Back'){return '<button type="button" '+attributes+' aria-label="'+label+'" title="'+label+'" style="display:inline-flex;align-items:center;justify-content:center;min-width:44px!important;min-height:44px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important">'+gameControlIcon('back')+'</button>';}
 function roomHomeControl(attributes='data-ohana-home'){return '<button type="button" class="room-home-control" '+attributes+' aria-label="Home"><span class="room-home-arrow" aria-hidden="true">'+gameControlIcon('back')+'</span><span class="room-home-wordmark" aria-hidden="true">Ohana Home</span></button>';}
@@ -11755,7 +11938,7 @@ function renderGames() {
   const turns=mine.filter(g=>g.status==='playing'&&g.my_turn);
   const visibleGames=mine;
   const done = allGames.filter(g => g.in_game && g.status === 'finished').slice(0, 12);
-  const person=(g,id)=>id===-1?'Honu · computer':g.names?.[id]?.name||nameOf(id);
+  const person=(g,id)=>id===-1?'Ohana Robot':g.names?.[id]?.name||nameOf(id);
   const who=g=>`<div class="who">${g.players.map(id=>`<span title="${esc(person(g,id))}">${g.names?.[id]?avatarMarkup(g.names[id].avatar):avOf(id)}</span>`).join('')}<small>${g.players.map(id=>esc(person(g,id))).join(' · ')}</small></div>`;
   const roomName=g=>(sy.rooms||[]).find(r=>r.id===(g.room_id||sy.roomId))?.name||g.room_name||sy.familyName;
 
@@ -11799,7 +11982,7 @@ async function loadGameHistory(before=0){
  try{
   const data=await api('/api/game/history'+(before?'?before='+before:''));
   if(!panel.isConnected||panel.dataset.request!==token||S.gameShelf!=='history')return;
-  const person=(g,id)=>g.names?.[id]?.name||(id===-1?'Honu · computer':nameOf(id));
+  const person=(g,id)=>g.names?.[id]?.name||(id===-1?'Ohana Robot':nameOf(id));
   const date=t=>{const ms=gamePlayTime(t);return ms?new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',month:'short',day:'numeric',year:'numeric'}).format(new Date(ms)):'';};
   const rows=(data.games||[]).map(g=>{
    const result=g.winner==='tie'?'Tie':g.winner==='resigned'?'Ended':String(g.winner)===String(S.me.id)?'Won':g.winner==null?'Finished':'Lost';
@@ -12107,7 +12290,7 @@ async function requestRematch(g) {
   const meId = S.me?.id;
   const isBot = g.players.includes(-1) || (g.bot && g.bot.id === -1);
   const opponents = g.players.filter(p => p !== meId && p > 0);
-  const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Honu' : 'your Ohana');
+  const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Ohana Robot' : 'your Ohana');
 
   try {
     
@@ -12146,12 +12329,12 @@ function showRematchDialog(g) {
   const meId = S.me?.id;
   const isBot = g.players.includes(-1) || (g.bot && g.bot.id === -1);
   const opponents = g.players.filter(p => p !== meId && p > 0);
-  const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Honu' : 'your Ohana');
+  const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Ohana Robot' : 'your Ohana');
   const gameName = S.sync?.types?.[g.type]?.name || (typeof GAME_TYPES !== 'undefined' && GAME_TYPES[g.type]?.name) || g.name || 'Game';
   const won = +g.winner === meId;
   const tie = g.winner === 'tie';
   const winnerTitle = tie ? "It's a tie!" : (won ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`);
-  const inviteLabel = isBot ? '✦ Play Honu Again' : `✦ Invite ${esc(oppNames)} to Play Again`;
+  const inviteLabel = isBot ? '✦ Play Ohana Robot Again' : `✦ Invite ${esc(oppNames)} to Play Again`;
 
   const dialog = document.createElement('dialog');
   dialog.id = 'ohana-rematch-dialog';
@@ -12165,7 +12348,7 @@ function showRematchDialog(g) {
     <p style="font-family:Nunito,sans-serif;font-size:14px;color:#537b8c;margin:0 0 16px">Great match in ${esc(gameName)}!</p>
     <div style="background:#f4f9fb;border:1px solid #d8edf3;border-radius:16px;padding:14px;margin-bottom:18px">
       <div style="font-weight:700;font-size:16px;margin-bottom:4px;color:#15495e">Ready for another game?</div>
-      <div style="font-size:13px;color:#537b8c">${isBot ? 'Shuffle up and take on Honu again.' : `Invite ${esc(oppNames)} to play again right now.`}</div>
+      <div style="font-size:13px;color:#537b8c">${isBot ? 'Shuffle up and play with Ohana Robot again.' : `Invite ${esc(oppNames)} to play again right now.`}</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button type="button" class="setup-start" id="rematch-confirm-btn" style="width:100%;padding:13px 16px;font-size:16px;border-radius:12px;cursor:pointer;background:#ff7a59;color:#fff;border:none;font-weight:700;font-family:Nunito,sans-serif;box-shadow:0 3px 12px rgba(255,122,89,.35)">
@@ -12213,7 +12396,7 @@ function renderGame() {
       ${g.in_game ? waitingOhanaInvites(g) : ''}
       ${g.invite_code&&g.in_game?`<div class="new-player-invite"><button type="button" class="soft" id="inviteb" aria-label="Share an invite link with someone new">Share</button></div>`:''}
       ${!g.in_game ? `<div style="text-align:center"><button id="joinb">Join this game</button></div>` : ''}
-      ${g.in_game && g.players.length === 1 && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="botb" aria-label="Play Honu now">Play Honu</button></div>` : ''}
+      ${g.in_game && g.players.length === 1 && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="botb" aria-label="Play Ohana Robot now">Play Ohana Robot</button></div>` : ''}
       ${g.in_game && g.players.length >= 2 && g.players.length < g.max_players && (g.created_by === meId || S.me.is_admin) ? `<div style="text-align:center;margin-top:10px"><button class="soft" id="startb" aria-label="Start game now with ${g.players.length} players">Start</button></div>` : ''}`;
     const wb = $('#wback'); if (wb) wb.onclick = () => closeGame();
     const wl = $('#wleave'); if (wl) wl.onclick = async () => { if (await ohanaConfirm('Leave this game?')) { try { await api(`/api/game/${g.id}/leave`, {}); closeGame(); } catch (e) { toast(e.message); } } };
@@ -12230,8 +12413,8 @@ function renderGame() {
   else if (g.status === 'finished') {
     const isBot = g.players.includes(-1) || !!g.bot;
     const opponents = g.players.filter(p => p !== meId && p > 0);
-    const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Honu' : 'your Ohana');
-    const inviteLabel = isBot ? '✦ Play Honu Again' : `✦ Invite ${esc(oppNames)} to Play Again`;
+    const oppNames = opponents.map(p => nameOf(p)).join(' & ') || (isBot ? 'Ohana Robot' : 'your Ohana');
+    const inviteLabel = isBot ? '✦ Play Ohana Robot Again' : `✦ Invite ${esc(oppNames)} to Play Again`;
     head = `<div class="winbox">${g.winner === 'tie' ? "It's a tie!" : g.winner === 'resigned' ? 'Game ended' : (+g.winner === meId ? '🎉 You won!' : `🏆 ${esc(nameOf(+g.winner))} won!`)}<div class="winbox-actions" style="margin-top:12px"><button type="button" class="setup-start" id="winbox-play-again" style="margin:0 auto;display:inline-block;padding:9px 18px;font-size:15px;border-radius:12px;background:#15495e;color:#fff;border:none;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700">${inviteLabel}</button></div></div>`;
   }
   else head = `<div class="status turn-greeting ${turnId === meId ? 'me' : ''}"><button class="honu-host" type="button" aria-label="Talk to Honu"><img src="/honu.webp?asset=ohana-v105-binary-repair-20261011" alt="Honu, your Ohana sea turtle host"></button><div><b>${turnId === meId ? 'Your turn, '+esc(nameOf(meId))+'!' : esc(nameOf(turnId))+"’s turn"}</b></div><span class="turn-leaf" aria-hidden="true">${avOf(turnId)}</span></div>`;
@@ -13736,67 +13919,11 @@ function openTableInvite(g){
   dialog.close();toast('Invitation sent.');await sync();
  }catch(e){send.disabled=false;dialog.querySelector('.invite-error').textContent=e.message;}};
 }
-function inviteHub(){
- const sy=S.sync,received=sy.invitations||[],sent=sy.sentInvitations||[];
- const people=(sy.ohanaMembers||sy.members||[]).filter(m=>ohanaDiscoverablePerson(m)&&m.id!==S.me.id);
- const games=sy.allGames||sy.games||[];
- const groups=Object.entries(sy.types||{}).map(([id,type])=>{
-   const tables=games.filter(g=>g.type===id&&g.in_game&&g.status!=='finished');
-   const pending=sent.filter(i=>i.type===id);
-   return `<details class="invite-game-group"><summary>${esc(type.name)} <small>· ${tables.length} table${tables.length===1?'':'s'}${pending.length?` · ${pending.length} invited`:''}</small></summary>
-     ${tables.map(g=>{const names=g.players.map(p=>esc(g.names?.[p]?.name||nameOf(p))).join(' · ');const open=g.status==='waiting'&&g.players.length<g.max_players;return `<div class="invite-table-line"><span>${names||'Your table'}${open?' · seat open':''}</span>${open&&people.length?`<button type="button" data-invite-table="${g.id}" data-invite-room="${g.room_id||sy.roomId||1}">Invite</button>`:''}</div>`;}).join('')}
-     ${pending.map(i=>`<div class="invite-table-line"><span>${esc(i.recipient_name)} · invited</span></div>`).join('')}
-     ${!tables.length&&!pending.length?'<p>No tables yet.</p>':''}
-     <div class="invite-new-row"><button type="button" data-invite-new="${esc(id)}">New</button></div>
-   </details>`;
- }).join('');
- return `<section class="invite-hub" aria-label="Game invitations"><div class="invite-hub-top"><h2>Invites</h2></div>
-   ${received.length?`<h3>For you · ${received.length}</h3>${invitationCards()}`:''}
-   <h3>Choose a game</h3><div class="invite-groups">${groups}</div>
- </section>`;
-}
-function openInviteNewGame(typeId){
- const sy=S.sync,type=sy.types?.[typeId],roomId=(sy.rooms||[]).some(r=>r.id===1)?1:sy.roomId;
- if(!type)return;
- const occupied=new Set();
- for(const g of sy.allGames||sy.games||[]){
-   if(g.type!==typeId||g.status==='finished'||!g.players?.includes(S.me.id))continue;
-   for(const id of g.players)if(id!==S.me.id)occupied.add(Number(id));
- }
- for(const i of sy.sentInvitations||[])if(i.type===typeId)occupied.add(Number(i.member_id));
- for(const i of sy.invitations||[])if(i.type===typeId)occupied.add(Number(i.sender_id));
- const people=(sy.ohanaMembers||sy.members||[]).filter(m=>ohanaDiscoverablePerson(m)&&m.id!==S.me.id&&!occupied.has(Number(m.id)));
- const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog invite-new-game-dialog';
- dialog.innerHTML=`<h2>${esc(type.name)}</h2><p>${people.length?'Choose anyone below for a new game.':'Everyone already has this game or an invitation with you.'}</p>${people.length?`<div class="invite-people" role="group" aria-label="Choose people">${people.map(m=>`<label class="invite-person"><input type="checkbox" value="${m.id}">${avatarMarkup(m.avatar)}<span>${esc(m.name)}</span></label>`).join('')}</div>`:''}<p class="invite-error" role="status"></p><div>${people.length?'<button data-send>Invite</button> ':''}<button class="ghost" data-cancel>Close</button></div>`;
- document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
- dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
- if(people.length)dialog.querySelector('[data-send]').onclick=async()=>{
-   const ids=[...dialog.querySelectorAll('.invite-person input:checked')].map(x=>Number(x.value));
-   if(!ids.length){dialog.querySelector('.invite-error').textContent='Choose at least one person.';return;}
-   const b=dialog.querySelector('[data-send]');b.disabled=true;let sent=0;
-   for(const memberId of ids){
-     try{const game=await api('/api/game/create',{type:typeId,max_players:2},'POST',roomId);await api(`/api/game/${game.id}/invite`,{member_id:memberId},'POST',roomId);sent++;}
-     catch(e){dialog.querySelector('.invite-error').textContent=`${sent} sent. ${e.message}`;b.disabled=false;await sync();return;}
-   }
-   dialog.close();toast(`${sent} invitation${sent===1?'':'s'} sent.`);await sync();renderGames();
- };
-}
-function openInviteHubDialog(){
- const sy=S.sync,people=(sy.members||[]).filter(m=>ohanaDiscoverablePerson(m)&&m.id!==S.me.id),tables=(sy.games||[]).filter(g=>g.in_game&&g.status==='waiting'&&g.players.length<g.max_players);
- const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog';
- dialog.innerHTML=`<h2>Invite to a game</h2><label>Ohana<select data-person>${people.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></label><label>Game<select data-table>${tables.map(g=>`<option value="${g.id}">${esc(g.name)} · Open table</option>`).join('')}${Object.entries(sy.types).map(([id,g])=>`<option value="new:${id}">New ${esc(g.name)}</option>`).join('')}</select></label><p class="invite-error" role="status"></p><div><button data-send>Invite</button> <button class="ghost" data-cancel>Cancel</button></div>`;
- document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
- dialog.querySelector('[data-send]').onclick=async()=>{const b=dialog.querySelector('[data-send]');b.disabled=true;try{const memberId=Number(dialog.querySelector('[data-person]').value),choice=dialog.querySelector('[data-table]').value;if(!memberId||!choice)throw new Error('Choose an Ohana and a game.');const id=choice.startsWith('new:')?(await api('/api/game/create',{type:choice.slice(4),max_players:2})).id:Number(choice);await api(`/api/game/${id}/invite`,{member_id:memberId});dialog.close();toast('Invitation sent.');await sync();renderGames();}catch(e){dialog.querySelector('.invite-error').textContent=e.message;b.disabled=false;}};
-}
-function invitationCards() {
- const inv=S.sync.invitations||[];
- if(!inv.length) return '';
- return `<section class="invite-alert" aria-label="Game invitations"><h2>🎲 You’re invited to play!</h2>${inv.map(i=>`<article class="gcard ohana-invitation"><div class="em">💌</div><div class="t"><b>${esc(i.sender_name)} saved you a seat</b><span>${esc(S.sync.types[i.type]?.name||i.type)} · ${esc(i.room_name)}</span></div><button data-accept-invite="${i.game_id}" data-invite-room="${i.room_id}">Join now</button><button class="ghost" data-decline-invite="${i.game_id}">Not now</button></article>`).join('')}</section>`;
-}
-function bindInvitations(root) {
- root.querySelectorAll('[data-accept-invite]').forEach(b=>b.onclick=()=>acceptInvite(+b.dataset.acceptInvite,+b.dataset.inviteRoom,b));
- root.querySelectorAll('[data-decline-invite]').forEach(b=>b.onclick=()=>declineInvite(+b.dataset.declineInvite,b));
-}
+function inviteHub(){return '<section class="invite-hub"><h2>Invited games</h2>'+ohanaInvitedHtml(S.sync)+'<button type="button" data-invite-start>Start a game</button></section>';}
+function openInviteNewGame(typeId){showOhanaStartGame(typeId);}
+function openInviteHubDialog(){showOhanaInvitedGames(false);}
+function invitationCards(){return '<section class="invite-alert" aria-label="Game invitations">'+ohanaInvitedHtml(S.sync)+'</section>';}
+function bindInvitations(root){bindOhanaInviteResponses(root);}
 async function acceptInvite(gameId,roomId,btn){
  if(btn)btn.disabled=true;
  try{await enterRoom(roomId);await api(`/api/game/${gameId}/join`,{});document.querySelectorAll('.invite-pop').forEach(p=>{if(+p.dataset.gameId===gameId)p.remove();});await sync();await openGame(gameId);}
@@ -13823,46 +13950,7 @@ function showInvitePopup(inv){
 }
 /* Staged arrival invitation screen. Existing API handlers remain the sole authority. */
 let arrivalInviteSession='', arrivalInviteSeen=new Set();
-function showFreshInvites(invitations){
- const owner=String(S.me?.id||'')+':'+String(S.token||'');
- if(!S.me||!S.token){document.getElementById('arrival-invites')?.remove();return;}
- if(owner!==arrivalInviteSession){arrivalInviteSession=owner;arrivalInviteSeen=new Set();}
- const pending=(invitations||[]).filter(i=>Number.isSafeInteger(+i.game_id)&&+i.game_id>0);
- let dlg=document.getElementById('arrival-invites');
- if(!pending.length){dlg?.close();dlg?.remove();return;}
- const fresh=pending.some(i=>!arrivalInviteSeen.has(+i.game_id));
- if(!dlg&&!fresh)return;
- if(!dlg){
-  dlg=document.createElement('dialog');dlg.id='arrival-invites';dlg.setAttribute('aria-labelledby','arrival-invites-title');
-  dlg.style.cssText='max-width:min(620px,94vw);max-height:85dvh;overflow:auto;color:#4b2a13;background:#fff5dc;border:2px solid #936233;border-radius:12px;padding:20px;font:inherit';
-  dlg.innerHTML='<h2 id="arrival-invites-title">You’re invited</h2><div data-arrival-list></div><button type="button" data-arrival-close>Close</button>';
-  dlg.querySelector('[data-arrival-close]').onclick=()=>dlg.close();
-  dlg.addEventListener('close',()=>dlg.remove());document.body.append(dlg);dlg.showModal();
- }
- const list=dlg.querySelector('[data-arrival-list]');
- // Do not replace controls during an in-flight response or steal focus on routine sync.
- if(list.dataset.busy==='1')return;
- const signature=JSON.stringify(pending.map(i=>[i.game_id,i.sender_name,i.type,i.room_id]));
- if(list.dataset.signature===signature)return;
- list.dataset.signature=signature;
- list.innerHTML=pending.map(i=>`<article data-arrival-game="${+i.game_id}" style="padding:14px 0;border-bottom:1px solid #bd9a69"><strong>${esc(i.sender_name)} saved you a seat</strong><p>${esc(S.sync?.types?.[i.type]?.name||i.type)} · ${esc(i.room_name)}</p><button type="button" data-arrival-accept="${+i.game_id}" data-room="${+i.room_id}">Accept</button> <button type="button" data-arrival-decline="${+i.game_id}">Decline</button></article>`).join('');
- for(const i of pending)arrivalInviteSeen.add(+i.game_id);
- for(const btn of list.querySelectorAll('[data-arrival-accept],[data-arrival-decline]'))btn.onclick=async()=>{
-  if(list.dataset.busy==='1')return;
-  list.dataset.busy='1';list.querySelectorAll('button').forEach(b=>b.disabled=true);
-  const id=+(btn.dataset.arrivalAccept||btn.dataset.arrivalDecline);
-  try{
-   // Reuse current authenticated room checks, join CAS, error handling and sync.
-   if(btn.dataset.arrivalAccept)await acceptInvite(id,+btn.dataset.room,btn);
-   else await declineInvite(id,btn);
-  }finally{
-   list.dataset.busy='0';delete list.dataset.signature;
-   list.querySelectorAll('button').forEach(b=>b.disabled=false);
-   showFreshInvites(S.sync?.invitations||[]);
-   if(btn.dataset.arrivalAccept&&!S.sync?.invitations?.some(i=>+i.game_id===id)){dlg.close();dlg.remove();}
-  }
- };
-}
+function showFreshInvites(invitations){showOhanaFreshInvites(invitations);}
 
 function settingsHtml(isDialog) {
   const chosenAv = S.av || S.me?.avatar || '@hon';
@@ -16288,7 +16376,7 @@ new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true
 (()=>{'use strict';
 const set=(e,k,v)=>{if(e&&e.style.getPropertyValue(k)!==v)e.style.setProperty(k,v,'important')};
 const apply=(e,values)=>{for(const[k,v]of Object.entries(values))set(e,k,v)};
-function bridgeOwnGames(){const bridge=document.querySelector('#ohana-chat-dialog');bridge?.close();document.querySelector('#ohana-own-games')?.remove();const dialog=document.createElement('dialog');dialog.id='ohana-own-games';dialog.setAttribute('aria-label','My games');dialog.style.cssText='width:min(680px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto;background:#fff3d9;color:#214b49;border:0;padding:20px;z-index:2147483647';const title=document.createElement('h2');title.textContent='My games';dialog.append(title);const list=document.createElement('div');list.setAttribute('aria-label','All my ongoing games');const games=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&['playing','waiting'].includes(g.status)).sort((a,b)=>Number(b.my_turn)-Number(a.my_turn)||Number(b.updated_at)-Number(a.updated_at));for(const game of games){const row=document.createElement('div');row.style.cssText='padding:12px 0;border-bottom:1px solid #c4b38d';row.className='ohana-own-game';const picture=document.createElement('img');const art={spades:'ohana-mikes-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103',handfoot:'ohana-handfoot-cards-v4',chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3'};picture.src='/'+(art[game.type]||'ohana-'+game.type+'-sign-v2')+'.webp?asset=ohana-v105-binary-repair-20261011';picture.alt=(game.name||game.type)+' game';picture.loading='lazy';picture.onerror=()=>picture.remove();row.append(picture);const text=document.createElement('p'),players=(game.players||[]).map(id=>id===-1?'Honu · computer':game.names?.[id]?.name||nameOf(id));text.textContent=(game.name||game.type)+' · '+players.join(' · ')+' · '+(game.status==='waiting'?'Waiting for players':game.my_turn?'Your turn':(game.names?.[game.players?.[game.turn]]?.name||nameOf(game.players?.[game.turn]))+'’s turn');text.style.margin='0 0 5px';const go=document.createElement('button');go.type='button';go.textContent='Go';go.setAttribute('aria-label','Go to '+(game.name||game.type)+' with '+players.join(' and '));go.style.cssText='min-height:44px;background:none;border:0;color:#075c69;font:800 18px Nunito';let busy=false;go.onclick=async()=>{if(busy)return;busy=true;go.disabled=true;try{document.dispatchEvent(new Event('ohana-music-leave-room'));const room=Number(game.room_id||S.sync?.roomId||S.room);if(room!==Number(S.room))await enterRoom(room);S.colorBook=false;S.prayer=false;dialog.close();await openGame(game.id)}catch(error){text.textContent=error.message;busy=false;go.disabled=false}};row.append(text,go);list.append(row)}if(!games.length){const empty=document.createElement('p');empty.textContent='No ongoing games yet.';list.append(empty)}const back=document.createElement('button');back.type='button';back.textContent='Back';back.style.cssText='min-height:44px;background:none;border:0;color:#075c69;font:800 18px Nunito';back.onclick=()=>dialog.close();dialog.append(list,back);dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal()}
+function bridgeOwnGames(){const bridge=document.querySelector('#ohana-chat-dialog');bridge?.close();document.querySelector('#ohana-own-games')?.remove();const dialog=document.createElement('dialog');dialog.id='ohana-own-games';dialog.setAttribute('aria-label','My games');dialog.style.cssText='width:min(680px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto;background:#fff3d9;color:#214b49;border:0;padding:20px;z-index:2147483647';const title=document.createElement('h2');title.textContent='My games';dialog.append(title);const list=document.createElement('div');list.setAttribute('aria-label','All my ongoing games');const games=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&['playing','waiting'].includes(g.status)).sort((a,b)=>Number(b.my_turn)-Number(a.my_turn)||Number(b.updated_at)-Number(a.updated_at));for(const game of games){const row=document.createElement('div');row.style.cssText='padding:12px 0;border-bottom:1px solid #c4b38d';row.className='ohana-own-game';const picture=document.createElement('img');const art={spades:'ohana-mikes-cards-v4',domino:'ohana-domino-sign-v2',ohana10:'ohana-ten-room-v103',handfoot:'ohana-handfoot-cards-v4',chess:'ohana-chess-beach-v3',tictac:'ohana-tictac-beach-v3',words:'ohana-words-detail-v3'};picture.src='/'+(art[game.type]||'ohana-'+game.type+'-sign-v2')+'.webp?asset=ohana-v105-binary-repair-20261011';picture.alt=(game.name||game.type)+' game';picture.loading='lazy';picture.onerror=()=>picture.remove();row.append(picture);const text=document.createElement('p'),players=(game.players||[]).map(id=>id===-1?'Ohana Robot':game.names?.[id]?.name||nameOf(id));text.textContent=(game.name||game.type)+' · '+players.join(' · ')+' · '+(game.status==='waiting'?'Waiting for players':game.my_turn?'Your turn':(game.names?.[game.players?.[game.turn]]?.name||nameOf(game.players?.[game.turn]))+'’s turn');text.style.margin='0 0 5px';const go=document.createElement('button');go.type='button';go.textContent='Go';go.setAttribute('aria-label','Go to '+(game.name||game.type)+' with '+players.join(' and '));go.style.cssText='min-height:44px;background:none;border:0;color:#075c69;font:800 18px Nunito';let busy=false;go.onclick=async()=>{if(busy)return;busy=true;go.disabled=true;try{document.dispatchEvent(new Event('ohana-music-leave-room'));const room=Number(game.room_id||S.sync?.roomId||S.room);if(room!==Number(S.room))await enterRoom(room);S.colorBook=false;S.prayer=false;dialog.close();await openGame(game.id)}catch(error){text.textContent=error.message;busy=false;go.disabled=false}};row.append(text,go);list.append(row)}if(!games.length){const empty=document.createElement('p');empty.textContent='No ongoing games yet.';list.append(empty)}const back=document.createElement('button');back.type='button';back.textContent='Back';back.style.cssText='min-height:44px;background:none;border:0;color:#075c69;font:800 18px Nunito';back.onclick=()=>dialog.close();dialog.append(list,back);dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal()}
 function bridgeExtraControls(d,tools,music){const compact=innerWidth<=600;apply(d.querySelector('header'),{width:'calc(100% - 20px)',gap:'6px','align-items':'center','justify-content':'space-between'});apply(d.querySelector('.hub-home'),{display:'flex',gap:'0',padding:'0',width:compact?'200px':'240px','min-width':'0',height:'44px',flex:'0 0 auto'});apply(d.querySelector('.hub-home span'),{width:compact?'180px':'220px',height:'44px',display:'inline-block','background-size':'contain'});apply(d.querySelector('.hub-room-brand'),{'font-family':'Fredoka,Nunito,sans-serif','font-size':compact?'24px':'30px','font-weight':'700','line-height':'1.1',color:'#fff1c0','text-shadow':'-1px -1px 0 #4a2d16,1px -1px 0 #4a2d16,-1px 1px 0 #4a2d16,1px 1px 0 #4a2d16,0 2px 3px #24190d',background:'none',border:'0','white-space':'nowrap'});const close=d.querySelector('#uc-close');if(close){apply(close,{display:'none'});close.tabIndex=-1;close.setAttribute('aria-hidden','true')}const games=tools.querySelector('[data-go=games]');if(games&&!tools.querySelector('[data-go=my-games]')){const b=games.cloneNode(true);b.dataset.go='my-games';b.setAttribute('aria-label','My games, all ongoing games');b.querySelector('small').textContent='My games';b.onclick=bridgeOwnGames;games.parentElement.append(b)}const stage=music.querySelector('.hub-record-stage');if(stage&&!stage.querySelector('[data-lid-music]')){const lid=document.createElement('button');lid.type='button';lid.dataset.lidMusic='';lid.setAttribute('aria-label','Open the jukebox from the record-player lid');lid.style.cssText='position:absolute;left:8%;top:0;width:84%;height:54%;min-height:44px;background:none!important;border:0!important;box-shadow:none!important;padding:0!important';lid.textContent='Playlist';lid.onclick=()=>{d.close();document.dispatchEvent(new Event('ohana-open-music-room'));};stage.append(lid)}}
 
 function refresh(){const d=document.querySelector('#ohana-chat-dialog');if(!d?.open)return;const shell=d.querySelector('.uc-shell'),music=d.querySelector('#hub-music-view'),tools=d.querySelector('#uc-tools'),main=d.querySelector('.uc-main'),tabs=d.querySelector('.hub-tabs');if(!shell||!music||!tools||!main||!tabs)return;

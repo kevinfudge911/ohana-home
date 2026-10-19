@@ -11897,7 +11897,7 @@ async function api2(req, env222222, url) {
     const names = Object.fromEntries(people.map((m) => [m.id, m]));
     for (const g of page) {
       g.names = Object.fromEntries(g.players.filter((id) => names[id]).map((id) => [id, names[id]]));
-      if (g.players.includes(BOT_ID)) g.names[BOT_ID] = { id: BOT_ID, name: "Honu \xB7 computer", avatar: "@hon" };
+      if (g.players.includes(BOT_ID)) g.names[BOT_ID] = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon" };
     }
     return json({ games: page.filter((g) => !managed || managed.games.includes(g.type)), next: history.length > 30 ? page.at(-1)?.id : null });
   }
@@ -11914,7 +11914,7 @@ async function api2(req, env222222, url) {
     if (max === 1 || withBot) {
       const players = withBot ? [me.id, BOT_ID] : [me.id];
       const st = initState(type, players, now(), mode);
-      if (withBot) st.bot = { id: BOT_ID, name: "Honu", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
+      if (withBot) st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
       if (withBot) await db.prepare("UPDATE games SET players=? WHERE id=?").bind(JSON.stringify(players), r.meta.last_row_id).run();
       const state = JSON.stringify(st);
       await db.prepare("UPDATE games SET state=?,status='playing',turn=? WHERE id=?").bind(state, Number.isInteger(st.nextTurn) ? st.nextTurn : 0, r.meta.last_row_id).run();
@@ -11932,7 +11932,7 @@ async function api2(req, env222222, url) {
     const players = JSON.parse(g.players);
     const names = {};
     for (const m of (await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=?").bind(g.room_id).all()).results) names[m.id] = m;
-    if (players.includes(BOT_ID)) names[BOT_ID] = { id: BOT_ID, name: "Honu \xB7 computer", avatar: "@hon" };
+    if (players.includes(BOT_ID)) names[BOT_ID] = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon" };
     if (!action) {
       if(g.type==='mahjong'&&g.state&&g.status==='playing'){
         const raw=JSON.parse(g.state);
@@ -11977,7 +11977,7 @@ async function api2(req, env222222, url) {
         if (withBot || max === 1) {
           const seats = withBot ? [me.id, BOT_ID] : [me.id];
           const st = initState(g.type, seats, newId * 7919 + ts % 1e5, g.mode || "classic");
-          if (withBot) st.bot = { id: BOT_ID, name: "Honu", avatar: "@hon", difficulty: JSON.parse(g.state || "{}").bot?.difficulty || "easy", memory: {}, moves: 0 };
+          if (withBot) st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: JSON.parse(g.state || "{}").bot?.difficulty || "easy", memory: {}, moves: 0 };
           await db.prepare("UPDATE games SET players=?,state=?,status='playing',turn=? WHERE id=?").bind(JSON.stringify(seats), JSON.stringify(st), Number.isInteger(st.nextTurn) ? st.nextTurn : 0, newId).run();
         } else {
           for (const recipient of humanPlayers.filter((p2) => p2 !== me.id)) {
@@ -12002,7 +12002,7 @@ async function api2(req, env222222, url) {
       if (humanPlayers.length !== 1) throw new Error("Honu can only join a one-person waiting table.");
       const seats = [me.id, BOT_ID];
       const st = initState(g.type, seats, id * 7919 + now() % 1e5, g.mode || "classic");
-      st.bot = { id: BOT_ID, name: "Honu", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
+      st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
       const turn = Number.isInteger(st.nextTurn) ? st.nextTurn : 0;
       const started = await db.prepare("UPDATE games SET players=?,max_players=2,state=?,status='playing',turn=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(seats), JSON.stringify(st), turn, now(), id, g.players).run();
       if (!started.meta.changes) throw new Error("This table just changed. Please open it again.");
