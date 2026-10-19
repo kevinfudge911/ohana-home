@@ -10197,7 +10197,7 @@ var PuzzleRoom = class {
     if (m.t === "deploy") {
       const ids=Array.isArray(m.ids)?m.ids.filter(Number.isInteger):null;
       if(m.edges!==true&&!ids?.length)return null;
-      const hasArea=m.edges!==true&&ids?.length===1&&Object.prototype.hasOwnProperty.call(m,"area");
+      const hasArea=(m.edges===true||ids?.length===1)&&Object.prototype.hasOwnProperty.call(m,"area");
       if(hasArea&&(!m.area||typeof m.area!=="object"||Array.isArray(m.area)))return {t:"tray-deny",text:"The visible puzzle area is unavailable. Try again without moving any pieces."};
       const area=hasArea?m.area:null;
       const plan=puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},m.edges===true,ids,area);
