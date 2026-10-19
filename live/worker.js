@@ -8587,7 +8587,7 @@ __name222(o10Move, "o10Move");
 __name2222(o10Move, "o10Move");
 __name22222(o10Move, "o10Move");
 function o10View(st, viewer) {
-  return { ...st, hands: Object.fromEntries(Object.entries(st.hands).map(([p, h]) => [p, String(p) === String(viewer) ? h : h.length])), deck: st.deck.length, discard: st.discard.slice(-1) };
+  return { ...st, hands: Object.fromEntries(Object.entries(st.hands).map(([p, h]) => [p, String(p) === String(viewer) ? h : h.length])), deck: st.deck.length, discard: st.discard.slice(-1), discardCount: st.discard.length };
 }
 __name(o10View, "o10View");
 __name2(o10View, "o10View");
