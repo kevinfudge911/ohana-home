@@ -10,6 +10,7 @@ Repeated turntable placeholder tiles are replaced by explicitly typographic titl
 
 `node tests/music-playlist.cjs` passes isolated tests for selected playlist snapshots, browsing independence, explicit playlist changes, repeated taps, varied starting songs, manual choice, pause/resume time, last-track loop, shuffle coverage, reload seek without autoplay, return rendering, all-failed queue stop, pending private-file cancellation, late-response ordering, empty playlists and revoked tracks. All 29 inline scripts parse. These mocked transport tests do not establish audible playback or device behavior.
 
-Vocal-first inputs were fetched from Kevin's private Drive through its connector and the 177,206-byte candidate JSON was materialized locally. Thirteen candidates remain outside the catalog: listening audition has not been completed. Source pages and prior licensing/decode evidence are research, not content or in-app playback acceptance. No bulk synthesized piano batch, YouTube integration, purchases or family records were added.
 
 Publication and served-browser verification are recorded in the task result. Physical iPhone/iPad/Safari, Bluetooth, lock-screen playback and audible listening remain distinct from responsive Chrome and native media-state checks.
+
+GitHub publication checkpoint: main fast-forwarded without force to 002eb455a413778f719c53be1c7e38bcbac9d67a. Public git ls-remote independently confirms it. Cloudflare's connected main build has not appeared; last active version remains a57aaf1c for 8c3e035. No hosting settings were changed. Served verification is pending the build trigger.
