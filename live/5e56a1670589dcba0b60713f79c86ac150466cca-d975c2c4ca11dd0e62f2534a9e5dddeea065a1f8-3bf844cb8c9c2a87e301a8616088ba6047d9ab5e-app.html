@@ -4994,7 +4994,7 @@ html.ohana-world body #game[data-game-type="domino"] #world-scoreboard,
 html.ohana-world body #game[data-game-type="domino"] #game-head>h2,
 html.ohana-world body #game[data-game-type="domino"] .turn-greeting,
 html.ohana-world body #game[data-game-type="domino"] .status{display:none!important}
-html.ohana-world body #game #board .domino-room{position:fixed!important;inset:0 0 var(--game-rail-space,calc(136px + env(safe-area-inset-bottom)))!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;overflow:hidden!important}
+html.ohana-world body #game #board .domino-room{position:fixed!important;inset:var(--ohana-game-header-space,96px) 0 var(--game-rail-space,calc(136px + env(safe-area-inset-bottom)))!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;overflow:hidden!important}
 html.ohana-world body #game #board .domino-table-shell{position:absolute!important;inset:0!important;display:grid!important;grid-template-rows:minmax(0,1fr) 176px!important;gap:0!important;padding:0!important;margin:0!important;min-height:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
 html.ohana-world body #game #board .domino-board{position:relative!important;width:100%!important;height:100%!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;touch-action:none!important;background:linear-gradient(180deg,rgba(98,48,18,.12),rgba(66,30,11,.2)),var(--ohana-wood) center/700px!important;border:0!important;border-radius:0!important;box-shadow:none!important;cursor:grab}
 html.ohana-world body #game #board .domino-board::before,
@@ -6196,7 +6196,7 @@ function mountWorldHome(){
  // Home branding stays in the entrance header; keep the turn area clear.
  m.append(table);
  const roomView=document.createElement('ohana-scene');roomView.className='ohana-room-view';roomView.setAttribute('world','');roomView.setAttribute('world-theme',worldSetting().kind);roomView.setAttribute('aria-label','Your Ohana room');m.prepend(roomView);
- // Keep the entrance picture clear; game destinations live in the shared bottom workstation.
+ // Keep the entrance picture clear; game destinations are available in Ohana Bridge.
  const foyer=document.createElement('section');foyer.className='world-home-foyer ohana-entrance';foyer.setAttribute('aria-label','Welcome to your Ohana room');m.prepend(foyer);foyer.append(roomView);if(tabs)mountHomeWorkstation(m,tabs);const heading=document.querySelector('#app>header');if(heading){heading.classList.add('ohana-entrance-heading');foyer.prepend(heading);}
  mountFamilyWelcome(m,table,nook);
  foyer.insertAdjacentHTML('beforeend',ohanaEntranceBible());
@@ -6562,9 +6562,9 @@ function decorateWorldRooms(){
 }
 
 function mountHomeWorkstation(m,tabs){
- tabs.querySelector('[data-game-shelf="invites"]')?.remove();
+ // Shelf navigation belongs in Bridge; keep only the player in the Home workstation.
+ tabs.remove();
  const dock=document.createElement('nav');dock.id='home-controls-dock';dock.className='ohana-workstation';dock.setAttribute('aria-label','Ohana Home workstation');
- tabs.classList.add('dock-actions');tabs.setAttribute('aria-label','Your game destinations');
  const player=document.createElement('div');player.className='dock-player';player.innerHTML=worldPortrait(S.me.id);
  const games=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&['playing','waiting'].includes(g.status));
 
@@ -6572,7 +6572,7 @@ function mountHomeWorkstation(m,tabs){
  const seat=player.querySelector('.world-seat');(seat||player).append(count);
  const settings=document.createElement('button');settings.type='button';settings.className='dock-gear-toggle';settings.textContent='⚙';settings.setAttribute('aria-label','Ohana settings');settings.onclick=openSettingsDialog;
  const tools=document.createElement('div');tools.className='dock-bottom-tools';tools.append(settings);
- dock.append(tabs,tools,player);m.append(dock);observeGameRail(dock,'--home-workstation-space');
+ dock.append(tools,player);m.append(dock);observeGameRail(dock,'--home-workstation-space');
 }
 
 const OHANA_START_GAMES=[['words','Word game'],['domino','Dominoes'],['tictac','Tic-Tac-Toe'],['memory','Memory Match'],['checkers','Checkers'],['chess','Chess'],['handfoot','Hand & Foot'],['ohana10','Ohana 10'],['spades','Spades'],['mahjong','Mahjong']];
@@ -13693,10 +13693,10 @@ function chatHeadDrag(h){h.setAttribute('aria-label','Open Ohana tools');h.oncli
 
 function toggleChatPop(){const d=document.getElementById('ohana-chat-dialog');if(d&&d.open){saveChatDraft();d.close();}else openChatInbox();}
 // The messenger doubles as a command hub: these shortcuts jump to Games/Rooms/Ohana/Got Jesus/Settings.
-async function openGamesOrPuzzle(){
+async function openGamesOrPuzzle(shelf='new'){
  leaveGrannyContext();
- S.colorBook=false;PZ.lobby=false;S.prayer=false;
- const done=()=>{S.tab='games';S.gameShelf='new';render();};
+ const destination=['history','others'].includes(shelf)?shelf:'new';
+ const done=()=>{S.colorBook=false;PZ.lobby=false;S.prayer=false;S.tab='games';S.gameShelf=destination;render();};
  if(PZ.id){closePuzzle();setTimeout(done,0);}
  else if(S.game){closeGame();setTimeout(done,0);}
  else done();
@@ -13809,6 +13809,7 @@ async function messengerGo(action){
  const d=document.getElementById('ohana-chat-dialog');if(d&&d.open){saveChatDraft();d.close();}
  if(['games','puzzle','ohana','rooms','faith'].includes(action))leaveGrannyContext();
  if(action==='games'){openGamesOrPuzzle();return;}
+ if(action==='history'||action==='others'){openGamesOrPuzzle(action);return;}
  if(action==='puzzle'){openPuzzleLobby();return;}
  if(action==='ohana'){goHomePorch();return;}
  if(action==='megaphone'){openMegaphoneDialog();return;}
@@ -13857,7 +13858,7 @@ function bridgeCommandsHtml(){
   gameCtrls='<button data-go="game-restart" aria-label="Start another table"><small>Restart</small></button>'+(S.gstate?.in_game&&S.gstate?.status==='playing'?'<button data-go="game-quit" aria-label="Quit this game"><small>Quit</small></button>':'')+'<button data-go="game-sound" aria-label="Toggle game sounds"><span class="uc-cmd-ic">'+(AudioSys.muted?'🔇':'🔊')+'</span><small>'+(AudioSys.muted?'Muted':'Sound')+'</small></button><button data-go="game-help" aria-label="How to play this game"><span class="uc-cmd-ic">❓</span><small>Rules</small></button><button data-go="game-leave" aria-label="Leave this table"><span class="uc-cmd-ic">🏳️</span><small>Leave</small></button>';
  }
  if(inGame&&['ohana10','handfoot'].includes(S.gstate?.type))gameCtrls+='<button data-go="game-meld-help" aria-label="Meld requirement and examples"><small>Meld guide</small></button>';
- return '<div class="uc-command-sections" role="group" aria-label="Ohana Command Hub"><div class="uc-cmd-group"><div class="uc-cmd-group-label">Games &amp; game controls</div><div class="uc-cmd-buttons"><button data-go="games" aria-label="Games list"><span class="uc-cmd-ic">🎲</span><small>Games</small></button><button data-go="puzzle" aria-label="The Puzzle Room"><span class="uc-cmd-ic">🧩</span><small>Puzzle</small></button>'+gameCtrls+'</div></div><div class="uc-cmd-group"><div class="uc-cmd-group-label">App / System settings</div><div class="uc-cmd-buttons"><button data-go="ohana" aria-label="Ohana home porch"><span class="uc-cmd-ic">🏠</span><small>Ohana</small></button><button data-go="invite" aria-label="Invite family and friends"><span class="uc-cmd-ic">💌</span><small>Invite</small></button><button data-go="rooms" aria-label="Rooms"><span class="uc-cmd-ic">🚪</span><small>Rooms</small></button><button data-go="faith" aria-label="Got Jesus — Bible and prayer"><span class="uc-cmd-ic uc-cmd-cross">'+prCrossSVG('')+'</span><small>Got Jesus</small></button><button data-go="settings" aria-label="Settings"><span class="uc-cmd-ic">⚙</span><small>Settings</small></button><button data-go="leaderboard" aria-label="Leaderboard"><span class="uc-cmd-ic">🏆</span><small>Leaderboard</small></button>'+((S.me?.is_admin||S.me?.can_announce)?'<button data-go="megaphone" aria-label="Send an announcement to everyone"><span class="uc-cmd-ic">📣</span><small>Megaphone</small></button>':'')+(S.me?.is_admin?'<button data-go="aichat" aria-label="Ohana AI Chat"><span class="uc-cmd-ic">🤖</span><small>AI Chat</small></button>':'')+'</div></div></div>';
+ return '<div class="uc-command-sections" role="group" aria-label="Ohana Command Hub"><div class="uc-cmd-group"><div class="uc-cmd-group-label">Games &amp; game controls</div><div class="uc-cmd-buttons"><button data-go="games" aria-label="Games list"><span class="uc-cmd-ic">🎲</span><small>Games</small></button><button data-go="puzzle" aria-label="The Puzzle Room"><span class="uc-cmd-ic">🧩</span><small>Puzzle</small></button><button data-go="history" aria-label="Finished game history"><small>History</small></button><button data-go="others" aria-label="Other games in your rooms"><small>Other games</small></button>'+gameCtrls+'</div></div><div class="uc-cmd-group"><div class="uc-cmd-group-label">App / System settings</div><div class="uc-cmd-buttons"><button data-go="ohana" aria-label="Ohana home porch"><span class="uc-cmd-ic">🏠</span><small>Ohana</small></button><button data-go="invite" aria-label="Invite family and friends"><span class="uc-cmd-ic">💌</span><small>Invite</small></button><button data-go="rooms" aria-label="Rooms"><span class="uc-cmd-ic">🚪</span><small>Rooms</small></button><button data-go="faith" aria-label="Got Jesus — Bible and prayer"><span class="uc-cmd-ic uc-cmd-cross">'+prCrossSVG('')+'</span><small>Got Jesus</small></button><button data-go="settings" aria-label="Settings"><span class="uc-cmd-ic">⚙</span><small>Settings</small></button><button data-go="leaderboard" aria-label="Leaderboard"><span class="uc-cmd-ic">🏆</span><small>Leaderboard</small></button>'+((S.me?.is_admin||S.me?.can_announce)?'<button data-go="megaphone" aria-label="Send an announcement to everyone"><span class="uc-cmd-ic">📣</span><small>Megaphone</small></button>':'')+(S.me?.is_admin?'<button data-go="aichat" aria-label="Ohana AI Chat"><span class="uc-cmd-ic">🤖</span><small>AI Chat</small></button>':'')+'</div></div></div>';
 }
 async function refreshChatInbox(){
  if(!S.me||!S.token||UC.busy)return;UC.busy=true;
@@ -17458,7 +17459,7 @@ function closeMusicRoom(){roomOpen=false;document.body.style.overflow=returnOver
 const bridgeLayerStyle=document.createElement('style');bridgeLayerStyle.textContent=':host{pointer-events:none!important}.compact button,.compact input,.room-home,.full,.full button,.full input,.full select,.full dialog{pointer-events:auto!important}';shadow.append(bridgeLayerStyle);
 const bridgeLayerDocumentStyle=document.createElement('style');bridgeLayerDocumentStyle.textContent='#ohana-chat-dialog{z-index:20010!important}';document.head.append(bridgeLayerDocumentStyle);
 document.addEventListener('ohana-music-leave-room',()=>{if(roomOpen)closeMusicRoom()});
-document.addEventListener('click',e=>{if(!roomOpen)return;const target=e.target?.closest?.('#ohana-chat-dialog .hub-home,#ohana-chat-dialog [data-go]');if(target&&(target.classList.contains('hub-home')||['games','puzzle','ohana','rooms','faith','granny','settings'].includes(target.dataset.go)))closeMusicRoom()},true);
+document.addEventListener('click',e=>{if(!roomOpen)return;const target=e.target?.closest?.('#ohana-chat-dialog .hub-home,#ohana-chat-dialog [data-go]');if(target&&(target.classList.contains('hub-home')||['games','history','others','puzzle','ohana','rooms','faith','granny','settings'].includes(target.dataset.go)))closeMusicRoom()},true);
 document.addEventListener('ohana-open-music-room',()=>{openMusicRoom();shadow.querySelector('.open')?.click()});
 function musicCommands(){if(typeof S==='undefined'||!S.token){document.querySelector('[data-music-commands]')?.remove();return;}const commands=document.querySelector('.uc-command-sections');if(!commands||document.querySelector('[data-music-commands]'))return;const section=document.createElement('div');section.className='uc-cmd-group';section.dataset.musicCommands='';section.innerHTML='<div class="uc-cmd-group-label">Music</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><button aria-label="Music previous" style="min-width:44px;min-height:44px">◀</button><button aria-label="Music play" style="min-width:62px;min-height:44px">▶ Play</button><button aria-label="Music next" style="min-width:44px;min-height:44px">▶|</button><button aria-label="Open Ohana TSCMS music room" style="min-height:44px">Ohana TSCMS</button><button aria-label="Music mute" style="min-height:44px">Mute</button><label>Volume <input type="range" aria-label="Music volume" min="0" max="1" step="0.05" value="1" style="width:100px;min-height:44px;vertical-align:middle"></label></div>';const buttons=section.querySelectorAll('button');buttons[0].onclick=()=>JukeboxSys.prev();buttons[1].onclick=()=>JukeboxSys.toggle();buttons[2].onclick=()=>JukeboxSys.next();buttons[3].onclick=()=>messengerGo('rooms');buttons[3].setAttribute('aria-label','Choose an Ohana room');buttons[4].onclick=()=>audio.muted=!audio.muted;section.querySelector('input').oninput=e=>audio.volume=Number(e.target.value);commands.append(section);section.querySelector('input').value=String(audio.volume);buttons[4].textContent=audio.muted?'Unmute':'Mute';updateMusicCommands()}
 function updateMusicCommands(){const b=document.querySelector('[aria-label="Music play"],[aria-label="Music pause"]');if(!b)return;const text=audio.paused?'▶ Play':'Ⅱ Pause';if(b.textContent!==text)b.textContent=text;b.setAttribute('aria-label',audio.paused?'Music play':'Music pause')}
@@ -18152,7 +18153,10 @@ let queued=false;const queue=()=>{if(queued)return;queued=true;requestAnimationF
 :root.ohana-world body #app .ohana-entry-bible .ohana-bible-page small{font:500 clamp(6px,.73vw,9px)/1.15 Georgia,'Times New Roman',serif!important;letter-spacing:.025em!important;text-align:center!important;text-transform:uppercase!important;margin:0 0 1px!important;padding:0 0 2px!important;border-bottom:1px solid #71593933!important;color:#57422a!important}
 @media(max-width:600px){:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page{gap:2px!important;width:27%!important;top:8%!important;height:29%!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-left{left:21%!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-right{right:21%!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page blockquote{font-size:8px!important;line-height:1.16!important;text-align:left!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page small{font-size:6px!important;padding-bottom:1px!important}}
 @media(max-width:360px){:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page blockquote{font-size:7.5px!important}:root.ohana-world body #app .ohana-entry-bible .ohana-bible-page small{font-size:5.5px!important}}
-</style><style id="ohana-domino-rack-touch-scroll-v1">:root.ohana-world body #app #game #board .domino-room,:root.ohana-world body #app #game #board .domino-hand-dock,:root.ohana-world body #app #game #board .domino-hand,:root.ohana-world body #app #game #board .domino-hand .domino-tile{touch-action:pan-y pinch-zoom!important}:root.ohana-world body #app #game #board .domino-room{overscroll-behavior-y:contain;scroll-padding-bottom:24px}:root.ohana-world body #app #game #board .domino-hand{padding-bottom:24px!important}</style><style id="ohana-hf-compact-owner-layout-v1">
+</style><style id="ohana-domino-rack-touch-scroll-v1">:root.ohana-world body #app #game #board .domino-room,:root.ohana-world body #app #game #board .domino-hand-dock,:root.ohana-world body #app #game #board .domino-hand,:root.ohana-world body #app #game #board .domino-hand .domino-tile{touch-action:pan-y pinch-zoom!important}:root.ohana-world body #app #game #board .domino-room{overscroll-behavior-y:contain;scroll-padding-bottom:24px}:root.ohana-world body #app #game #board .domino-hand{padding-bottom:24px!important}
+/* A short screen must still reveal the complete rack below the shared header. */
+@media(max-height:450px){:root.ohana-world body #app #game #board .domino-hand{padding:4px 10px 8px!important}:root.ohana-world body #app #game #board .domino-hand .domino-tile{flex-basis:44px!important;width:44px!important;height:88px!important}}
+</style><style id="ohana-hf-compact-owner-layout-v1">
 :root.ohana-world body #app #game #board[data-type=handfoot] .hf-area{gap:5px!important;padding-bottom:10px!important;min-height:0!important}
 :root.ohana-world body #app #game #board[data-type=handfoot] .hf-felt{display:flex!important;flex-direction:column!important;gap:4px!important;justify-content:flex-start!important;padding:4px 6px!important;margin:0!important;min-height:0!important}
 :root.ohana-world body #app #game #board[data-type=handfoot] .hf-public-table{order:0!important;margin:0 0 4px!important;padding:0!important}
