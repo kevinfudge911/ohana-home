@@ -1,0 +1,18 @@
+{
+  "baseline": "ab707d0523172386de71288e4ca4cc05ff826afb",
+  "existingStylesByteIdentical": true,
+  "preservedExistingScriptBlocks": 25,
+  "totalExistingScriptBlocks": 27,
+  "musicScriptByteIdentical": true,
+  "wranglerConfigChanged": false,
+  "catalogRecords": 85,
+  "finalDryRun": {
+    "rawKiB": 65089.95,
+    "gzipKiB": 60028.12,
+    "rawLimitKiB": 65536
+  },
+  "publication": "Main publication denied by automatic approval review; draft preview PR #1 only",
+  "privateKeyConstantPresent": false,
+  "encryptedBindingRetained": true,
+  "normalAppPublished": false
+}

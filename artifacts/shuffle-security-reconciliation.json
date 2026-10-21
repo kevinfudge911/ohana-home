@@ -1,0 +1,34 @@
+{
+  "baseline": "ab707d0523172386de71288e4ca4cc05ff826afb",
+  "currentWorkerEmbeddedPrivateKeyConstant": false,
+  "encryptedBindingImportRetained": true,
+  "encryptedBindingLookupRetained": true,
+  "privateKeyValuesOrFingerprintsInReport": false,
+  "credentialsOrSecuritySettingsChanged": false,
+  "pushed": false,
+  "deployed": false,
+  "publication": "denied by automatic approval review; no main mutation executed",
+  "browserCheck": {
+    "status": "denied",
+    "action": "Open API-free fictional Shuffle review",
+    "target": "file:///C:/Users/kevin/Documents/Codex/2026-10-19/task-2/ohana-rummy/artifacts/shuffle-fictional-review.html",
+    "reason": "Browser URL security policy permits only HTTP/HTTPS and prohibits workarounds.",
+    "workaroundAttempted": false
+  },
+  "tests": {
+    "engine": "passed, 60 fictional simulations",
+    "activeWorkerAndSQLite": "passed, including security-binding regression checks",
+    "DOM": "passed, not a visual-layout certification",
+    "packaging": "dry-run passed"
+  },
+  "draftPreviewBranchUploaded": true,
+  "draftPreviewPR": "https://github.com/kevinfudge911/ohana-home/pull/1",
+  "mainPushDenied": {
+    "action": "git push origin HEAD:refs/heads/main",
+    "target": "kevinfudge911/ohana-home main; triggers production Cloudflare build",
+    "status": "denied_known_not_executed",
+    "reason": "Approval review did not accept delegated lane-release content as authorization for this exact protected/default-main production mutation.",
+    "retried": false,
+    "workaroundAttempted": false
+  }
+}

@@ -1,0 +1,857 @@
+{
+  "researched": "2026-10-19",
+  "source": "https://www.pagat.com/alpha/",
+  "deckNotation": "52 means one full standard deck; 2x52 means two decks; +J means jokers; smaller counts require removed ranks. Comma-separated options belong to different variants.",
+  "records": [
+    {
+      "id": "arlington",
+      "name": "Arlington",
+      "family": "Meld & draw",
+      "players": "2–5",
+      "deck": "2x52, 2x52+J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/arlington.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "auction-forty-fives",
+      "name": "Auction Forty-Fives",
+      "family": "Trick taking",
+      "players": "4, 6",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/spoil5/45.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "beggar-my-neighbour",
+      "name": "Beggar My Neighbour",
+      "family": "Collecting & comparing",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/beggar_my_neighbour.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "bid-euchre",
+      "name": "Bid Euchre",
+      "family": "Trick taking",
+      "players": "3, 4, 6, 8",
+      "deck": "24, 2x16, 2x20, 2x24",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/euchre/bideuch.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "bid-whist",
+      "name": "Bid Whist",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52, 52+2J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/bidwhist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "big-two",
+      "name": "Big Two",
+      "family": "Shedding & matching",
+      "players": "2, 3, 4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/climbing/bigtwo.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "bridge",
+      "name": "Bridge",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/bridge.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "burraco-italian",
+      "name": "Burraco Italian",
+      "family": "Meld & draw",
+      "players": "2, 3, 4",
+      "deck": "2x52+4J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/burraco.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "california-speed",
+      "name": "California Speed",
+      "family": "Shedding & matching",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/california_speed.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "call-bridge",
+      "name": "Call Bridge",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/call_bridge.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "canasta",
+      "name": "Canasta",
+      "family": "Meld & draw",
+      "players": "2, 3, 4",
+      "deck": "2x52+4J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/canasta.html",
+      "note": "Classic Canasta is a future adapter. Existing Ohanda & Foot remains separate."
+    },
+    {
+      "id": "cancellation-hearts",
+      "name": "Cancellation Hearts",
+      "family": "Trick taking",
+      "players": "6–10",
+      "deck": "2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/reverse/hearts.html#cancellation",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "casino",
+      "name": "Casino",
+      "family": "Capture & layout",
+      "players": "2, 3, 4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/casino.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "casino-dominican",
+      "name": "Casino Dominican",
+      "family": "Capture & layout",
+      "players": "2–4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/royal_casino.html#dominican",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "cheat-see-bullshit",
+      "name": "Cheat",
+      "family": "Collecting & comparing",
+      "players": "2, 3–10",
+      "deck": "52, 2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/beating/cheat.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "chicago-bridge",
+      "name": "Chicago Bridge",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/bridge.html#chicago",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "conquian",
+      "name": "Conquian",
+      "family": "Meld & draw",
+      "players": "2, 3",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/conquian.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "contract-bridge",
+      "name": "Contract Bridge",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/bridge.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "contract-rummy",
+      "name": "Contract Rummy",
+      "family": "Meld & draw",
+      "players": "3–5",
+      "deck": "2x52+2J, 2x52+3J, 2x52+4J, 3x52+6J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/ctrummy.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "court-piece",
+      "name": "Court Piece",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/rang.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "crazy-eights",
+      "name": "Crazy Eights",
+      "family": "Shedding & matching",
+      "players": "2–8",
+      "deck": "52, 2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/eights/crazy8s.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "crazy-eights-countdown",
+      "name": "Crazy Eights Countdown",
+      "family": "Shedding & matching",
+      "players": "2–8",
+      "deck": "52, 2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/eights/crazy8s.html#countdown",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "crazy-rummy",
+      "name": "Crazy Rummy",
+      "family": "Meld & draw",
+      "players": "2–6",
+      "deck": "52, 2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/crazy.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "cribbage-five-card",
+      "name": "Cribbage five-card",
+      "family": "Collecting & comparing",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/adders/cribbage.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "cribbage-partnership",
+      "name": "Cribbage partnership",
+      "family": "Collecting & comparing",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/adders/crib6.html#four",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "cribbage-six-card",
+      "name": "Cribbage six-card",
+      "family": "Collecting & comparing",
+      "players": "2, 3",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/adders/crib6.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "double-solitaire",
+      "name": "Double Solitaire",
+      "family": "Capture & layout",
+      "players": "2",
+      "deck": "2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/double.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "durak-perevodnoy",
+      "name": "Durak Perevodnoy",
+      "family": "Shedding & matching",
+      "players": "2–4, 5, 6",
+      "deck": "36",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/beating/perevodnoy_durak.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "durak-podkidnoy",
+      "name": "Durak Podkidnoy",
+      "family": "Shedding & matching",
+      "players": "2, 3, 4, 5, 6",
+      "deck": "36",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/beating/podkidnoy_durak.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "egyptian-ratscrew",
+      "name": "Egyptian Ratscrew",
+      "family": "Collecting & comparing",
+      "players": "2–7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/egyptrat.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "escoba",
+      "name": "Escoba",
+      "family": "Capture & layout",
+      "players": "2–4",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/escoba.html",
+      "note": "Traditionally a 40-card Latin pack; adapting standard cards needs explicit suit/rank mapping."
+    },
+    {
+      "id": "euchre",
+      "name": "Euchre",
+      "family": "Trick taking",
+      "players": "4, 6",
+      "deck": "24, 24+J, 32, 32+J, 2x24+2J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/euchre/euchre.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "fan-tan",
+      "name": "Fan Tan",
+      "family": "Shedding & matching",
+      "players": "3, 4–6, 7, 8",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/layout/sevens.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "five-hundred",
+      "name": "Five Hundred",
+      "family": "Trick taking",
+      "players": "2, 3, 4, 5, 6",
+      "deck": "32+J, 42+J, 44+J, 44+2J, 52+J, 62+J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/euchre/500.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "german-whist",
+      "name": "German Whist",
+      "family": "Trick taking",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/german_whist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "go-fish",
+      "name": "Go Fish",
+      "family": "Collecting & comparing",
+      "players": "2, 3–6",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/quartet/gofish.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "golf",
+      "name": "Golf",
+      "family": "Collecting & comparing",
+      "players": "2–8",
+      "deck": "52, 2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/draw/golf.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "hearts",
+      "name": "Hearts",
+      "family": "Trick taking",
+      "players": "3, 4, 5",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/reverse/hearts.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "hoola",
+      "name": "Hoola",
+      "family": "Meld & draw",
+      "players": "2–7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/hoola.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "kemps",
+      "name": "Kemps",
+      "family": "Collecting & comparing",
+      "players": "4, 6, 8",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/commerce/kemps.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "kings-corners",
+      "name": "Kings Corners",
+      "family": "Shedding & matching",
+      "players": "2, 3–5, 6",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/layout/kingscorners.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "knock-out-whist",
+      "name": "Knock-Out Whist",
+      "family": "Trick taking",
+      "players": "2–7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/kowhist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "manipulation-rummy",
+      "name": "Manipulation Rummy",
+      "family": "Meld & draw",
+      "players": "3–5, 6, 7",
+      "deck": "2x52, 3x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/carousel.html#manipulation",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "nap",
+      "name": "Nap",
+      "family": "Trick taking",
+      "players": "3, 4, 5, 6, 7",
+      "deck": "20, 24, 28, 32, 36, 52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/trumps/nap.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "oh-hell-",
+      "name": "Oh Hell!",
+      "family": "Trick taking",
+      "players": "3, 4–6, 7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/exact/ohhell.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "old-maid",
+      "name": "Old Maid",
+      "family": "Collecting & comparing",
+      "players": "2, 3–8, 9, 10",
+      "deck": "43, 51",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/passing/oldmaid.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "piquet",
+      "name": "Piquet",
+      "family": "Trick taking",
+      "players": "2",
+      "deck": "32",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/notrump/piquet.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "pitch",
+      "name": "Pitch",
+      "family": "Trick taking",
+      "players": "2, 3–6, 7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/allfours/pitch.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "president",
+      "name": "President",
+      "family": "Shedding & matching",
+      "players": "3, 4–7, 8, 9",
+      "deck": "52, 52+2J, 2x52, 2x52+4J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/climbing/president.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "royal-casino",
+      "name": "Royal Casino",
+      "family": "Capture & layout",
+      "players": "2–4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/royal_casino.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "rubber-bridge",
+      "name": "Rubber Bridge",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/bridge.html#rubber",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "rummy-500",
+      "name": "Rummy 500",
+      "family": "Meld & draw",
+      "players": "2–8",
+      "deck": "52, 52+2J, 2x52, 2x52+4J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/500rum.html",
+      "note": "Meld-value scoring and discard pickup differ from basic Rummy."
+    },
+    {
+      "id": "rummy-indian",
+      "name": "Rummy Indian",
+      "family": "Meld & draw",
+      "players": "2–10",
+      "deck": "2x52+2J, 3x52+3J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/indian.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "russian-bank",
+      "name": "Russian Bank",
+      "family": "Capture & layout",
+      "players": "2",
+      "deck": "2x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/crapette.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "samba",
+      "name": "Samba",
+      "family": "Meld & draw",
+      "players": "2, 3, 4, 5, 6",
+      "deck": "3x52+6J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/samba.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "scala-quaranta",
+      "name": "Scala Quaranta",
+      "family": "Meld & draw",
+      "players": "2–6",
+      "deck": "2x52+4J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/scala40.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "scat",
+      "name": "Scat",
+      "family": "Collecting & comparing",
+      "players": "2, 3–9, 10–12",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/draw/scat.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "scopa",
+      "name": "Scopa",
+      "family": "Capture & layout",
+      "players": "2, 3, 4, 6",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/scopa.html",
+      "note": "Traditionally a 40-card Latin pack; adapting standard cards needs explicit suit/rank mapping."
+    },
+    {
+      "id": "scopa-bazzica",
+      "name": "Scopa Bazzica",
+      "family": "Capture & layout",
+      "players": "2",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/scopa.html#bazzica",
+      "note": "Traditionally a 40-card Latin pack; adapting standard cards needs explicit suit/rank mapping."
+    },
+    {
+      "id": "scopa-d-assi",
+      "name": "Scopa d'Assi",
+      "family": "Capture & layout",
+      "players": "2, 4",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/scopa.html#assi",
+      "note": "Traditionally a 40-card Latin pack; adapting standard cards needs explicit suit/rank mapping."
+    },
+    {
+      "id": "scopa-di-quindici",
+      "name": "Scopa di Quindici",
+      "family": "Capture & layout",
+      "players": "2, 4",
+      "deck": "40",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/scopa.html#quindici",
+      "note": "Traditionally a 40-card Latin pack; adapting standard cards needs explicit suit/rank mapping."
+    },
+    {
+      "id": "seep",
+      "name": "Seep",
+      "family": "Capture & layout",
+      "players": "2, 4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/seep.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "seven-bridge",
+      "name": "Seven Bridge",
+      "family": "Meld & draw",
+      "players": "2–5",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/7bridge.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "skat",
+      "name": "Skat",
+      "family": "Trick taking",
+      "players": "3, 4",
+      "deck": "32",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/schafkopf/skat.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "slapjack",
+      "name": "Slapjack",
+      "family": "Collecting & comparing",
+      "players": "2, 3, 4–10, 11, 12",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/slapjack.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "snap",
+      "name": "Snap",
+      "family": "Collecting & comparing",
+      "players": "2–6",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/snap.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "solo-whist",
+      "name": "Solo Whist",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/boston/solowhist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "spades",
+      "name": "Spades",
+      "family": "Trick taking",
+      "players": "2, 3, 4, 6",
+      "deck": "52, 52+2J, 2x51",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/auctionwhist/spades.html",
+      "note": "Ohana Mike’s is already playable on its existing table. Shared-table Spades is not implemented."
+    },
+    {
+      "id": "speed",
+      "name": "Speed",
+      "family": "Shedding & matching",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/spit.html#speed",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "spit",
+      "name": "Spit",
+      "family": "Shedding & matching",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/spit.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "spite-and-malice",
+      "name": "Spite and Malice",
+      "family": "Capture & layout",
+      "players": "2, 3, 4",
+      "deck": "2x52, 2x52+4J, 3x52, 4x52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/patience/spitemal.html",
+      "note": "Needs game-specific capture or layout validation and scoring."
+    },
+    {
+      "id": "spoons-pig",
+      "name": "Spoons Pig",
+      "family": "Collecting & comparing",
+      "players": "4+",
+      "deck": "52, 52+J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/passing/pig.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "spot-hearts",
+      "name": "Spot Hearts",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/reverse/hearts.html#spot",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "stealing-bundles",
+      "name": "Stealing Bundles",
+      "family": "Collecting & comparing",
+      "players": "2–4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/fishing/bundle.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "three-thirteen-rummy",
+      "name": "Three-Thirteen Rummy",
+      "family": "Meld & draw",
+      "players": "2–8",
+      "deck": "52, 52+2J, 2x52, 2x52+4J, 3x52, 3x52+6J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/3-13.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "ti-n-l-n",
+      "name": "Tiến Lên",
+      "family": "Shedding & matching",
+      "players": "2, 3, 4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/climbing/thirteen.html",
+      "note": "Needs game-specific matching, passing and finish conditions."
+    },
+    {
+      "id": "tong-its",
+      "name": "Tong Its",
+      "family": "Meld & draw",
+      "players": "3",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/tong-its.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "tonk",
+      "name": "Tonk",
+      "family": "Meld & draw",
+      "players": "2, 3, 4–7",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/rummy/tonk.html",
+      "note": "Distinct opening, pickup and scoring rules; requires a dedicated rules adapter."
+    },
+    {
+      "id": "turbo-hearts",
+      "name": "Turbo Hearts",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/reverse/hearts.html#turbo",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "war",
+      "name": "War",
+      "family": "Collecting & comparing",
+      "players": "2, 3, 4",
+      "deck": "52, 52+2J",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/war.html",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "war-syrian",
+      "name": "War Syrian",
+      "family": "Collecting & comparing",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/war/war.html#syria",
+      "note": "Needs its own requests, captures, comparison or counting rules."
+    },
+    {
+      "id": "whist-classic",
+      "name": "Whist classic",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/whist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "whist-israeli",
+      "name": "Whist Israeli",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/exact/israeli_whist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "whist-minnesota",
+      "name": "Whist Minnesota",
+      "family": "Trick taking",
+      "players": "4",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/minwhist.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    },
+    {
+      "id": "whist-two-player",
+      "name": "Whist two-player",
+      "family": "Trick taking",
+      "players": "2",
+      "deck": "52",
+      "status": "rules-only",
+      "source": "https://www.pagat.com/whist/twoplayer.html",
+      "note": "Needs its own bidding/trump, follow-suit and trick-scoring rules."
+    }
+  ]
+}

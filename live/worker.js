@@ -1,4 +1,5 @@
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
+import { shuffleMode, shuffleInit, shuffleMove, shuffleView } from "./shuffle-engine.js";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
 import OHANA_SHUFFLE_ENTRANCE from "./ohana-shuffle-entrance-v1.webp";
@@ -7070,6 +7071,7 @@ __name22(chBotMove, "chBotMove");
 __name222(chBotMove, "chBotMove");
 __name2222(chBotMove, "chBotMove");
 var GAME_TYPES = {
+  shuffle: { name: "Ohana Shuffle · Card table", min: 2, max: 6, tag: "Everybody", desc: "One standard-card table. Choose Regular Rummy or Gin Rummy; browse future card-game rules." },
   mahjong: { name: "Ohana Mahjong", min: 1, max: 4, tag: "Everybody", desc: "Solo tile matching, or real family draw-and-discard Mahjong for two to four players." },
   words: { name: "Ohana Words", min: 2, max: 4, tag: "Grown-ups & big kids", desc: "Our own Wordfeud. Random boards, hidden surprise squares (good & bad!), plus the Ohana Star." },
   tictac: { name: "Tic-Tac-Toe", min: 2, max: 2, tag: "Little ones", desc: "Three in a row wins. Quick and easy." },
@@ -9486,6 +9488,7 @@ function dominoView(st, viewer) {
 // ========== END OHANO DOMINO ==========
 
 function initState(type, players, seed, mode) {
+  if (type === "shuffle") return shuffleInit(players, undefined, mode);
   if (type === "mahjong") return mahjongInit(players, rng(seed),mode==='rounds8'?8:4);
   if (type === "words") return wordsInit(players, seed, mode);
   if (type === "tictac") return tttInit();
@@ -9506,6 +9509,7 @@ __name2222(initState, "initState");
 __name22222(initState, "initState");
 __name222222(initState, "initState");
 async function applyMove(type, st, players, turnIdx, move, db) {
+  if (type === "shuffle") return shuffleMove(st, players, turnIdx, move);
   if (type === "mahjong") return mahjongMove(st, players, turnIdx, move);
   if (type === "words") return wordsMove(st, players, turnIdx, move, db);
   if (type === "tictac") return tttMove(st, players, turnIdx, move);
@@ -9526,6 +9530,7 @@ __name2222(applyMove, "applyMove");
 __name22222(applyMove, "applyMove");
 __name222222(applyMove, "applyMove");
 function viewState(type, st, viewer) {
+  if (type === "shuffle") return shuffleView(st, viewer);
   if(type==="mahjong"&&st.mode==="family")return mjFamilyView(st,st.players,viewer);
   if (type === "words") return wordsView(st, viewer);
   if (type === "handfoot") return hfView(st, viewer);
@@ -9618,7 +9623,7 @@ function gameRow(g, me) {
     room_id: g.room_id || 1,
     room_name: g.room_name || null,
     type: g.type,
-    name: GAME_TYPES[g.type]?.name || g.type,
+    name: g.type === "shuffle" ? "Ohana Shuffle · " + (g.mode === "gin" ? "Gin Rummy" : "Regular Rummy") : GAME_TYPES[g.type]?.name || g.type,
     players,
     max_players: g.max_players,
     status: g.status,
@@ -11957,8 +11962,12 @@ async function api2(req, env222222, url) {
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
     const withBot = body.opponent === "bot";
-    const max = withBot ? 2 : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
-    const mode = type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
+    const cardMode = type === "shuffle" ? shuffleMode(body.mode || "rummy") : null;
+    if (type === "shuffle" && body.opponent && body.opponent !== "family") throw Error("The shared card table needs family players.");
+    const cardMax = cardMode === "gin" ? 2 : 6;
+    if (type === "shuffle" && body.max_players !== undefined && (!Number.isInteger(body.max_players) || body.max_players < 2 || body.max_players > cardMax)) throw Error(cardMode === "gin" ? "Gin Rummy needs exactly two players." : "Regular Rummy needs two to six players.");
+    const max = type === "shuffle" ? body.max_players || 2 : withBot ? 2 : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const mode = type === "shuffle" ? cardMode : type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode, roomId).run();
     if (max === 1 || withBot) {
@@ -12015,6 +12024,7 @@ async function api2(req, env222222, url) {
     }
     if (action === "replay" && req.method === "POST") return json(await ohanaCreateReplay(db,env222222,me,g,players,names));
     if (action === "bot" && req.method === "POST") {
+      if (g.type === "shuffle") throw Error("The shared card table needs family players.");
       if (g.status !== "waiting") throw new Error("This game already started.");
       if (g.created_by !== me.id && !(me.is_admin && g.room_id === 1)) throw new Error("Only the person who made the game can add Honu.");
       if (players.includes(BOT_ID)) throw new Error("Honu is already at this table.");
