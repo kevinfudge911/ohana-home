@@ -1,5 +1,5 @@
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
-import { shuffleMode, shuffleInit, shuffleMove, shuffleView } from "./shuffle-engine.js";
+import { shuffleMode, shuffleInit, shuffleMove, shuffleView, chooseShuffleBotMove } from "./shuffle-engine.js";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
 import OHANA_SHUFFLE_ENTRANCE from "./ohana-shuffle-entrance-v1.webp";
@@ -7753,6 +7753,13 @@ __name222(hardCheckers, "hardCheckers");
 __name2222(hardCheckers, "hardCheckers");
 __name22222(hardCheckers, "hardCheckers");
 async function chooseBotMove(type, st, players, turn, db, random = Math.random) {
+  if(type==='shuffle') {
+    if(players[turn]!==BOT_ID)throw Error('Not the robot turn.');
+    const visible=shuffleView(st,BOT_ID);
+    // The card just picked up is the robot's own private information, even before the turn is saved.
+    visible.drawnDiscard=st.drawnDiscard;
+    return chooseShuffleBotMove(visible,BOT_ID);
+  }
   const pick = /* @__PURE__ */ __name22222((a) => a[Math.floor(random() * a.length)], "pick"), hard = st.bot.difficulty === "hard", medium = st.bot.difficulty === "medium";
   if (type === "tictac") {
     const empty = st.board.flatMap((v, i) => v ? [] : [i]);
@@ -7998,7 +8005,7 @@ async function advanceBotSteps(env222222, id) {
     let actions = 1;
     // Finish the computer's draw/meld/hit/discard turn in memory, then
     // publish one coherent update instead of a database round trip per action.
-    if (g.type === "domino" || g.type === "ohana10") {
+    if (g.type === "domino" || g.type === "ohana10" || g.type === "shuffle") {
       while (!res.over && players[res.next] === BOT_ID && actions < 138) {
         const nextMove = await chooseBotMove(g.type, st, players, res.next, db);
         if (!nextMove) throw new Error("Computer player has no legal move.");
@@ -9488,7 +9495,7 @@ function dominoView(st, viewer) {
 // ========== END OHANO DOMINO ==========
 
 function initState(type, players, seed, mode) {
-  if (type === "shuffle") return shuffleInit(players, undefined, mode);
+  if (type === "shuffle") return shuffleInit(players, undefined, mode, {allowBot:players.includes(BOT_ID)});
   if (type === "mahjong") return mahjongInit(players, rng(seed),mode==='rounds8'?8:4);
   if (type === "words") return wordsInit(players, seed, mode);
   if (type === "tictac") return tttInit();
@@ -9509,7 +9516,12 @@ __name2222(initState, "initState");
 __name22222(initState, "initState");
 __name222222(initState, "initState");
 async function applyMove(type, st, players, turnIdx, move, db) {
-  if (type === "shuffle") return shuffleMove(st, players, turnIdx, move);
+  if (type === "shuffle") {
+    const result=shuffleMove(st, players, turnIdx, move);
+    // A person reviews the result and chooses Next hand, including when the robot wins.
+    if(st.bot && st.phase==='round-end' && !result.over){result.next=players.findIndex(p=>p!==BOT_ID);st.nextTurn=result.next;}
+    return result;
+  }
   if (type === "mahjong") return mahjongMove(st, players, turnIdx, move);
   if (type === "words") return wordsMove(st, players, turnIdx, move, db);
   if (type === "tictac") return tttMove(st, players, turnIdx, move);
@@ -11420,7 +11432,7 @@ async function ohanaCreateReplay(db,env,me,g,players,names){
  if(existing?.new_game_id<0)throw Error('This replay is still being prepared. Check My games before trying again.');
  const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>id!==BOT_ID),withBot=seats.includes(BOT_ID);
  if(!type||seats.length!==players.length||!human.every(id=>Number.isInteger(id)&&id>0&&names[id])||seats.length<type.min||seats.length>type.max)throw Error('The original players are no longer all available for this game. Your finished game is unchanged.');
- if(withBot&&(human.length!==1||seats.length!==2||!['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong'].includes(g.type)))throw Error('This replay needs the original family players. Your finished game is unchanged.');
+ if(withBot&&(human.length!==1||seats.length!==2||!['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong','shuffle'].includes(g.type)))throw Error('This replay needs the original family players. Your finished game is unchanged.');
  for(const member of human)await allowGame(db,member,g.type);
  const recipients=human.filter(id=>id!==me.id),ts=now(),inviteCode=rid(6),max=seats.length,started=withBot||max===1;
  const nextSeats=started?(withBot?[me.id,BOT_ID]:[me.id]):[me.id];let state=null;
@@ -11963,10 +11975,11 @@ async function api2(req, env222222, url) {
     if (!gt) throw new Error("Unknown game.");
     const withBot = body.opponent === "bot";
     const cardMode = type === "shuffle" ? shuffleMode(body.mode || "rummy") : null;
-    if (type === "shuffle" && body.opponent && body.opponent !== "family") throw Error("The shared card table needs family players.");
+    if (type === "shuffle" && body.opponent && !["family","bot"].includes(body.opponent)) throw Error("Choose family players or Ohana Robot.");
+    if(type==="shuffle" && withBot && body.max_players!==undefined && body.max_players!==2)throw Error("Ohana Robot needs a two-player table.");
     const cardMax = cardMode === "gin" ? 2 : 6;
     if (type === "shuffle" && body.max_players !== undefined && (!Number.isInteger(body.max_players) || body.max_players < 2 || body.max_players > cardMax)) throw Error(cardMode === "gin" ? "Gin Rummy needs exactly two players." : "Regular Rummy needs two to six players.");
-    const max = type === "shuffle" ? body.max_players || 2 : withBot ? 2 : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const max = type === "shuffle" ? (withBot?2:body.max_players || 2) : withBot ? 2 : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === "shuffle" ? cardMode : type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode, roomId).run();
@@ -12024,7 +12037,7 @@ async function api2(req, env222222, url) {
     }
     if (action === "replay" && req.method === "POST") return json(await ohanaCreateReplay(db,env222222,me,g,players,names));
     if (action === "bot" && req.method === "POST") {
-      if (g.type === "shuffle") throw Error("The shared card table needs family players.");
+      if(g.type==="shuffle" && g.max_players!==2)throw Error("Ohana Robot needs a two-player waiting table.");
       if (g.status !== "waiting") throw new Error("This game already started.");
       if (g.created_by !== me.id && !(me.is_admin && g.room_id === 1)) throw new Error("Only the person who made the game can add Honu.");
       if (players.includes(BOT_ID)) throw new Error("Honu is already at this table.");

@@ -13,7 +13,7 @@ const OHANA_CARD_CATALOG=${JSON.stringify(catalog)};
 ${fs.readFileSync('live/shuffle-ui.js','utf8')}
 window.test={shuffleSetupCard,renderShuffleScreen,shufflePrivateDraft,showShuffleCatalog,showShuffleHelp,rules:OhanaCardRules};`);
 (async()=>{try{
- const setup=w.test.shuffleSetupCard(w.S.sync,true);assert(setup.includes('Regular Rummy'));assert(setup.includes('Gin Rummy'));assert(!setup.includes('Ohana Robot'));assert(setup.includes('not Rummy 500'));
+ const setup=w.test.shuffleSetupCard(w.S.sync,true);assert(setup.includes('Regular Rummy'));assert(setup.includes('Gin Rummy'));assert(setup.includes('Ohana Robot'));assert(setup.includes('not Rummy 500'));
  w.setups.shuffle.mode='gin';w.setups.shuffle.players=6;const ginSetup=w.test.shuffleSetupCard(w.S.sync,true);assert.equal(w.setups.shuffle.players,2);assert(!ginSetup.includes('data-setup-value="6"'));assert(ginSetup.includes('Gin earns 20'));
  const raw=w.test.rules.shuffleInit([101,202],()=>.5,'rummy');raw.phase='play';raw.hands={101:['H1','H2','H3','C7','D7','S7','C8','D9','S10','H13'],202:['C1','C2','C3']};
  const st=w.test.rules.shuffleView(raw,101);w.game={id:999,room_id:1,type:'shuffle',mode:'rummy',state:st,status:'playing',in_game:true,players:[101,202],turn:0,names:{101:{name:'Fictional One'},202:{name:'Fictional Two'}}};

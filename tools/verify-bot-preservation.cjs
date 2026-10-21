@@ -1,0 +1,15 @@
+const fs=require('fs'),cp=require('child_process'),assert=require('node:assert/strict'),crypto=require('crypto');
+const git='C:/Users/kevin/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git/cmd/git.exe';
+const BASE='64f859f62975a08449155cb3152cdcd34ec8a653';
+const run=args=>cp.execFileSync(git,args,{maxBuffer:50e6}).toString(),base=file=>run(['show',BASE+':'+file]);
+const worker=fs.readFileSync('live/worker.js','utf8'),file='live/'+worker.match(/^import APP_HTML from "\.\/(.*?)";/m)[1];
+const strip=s=>s.replace(/<!-- OHANA SHARED CARD TABLE START -->[\s\S]*?<!-- OHANA SHARED CARD TABLE END -->/,'[SHARED CARD MODULE]');
+const old=base(file),now=fs.readFileSync(file,'utf8');
+assert.strictEqual(strip(now).replace("(g.type !== 'shuffle' || g.max_players === 2) && g.in_game && g.players.length === 1","g.type !== 'shuffle' && g.in_game && g.players.length === 1"),strip(old),'every app byte outside module and waiting-bot eligibility preserved');
+for(const f of ['wrangler.toml','live/shuffle-table.css','live/shuffle-catalog.json','live/ohana-music-upload.js'])assert.strictEqual(fs.readFileSync(f,'utf8').replace(/\r\n/g,'\n'),base(f).replace(/\r\n/g,'\n'),f+' unchanged');
+const diff=run(['diff','--unified=0',BASE,'--','live/worker.js']);
+const touched=[...diff.matchAll(/^@@ -(\d+)/gm)].map(m=>+m[1]);
+const allowed=[2,7755,8001,9491,9512,11423,11966,11969,12027];assert(touched.every(n=>allowed.includes(n)),JSON.stringify(touched));
+const changed=run(['diff','--name-only',BASE]).trim().split('\n');assert(changed.every(f=>[file,'live/shuffle-engine.js','live/shuffle-ui.js','live/worker.js','tests/shuffle-api.cjs','tests/shuffle-ui.cjs','tests/shuffle-bot.cjs','tests/shuffle-bot-setup.cjs','tools/bot-preview.cjs','tools/verify-bot-preservation.cjs','docs/SHUFFLE-BOT-BATCH-2026-10-21.md'].includes(f)),'tracked production/test scope only');
+const receipt={appOutsideSharedModuleUnchanged:true,onlyOtherAppChange:'two-seat waiting-table robot eligibility',workerHunks:touched,workerOtherCodeUnchanged:true,configCSSCatalogMusicModuleUnchanged:true,trackedChanges:changed,appSHA256:crypto.createHash('sha256').update(now).digest('hex'),workerSHA256:crypto.createHash('sha256').update(worker).digest('hex'),engineSHA256:crypto.createHash('sha256').update(fs.readFileSync('live/shuffle-engine.js')).digest('hex')};
+fs.writeFileSync('artifacts/shuffle-bot-preservation.json',JSON.stringify(receipt,null,2));console.log(receipt);

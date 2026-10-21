@@ -23,9 +23,9 @@ const created=await api('/api/rooms/create','host',1,{name:'Fictional Island'});
 const guest=await api('/api/room-invite/'+room.invite_code+'/join','',0,{name:'Fictional Guest',pin:'1234',avatar:'@ree'});assert.equal(guest.status,200,JSON.stringify(guest));const token=guest.data.token;
 const baseline=await api('/api/game/create','host',1,{type:'tictac'});assert.equal(baseline.status,200,JSON.stringify(baseline));const savedOther=sql.prepare('SELECT * FROM games WHERE id=?').get(baseline.data.id);
 const count=()=>sql.prepare('SELECT COUNT(*) n FROM games').get().n;
-for(const body of [{type:'shuffle',mode:'canasta'},{type:'shuffle',mode:'gin',max_players:3},{type:'shuffle',mode:'gin',max_players:2.5},{type:'shuffle',mode:'rummy',max_players:7},{type:'shuffle',mode:'rummy',opponent:'bot'},{type:'shuffle',mode:'gin',opponent:'solo'}]){const before=count(),r=await api('/api/game/create','host',1,body);assert.equal(r.status,400,JSON.stringify(r));assert.equal(count(),before);}
+for(const body of [{type:'shuffle',mode:'canasta'},{type:'shuffle',mode:'gin',max_players:3},{type:'shuffle',mode:'gin',max_players:2.5},{type:'shuffle',mode:'rummy',max_players:7},{type:'shuffle',mode:'rummy',opponent:'unknown'},{type:'shuffle',mode:'gin',opponent:'solo'}]){const before=count(),r=await api('/api/game/create','host',1,body);assert.equal(r.status,400,JSON.stringify(r));assert.equal(count(),before);}
 const g=await api('/api/game/create','host',1,{type:'shuffle',mode:'gin',max_players:2});assert.equal(g.status,200,JSON.stringify(g));const id=g.data.id;
-const bot=await api('/api/game/'+id+'/bot','host',1,{});assert.equal(bot.status,400);assert.equal(sql.prepare('SELECT status FROM games WHERE id=?').get(id).status,'waiting');
+const bot=await api('/api/game/'+id+'/bot','family',1,{});assert.equal(bot.status,400);assert.equal(sql.prepare('SELECT status FROM games WHERE id=?').get(id).status,'waiting');
 assert.equal((await api('/api/game/'+id+'/invite','host',1,{member_id:guest.data.me.id})).status,400,'cross-room invitation blocked');
 assert.equal((await api('/api/game/'+id+'/invite','host',1,{member_id:2})).status,200);
 let host=(await api('/api/game/'+id,'host',1)).data;assert.deepEqual(host.invited_members,[2]);assert.equal(host.mode,'gin');

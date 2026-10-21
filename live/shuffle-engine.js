@@ -80,9 +80,10 @@ function deal(st,players,random) {
   st.phase=st.mode==='gin'?'opening':'draw';st.nextTurn=(st.dealer+1)%players.length;
   delete st.result;
 }
-export function shuffleInit(players,random=secureRandom,mode='rummy') {
+export function shuffleInit(players,random=secureRandom,mode='rummy',options={}) {
   shuffleMode(mode);const rules=SHUFFLE_RULES[mode];
-  if(new Set(players).size!==players.length || players.some(p=>!Number.isInteger(p)||p<=0) || players.length<rules.min || players.length>rules.max)throw Error(`${rules.name} needs ${rules.min===rules.max?rules.min:rules.min+'–'+rules.max} family players.`);
+  const robotPair=options.allowBot===true && players.length===2 && players.filter(p=>p===-1).length===1 && players.some(p=>Number.isInteger(p)&&p>0);
+  if(new Set(players).size!==players.length || players.some(p=>!Number.isInteger(p)||(p<=0&&!(robotPair&&p===-1))) || players.length<rules.min || players.length>rules.max)throw Error(`${rules.name} needs ${rules.min===rules.max?rules.min:rules.min+'–'+rules.max} family players.`);
   const st={version:1,mode,round:1,dealer:Math.floor(random()*players.length),scores:Object.fromEntries(players.map(p=>[p,0])),target:rules.target,revision:0};
   deal(st,players,random);return st;
 }
@@ -191,4 +192,48 @@ export function shuffleView(st,viewer) {
     drawnDiscard:String(viewer)===String(st.lastPlay?.p)?st.drawnDiscard:null,
     openingPasses:st.openingPasses,forceStock:st.forceStock,result:st.result||null,
     lastPlay:st.lastPlay?{p:st.lastPlay.p,at:st.lastPlay.at}:null};
+}
+
+// The policy accepts a privacy-filtered view only. Hidden stock/hands are never inputs.
+export function chooseShuffleBotMove(view,botId=-1) {
+  if(view.phase==='round-end')return null;
+  const hand=view.hands?.[botId];
+  if(!Array.isArray(hand)||!Number.isInteger(view.revision)||typeof view.stock!=='number' || Object.entries(view.hands).some(([id,h])=>String(botId)!==id&&Array.isArray(h)))throw Error('The robot needs its own private hand and public table information only.');
+  const send=move=>({...move,revision:view.revision});
+  const options=cards=>cards.filter(c=>c!==view.drawnDiscard).map(card=>{
+    const after=cards.filter(c=>c!==card),best=bestCardHand(after);
+    // Prefer keeping pairs and nearby suited cards on equal-deadwood choices.
+    let potential=0;
+    for(let i=0;i<after.length;i++)for(let j=i+1;j<after.length;j++){
+      const gap=Math.abs(cardRank(after[i])-cardRank(after[j]));
+      if(gap===0)potential+=3;else if(after[i][0]===after[j][0]&&gap<=2)potential+=gap===1?2:1;
+    }
+    return {card,points:best.points,potential};
+  }).sort((a,b)=>a.points-b.points||b.potential-a.potential||cardPoints(b.card)-cardPoints(a.card)||a.card.localeCompare(b.card));
+  if(['opening','draw'].includes(view.phase)) {
+    let take=false;
+    if(view.discard&&!view.forceStock) {
+      if(view.mode==='gin') {
+        const legal=options([...hand,view.discard]).filter(o=>o.card!==view.discard);
+        take=!!legal.length&&legal[0].points<bestCardHand(hand).points;
+      } else {
+        const plan=ginDefense([...hand,view.discard],view.melds.map(m=>m.cards));
+        take=plan.ownMelds.some(m=>m.includes(view.discard))||plan.laid.some(x=>x.card===view.discard);
+      }
+    }
+    if(view.phase==='opening'&&!take)return send({action:'pass'});
+    return send({action:'draw',source:take?'discard':'stock'});
+  }
+  if(view.phase!=='play')throw Error('Unknown robot card-table phase.');
+  if(view.mode==='rummy') {
+    const plan=ginDefense(hand,view.melds.map(m=>m.cards));
+    if(plan.ownMelds.length)return send({action:'meld',cards:plan.ownMelds[0]});
+    if(plan.laid.length)return send({action:'layoff',cards:[plan.laid[0].card],target:plan.laid[0].target});
+  }
+  let choices=options(hand);
+  // Occasionally release a low card from a tiny unmeldable hand instead of recycling forever.
+  // The cadence uses the public action counter, not hidden cards or stock order.
+  if(view.mode==='rummy'&&hand.length<=3&&view.revision>32&&Math.floor(view.revision/4)%4===3)choices.sort((a,b)=>cardPoints(a.card)-cardPoints(b.card)||a.card.localeCompare(b.card));
+  const best=choices[0];if(!best)throw Error('No legal robot discard.');
+  return send({action:view.mode==='gin'&&best.points<=10?'knock':'discard',card:best.card});
 }
