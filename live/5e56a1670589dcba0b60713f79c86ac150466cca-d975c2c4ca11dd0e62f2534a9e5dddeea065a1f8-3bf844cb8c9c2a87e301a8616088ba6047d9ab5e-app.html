@@ -13116,13 +13116,11 @@ function placeDraftTile(st, rack, rackIdx, i, blankPlaced) {
   S.placed.push({i,l,blank,rackIdx});return true;
 }
 function positionWordTray(){
- const tray=document.querySelector('.game-tray');if(!tray)return;
- const v=window.visualViewport,scale=v?.scale||1,vw=v?.width||window.innerWidth,vh=v?.height||window.innerHeight;
- const width=Math.min(620,vw*scale);
- Object.assign(tray.style,{width:width+'px',maxWidth:'none',margin:'0',right:'auto',bottom:'auto',transformOrigin:'top left',transform:`scale(${1/scale})`});
- tray.style.left=((v?.offsetLeft||0)+(vw-width/scale)/2)+'px';
- tray.style.top=((v?.offsetTop||0)+vh-tray.offsetHeight/scale)+'px';
- const game=document.getElementById('game');if(game)game.style.paddingBottom=(tray.offsetHeight/scale+24)+'px';
+ const tray=document.querySelector('.game-tray'),game=document.getElementById('game');if(!tray||!game)return;
+ // The rack is a separate viewport surface. Only the board may zoom or pan.
+ for(const p of ['width','max-width','margin','right','bottom','transform-origin','transform','left','top'])tray.style.removeProperty(p);
+ const fit=()=>{if(!tray.isConnected)return;game.style.setProperty('--word-rack-space',Math.ceil(tray.getBoundingClientRect().height)+'px');};
+ fit();tray._wordSizeObserver?.disconnect();if(window.ResizeObserver){tray._wordSizeObserver=new ResizeObserver(fit);tray._wordSizeObserver.observe(tray);}
 }
 window.visualViewport?.addEventListener('resize',positionWordTray);
 window.visualViewport?.addEventListener('scroll',positionWordTray);
@@ -13199,39 +13197,30 @@ function initDragDrop(st, g, myTurn, rack, rerender) {
 }
 
 function initWordRackPinch(g){
- const tray=document.querySelector('.game-tray'),rack=tray?.querySelector('.rack');if(!rack)return;
- window._wordRackPinching=false;const pts=new Map();let pinch=null;const key='ohana_wordrack_zoom:'+g.id;
- let zoom=1;try{zoom=Number(localStorage.getItem(key))||1;}catch{}
- const apply=()=>{zoom=Math.min(2.5,Math.max(.75,zoom));rack.style.zoom=zoom;};apply();
- tray.addEventListener('pointerdown',e=>{
-  if(e.pointerType!=='touch')return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pts.size===2){cancelWordDrag();window._wordRackPinching=true;suppressTileClickUntil=Date.now()+500;const[a,b]=[...pts.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:zoom};}
- },true);
- const move=e=>{
-  if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pinch&&pts.size===2){const[a,b]=[...pts.values()];zoom=pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d;apply();e.preventDefault();}
- };tray.addEventListener('pointermove',move,{capture:true,passive:false});
- const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(pinch)suppressTileClickUntil=Date.now()+500;if(!pts.size){pinch=null;window._wordRackPinching=false;try{localStorage.setItem(key,zoom);}catch{}}};
- tray.addEventListener('pointerup',up,true);tray.addEventListener('pointercancel',up,true);
- window._wordRackMove=move;window._wordRackUp=up;
- if(!window._wordRackDocument){window._wordRackDocument=true;document.addEventListener('pointermove',e=>window._wordRackMove?.(e),{passive:false});document.addEventListener('pointerup',e=>window._wordRackUp?.(e));document.addEventListener('pointercancel',e=>window._wordRackUp?.(e));}
+ // Keep existing saved preferences untouched; rack zoom is no longer applied.
+ window._wordRackPinching=false;window._wordRackMove=null;window._wordRackUp=null;
+ const rack=document.querySelector('.game-tray .rack');if(rack)rack.style.removeProperty('zoom');
 }
 
-
 // Ohana Words: zoom just the board (pinch, ctrl+wheel, buttons). Pan by dragging empty board when zoomed. View sticks per game.
-const WB_ZOOM={min:1,max:4};
+const WB_ZOOM={min:.05,max:4};
 function wbViewKey(g){return 'ohana_wbv:'+(g?.id||'x');}
 function initBoardZoom(g){
   window._wbPinching=false;
   const wrap=document.querySelector('#board .wbwrap');const wb=wrap?.querySelector('.wb');if(!wrap||!wb)return;
-  if(!S.wbView||S.wbView.gid!==g.id){let v=null;try{v=JSON.parse(localStorage.getItem(wbViewKey(g))||'null');}catch{}S.wbView={gid:g.id,s:+v?.s||1,x:+v?.x||0,y:+v?.y||0};}
+  if(!S.wbView||S.wbView.gid!==g.id){let v=null;try{v=JSON.parse(localStorage.getItem(wbViewKey(g))||'null');}catch{}S.wbView={gid:g.id,s:+v?.s||1,x:+v?.x||0,y:+v?.y||0,center:!v,autoCenter:!v};}
   const V=S.wbView;
-  const clamp=()=>{const W=wrap.clientWidth,H=wrap.clientHeight;V.s=Math.min(WB_ZOOM.max,Math.max(WB_ZOOM.min,V.s));V.x=Math.min(0,Math.max(W-W*V.s,V.x));V.y=Math.min(0,Math.max(H-H*V.s,V.y));};
-  const apply=()=>{clamp();wb.style.transform=V.s<=1.001?'':`translate(${V.x}px,${V.y}px) scale(${V.s})`;wrap.classList.toggle('wb-zoomed',V.s>1.001);wrap.style.touchAction='none';const r=wrap.querySelector('[data-z=reset]');if(r)r.textContent=Math.round(V.s*100)+'%';};
+  const clamp=()=>{const W=wrap.clientWidth,H=wrap.clientHeight,BW=wb.offsetWidth,BH=wb.offsetHeight;V.s=Math.min(WB_ZOOM.max,Math.max(WB_ZOOM.min,V.s));if(V.center||V.autoCenter){V.x=(W-BW*V.s)/2;V.y=(H-BH*V.s)/2;V.center=false;}V.x=BW*V.s<=W?(W-BW*V.s)/2:Math.min(0,Math.max(W-BW*V.s,V.x));V.y=BH*V.s<=H?(H-BH*V.s)/2:Math.min(0,Math.max(H-BH*V.s,V.y));};
+  const apply=()=>{clamp();wb.style.transform=`translate(${V.x}px,${V.y}px) scale(${V.s})`;wrap.classList.toggle('wb-zoomed',V.s>1.001);wrap.style.touchAction='none';const r=wrap.querySelector('[data-z=reset]');if(r)r.textContent=Math.round(V.s*100)+'%';};
   const save=()=>{try{localStorage.setItem(wbViewKey(g),JSON.stringify({s:V.s,x:V.x,y:V.y}));}catch{}};
-  const zoomAt=(factor,cx,cy)=>{const ns=Math.min(WB_ZOOM.max,Math.max(WB_ZOOM.min,V.s*factor));const k=ns/V.s;V.x=cx-(cx-V.x)*k;V.y=cy-(cy-V.y)*k;V.s=ns;apply();save();};
+  const zoomAt=(factor,cx,cy)=>{const ns=Math.min(WB_ZOOM.max,Math.max(WB_ZOOM.min,V.s*factor));const k=ns/V.s;V.x=cx-(cx-V.x)*k;V.y=cy-(cy-V.y)*k;V.s=ns;V.autoCenter=false;apply();save();};
   const rel=e=>{const b=wrap.getBoundingClientRect();const z=(b.width/(wrap.clientWidth||1))||1;return {x:(e.clientX-b.left)/z,y:(e.clientY-b.top)/z};};
   apply();
+  S.wordBoardDispose?.();if(window.ResizeObserver){const observer=new ResizeObserver(()=>{if(wrap.isConnected)apply();});observer.observe(wrap);S.wordBoardDispose=()=>observer.disconnect();}
+  // Native focus scrolling must not move a camera-controlled board under a tap.
+  wrap.addEventListener('focusin',e=>{const cell=e.target.closest('.c');if(!cell||!wrap.contains(cell))return;const r=wrap.getBoundingClientRect(),c=cell.getBoundingClientRect(),cx=c.left+c.width/2,cy=c.top+c.height/2;const dx=cx<r.left?r.left+c.width/2-cx:cx>r.right?r.right-c.width/2-cx:0,dy=cy<r.top?r.top+c.height/2-cy:cy>r.bottom?r.bottom-c.height/2-cy:0;if(dx||dy){V.x+=dx;V.y+=dy;V.autoCenter=false;apply();}});
+  wrap.setAttribute('aria-keyshortcuts','+ - 0');
+  wrap.addEventListener('keydown',e=>{if(e.altKey||!['+','=','-','0'].includes(e.key))return;e.preventDefault();const W=wrap.clientWidth,H=wrap.clientHeight;if(e.key==='0'){V.s=Math.min(1,W/wb.offsetWidth,H/wb.offsetHeight);V.center=true;V.autoCenter=true;apply();save();}else zoomAt(e.key==='-'?1/1.5:1.5,W/2,H/2);});
   wrap.querySelectorAll('.wb-zoom-ui button').forEach(b=>b.onclick=e=>{e.stopPropagation();const W=wrap.clientWidth,H=wrap.clientHeight;const z=b.dataset.z;
     if(z==='in')zoomAt(1.5,W/2,H/2);else if(z==='out')zoomAt(1/1.5,W/2,H/2);else{V.s=1;V.x=0;V.y=0;apply();save();}});
   const pts=new Map();let panning=false,pinch=null,start=null;
@@ -13244,10 +13233,10 @@ function initBoardZoom(g){
   const onMove=e=>{
     if(!pts.has(e.pointerId))return;const p=rel(e);pts.set(e.pointerId,p);
     if(pts.size>=2&&pinch){const [a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const ns=Math.min(WB_ZOOM.max,Math.max(WB_ZOOM.min,pinch.s*d/pinch.d));const k=ns/pinch.s;const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
-      V.x=mx-(pinch.mx-pinch.vx)*k;V.y=my-(pinch.my-pinch.vy)*k;V.s=ns;apply();e.preventDefault();return;}
+      V.x=mx-(pinch.mx-pinch.vx)*k;V.y=my-(pinch.my-pinch.vy)*k;V.s=ns;V.autoCenter=false;apply();e.preventDefault();return;}
     if(pts.size===1&&start){
       if(dragState||window._wbPinching)return;
-      if(!panning){if(V.s<=1.001||Math.hypot(p.x-start.x,p.y-start.y)<8)return;panning=true;wrap.classList.add('wb-panning');}
+      if(!panning){if((wb.offsetWidth*V.s<=wrap.clientWidth&&wb.offsetHeight*V.s<=wrap.clientHeight)||Math.hypot(p.x-start.x,p.y-start.y)<8)return;panning=true;V.autoCenter=false;wrap.classList.add('wb-panning');}
       V.x=start.vx+(p.x-start.x);V.y=start.vy+(p.y-start.y);apply();e.preventDefault();}
   };
   const onUp=e=>{
@@ -13264,7 +13253,7 @@ function initBoardZoom(g){
   let wheelT=0;
   wrap.onwheel=e=>{
     if(e.ctrlKey||e.metaKey){e.preventDefault();const p=rel(e);zoomAt(Math.exp(-e.deltaY*0.01),p.x,p.y);return;}
-    if(V.s>1.001){e.preventDefault();V.x-=e.deltaX;V.y-=e.deltaY;apply();clearTimeout(wheelT);wheelT=setTimeout(save,300);}
+    if(V.s>1.001||wb.offsetWidth*V.s>wrap.clientWidth||wb.offsetHeight*V.s>wrap.clientHeight){e.preventDefault();V.autoCenter=false;V.x-=e.deltaX;V.y-=e.deltaY;apply();clearTimeout(wheelT);wheelT=setTimeout(save,300);}
   };
   try{if(!localStorage.getItem('ohana_wbv_hint')){localStorage.setItem('ohana_wbv_hint','1');wrap.classList.add('show-hint');setTimeout(()=>wrap.classList.remove('show-hint'),4500);}}catch{}
 }
@@ -13444,12 +13433,9 @@ function renderWords(st, g, myTurn) {
   const preview = S.placed.length ? calcPreviewScore(st, S.placed) : { total: 0, words: [] };
   const previewHtml = S.placed.length ? `<div class="preview-score pop">📝 ${preview.words.map(w => w.word + ' (' + w.score + ')').join(' + ')}${preview.words.length ? ' = ' : ''}+${preview.total}</div>` : `<div class="preview-score"></div>`;
 
-  bd.innerHTML = `<div class="word-status"><span aria-label="${st.bag} tiles remaining">${st.bag}</span><div class="compact-scores">${g.players.map(p => `<span class="compact-player ${g.players[g.turn] === p ? 'current' : ''}"${dmAttr(p)}><span>${avOf(p)}</span><span>${esc(nameOf(p))}</span><b>${st.scores?.[p] ?? 0}</b>${g.players[g.turn]===p?'<span class="turn-check" aria-label="Current turn">✓</span>':''}</span>`).join('')}</div></div><div class="wbwrap wb-zoomable"><div class="scrawl" style="top:44%">Ohana means family,<br>and nobody gets left behind</div><div class="board-name-watermark" aria-hidden="true">Ohana Words</div><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div><div class="wb-zoom-hint">Pinch to zoom the board · drag to move it · pinch back out for the whole board</div></div>
-
-    <p class="word-private-draft-hint" role="status" style="margin:4px 0;color:inherit;font:700 16px/1.35 Nunito,sans-serif">${esc((S.wordDraftNotice||(!myTurn?'Plan privately while you wait. Only you can see your unplayed letters.':'Your unplayed letters are private. Review your plan, then choose Play.'))+(S.wordDraftStorageProblem?' This browser could not save your plan across a reload. Keep this page open to retain it.':''))}</p>
-    ${previewHtml}
-    ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}
-    `;
+  bd.innerHTML = `<div class="word-status"><span aria-label="${st.bag} tiles remaining">${st.bag}</span></div><div class="wbwrap wb-zoomable"><div class="wb" data-board-renderer="surface-v2"><div class="wb-plane">${wordBoardSurface(st,S.placed)}${cells.join('')}</div></div></div>
+    <p class="word-private-draft-hint ${S.wordDraftNotice||S.wordDraftStorageProblem?'':'sr-only'}" role="status">${esc((S.wordDraftNotice||'')+(S.wordDraftStorageProblem?' This browser could not save your plan across a reload. Keep this page open to retain it.':''))}</p>
+    ${g.status === 'playing' && rack.length ? '<div class="tray-spacer"></div>' : ''}`;
   const hasRack = g.status === 'playing' && rack.length;
   const rackHtml = hasRack ? `${S.swapMode ? '<p class="swap-instructions" role="status">Select letters, then tap Swap. Tap a selected letter to keep it.</p>' : ''}<div class="rack">${S.wordOrder.map(k => {const l=rack[k];return `<button class="rt ${S.sel === k ? 'sel' : ''} ${usedIdx.has(k) ? 'used' : ''} ${S.swapSel.includes(k) ? 'swp' : ''} ${LV[l] >= 10 ? 'double-points' : ''}" data-r="${k}" aria-pressed="${S.swapMode ? S.swapSel.includes(k) : S.sel===k}" aria-description="${S.swapMode ? 'Select or deselect this letter for swapping.' : 'Drag to rearrange your tray. Alt plus arrow keys also moves this letter.'}"><span class="tile-glyph">${l === '?' ? '' : l}</span><i>${LV[l]}</i></button>`;}).join('')}</div>
     <div class="acts">${S.swapMode ? `<button id="swapgo" ${!S.swapSel.length ? 'disabled' : ''}>Swap ${S.swapSel.length}</button><button class="soft" id="swapx">Cancel</button>` :
@@ -15293,15 +15279,29 @@ function dominoBoardLayout(entries,ends,lastId,rowLimit=790){
  };
  return{html,w,h,left:endpoint(first,true),right:endpoint(last,false),pieces};
 }
-function dominoTrainLayout(st,g){
- let html=dominoTileFace(st.board[0].tile,'tabindex="-1" style="--dx:20px;--dy:20px;--dw:72px;--dh:144px"','board-piece vertical');
- const layout={w:500,h:200,html:'',pieces:[]};let row=0;
+function dominoTrainLayout(st,g,rowLimit=1100){
+ // Each train uses the same turning path as Draw/Block, rather than an endless line.
+ const engine=st.board[0]?.tile;let html=engine?dominoTileFace(engine,'tabindex="-1" style="--dx:20px;--dy:16px;--dw:72px;--dh:144px"','board-piece vertical'):'';
+ const layout={w:Math.max(240,rowLimit),h:180,html:'',pieces:[]};let y=200;
  for(const [id,train] of Object.entries(st.trains)){
-  const y=210+row*120;html+=`<span class="domino-train-label" style="position:absolute;left:20px;top:${y-28}px;color:#fff6df;font:600 18px Fredoka">${id==='mexican'?'Mexican':'Train '+(g.players.indexOf(Number(id))+1)}${train.open?' 🌺':''}${st.pendingDouble===id?' · Double':''}</span>`;
-  let tx=20;train.tiles.forEach((e,i)=>{const vertical=e.tile.a===e.tile.b;html+=dominoTileFace(e.tile,`tabindex="-1" style="--dx:${tx}px;--dy:${y}px;--dw:${vertical?72:144}px;--dh:${vertical?96:72}px"`,`board-piece ${vertical?'vertical':'horizontal'}`);tx+=(vertical?72:144)+4;});
-  const x=tx+30;layout['train-'+id]={x,y:y+36};layout.w=Math.max(layout.w,x+80);row++;
+  const packed=dominoBoardLayout(train.tiles,{left:engine?.a},st.lastPlay?.tile?.id,rowLimit);
+  const label=id==='mexican'?'Mexican':'Train '+(g.players.indexOf(Number(id))+1);
+  html+=`<span class="domino-train-label" style="position:absolute;left:20px;top:${y-28}px;color:#fff6df;font:600 18px Fredoka">${label}${train.open?' · Open':''}${st.pendingDouble===id?' · Double':''}</span><div class="domino-train-path" style="position:absolute;left:0;top:${y}px;width:${packed.w}px;height:${packed.h}px">${packed.html}</div>`;
+  const end=packed.pieces.length?packed.right:{x:100,y:80};layout['train-'+id]={x:end.x,y:y+end.y};
+  layout.pieces.push(...packed.pieces.map(p=>({...p,y:p.y+y})));layout.w=Math.max(layout.w,packed.w);y+=packed.h+48;
  }
- layout.h=220+row*120;layout.html=html;return layout;
+ layout.h=y;layout.html=html;return layout;
+}
+
+function fitDominoLayout(st,g,width,height){
+ let best=-1,layout;const count=st.trains?Math.max(1,...Object.values(st.trains).map(t=>t.tiles.length)):st.board.length;
+ const floor=height<150?.35:.3,maxColumns=Math.max(3,Math.floor(((width-24)/floor-128)/148));
+ for(let columns=3;columns<=Math.min(Math.max(3,count),maxColumns);columns++){
+  const candidate=st.trains?dominoTrainLayout(st,g,columns*148):dominoBoardLayout(st.board,st.ends,st.lastPlay?.tile?.id,columns*148);
+  const scale=Math.min((width-24)/candidate.w,(height-24)/candidate.h);
+  if(scale>best){best=scale;layout=candidate;}
+ }
+ return layout;
 }
 
 function renderDomino(st,g,myTurn){
@@ -15313,60 +15313,55 @@ function renderDomino(st,g,myTurn){
  const sidesFor=id=>allSides.filter(side=>playable.has(id+':'+side));
  const legal=t=>sidesFor(t.id).length>0;
  if(!hand.some(t=>t.id===S.dominoSel))S.dominoSel=null;
- // Choose a broad folding path that fits this table, rather than growing a narrow column.
+ // Refit from the actual rectangular table after its rack and workstation have settled.
  const host=document.querySelector('#board'),priorTable=host?.querySelector('.domino-board');
- const bounds=priorTable?.getBoundingClientRect(),hostBounds=host?.getBoundingClientRect();
- const availableWidth=Math.max(240,bounds?.width||hostBounds?.width||innerWidth-24);
- const availableHeight=Math.max(140,bounds?.height||(hostBounds?.height?hostBounds.height-150:innerHeight-330));
- let layout;
- if(st.trains)layout=dominoTrainLayout(st,g);
- else{
-  let best=-1;
-  for(let columns=3;columns<=Math.max(3,st.board.length);columns++){
-   const candidate=dominoBoardLayout(st.board,st.ends,st.lastPlay?.tile?.id,columns*148);
-   const scale=Math.min((availableWidth-16)/candidate.w,(availableHeight-32)/candidate.h);
-   if(scale>best){best=scale;layout=candidate;}
-  }
- }
+ const bounds=priorTable?.getBoundingClientRect();
+ let layout=fitDominoLayout(st,g,Math.max(240,bounds?.width||innerWidth),Math.max(140,bounds?.height||innerHeight-280));
  const hasPlayable=hand.some(legal);
  const canDraw=myTurn&&!hasPlayable&&Number(st.boneyard)>0&&st.mode!=='block'&&(!st.trains||!st.drawn);
  const canPass=myTurn&&!hasPlayable&&(!Number(st.boneyard)||st.mode==='block'||(st.trains&&st.drawn));
  const selected=hand.find(t=>t.id===S.dominoSel);
- const endpointHtml=allSides.map(side=>`<button type="button" class="domino-end" data-domino-end="${side}" aria-label="Play selected domino at ${st.trains?(side==='train-mexican'?'Mexican train':nameOf(Number(side.slice(6)))+' train'):side+' open end'}" style="--ex:${layout[side].x}px;--ey:${layout[side].y}px">+</button>`).join('');
+ const endpoints=()=>allSides.map(side=>`<button type="button" class="domino-end" data-domino-end="${side}" aria-label="Play selected domino at ${st.trains?(side==='train-mexican'?'Mexican train':nameOf(Number(side.slice(6)))+' train'):side+' open end'}" style="--ex:${layout[side].x}px;--ey:${layout[side].y}px">+</button>`).join('');
  const handHtml=hand.map(t=>dominoTileFace(t,`data-domino-tile="${t.id}" aria-pressed="${t.id===S.dominoSel}" ${!myTurn||busy||!legal(t)?'disabled':''}`,`vertical ${myTurn&&!busy&&!finished&&legal(t)?'legal':''} ${t.id===S.dominoSel?'selected':''}`)).join('');
  const status=g.status==='finished'?'Round complete.':myTurn?(hasPlayable?'Your turn. Drag a matching tile to an open end.':'No matching tile. '+(canDraw?'Draw from the boneyard.':'Pass.')):'';
- $('#board').innerHTML=`<div class="domino-room"><p class="domino-sr" role="status">${esc(status)} Boneyard ${Number(st.boneyard)||0}. Open ends ${Number(st.ends?.left)||0} and ${Number(st.ends?.right)||0}.</p><section class="domino-table-shell" aria-label="OhanO DominO shared table"><div class="domino-board" role="group" aria-label="Shared domino table. Drag to pan or pinch to zoom." aria-busy="${busy}"><div class="domino-chain" style="--chain-w:${layout.w}px;--chain-h:${layout.h}px">${layout.html}${endpointHtml}</div></div><section class="domino-hand-dock" aria-label="Your domino rack"><div class="domino-hand-head"><small>${finished?esc(g.winner==='tie'?'Round tied':nameOf(Number(g.winner))+' won'):hand.length+' tiles · '+(Number(st.boneyard)||0)+' to draw'}</small><div class="domino-actions">${finished?'<button type="button" id="domino-rematch">Play again</button>':''}<button type="button" id="domino-draw" class="${canDraw&&!busy?'draw-ready':''}" ${finished?'hidden':''} ${canDraw&&!busy?'':'disabled'} title="${canDraw?'Draw a domino':!myTurn?'Wait for your turn':hasPlayable?'Play a matching domino first':st.mode==='block'?'Block Dominoes uses Pass':'Boneyard is empty'}">Draw</button>${canPass?'<button type="button" id="domino-pass">Pass</button>':''}</div></div><p class="domino-place-prompt" role="status" ${selected&&sidesFor(selected.id).length>1?'':'hidden'}>Pick a place · tap a glowing + on the board.</p><div class="domino-hand" tabindex="0" aria-label="Your hand, ${hand.length} upright dominoes. Scroll to see all tiles.">${handHtml}</div></section></section></div>`;
- const table=$('#board .domino-board'),plane=table.querySelector('.domino-chain'),rack=$('#board .domino-hand');
- if(S.dominoRackGame===g.id)rack.scrollLeft=S.dominoRackScroll||0;else S.dominoRackScroll=0;
- S.dominoRackGame=g.id;rack.onscroll=()=>S.dominoRackScroll=rack.scrollLeft;
+ $('#board').innerHTML=`<div class="domino-room"><p class="domino-sr" role="status">${esc(status)} Boneyard ${Number(st.boneyard)||0}. Open ends ${Number(st.ends?.left)||0} and ${Number(st.ends?.right)||0}.</p><section class="domino-table-shell" aria-label="OhanO DominO shared table"><div class="domino-board" role="group" aria-label="Shared domino table. Drag to pan or pinch to zoom." aria-busy="${busy}"><div class="domino-chain" style="--chain-w:${layout.w}px;--chain-h:${layout.h}px">${layout.html}${endpoints()}</div></div><section class="domino-hand-dock" aria-label="Your domino rack"><div class="domino-hand-head"><small>${finished?esc(g.winner==='tie'?'Round tied':nameOf(Number(g.winner))+' won'):hand.length+' tiles · '+(Number(st.boneyard)||0)+' to draw'}</small><div class="domino-actions">${finished?'<button type="button" id="domino-rematch">Play again</button>':''}<button type="button" id="domino-draw" class="${canDraw&&!busy?'draw-ready':''}" ${finished?'hidden':''} ${canDraw&&!busy?'':'disabled'} title="${canDraw?'Draw a domino':!myTurn?'Wait for your turn':hasPlayable?'Play a matching domino first':st.mode==='block'?'Block Dominoes uses Pass':'Boneyard is empty'}">Draw</button>${canPass?'<button type="button" id="domino-pass">Pass</button>':''}</div></div><p class="domino-place-prompt" role="status" ${selected&&sidesFor(selected.id).length>1?'':'hidden'}>Pick a place · tap a glowing + on the board.</p><div class="domino-hand" tabindex="0" aria-label="Your hand, ${hand.length} upright dominoes. Scroll to see all tiles.">${handHtml}</div></section></section></div>`;
+ const table=$('#board .domino-board'),plane=table.querySelector('.domino-chain'),rack=$('#board .domino-hand'),rackDock=rack.closest('.domino-hand-dock');
+ if(S.dominoRackGame===g.id){rack.scrollLeft=S.dominoRackScroll||0;rackDock.scrollTop=S.dominoRackTop||0;}else{S.dominoRackScroll=0;S.dominoRackTop=0;}
+ S.dominoRackGame=g.id;rack.onscroll=()=>S.dominoRackScroll=rack.scrollLeft;rackDock.onscroll=()=>S.dominoRackTop=rackDock.scrollTop;
  const priorHand=S.dominoHandSnapshot;
  if(priorHand?.game===g.id&&hand.length>priorHand.ids.length){
   const drawn=hand.find(t=>!priorHand.ids.includes(t.id));
   const tile=drawn&&rack.querySelector(`[data-domino-tile="${drawn.id}"]`);
-  if(tile){rack.scrollLeft=Math.max(0,tile.offsetLeft+tile.offsetWidth-rack.clientWidth+10);S.dominoRackScroll=rack.scrollLeft;}
+  if(tile){const bottom=tile.getBoundingClientRect().bottom-rackDock.getBoundingClientRect().top+rackDock.scrollTop;if(bottom>rackDock.scrollTop+rackDock.clientHeight)rackDock.scrollTop=Math.max(0,bottom-rackDock.clientHeight+8);S.dominoRackTop=rackDock.scrollTop;}
  }
  S.dominoHandSnapshot={game:g.id,ids:hand.map(t=>t.id)};
  let camera=S.dominoCamera;
  if(camera?.game!==g.id)camera=S.dominoCamera={game:g.id,auto:true,scale:1,x:0,y:0};
- const paint=()=>plane.style.transform=`translate(${camera.x}px,${camera.y}px) scale(${camera.scale})`;
- const fit=()=>{const r=table.getBoundingClientRect();camera.scale=Math.max(.12,Math.min(1.2,(r.width-16)/layout.w,(r.height-32)/layout.h));camera.x=(r.width-layout.w*camera.scale)/2;camera.y=(r.height-layout.h*camera.scale)/2;camera.auto=true;paint();};
+ const paint=()=>{plane.style.transform=`translate(${camera.x}px,${camera.y}px) scale(${camera.scale})`;plane.style.setProperty('--domino-end-size',(44/camera.scale)+'px');plane.style.setProperty('--domino-label-size',(14/camera.scale)+'px');};
+ const fit=()=>{const r=table.getBoundingClientRect();if(r.width<1||r.height<1)return;
+  layout=fitDominoLayout(st,g,r.width,r.height);plane.style.setProperty('--chain-w',layout.w+'px');plane.style.setProperty('--chain-h',layout.h+'px');plane.innerHTML=layout.html+endpoints();
+  camera.scale=Math.max(r.height<150?.35:.3,Math.min(.72,(r.width-24)/layout.w,(r.height-24)/layout.h));camera.x=(r.width-layout.w*camera.scale)/2;camera.y=(r.height-layout.h*camera.scale)/2;camera.auto=true;paint();
+  if(S.dominoSel)showEnds(S.dominoSel);
+ };
  const zoom=(factor,cx,cy)=>{const r=table.getBoundingClientRect(),x=cx??r.width/2,y=cy??r.height/2,next=Math.max(.12,Math.min(3,camera.scale*factor));camera.x=x-(x-camera.x)*next/camera.scale;camera.y=y-(y-camera.y)*next/camera.scale;camera.scale=next;camera.auto=false;paint();};
- if(camera.auto)fit();else paint();
+ if(!camera.auto)paint();
  const room=table.closest('.domino-room'),handDock=rack.closest('.domino-hand-dock');
- const reserveRack=()=>{if(!room||!handDock)return;const height=Math.max(120,room.clientHeight-handDock.getBoundingClientRect().height);const value=height+'px';if(table.style.getPropertyValue('--domino-board-height')!==value)table.style.setProperty('--domino-board-height',value);};
- reserveRack();
- const observer=new ResizeObserver(()=>{reserveRack();if(camera.auto&&table.isConnected)fit();});observer.observe(table);observer.observe(room);observer.observe(handDock);
+ const resizeCamera=()=>{const r=table.getBoundingClientRect();if(camera.auto)fit();else{if(Number.isFinite(camera.viewportWidth)&&Number.isFinite(camera.viewportHeight)){camera.x+=(r.width-camera.viewportWidth)/2;camera.y+=(r.height-camera.viewportHeight)/2;}paint();}camera.viewportWidth=r.width;camera.viewportHeight=r.height;};
+ const observer=new ResizeObserver(()=>{if(table.isConnected)resizeCamera();});observer.observe(table);
  S.dominoDispose=()=>observer.disconnect();
+ table.tabIndex=0;table.setAttribute('aria-keyshortcuts','ArrowUp ArrowDown ArrowLeft ArrowRight + - 0');
+ table.onkeydown=e=>{if(e.target.closest('button'))return;const step=60;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();camera.auto=false;camera.x+=e.key==='ArrowLeft'?step:e.key==='ArrowRight'?-step:0;camera.y+=e.key==='ArrowUp'?step:e.key==='ArrowDown'?-step:0;paint();}else if(['+','=','-','0'].includes(e.key)){e.preventDefault();if(e.key==='0'){const r=table.getBoundingClientRect();camera.scale=Math.max(.12,Math.min(.72,(r.width-24)/layout.w,(r.height-24)/layout.h));camera.x=(r.width-layout.w*camera.scale)/2;camera.y=(r.height-layout.h*camera.scale)/2;camera.auto=false;paint();}else zoom(e.key==='-'?1/1.5:1.5);}};
  table.onwheel=e=>{e.preventDefault();const r=table.getBoundingClientRect();zoom(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top);};
  const pointers=new Map();let gesture=null;
  const startGesture=()=>{const pts=[...pointers.values()];gesture={pts,scale:camera.scale,x:camera.x,y:camera.y};};
  table.onpointerdown=e=>{if(e.target.closest('button'))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});table.setPointerCapture(e.pointerId);startGesture();};
  table.onpointermove=e=>{if(!pointers.has(e.pointerId)||!gesture)return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});const pts=[...pointers.values()];camera.auto=false;if(pts.length===1){camera.x=gesture.x+pts[0].x-gesture.pts[0].x;camera.y=gesture.y+pts[0].y-gesture.pts[0].y;paint();}else if(pts.length===2&&gesture.pts.length===2){const [a,b]=pts,[oa,ob]=gesture.pts,r=table.getBoundingClientRect(),d=Math.hypot(a.x-b.x,a.y-b.y),od=Math.hypot(oa.x-ob.x,oa.y-ob.y)||1,sc=Math.max(.12,Math.min(3,gesture.scale*d/od));const ox=(oa.x+ob.x)/2-r.left,oy=(oa.y+ob.y)/2-r.top;camera.x=(a.x+b.x)/2-r.left-(ox-gesture.x)*sc/gesture.scale;camera.y=(a.y+b.y)/2-r.top-(oy-gesture.y)*sc/gesture.scale;camera.scale=sc;paint();}};
  table.onpointerup=table.onpointercancel=e=>{pointers.delete(e.pointerId);startGesture();};
- const showEnds=id=>{table.classList.add('show-ends');const sides=sidesFor(id);const prompt=document.querySelector('#game .domino-place-prompt');if(prompt)prompt.hidden=sides.length<2;table.querySelectorAll('[data-domino-end]').forEach(b=>b.classList.toggle('legal-end',sides.includes(b.dataset.dominoEnd)));};
+ const showEnds=id=>{if(!myTurn||busy||finished)return;table.classList.add('show-ends');const sides=sidesFor(id);const prompt=document.querySelector('#game .domino-place-prompt');if(prompt)prompt.hidden=sides.length<2;table.querySelectorAll('[data-domino-end]').forEach(b=>b.classList.toggle('legal-end',sides.includes(b.dataset.dominoEnd)));};
  const transact=(payload,after)=>{if(S.movePending)return;table.setAttribute('aria-busy','true');$('#board').querySelectorAll('.domino-hand button,.domino-actions button,.domino-end').forEach(b=>b.disabled=true);return move(payload,after);};
  const send=(id,side)=>{table.classList.remove('show-ends');transact({action:'play',tileId:id,side},()=>{S.dominoSel=null;});};
- table.querySelectorAll('[data-domino-end]').forEach(b=>b.onclick=()=>{if(S.dominoSel&&sidesFor(S.dominoSel).includes(b.dataset.dominoEnd))send(S.dominoSel,b.dataset.dominoEnd);});
+ table.onclick=e=>{if(!myTurn||busy||finished)return;const b=e.target.closest('[data-domino-end]');if(b&&table.contains(b)&&S.dominoSel&&sidesFor(S.dominoSel).includes(b.dataset.dominoEnd))send(S.dominoSel,b.dataset.dominoEnd);};
+ resizeCamera();
  if(selected)showEnds(selected.id);
  $('#domino-draw').onclick=()=>{if(canDraw)transact({action:'draw'});};
  $('#domino-rematch')?.addEventListener('click',()=>requestRematch(g));
@@ -18673,3 +18668,41 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
 :root.ohana-world body #ohana-journey-room>.journey-room-heading>div h2{margin:0!important;font:inherit!important}
 :root.ohana-world body :is(#app>header,#gr-main>.gr-header,#ohana-journey-room>.journey-room-heading,#ohana-bible-reader>header,dialog.game-setup-room>header)>button:not(.room-home-control):not(.room-current-heading){grid-row:1!important;position:static!important;inset:auto!important;order:0!important}
 }</style>
+
+<style id="ohana-words-domino-layout-20261021">
+@layer ohanaApproved {
+/* Words has one board surface, a fixed readable rack, then the existing workstation. */
+:root.ohana-world body #app #game#game[data-game-type=words] #board#board#board {position:fixed!important;inset:var(--ohana-game-header-space,96px) 0 calc(var(--game-rail-space,190px) - 28px + var(--word-rack-space,80px))!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;padding:4px!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box!important}
+:root.ohana-world body #app #game#game[data-game-type=words] #board#board#board::before,:root.ohana-world body #app #game#game[data-game-type=words] #board#board#board::after{content:none!important;display:none!important}
+:root.ohana-world body #app #game#game[data-game-type=words] #board#board#board .wbwrap {flex:none!important;position:relative!important;width:min(100%,720px)!important;height:100%!important;max-width:100%!important;max-height:100%!important;aspect-ratio:auto!important;overflow:clip!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .game-tray.game-tray {position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:calc(var(--game-rail-space,190px) - 28px)!important;transform:translateX(-50%)!important;width:min(720px,100vw)!important;max-width:100vw!important;box-sizing:border-box!important;margin:0!important;padding:8px 6px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;z-index:55!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .game-tray .rack.rack {display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;gap:4px!important;width:100%!important;max-width:100%!important;padding:0!important;margin:0!important;zoom:1!important;transform:none!important;touch-action:pan-x!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .game-tray .rack.rack>.rt {flex:1 1 0!important;min-width:0!important;max-width:56px!important;height:60px!important;min-height:60px!important;margin:0!important;box-sizing:border-box!important;font-size:30px!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .game-tray .acts:empty,:root.ohana-world body #app #game#game[data-game-type=words] #game-head .compact-scores{display:none!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .preview-score {position:static!important;margin:0!important;padding:0!important;min-height:0!important;font-size:14px!important}
+:root.ohana-world body #app #game#game[data-game-type=words] #board#board#board .wbwrap .wb{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important;aspect-ratio:1!important;margin:0!important;overflow:clip!important;transform-origin:0 0!important}
+:root.ohana-world body #app #game#game[data-game-type=words] .word-private-draft-hint:not(.sr-only){position:absolute!important;inset:4px 4px auto!important;z-index:8!important;margin:0!important;padding:6px!important;background:#fff7dc!important;color:#173d43!important;font:700 14px/1.35 Nunito,sans-serif!important;max-height:64px!important;overflow:auto!important}
+/* Bound the rack independently so a large hand cannot collapse the shared table. */
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-train-label{font-size:var(--domino-label-size,18px)!important;line-height:1.2!important;white-space:nowrap!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand-head{min-height:18px!important;height:18px!important;padding:0 8px!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-end{width:var(--domino-end-size,64px)!important;height:var(--domino-end-size,64px)!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-room {inset:var(--ohana-game-header-space,96px) 0 calc(var(--game-rail-space,190px) - 28px)!important;overflow:hidden!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-table-shell {position:absolute!important;inset:0!important;display:grid!important;grid-template-rows:minmax(0,1fr) auto!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-board {height:100%!important;min-height:0!important;width:100%!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand-dock {max-height:min(30dvh,142px)!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand {display:flex!important;flex-wrap:wrap!important;gap:8px!important;height:auto!important;min-height:0!important;padding:8px!important;margin:0!important;overflow:visible!important}
+:root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand .domino-tile {flex:0 0 48px!important;width:48px!important;height:96px!important}
+@media(max-height:450px){
+ :root.ohana-world body #app #game#game[data-game-type=words]{--ohana-game-header-space:84px!important}
+ :root.ohana-world body #app #game#game[data-game-type=words] #game-head .word-status{display:none!important}
+ :root.ohana-world body #app #game#game[data-game-type=words] .game-tray.game-tray{padding-block:4px!important}
+ :root.ohana-world body #app #game#game[data-game-type=words] .game-tray .rack.rack>.rt{height:48px!important;min-height:48px!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino]{--ohana-game-header-space:84px!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand-dock{display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;max-height:104px!important;overflow:hidden!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand-head{height:100%!important;box-sizing:border-box!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand{flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px!important;touch-action:pan-x!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand .domino-tile{touch-action:pan-x!important}
+ :root.ohana-world body #app #game#game[data-game-type=domino] #board#board .domino-hand .domino-tile{flex-basis:44px!important;width:44px!important;height:88px!important}
+}
+}
+</style>
