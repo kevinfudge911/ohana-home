@@ -1,0 +1,13 @@
+// Run after the publisher's other source patches; keep one shared camera implementation.
+const fs=require('fs'),zlib=require('zlib'),crypto=require('crypto'),assert=require('assert/strict');
+const section=(s,start,end)=>{const a=s.indexOf(start),b=s.indexOf(end,a);if(a<0||b<0)throw Error('Protected section absent');return s.slice(a,b+end.length);},hash=x=>crypto.createHash('sha256').update(x).digest('hex');
+// Sync only the UI input. The pinned candidate's full sync currently emits different CSS.
+const app='live/'+fs.readdirSync('live').find(f=>f.endsWith('app.html'));let html=fs.readFileSync(app,'utf8');const before=html;
+assert.equal(hash(section(before,'<style id="ohana-shared-card-table">','</style>')),'97bea538cc0ca451785d2f3a72a5e7f0b5026af695d7763ef92fe044509a2b6e','Approved Rummy CSS differs from pinned 25cf89df; reconcile before packaging');
+const uiStart=html.indexOf('// Inlined by tools/sync-shuffle-ui.cjs.'),uiEnd=html.indexOf('</script>',uiStart);if(uiStart<0||uiEnd<uiStart)throw Error('Rummy UI anchors absent');
+const suffix=html.slice(uiStart,uiEnd).match(/\s*$/)[0],ui=fs.readFileSync('live/shuffle-ui.js','utf8').replace(/\r\n/g,'\n').trimEnd();html=html.slice(0,uiStart)+ui+suffix+html.slice(uiEnd);
+html=html.replace(/\n?<!-- OHANA RUMMY BOARD CAMERA START -->[\s\S]*?<!-- OHANA RUMMY BOARD CAMERA END -->\n?/g,'');
+const core=fs.readFileSync('shared-camera/board-viewport.js','utf8').replace(/\r\n/g,'\n'),adapter=fs.readFileSync('rummy-camera-adapter.js','utf8').replace(/\r\n/g,'\n');
+html+='\n<!-- OHANA RUMMY BOARD CAMERA START -->\n<script>if(!window.OhanaBoardViewport){'+core+'}\n'+adapter+'\nwindow.ohanaRummyCameraOwner=OhanaRummyCameraAdapter.install();</script>\n<!-- OHANA RUMMY BOARD CAMERA END -->\n';
+const css=s=>section(s,'<style id="ohana-shared-card-table">','</style>'),header=s=>section(s,'<!-- OHANA GLOBAL SHARED SIGN START -->','<!-- OHANA GLOBAL SHARED SIGN END -->');assert.equal(css(html),css(before),'approved inline Rummy CSS preserved');assert.equal(header(html),header(before),'approved header block preserved');
+fs.writeFileSync(app,html);const raw=Buffer.from(html),packed=zlib.gzipSync(raw,{level:9});if(!zlib.gunzipSync(packed).equals(raw))throw Error('Lossless packaging mismatch');fs.writeFileSync(app+'.gz',packed);fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/rummy-camera-packaging.json',JSON.stringify({rawSha256:hash(raw),gzipSha256:hash(packed),inlineCssExact:true,globalHeaderExact:true,inlineCssSha256:hash(css(html)),globalHeaderSha256:hash(header(html)),lossless:true},null,2));console.log('Rummy camera source/gzip synchronized: '+raw.length+' -> '+packed.length);

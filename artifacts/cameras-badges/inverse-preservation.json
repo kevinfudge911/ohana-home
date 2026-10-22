@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "baseline": "108a8bd12298e0b6d829fe97be4043158224440a",
+  "wholeAppInverseExact": true,
+  "reviewedSharedCoreExact": true,
+  "reviewedRummyAdapterExact": true,
+  "reviewedRummyCancellationExact": true,
+  "hfFixExact": true,
+  "onlyTwoAttentionCountChanges": true,
+  "approvedArtCssHeadersAndAllOtherRuntimePreserved": true,
+  "workerBindingsRulesAndAutomaticPolicyExact": true,
+  "lossless": true,
+  "scripts": 32,
+  "appSha256": "bbb56454db84554d1cdfb514a68c7cbb019bdc0189d5da17608ead8f02fda9cc",
+  "familyMoves": 0
+}

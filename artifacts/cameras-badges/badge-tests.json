@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": 45,
+  "cases": 10,
+  "scope": "Actual Home/room/table count painters with synthetic player metadata",
+  "humanMetadataOnly": true,
+  "botTablesNotDeleted": true,
+  "automaticPolicyUnchanged": true,
+  "familyMoves": 0
+}

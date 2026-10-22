@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "baseline": "108a8bd12298e0b6d829fe97be4043158224440a",
+  "fullApplicationReplayExact": true,
+  "approvedRummyCssExact": true,
+  "globalHeaderExact": true,
+  "bridgeHeaderHookExact": true,
+  "tenBoundsExact": true,
+  "workerConfigBuildExact": true,
+  "reviewedCameraSourcesExact": true,
+  "sharedCoreSha256": "600feda2ce8c3565a86240ec6e4f0c45ac89a940afae1e841a641d5393eecb4c",
+  "scripts": 32,
+  "rawBytes": 6921346,
+  "gzipBytes": 3458606,
+  "appSha256": "bbb56454db84554d1cdfb514a68c7cbb019bdc0189d5da17608ead8f02fda9cc",
+  "familyMoves": 0,
+  "onlyNewBehaviorBeyondReviewedCameras": "Two attention counts reuse the existing human-turn filter; automatic policy and bot-game access unchanged"
+}

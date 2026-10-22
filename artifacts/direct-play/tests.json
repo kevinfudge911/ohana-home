@@ -19,7 +19,7 @@
     "advanceConfirmedTurn"
   ],
   "contexts": 12,
-  "scripts": 30,
+  "scripts": 32,
   "fixture": "isolated jsdom actual handlers; API reads/openGame destinations instrumented; no network/credentials/server/shared Chrome",
   "familyMoves": 0,
   "published": false

@@ -73,7 +73,10 @@ function bindShuffleReorder(draft){
    if(from===to)return;draft.order.splice(to,0,draft.order.splice(from,1)[0]);if(from<to)cards[to].after(b);else cards[to].before(b);
   };
   b.onpointerup=e=>{if(!drag)return;const moved=drag.moved;drag=null;if(!moved)return;e.preventDefault();saveShuffleOrder(draft);renderGame();accessibleAnnounce?.(shuffleCardLabel(b.dataset.card)+' moved to position '+(draft.order.indexOf(b.dataset.card)+1));};
-  b.onpointercancel=()=>{if(!drag)return;if(drag.moved){draft.order=drag.order;renderGame();}drag=null;};
+  b.onpointercancel=()=>{
+   if(!drag)return;const{moved,order}=drag;drag=null;b.classList.remove('rd-dragging');
+   if(moved){const focused=rack.contains(document.activeElement)?document.activeElement:null,cards=new Map([...rack.querySelectorAll('[data-card]')].map(card=>[card.dataset.card,card]));draft.order=[...order];for(const id of order){const card=cards.get(id);if(card)rack.append(card);}focused?.focus({preventScroll:true});}
+  };
  }
 }
 function mountShuffleWorkstation(g,draft){

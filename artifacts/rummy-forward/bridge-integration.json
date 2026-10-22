@@ -1,6 +1,7 @@
 {
   "passed": true,
   "baseline": "b3ca9e46966f03f5aecdb3b0092fa89cc92ed190",
+  "cameraDeltaChained": true,
   "untouchedFiles": [
     "live/worker.js",
     "wrangler.toml",
@@ -32,9 +33,9 @@
   "signArtworkExact": true,
   "allOtherHtmlOutsideReviewedUiHeaderAdaptersAndStartupRelocationExact": true,
   "losslessTransport": true,
-  "scripts": 30,
-  "appSha256": "1735832bde349d5e01bdb79986a04ed68eb331d5dc78358b9e59d33a3bd8b6f5",
-  "rawBytes": 6898099,
-  "gzipBytes": 3453806,
+  "scripts": 32,
+  "appSha256": "bbb56454db84554d1cdfb514a68c7cbb019bdc0189d5da17608ead8f02fda9cc",
+  "rawBytes": 6921346,
+  "gzipBytes": 3458606,
   "familyMoves": 0
 }

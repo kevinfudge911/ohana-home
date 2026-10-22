@@ -1,0 +1,9 @@
+{
+  "rawSha256": "bbb56454db84554d1cdfb514a68c7cbb019bdc0189d5da17608ead8f02fda9cc",
+  "gzipSha256": "e3df790e2e6a3e470f0a2e739cd1ef995aa837311300a411683a88dd721951a1",
+  "inlineCssExact": true,
+  "globalHeaderExact": true,
+  "inlineCssSha256": "97bea538cc0ca451785d2f3a72a5e7f0b5026af695d7763ef92fe044509a2b6e",
+  "globalHeaderSha256": "c790d66ddea6b04feb0d8a0d1c81e4715eb1b1106c8554c9fb5c601b2f9ef451",
+  "lossless": true
+}
