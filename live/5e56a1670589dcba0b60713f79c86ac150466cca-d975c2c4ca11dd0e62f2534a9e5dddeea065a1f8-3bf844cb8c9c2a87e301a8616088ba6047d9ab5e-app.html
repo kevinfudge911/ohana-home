@@ -8096,9 +8096,12 @@ function pzStripRenderPlans(list,height=Infinity){
  if(!PZ.geo||!PZ.data||!PZ.sprites)return [];
  const dpr=PZ.dpr||1,pad=2*dpr,{pw,ph,off}=PZ.geo,sw=pw+2*off,sh=ph+2*off,target=Math.max(1,Math.min((pzStripCell()-8)*dpr,height-pad*2));
  const groups=new Map();for(const q of PZ.data.pieces)if(!q.l&&!q.tray){if(!groups.has(q.g))groups.set(q.g,[]);groups.get(q.g).push(q);}
- let cursor=0;return list.map(pc=>{const members=(groups.get(pc.g)||[pc]).map(q=>{const sprite=pzSprite(q.i),a=pzStripOpaqueBounds(sprite);return {q,sprite,x:q.x-pc.x-off,y:q.y-pc.y-off,b:{x0:q.x-pc.x-off+a.x0*sw/sprite.width,y0:q.y-pc.y-off+a.y0*sh/sprite.height,x1:q.x-pc.x-off+a.x1*sw/sprite.width,y1:q.y-pc.y-off+a.y1*sh/sprite.height}};});
-  const b={x0:Math.min(...members.map(m=>m.b.x0)),y0:Math.min(...members.map(m=>m.b.y0)),x1:Math.max(...members.map(m=>m.b.x1)),y1:Math.max(...members.map(m=>m.b.y1))},scale=target/Math.max(1,b.y1-b.y0),width=Math.ceil((b.x1-b.x0)*scale+pad*2),plan={pc,members,b,scale,start:cursor,width,height:target,pad,sw,sh};cursor+=width;return plan;
+ const entries=list.map(pc=>{const members=(groups.get(pc.g)||[pc]).map(q=>{const sprite=pzSprite(q.i),a=pzStripOpaqueBounds(sprite);return {q,sprite,x:q.x-pc.x-off,y:q.y-pc.y-off,b:{x0:q.x-pc.x-off+a.x0*sw/sprite.width,y0:q.y-pc.y-off+a.y0*sh/sprite.height,x1:q.x-pc.x-off+a.x1*sw/sprite.width,y1:q.y-pc.y-off+a.y1*sh/sprite.height}};});
+  const b={x0:Math.min(...members.map(m=>m.b.x0)),y0:Math.min(...members.map(m=>m.b.y0)),x1:Math.max(...members.map(m=>m.b.x1)),y1:Math.max(...members.map(m=>m.b.y1))};return {pc,members,b};
  });
+ // One puzzle-coordinate scale for the whole tray; tabs never magnify individual pieces.
+ const scale=target/Math.max(1,...entries.map(e=>e.b.y1-e.b.y0));
+ let cursor=0;return entries.map(({pc,members,b})=>{const paintedHeight=(b.y1-b.y0)*scale,top=pad+(target-paintedHeight)/2,width=Math.ceil((b.x1-b.x0)*scale+pad*2),plan={pc,members,b,scale,start:cursor,width,height:paintedHeight,top,pad,sw,sh};cursor+=width;return plan;});
 }
 function pzSnugTrayHeight(room){
  if(PZ.trayHidden)return 0;const short=innerWidth>innerHeight&&innerHeight<=500,limit=short?Math.max(44,Math.min(64,room-96)):Infinity;
@@ -8111,7 +8114,7 @@ function pzPaintStrip(){
  PZ.strip.set=new Set(PZ.trayHidden?[]:PZ.data.pieces.filter(q=>trayGroups.has(q.g)).map(q=>q.i));PZ.strip.rows=1;
  const plans=PZ.strip.renderPlans=pzStripRenderPlans(list,H),total=plans.length?plans.at(-1).start+plans.at(-1).width:0,max=Math.max(0,total-W);
  PZ.strip.scroll=Math.max(0,Math.min(max,PZ.strip.scroll||0));x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);x.fillStyle=PZ.trayHidden?pzBoardHex():pzTrayHex();x.fillRect(0,0,W,H);
- for(const plan of plans){if(plan.start+plan.width<PZ.strip.scroll||plan.start>PZ.strip.scroll+W)continue;for(const m of plan.members)x.drawImage(m.sprite,plan.start-PZ.strip.scroll+plan.pad+(m.x-plan.b.x0)*plan.scale,plan.pad+(m.y-plan.b.y0)*plan.scale,plan.sw*plan.scale,plan.sh*plan.scale);}
+ for(const plan of plans){if(plan.start+plan.width<PZ.strip.scroll||plan.start>PZ.strip.scroll+W)continue;for(const m of plan.members)x.drawImage(m.sprite,plan.start-PZ.strip.scroll+plan.pad+(m.x-plan.b.x0)*plan.scale,plan.top+(m.y-plan.b.y0)*plan.scale,plan.sw*plan.scale,plan.sh*plan.scale);}
  if(!list.length){x.fillStyle='#ffe9c2';x.font=(13*dpr)+'px Nunito,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('All pieces are on the table',W/2,H/2);x.textAlign='left';x.textBaseline='alphabetic';}
 }
 function pzCanvasPoint(cv,clientX,clientY){const r=cv.getBoundingClientRect();if(!r.width||!r.height)return null;return [(clientX-r.left)*cv.width/r.width,(clientY-r.top)*cv.height/r.height];}
@@ -8121,9 +8124,16 @@ function pzStripAt(clientX,clientY){
 }
 function pzBoardPoint(e){const cv=$('#pz-canvas');if(!cv)return null;const pt=pzCanvasPoint(cv,e.clientX,e.clientY);return pt?[(pt[0]-PZ.view.x)/PZ.view.s,(pt[1]-PZ.view.y)/PZ.view.s]:null;}
 function pzTrayLanding(pc){return puzzleTrayDeploymentPlan(PZ.data,[pc.i],pzVisiblePuzzleArea()).moves.map(m=>[m.x,m.y])[0]||null;}
+function pzStripPickupOffset(pc,clientX,clientY){
+ const cv=$('#pz-strip'),pt=cv&&pzCanvasPoint(cv,clientX,clientY),plan=PZ.strip.renderPlans?.find(p=>p.pc.i===pc.i);
+ if(!pt||!plan||!(plan.scale>0))return [PZ.geo.pw/2,PZ.geo.ph/2];
+ return [plan.b.x0+(pt[0]+(PZ.strip.scroll||0)-plan.start-plan.pad)/plan.scale,plan.b.y0+(pt[1]-(plan.top??plan.pad))/plan.scale];
+}
 function pzBindStrip(){
  const cv=$('#pz-strip');if(!cv)return;
  let st=null;const ptrs=new Map();let pinch=null;
+ const beginLift=state=>{pzRememberPickup(state.pc);state.mode='lift';PZ.strip.lift=state.pc.i;PZ.carry=null;
+  for(const q of PZ.data.pieces)if(q.g===state.pc.g&&!q.l){q.h=S.me?.id;q.ht=Date.now();}pzSend({t:'grab',p:state.pc.i});};
  cv.addEventListener('pointerdown',e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId);}catch{}
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(ptrs.size>=2){ // two fingers on the tray — release a lifted chunk before starting a pinch
@@ -8131,7 +8141,7 @@ function pzBindStrip(){
    st=null;const p=[...ptrs.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)||1;
    pinch={d0:d,z0:PZ.trayZoom||1};pzTrayZoomHint();return;}
   if(PZ.carry!=null){st={returning:PZ.data.pieces[PZ.carry.p]};return;}
-  st={x:e.clientX,y:e.clientY,scroll:PZ.strip.scroll,pc:pzStripAt(e.clientX,e.clientY),mode:null};});
+  const pc=pzStripAt(e.clientX,e.clientY);st={x:e.clientX,y:e.clientY,scroll:PZ.strip.scroll,pc,offset:pc?pzStripPickupOffset(pc,e.clientX,e.clientY):null,mode:null};});
  cv.addEventListener('pointermove',e=>{
   if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(pinch&&ptrs.size>=2){const p=[...ptrs.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)||1;
@@ -8139,12 +8149,11 @@ function pzBindStrip(){
    if(Math.abs(z-(PZ.trayZoom||1))>0.004){PZ.trayZoom=z;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzResize();}return;}
   if(!st||st.returning)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
   const lifting=st.pc&&(e.clientY<cv.getBoundingClientRect().top-8||(!st.mode&&dy<-18&&Math.abs(dy)>Math.abs(dx)*1.2));
-  if(lifting&&st.mode!=='lift'){pzRememberPickup(st.pc);st.mode='lift';PZ.strip.lift=st.pc.i;PZ.carry=null;
-   for(const q of PZ.data.pieces)if(q.g===st.pc.g&&!q.l){q.h=S.me?.id;q.ht=Date.now();}pzSend({t:'grab',p:st.pc.i});}
+  if(lifting&&st.mode!=='lift')beginLift(st);
   else if(!st.mode){if(Math.abs(dx)>8)st.mode='scroll';else return;}
   if(st.mode==='scroll'){PZ.strip.scroll=st.scroll-(e.clientX-st.x)*cv.width/cv.getBoundingClientRect().width;pzPaintStrip();return;}
-  const bp=pzBoardPoint(e);if(!bp)return;const {pw,ph}=PZ.geo,pc=PZ.data.pieces[PZ.strip.lift];if(!pc)return;
-  const ddx=(bp[0]-pw/2)-pc.x,ddy=(bp[1]-ph/2)-pc.y;
+  const bp=pzBoardPoint(e);if(!bp)return;const pc=PZ.data.pieces[PZ.strip.lift];if(!pc)return;
+  const ddx=(bp[0]-st.offset[0])-pc.x,ddy=(bp[1]-st.offset[1])-pc.y;
   for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=ddx;q.y+=ddy;}
   PZ.needDraw=true;const now=Date.now(),gap=PZ.mode==='ws'?60:150;
   if(now-PZ.lastMoveSent>gap){PZ.lastMoveSent=now;pzSend({t:'move',p:pc.i,x:Math.round(pc.x),y:Math.round(pc.y)});}});
@@ -8153,10 +8162,13 @@ function pzBindStrip(){
   if(pinch){if(ptrs.size<2)pinch=null;return;} // finishing a pinch — never places or scrolls
   if(!st)return;const s0=st;st=null;
   if(s0.returning){pzPutInTray(s0.returning,0);return;}
+  const dx=e.clientX-s0.x,dy=e.clientY-s0.y;
+  if(s0.pc&&s0.mode!=='lift'&&(e.clientY<cv.getBoundingClientRect().top-8||(!s0.mode&&dy<-18&&Math.abs(dy)>Math.abs(dx)*1.2)))beginLift(s0);
+  else if(!s0.mode&&Math.abs(dx)>8)s0.mode='scroll';
   if(s0.mode==='lift'){const pc=PZ.data.pieces[PZ.strip.lift];PZ.strip.lift=null;
-   if(pc){const bp=pzBoardPoint(e),{pw,ph}=PZ.geo;if(bp){const dx=bp[0]-pw/2-pc.x,dy=bp[1]-ph/2-pc.y;for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;}}const tray=pzTrayAt(e.clientX,e.clientY);if(tray!==null)pzPutInTray(pc,tray);else{PZ.carry=null;pzSend({t:'deploy',ids:[pc.i],inside:true,fromTray:true,area:pzVisiblePuzzleArea()});}}
+   if(pc){const bp=pzBoardPoint(e);if(bp){const dx=bp[0]-s0.offset[0]-pc.x,dy=bp[1]-s0.offset[1]-pc.y;for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;}}const tray=pzTrayAt(e.clientX,e.clientY);if(tray!==null)pzPutInTray(pc,tray);else if(bp)pzReleaseAt(pc);else pzCancelHeldPiece(pc.i,true);}
    PZ.needDraw=true;pzPaintStrip();return;}
-  if(s0.mode==='scroll'){pzPaintStrip();return;}
+  if(s0.mode==='scroll'){PZ.strip.scroll=s0.scroll-(e.clientX-s0.x)*cv.width/cv.getBoundingClientRect().width;pzPaintStrip();return;}
   if(s0.pc){
    pzDeployPieces([s0.pc.i]);
   }};
@@ -8278,11 +8290,12 @@ function puzzleTidyAround(meta,pieces,targets){
   if(members.length===1&&members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
  }
  const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
- const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
+ const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy)),pitchX=w/nx,pitchY=h/ny;
  // Finish every side of the nearest ring before using the next ring.
  function* slots(){
-  const xAt=i=>i<0?-gap+i*sx:i>=nx?w+gap+(i-nx)*sx:i*sx;
-  const yAt=i=>i<0?-gap+i*sy:i>=ny?h+gap+(i-ny)*sy:i*sy;
+  // Spread each axis remainder across its slots instead of leaving one wide seam.
+  const xAt=i=>i<0?-gap+i*pitchX:i>=nx?w+gap+(i-nx)*pitchX:i*pitchX;
+  const yAt=i=>i<0?-gap+i*pitchY:i>=ny?h+gap+(i-ny)*pitchY:i*pitchY;
   for(let ring=0;;ring++){
    const left=-ring-1,right=nx+ring,top=-ring-1,bottom=ny+ring;
    for(let x=left;x<=right;x++)yield {x:xAt(x),y:yAt(top)};

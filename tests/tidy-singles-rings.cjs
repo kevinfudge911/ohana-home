@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..');process.chdir(root);const pre=fs.readFil
   const meta={w,h,cols,rows},P=pieces(meta),pw=w/cols,ph=h/rows,tab=Math.min(pw,ph)*.36,sx=pw+2*tab+2,sy=ph+2*tab+2,nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
   invoke('puzzleTidyAround',meta,P,P);let previous=-1;const rings=new Map();
   function axisIndex(v,span,step,n){let best=Infinity,index;for(let i=-50;i<n+50;i++){const ideal=i<0?-2+i*step:i>=n?span+2+(i-n)*step:i*step,delta=Math.abs(v-ideal);if(delta<best){best=delta;index=i;}}assert(best<1.01,'slot aligned to perimeter lattice');return index;}
-  for(const p of P){const b=box(meta,p),x=axisIndex(b[0],w,sx,nx),y=axisIndex(b[1],h,sy,ny),ring=Math.max(-x-1,x-nx,-y-1,y-ny);ok(ring>=previous,'complete inner ring precedes outer ring');previous=ring;if(!rings.has(ring))rings.set(ring,new Set());rings.get(ring).add(x+','+y);}
+  for(const p of P){const b=box(meta,p),x=axisIndex(b[0],w,w/nx,nx),y=axisIndex(b[1],h,h/ny,ny),ring=Math.max(-x-1,x-nx,-y-1,y-ny);ok(ring>=previous,'complete inner ring precedes outer ring');previous=ring;if(!rings.has(ring))rings.set(ring,new Set());rings.get(ring).add(x+','+y);}
   for(const [r,slots] of rings){const last=r===previous;if(!last)ok(slots.size===2*nx+2*ny+4+8*r,'complete ring capacity before moving outward');for(const [x,y] of [[-r-1,-r-1],[nx+r,-r-1],[nx+r,ny+r],[-r-1,ny+r]])if(!last)ok(slots.has(x+','+y),'completed ring includes corner');}
  }
  for(const [w,h,cols,rows] of [[600,400,12,8],[1400,300,28,6],[300,1400,6,28]]){

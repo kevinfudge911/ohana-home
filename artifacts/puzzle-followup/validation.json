@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "tests": {
+    "commonScale": 18000,
+    "scaleCases": 24,
+    "ringGap": 471,
+    "gapCases": 3,
+    "manualDrag": 1043,
+    "dragCases": 96,
+    "protocolStorage": 212,
+    "tidyProtection": 546,
+    "autoDeployment": 124,
+    "snugTrayRender": 8784,
+    "directNavigation": 77,
+    "homeOrder": 18,
+    "puzzleDirect": 24,
+    "tenEngine": "PASS",
+    "requiredModules": 482,
+    "emittedModuleBytesVerified": true,
+    "uploadKiB": 62457.01,
+    "physicalPhoneGameplay": "not run; no family mutations"
+  },
+  "scope": "Actual source helpers with fictional state; no network or family writes",
+  "appSha256": "902cc9a15714a89f7d08c25058b55f156c70ae321d8044d898071ce80f427d8e",
+  "gzipSha256": "4a0930fc8b9494f8e8579b7ffc3601989582c2c3a2634d2eb7e54911245737f4",
+  "allOtherHtmlWorkerAndConfigBytesPreserved": true
+}

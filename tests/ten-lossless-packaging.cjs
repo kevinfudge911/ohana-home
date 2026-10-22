@@ -3,7 +3,8 @@ const root=path.resolve(__dirname,'..'),live=path.join(root,'live'),app=fs.readd
 const git=process.env.OHANA_TEST_GIT||'git',g=p=>cp.execFileSync(git,['show','74166441:'+p],{cwd:root,maxBuffer:20e6}),hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 assert(zlib.gunzipSync(packed).equals(raw),'Transport lossless');if(process.env.OHANA_EXPECTED_HTML_SHA256)assert.equal(hash(raw),process.env.OHANA_EXPECTED_HTML_SHA256,'Expected release HTML');
 const before=g('live/worker.js').toString(),after=fs.readFileSync(path.join(live,'worker.js'),'utf8'),old='import APP_HTML from "./'+app+'";',replacement='import APP_HTML_GZIP from "./'+app+'.gz";\nimport { gunzipSync as gunzipAppHtml } from "node:zlib";\nconst APP_HTML = gunzipAppHtml(APP_HTML_GZIP).toString("utf8");';
-assert.equal(after,before.replace(old,replacement),'Only import and byte-identical decoding change; all handlers and engines preserved');
+const helper=(s,a,b)=>s.slice(s.indexOf(a),s.indexOf(b,s.indexOf(a))),a='function puzzleTidyAround(',b='function puzzleArrangeRows(';
+assert.equal(after.replace(helper(after,a,b),helper(before,a,b)),before.replace(old,replacement),'Loader preserved; the separately fingerprinted reviewed puzzle geometry is the sole Worker delta');
 const config=fs.readFileSync(path.join(root,'wrangler.toml'),'utf8'),oldConfig=g('wrangler.toml').toString(),htmlFiles=fs.readdirSync(live).filter(x=>x.endsWith('.html')&&x!==app).sort();
 const globs='globs = ['+htmlFiles.map(x=>JSON.stringify(x)).concat(['"**/*.js.txt"','"**/*.svg"']).join(', ')+']';
 const newRule='# The main HTML is packaged losslessly as gzip and expanded by worker.js.\n# Preserve the source HTML in Git without including a second uncompressed copy.\n'+globs;

@@ -10049,11 +10049,12 @@ function puzzleTidyAround(meta,pieces,targets){
   if(members.length===1&&members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
  }
  const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
- const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
+ const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy)),pitchX=w/nx,pitchY=h/ny;
  // Finish every side of the nearest ring before using the next ring.
  function* slots(){
-  const xAt=i=>i<0?-gap+i*sx:i>=nx?w+gap+(i-nx)*sx:i*sx;
-  const yAt=i=>i<0?-gap+i*sy:i>=ny?h+gap+(i-ny)*sy:i*sy;
+  // Spread each axis remainder across its slots instead of leaving one wide seam.
+  const xAt=i=>i<0?-gap+i*pitchX:i>=nx?w+gap+(i-nx)*pitchX:i*pitchX;
+  const yAt=i=>i<0?-gap+i*pitchY:i>=ny?h+gap+(i-ny)*pitchY:i*pitchY;
   for(let ring=0;;ring++){
    const left=-ring-1,right=nx+ring,top=-ring-1,bottom=ny+ring;
    for(let x=left;x<=right;x++)yield {x:xAt(x),y:yAt(top)};
