@@ -6,7 +6,7 @@ const dom=new JSDOM('<main><header id="game-head"></header><div id="pz-board"><h
 let checks=0;const ok=(value,name)=>{assert(value,name);checks++;};
 w.eval('var S={game:1,room:1,me:{id:1},lastMsg:0,tab:"games"};var PZ={id:null,data:null};window.run=code=>eval(code);');
 w.openOhanaWaitingGames=async()=>{w.hubCalls=(w.hubCalls||0)+1;};w.updateNextGameAlert=()=>{};w.coordinatePuzzleHeader=(...args)=>{w.headerArgs=args;};
-w.eval(['goToNextGame','puzzleNextGame','addNextGameControl','mountCoordinatedPuzzleBoardHeader','turnReadyTime','nextWaitingGame','openExistingSharedPuzzle','advanceConfirmedTurn'].map(extract).join('\n'));
+w.eval(['ohanaUniqueGames','ohanaWaitingGames','goToNextGame','puzzleNextGame','addNextGameControl','mountCoordinatedPuzzleBoardHeader','turnReadyTime','nextWaitingGame','openExistingSharedPuzzle','advanceConfirmedTurn'].map(extract).join('\n'));
 const game=(id,extra={})=>({id,room_id:1,status:'playing',my_turn:true,in_game:true,players:[1,2],turn:0,updated_at:id,...extra});
 (async()=>{
  w.gameControlIcon=()=>'<svg class=game-nav-arrow></svg>';w.run('addNextGameControl();addNextGameControl();');ok(w.document.querySelectorAll('#next-game').length===1,'one reused original manual control');

@@ -7048,7 +7048,7 @@ function paintOhanaPlay(button,home=false){
   button.dataset.ohanaPlayCount=String(count);button.dataset.ohanaPlayHome=String(home);
   button.innerHTML=home?'Play <span class="home-turn-count" aria-hidden="true">'+count+'</span>':'<svg class="ohana-play-icon" viewBox="0 0 32 36" aria-hidden="true" focusable="false"><path d="M5 3 Q3 2 3 5 L3 31 Q3 34 6 32 L28 20 Q31 18 28 16 Z" fill="#85ef38" stroke="#24531a" stroke-width="2" stroke-linejoin="round"/></svg><span class="ohana-play-count" aria-hidden="true">'+count+'</span>';
  }
- button.removeAttribute('aria-pressed');button.setAttribute('aria-label','Play, '+count+' game'+(count===1?'':'s')+' waiting for your turn');if(button.id==='pz-next-game'){button.removeAttribute('aria-haspopup');button.removeAttribute('aria-controls');}else{button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','ohana-waiting-games');}button.title='Play';button.onclick=button.id==='pz-next-game'?puzzleNextGame:openOhanaWaitingGames;button.disabled=!!(S.movePending||S.autoAdvancePending||S.nextGamePending);
+ button.removeAttribute('aria-pressed');button.setAttribute('aria-label','Play, '+count+' game'+(count===1?'':'s')+' waiting for your turn');button.removeAttribute('aria-haspopup');button.removeAttribute('aria-controls');button.title='Play';button.onclick=button.id==='pz-next-game'?puzzleNextGame:goToNextGame;button.disabled=!!(S.movePending||S.autoAdvancePending||S.nextGamePending);
 }
 function refreshOhanaPlayControls(){for(const button of document.querySelectorAll('[data-ohana-play]'))paintOhanaPlay(button,button.dataset.ohanaPlay==='home');}
 async function openOhanaWaitingGames(){
@@ -15759,9 +15759,9 @@ async function advanceConfirmedTurn(gameId){
 function turnReadyTime(g){
  for(const value of [g.turn_ready_at,g.turn_ready_since,g.updated_at,g.last_play?.at,g.created_at]){if(value===null||value===undefined||value==='')continue;const numeric=Number(value);if(Number.isFinite(numeric)&&numeric>0)return numeric<1e11?numeric*1000:numeric;const date=Date.parse(String(value));if(Number.isFinite(date))return date;}return Infinity;
 }
-function nextWaitingGame(latest,current){
+function nextWaitingGame(latest,current,humanOnly=false){
  const currentId=String(typeof current==='object'?current?.id:current??''),member=String(S.me?.id??'');
- const eligible=(latest.allGames||latest.games||[]).filter(g=>g.in_game&&g.status==='playing'&&g.my_turn);
+ const eligible=humanOnly?ohanaWaitingGames(latest,S.me?.id):(latest.allGames||latest.games||[]).filter(g=>g.in_game&&g.status==='playing'&&g.my_turn);
  const key='ohana_turn_cycle_'+member;let seen={};try{seen=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch{}
  const ready=new Map(eligible.map(g=>[String(g.id),String(turnReadyTime(g))]));
  for(const id of Object.keys(seen))if(!ready.has(id)||seen[id]!==ready.get(id))delete seen[id];
@@ -15775,8 +15775,8 @@ function nextWaitingGame(latest,current){
 }
 
 
-async function openExistingSharedPuzzle(){
- const data=await api('/api/puzzles');
+async function openExistingSharedPuzzle(canNavigate=()=>true){
+ const data=await api('/api/puzzles');if(!canNavigate())return false;
  const live=(data.puzzles||[]).filter(p=>!p.done&&!['deleted','memory','finished'].includes(p.status));
  let remembered=S.puzzleAnchor;try{if(!remembered)remembered=localStorage.getItem('ohana_pz_anchor');}catch{}
  const puzzle=live.find(p=>String(p.id)===String(remembered))||live[0];
@@ -15787,16 +15787,20 @@ async function openExistingSharedPuzzle(){
 }
 async function goToNextGame(){
  if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
- if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters and open your next game?',{cancelLabel:'Stay here',confirmLabel:'Next game'}))return;
- const current=S.game;S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
+ if(PZ.id)return puzzleNextGame();
+ const current=S.game,token=S.token,member=String(S.me?.id),room=String(S.room),epoch=S.roomEpoch||0,visit=S.gameEntryVisit||0,tab=S.tab,puzzle=String(PZ.id||''),data=PZ.data,draft=JSON.stringify(S.placed||[]);
+ const holding=()=>!!(PZ.drag||PZ.carry||PZ.strip?.lift!=null);
+ const valid=(expectedRoom=room,expectedEpoch=epoch,expectedGame=current,expectedTab=tab)=>S.token===token&&String(S.me?.id)===member&&String(S.room)===String(expectedRoom)&&(S.roomEpoch||0)===expectedEpoch&&(S.gameEntryVisit||0)===visit&&S.game===expectedGame&&S.tab===expectedTab&&String(PZ.id||'')===puzzle&&PZ.data===data&&JSON.stringify(S.placed||[])===draft;
+ S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
  try{
-  const latest=await api('/api/sync?msgSince='+S.lastMsg);
-  if(S.game!==current)return;
-  const next=nextWaitingGame(latest,current);
-  if(!next){await openExistingSharedPuzzle();return;}
-  const room=next.room_id||latest.roomId||S.room;
-  if(Number(room)!==Number(S.room))await enterRoom(room);
-  await openGame(next.id);
+  if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters and open your next game?',{cancelLabel:'Stay here',confirmLabel:'Next game'}))return;
+  if(!valid()||holding())return;
+  const latest=await api('/api/sync?msgSince='+S.lastMsg);if(!valid()||holding())return;
+  const next=nextWaitingGame(latest,current,true);
+  if(!next){await openExistingSharedPuzzle(()=>valid()&&!holding());return;}
+  const targetRoom=Number(next.room_id||latest.roomId||S.room);
+  if(targetRoom!==Number(S.room)){await enterRoom(targetRoom);if(!valid(targetRoom,epoch+1,null,'games')||holding())return;}
+  if(holding())return;await openGame(next.id);
  }catch(e){toast(e.message||'Could not check your next game. Please try again.');}
  finally{S.nextGamePending=false;document.getElementById('next-game')?.removeAttribute('disabled');}
 }
@@ -15815,8 +15819,9 @@ function mountRoomNext(header,before){
  button.style.cssText='display:inline-flex!important;align-items:center!important;justify-content:center!important;grid-column:3!important;grid-row:1!important;width:48px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;margin:0!important;background:none!important;border:0!important;box-shadow:none!important;position:static!important';
  button.onclick=async()=>{
   if(roomNextPending||S.nextGamePending||S.autoAdvancePending||S.movePending)return;
+  const context=()=>JSON.stringify([S.token,S.me?.id,S.room,S.roomEpoch,S.game,S.gameEntryVisit,S.tab,PZ.id]),origin=context();
   roomNextPending=true;refreshRoomNextControls();
-  try{if(before)await before();await goToNextGame();}
+  try{if(before)await before();if(context()!==origin)return;await goToNextGame();}
   catch(e){toast(e.message||'Could not open your next game. Please try again.');}
   finally{roomNextPending=false;refreshRoomNextControls();}
  };
@@ -18707,7 +18712,7 @@ const style=document.createElement('style');style.id='ohana-home-category-rooms-
 function close(){if(!current)return;const {dialog,state,focus,appWasInert}=current;current=null;const app=document.getElementById('app');if(app)app.inert=appWasInert;for(const [node,parent] of state.parents)if(parent.isConnected){const anchor=state.anchors.get(node);if(anchor?.parentNode===parent)parent.insertBefore(node,anchor);else parent.append(node);}dialog.close();dialog.remove();if(focus?.isConnected)focus.focus({preventScroll:true});}
 function updateCategoryNext(dialog){const button=dialog.querySelector('[data-category-next]');if(!button)return;const current=typeof S.game==='object'?S.game?.id:S.game;const count=ohanaWaitingGames().length;if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label','Next game, '+count+' games waiting for your turn');button.title=count?'Another table is ready for you':'Open the shared puzzle';}}
 function open(id){const state=lastHome&&states.get(lastHome),category=categories[id];if(!state||!category)return;close();const dialog=document.createElement('dialog');dialog.className='game-setup-room ohana-category-room';dialog.id='ohana-category-room-active';dialog.dataset.ohanaCategory=id;dialog.setAttribute('aria-labelledby','ohana-category-title');dialog.innerHTML='<header>'+roomHomeControl()+'<h2 id="ohana-category-title">'+category.name+'</h2>'+'<button type="button" data-category-next aria-label="Next game waiting for your turn"></button>'+'</header><section class="ohana-home-catalog" aria-label="'+category.name+' games"></section>';const grid=dialog.querySelector('section');const active=document.createElement('section');active.className='category-active-games';active.setAttribute('aria-label','Your games in '+category.name);const title=document.createElement('h3');title.textContent='Our games';active.append(title);for(const key of category.ids)for(const node of state.active.get(key)||[])active.append(node);if(active.children.length>1)grid.before(active);for(const key of category.ids){const node=state.cards.get(key);if(node)grid.append(node);}const app=document.getElementById('app');current={dialog,state,focus:document.activeElement,appWasInert:!!app?.inert};if(app)app.inert=true;const next=dialog.querySelector('[data-category-next]');next.onclick=()=>{close();goToNextGame();};updateCategoryNext(dialog);coordinatePuzzleHeader(dialog.querySelector('header'),dialog.querySelector('.room-home-control'),dialog.querySelector('h2'),null,next,false);dialog.addEventListener('cancel',e=>{e.preventDefault();close();});dialog.addEventListener('click',e=>{if(e.target.closest('[data-ohana-home]'))close();if(e.target.closest('[data-open-colorbook],.granny-invite,[data-open]'))close();},true);dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}});document.body.append(dialog);dialog.show();dialog.querySelector('h2').tabIndex=-1;dialog.querySelector('h2').focus();}
-function orderShelf(shelf){const order=[shelf.querySelector('.pz-invite'),shelf.querySelector('[data-category-entrance=shuffle]'),shelf.querySelector('[data-category-entrance=tile]'),shelf.querySelector('[data-category-entrance=journey]'),shelf.querySelector('.granny-invite'),shelf.querySelector('.tscms-room-entrance-card'),shelf.querySelector('.memories-invite'),shelf.querySelector('.pr-invite')];order.filter(Boolean).forEach((node,i)=>{if(shelf.children[i]!==node)shelf.insertBefore(node,shelf.children[i]||null);});shelf.querySelector('.home-room-group-title')?.remove();const home=shelf.closest('#main');const people=home?.querySelector('.ohana-family-seats');if(people&&shelf.nextElementSibling!==people)shelf.after(people);}
+function orderShelf(shelf){const order=[shelf.querySelector('.pz-invite'),shelf.querySelector('.pr-invite'),shelf.querySelector('[data-category-entrance=shuffle]'),shelf.querySelector('[data-category-entrance=tile]'),shelf.querySelector('[data-category-entrance=journey]'),shelf.querySelector('.granny-invite'),shelf.querySelector('.tscms-room-entrance-card'),shelf.querySelector('.memories-invite')];order.filter(Boolean).forEach((node,i)=>{if(shelf.children[i]!==node)shelf.insertBefore(node,shelf.children[i]||null);});shelf.querySelector('.home-room-group-title')?.remove();const home=shelf.closest('#main');const people=home?.querySelector('.ohana-family-seats');if(people&&shelf.nextElementSibling!==people)shelf.after(people);}
 function prepare(){scheduled=false;if(current){updateCategoryNext(current.dialog);const app=document.getElementById('app');if(app)app.inert=true;if(S.game||S.colorBook||S.granny||PZ.id||PZ.lobby)close();return;}const home=document.querySelector('#main.world-home'),catalog=home?.querySelector('.ohana-home-catalog'),shelf=home?.querySelector('.ohana-feature-invites');if(!home||!catalog||!shelf||!['mine','all','new'].includes(S.gameShelf||'mine'))return;if(states.has(catalog)){lastHome=catalog;orderShelf(shelf);return;}
  const cards=new Map(),parents=new Map(),anchors=new Map(),active=new Map();const remember=(node,parent)=>{parents.set(node,parent);const anchor=document.createComment("category-return");node.after(anchor);anchors.set(node,anchor);};for(const card of catalog.querySelectorAll(':scope>.gcard')){const id=card.dataset.setupGame||(card.querySelector('[data-open-colorbook]')?'coloring':null);if(id){cards.set(id,card);remember(card,catalog);}}
  const nook=home.querySelector('.game-nook');if(nook){for(const node of nook.querySelectorAll('.nook-card')){const id=node.querySelector('[data-open]')?.dataset.open;const game=(S.sync?.allGames||S.sync?.games||[]).find(g=>String(g.id)===String(id));if(!game)continue;remember(node,node.parentNode);if(!active.has(game.type))active.set(game.type,[]);active.get(game.type).push(node);const info=document.createElement('p');info.className='category-game-status';info.textContent=game.status==='waiting'?'Waiting for players':game.my_turn?'Your turn':(game.names?.[game.players?.[game.turn]]?.name||nameOf(game.players?.[game.turn]))+'’s turn';node.append(info);}nook.dataset.categoryActiveStash='true';}catalog.dataset.categoryStash='true';catalog.style.setProperty('display','none','important');
