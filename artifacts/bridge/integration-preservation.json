@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "baseline": "0d034a9267e240e60b9128a0ff8b0690f6d9d478",
+  "reviewedOwner": "9239e714ed1eba650ffde538374a888a5057442c",
+  "exactReviewedPatchesOnCurrentLive": true,
+  "productionAppBlob": "f2ae82a145b6adc1a2863497bee1e84f5aa42e82",
+  "appSha256": "da76a6713f80d467db62a3def7454f764fd19b1d27ee2e06dbe72cce0931a5e3",
+  "scripts": 32,
+  "correctedComponentExact": true,
+  "componentDefinitions": 1,
+  "bridgeHeaderHooks": 1,
+  "navigationFunctionsUnchanged": 14,
+  "workerConfigBuildUnchanged": true,
+  "tenBoundsUnchanged": true,
+  "familyGameplayMoves": 0
+}

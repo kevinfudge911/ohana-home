@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "checks": 10,
+  "backend": "unmodified Worker + in-memory SQLite",
+  "realFamilyMutations": 0
+}

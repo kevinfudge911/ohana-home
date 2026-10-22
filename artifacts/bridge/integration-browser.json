@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "fixture": "Local synthetic TEN table; browser uses no family session or production API",
+  "viewports": [
+    "390x844",
+    "768x1024",
+    "844x390"
+  ],
+  "groupingVisible": true,
+  "playerCentered": true,
+  "chatContained": true,
+  "chatExpandRestore": true,
+  "updatesFromLastLandscapeButton": true,
+  "normalGameEntryReturnPreservesGame": true,
+  "gameStateUnchanged": true,
+  "familyGameplayMoves": 0,
+  "fixtureBlockedPreferenceWriteAttempts": 1,
+  "fixtureHistoryLimitation": "A directly injected initial game has no normal screen history; Return was retested successfully after Home Play opened the same fictional game normally."
+}
