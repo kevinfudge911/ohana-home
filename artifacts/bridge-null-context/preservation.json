@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "baseline": "23c91bb4d553480d7e271ef48cbceb0e884b8e8f",
+  "wholeAppInverseExact": true,
+  "productionExpressionsChanged": 2,
+  "workerConfigEnginesUnchanged": true,
+  "gzipExact": true,
+  "packagingIdempotent": true,
+  "scripts": 32,
+  "rawBytes": 6934080,
+  "gzipBytes": 3462655,
+  "baselineReproductionChecks": 22,
+  "fixedActualHandlerChecks": 33,
+  "bridgeDispatchChecks": 71,
+  "apiWrites": 0
+}

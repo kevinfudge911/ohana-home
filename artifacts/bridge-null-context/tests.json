@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": 33,
+  "actualHandlers": true,
+  "contexts": [
+    "Home",
+    "Puzzle",
+    "Table"
+  ],
+  "apiWrites": 0
+}

@@ -14484,8 +14484,8 @@ async function aicSend(){
  catch(e){if(st)st.textContent=(e&&e.message)||'Could not send.';inp.value=t;}
 }
 function bridgeGameContext(){
- const game=S.gstate,id=Number(typeof S.game==='object'?S.game?.id:S.game),token=S.token,member=S.me?.id,room=S.room,visit=S.gameEntryVisit||0,tab=S.tab,puzzle=PZ.id;
- return {game,id,member,sameMember:()=>S.token===token&&S.me?.id===member,valid:()=>S.token===token&&S.me?.id===member&&S.room===room&&S.tab===tab&&PZ.id===puzzle&&(S.gameEntryVisit||0)===visit&&Number(typeof S.game==='object'?S.game?.id:S.game)===id};
+ const game=S.gstate,id=Number((typeof S.game==='object'?S.game?.id:S.game)??0),token=S.token,member=S.me?.id,room=S.room,visit=S.gameEntryVisit||0,tab=S.tab,puzzle=PZ.id;
+ return {game,id,member,sameMember:()=>S.token===token&&S.me?.id===member,valid:()=>S.token===token&&S.me?.id===member&&S.room===room&&S.tab===tab&&PZ.id===puzzle&&(S.gameEntryVisit||0)===visit&&Number((typeof S.game==='object'?S.game?.id:S.game)??0)===id};
 }
 async function bridgeDismissForGameExit(dialog,context){
  if(!dialog?.open)return;
