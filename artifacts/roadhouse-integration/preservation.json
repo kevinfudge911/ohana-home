@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "base": "031b1947ed8fd820a450f7670a81f225dc73a034",
+  "scopedCompositionOnly": true,
+  "photoBytesUnchanged": true,
+  "officialLogoBytesUnchanged": true,
+  "workerConfigUnchanged": true,
+  "gzipLossless": true,
+  "inlineScriptsParsed": 32,
+  "appSha256": "9bf25eb83f2f9f0e8b238d2a47724987e92323bd434edadb60c6fe46cd9fe2d1"
+}

@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "baseline": "031b1947ed8fd820a450f7670a81f225dc73a034",
+  "reviewedSourcePatchSha256": "c196ed090cc61857265c28d69eb31c4dcac50e950df5962591b1fc7095f3467b",
+  "exactSourceReplay": true,
+  "reviewedCompositionBlocksExact": true,
+  "wholeAppInverseExact": true,
+  "existingPhotoAndRoomBytesPreserved": true,
+  "newLogoBytes": 25168,
+  "logoSha256": "78e28e255fe067933a3bbe9d6535d6ea0a99de1980181683bce11423986b1c94",
+  "publicSourceVisibilityExplicitlyApproved": true,
+  "licenseOrEndorsementClaimed": false,
+  "gzipExact": true,
+  "packagingIdempotent": true,
+  "modules": 483,
+  "allEmittedBytesExact": true,
+  "uploadKiB": 62690.29,
+  "bridgeNullContextChecks": 33,
+  "homeOrderChecks": 18,
+  "humanBadgeChecks": 45,
+  "productionWrites": 0
+}

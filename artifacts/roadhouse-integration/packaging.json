@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "baseline": "031b1947ed8fd820a450f7670a81f225dc73a034",
+  "modules": 483,
+  "allEmittedBytesExact": true,
+  "gzipExact": true,
+  "rawBytes": 6967720,
+  "gzipBytes": 3484601,
+  "rawSha256": "9bf25eb83f2f9f0e8b238d2a47724987e92323bd434edadb60c6fe46cd9fe2d1",
+  "gzipSha256": "fe5cbb46e2b271d7a77dddf7e616905ac6153d0c3b50e389507aa79f3aa2383e",
+  "configurationAndBindingsUnchanged": true
+}
