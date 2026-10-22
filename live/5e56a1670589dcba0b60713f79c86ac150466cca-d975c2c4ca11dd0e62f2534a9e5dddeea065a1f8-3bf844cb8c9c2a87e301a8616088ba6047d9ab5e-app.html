@@ -5945,7 +5945,13 @@ dialog#ohana-invited-games#ohana-invited-games{position:fixed!important;inset:0!
 #ohana-home-games .ohana-home-open-tables summary{cursor:pointer;min-height:56px;display:list-item;padding:14px 0!important;font:700 18px/1.4 Nunito,Arial,sans-serif!important;color:#79f2ee!important;text-shadow:0 1px 3px #173e43!important;overflow-wrap:anywhere}
 #ohana-home-games .ohana-home-open-tables summary:focus-visible{outline:3px solid #fff8df;outline-offset:1px}
 .ohana-replay-waiting{padding:16px;max-width:700px;margin:auto;font:400 21px/1.4 Nunito,Arial,sans-serif}.ohana-replay-waiting h2{font-size:28px}.ohana-replay-person{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;padding:10px 0;border-bottom:1px solid #79f2ee55}.ohana-replay-person strong{font-size:23px}.ohana-replay-person span{font-size:18px}.ohana-replay-actions{display:flex;gap:8px;flex-wrap:wrap}.ohana-replay-waiting button{min-height:56px;font-size:20px}
-</style></head>
+</style><style id="ohana-green-play-controls">
+:root.ohana-world body .ohana-play-control:not(.home-turn-word){position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;margin-left:0!important;flex:0 0 44px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#85ef38!important}
+.ohana-play-icon{display:block;width:28px;height:32px;flex:none}.ohana-play-count{position:absolute;right:0;top:0;min-width:15px;padding:0 2px;background:#224b20;color:#fffbd4;border-radius:9px;font:800 12px/17px Nunito,system-ui;pointer-events:none}.ohana-play-control:focus-visible{outline:2px solid #fff0aa!important;outline-offset:2px!important}
+.ohana-waiting-games{box-sizing:border-box;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:14px;background:#fff0ce;color:#214a43;border:2px solid #9a7645;font:600 17px/1.35 Nunito,system-ui}.ohana-waiting-games::backdrop{background:#082a32b8}.ohana-waiting-games>header{display:flex;align-items:center;justify-content:space-between;gap:12px}.ohana-waiting-games h2{margin:0;font:700 24px Fredoka,Nunito,system-ui}.ohana-waiting-games button{min-width:44px;min-height:44px;background:none!important;border:0!important;box-shadow:none!important;color:inherit!important;font:800 17px Nunito,system-ui}.ohana-waiting-games .ohana-home-game-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #b3a37b}.ohana-waiting-games .ohana-home-game-row small{display:block}.ohana-waiting-games .ohana-home-game-group-title{display:flex;align-items:center;gap:8px}.ohana-waiting-games .ohana-home-game-group-title h3{margin:12px 0 0;font-size:20px}.ohana-waiting-games [role=status]:empty{display:none}
+</style>
+
+</head>
 <body>
 <div id="app"></div>
 <!-- OHANA SHARED CARD TABLE START -->
@@ -6509,7 +6515,7 @@ function mountWorldHome(){
  const tabs=m.querySelector('.game-shelf-tabs'),nook=m.querySelector('.game-nook');
  if(tabs)m.prepend(tabs);
  const turnControl=tabs?.querySelector('[data-game-shelf="mine"]');
- if(turnControl){const games=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&g.status==='playing'&&g.my_turn);turnControl.className='home-turn-word';turnControl.innerHTML='Play now <span class="home-turn-count">'+games.length+'</span>';turnControl.setAttribute('aria-label','Play now, '+games.length+' games waiting for your move');turnControl.onclick=async()=>{const first=games[0];if(!first)return;if(first.room_id&&first.room_id!==S.room)await enterRoom(first.room_id,'games');await openGame(first.id);};const turnHeading=document.createElement('div');turnHeading.className='home-turn-heading';turnHeading.append(turnControl);table.append(turnHeading);}
+ if(turnControl){turnControl.className='home-turn-word';paintOhanaPlay(turnControl,true);const turnHeading=document.createElement('div');turnHeading.className='home-turn-heading';turnHeading.append(turnControl);table.append(turnHeading);}
  if(nook){nook.querySelector('.nook-heading>img')?.remove();nook.querySelector('.nook-heading .room-conversation')?.remove();nook.querySelector('.nook-count')?.remove();nook.querySelector('.nook-heading')?.remove();table.append(nook);} 
  else{table.classList.add('world-catalog');const items=[...m.children].filter(el=>el!==tabs&&!el.classList.contains('invite-card'));items.forEach(el=>table.append(el));}
  // Home branding stays in the entrance header; keep the turn area clear.
@@ -6976,6 +6982,41 @@ function showOhanaStartGame(initialGame=null){
  document.body.append(dialog);draw();dialog.showModal();dialog.querySelector('h2').focus({preventScroll:true});
 }
 
+// One attention list for Home and workstations. Server player IDs: positive member IDs are humans; negative seats are robots.
+function ohanaWaitingGames(sy=S.sync,meId=S.me?.id){
+ const me=Number(meId);if(!Number.isSafeInteger(me)||me<1)return [];
+ return ohanaUniqueGames(sy,me).filter(g=>{const ids=(g.players||[]).map(Number);return g.status==='playing'&&g.my_turn===true&&ids[g.turn]===me&&ids.some(id=>Number.isSafeInteger(id)&&id>0&&id!==me);});
+}
+function paintOhanaPlay(button,home=false){
+ if(!button)return;const count=ohanaWaitingGames().length;
+ button.classList.add('ohana-play-control');button.dataset.ohanaPlay=home?'home':'workstation';
+ if(button.dataset.ohanaPlayCount!==String(count)||button.dataset.ohanaPlayHome!==String(home)){
+  button.dataset.ohanaPlayCount=String(count);button.dataset.ohanaPlayHome=String(home);
+  button.innerHTML=home?'Play <span class="home-turn-count" aria-hidden="true">'+count+'</span>':'<svg class="ohana-play-icon" viewBox="0 0 32 36" aria-hidden="true" focusable="false"><path d="M5 3 Q3 2 3 5 L3 31 Q3 34 6 32 L28 20 Q31 18 28 16 Z" fill="#85ef38" stroke="#24531a" stroke-width="2" stroke-linejoin="round"/></svg><span class="ohana-play-count" aria-hidden="true">'+count+'</span>';
+ }
+ button.removeAttribute('aria-pressed');button.setAttribute('aria-label','Play, '+count+' game'+(count===1?'':'s')+' waiting for your turn');button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','ohana-waiting-games');button.title='Play';button.onclick=openOhanaWaitingGames;button.disabled=!!(S.movePending||S.autoAdvancePending||S.nextGamePending);
+}
+function refreshOhanaPlayControls(){for(const button of document.querySelectorAll('[data-ohana-play]'))paintOhanaPlay(button,button.dataset.ohanaPlay==='home');}
+async function openOhanaWaitingGames(){
+ if(S.movePending||S.autoAdvancePending||S.nextGamePending)return;
+ const existing=document.getElementById('ohana-waiting-games');if(existing){existing.querySelector('h2')?.focus();return;}
+ const token=S.token,member=String(S.me?.id),room=String(S.room),game=String(S.game||''),puzzle=String(PZ.id||''),trigger=document.activeElement;
+ const valid=()=>S.token===token&&String(S.me?.id)===member&&String(S.room)===room&&String(S.game||'')===game&&String(PZ.id||'')===puzzle;
+ const dialog=document.createElement('dialog');dialog.id='ohana-waiting-games';dialog.className='ohana-waiting-games';dialog.setAttribute('aria-labelledby','ohana-waiting-title');dialog.innerHTML='<header><h2 id="ohana-waiting-title" tabindex="-1">Games waiting</h2><button type="button" data-waiting-close>Close</button></header><div class="ohana-waiting-list"></div><p role="status">Loading…</p>';
+ dialog.querySelector('[data-waiting-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{dialog.remove();if(trigger?.isConnected)trigger.focus({preventScroll:true});},{once:true});document.body.append(dialog);dialog.showModal();dialog.querySelector('h2').focus();
+ const status=dialog.querySelector('[role=status]'),list=dialog.querySelector('.ohana-waiting-list');let busy=false;
+ const fresh=async()=>{const sy=await api('/api/sync?announcementMedia=1&msgSince='+S.lastMsg);if(!dialog.isConnected||!valid())return null;S.sync=sy;refreshOhanaPlayControls();return sy;};
+ const paint=sy=>{const games=ohanaWaitingGames(sy,Number(member));list.innerHTML=games.length?ohanaHomeRowsHtml({...sy,allGames:games,games},Number(member)):'<p>No turns waiting.</p>';status.textContent='';
+  list.querySelectorAll('[data-home-open]').forEach(button=>button.onclick=async()=>{if(busy||!valid())return;busy=true;button.disabled=true;try{
+   const id=Number(button.dataset.homeOpen);if(String(id)===game){dialog.close();return;}
+   if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters?',{cancelLabel:'Stay here',confirmLabel:'Play'}))return;
+   const latest=await fresh();if(!latest)return;const target=ohanaWaitingGames(latest,Number(member)).find(g=>Number(g.id)===id);if(!target){paint(latest);status.textContent='That turn changed.';return;}
+   const anchor=PZ.id;dialog.close();const targetRoom=Number(target.room_id||S.room);if(targetRoom!==Number(S.room))await enterRoom(targetRoom);await openGame(id);
+   if(anchor&&Number(S.game)===id){S.puzzleAnchor=anchor;try{localStorage.setItem('ohana_pz_anchor',anchor);}catch{}}
+  }catch(error){if(dialog.isConnected)status.textContent=error.message||'Could not open game.';else toast(error.message||'Could not open game.');}finally{busy=false;if(button.isConnected)button.disabled=false;}});
+ };
+ try{const sy=await fresh();if(sy)paint(sy);else if(dialog.isConnected)dialog.close();}catch(error){if(dialog.isConnected)status.textContent=error.message||'Could not load games.';}
+}
 function ohanaUniqueGames(sy,meId){
  const stamp=g=>Number.isFinite(Number(g.updated_at))?Number(g.updated_at):Date.parse(g.updated_at)||0;
  const byId=new Map();for(const g of [...(sy?.allGames||[]),...(sy?.games||[])]){const id=Number(g?.id);if(!Number.isSafeInteger(id)||id<1)continue;const prior=byId.get(id);if(!prior||stamp(g)>=stamp(prior))byId.set(id,g);}
@@ -7398,7 +7439,7 @@ function pzSend(o){if(['grab','move','drop'].includes(o.t)&&PZ.data?.pieces[o.p]
  if(o.t==='cursor'){PZ.queue=PZ.queue.filter(q=>q.t!=='cursor');}if(o.t==='move'){PZ.queue=PZ.queue.filter(q=>!(q.t==='move'&&q.p===o.p));}PZ.queue.push(o);
  if(!PZ.flushT)PZ.flushT=setTimeout(()=>{PZ.flushT=null;const batch=PZ.queue;PZ.queue=[];const id=PZ.id;if(!batch.length||!id)return;PZ.sendChain=(PZ.sendChain||Promise.resolve()).then(async()=>{if(PZ.id!==id)return;try{const r=await fetch('/puzzle-poll/'+id+'?t='+encodeURIComponent(S.token),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(batch)});if(!r.ok)throw new Error('Puzzle connection');const d=await r.json();if(PZ.id===id)for(const rep of d.replies||[])pzHandle(rep);}catch{if(PZ.id===id)pzStatus('Reconnecting…');}});},o.t==='chat'||o.t==='drop'||o.t==='grab'?0:120);}
 
-function pzHandle(m,echo){const d=PZ.data;if(!d)return;const P=d.pieces;const meId=S.me?.id;
+function pzHandle(m,echo){const d=PZ.data;if(!d)return;if(m.table&&['x0','y0','x1','y1'].every(k=>Number.isFinite(m.table[k]))){const b=puzzleWorkspace(d.meta);d.meta.table={x0:Math.min(b.x0,m.table.x0),y0:Math.min(b.y0,m.table.y0),x1:Math.max(b.x1,m.table.x1),y1:Math.max(b.y1,m.table.y1)};}const P=d.pieces;const meId=S.me?.id;
  if(m.t==='init'){const changed=m.meta&&(m.meta.cols!==d.meta.cols||m.meta.rows!==d.meta.rows||m.meta.w!==d.meta.w||m.meta.h!==d.meta.h||JSON.stringify(m.meta.edges)!==JSON.stringify(d.meta.edges));if(m.meta)d.meta=m.meta;d.pieces=m.pieces;PZ.drag=null;PZ.carry=null;PZ.pan=null;PZ.pinch=null;PZ.strip.lift=null;PZ.trays=m.trays||[];for(const pc of d.pieces)if(pc.g===undefined)pc.g=pc.i;if(changed){PZ.nextBuild=0;PZ.colors={};pzPrepare();}PZ.stats=m.stats||PZ.stats;d.chat=m.chat;PZ.people={};for(const p of m.people)PZ.people[p.id]=p;if(m.seq)PZ.since=m.seq;PZ.doneDrawn=new Set();if(PZ.doneLayer)PZ.doneLayer.getContext('2d').clearRect(0,0,PZ.doneLayer.width,PZ.doneLayer.height);for(const pc of d.pieces)if(pc.l)pzStamp(pc);PZ.order=null;pzPaintPeople();pzPaintChat();pzProgress();pzPaintTrays();pzStatus('');PZ.needDraw=true;return;}
  if(m.t==='tray-update'){const k=PZ.trays.findIndex(t=>t.id===m.tray.id);if(k<0)PZ.trays.push(m.tray);else PZ.trays[k]=m.tray;pzPaintTrays();return;}
  if(m.t==='tray-delete'){PZ.trays=PZ.trays.filter(t=>t.id!==m.id);pzPaintTrays();return;}
@@ -7415,7 +7456,7 @@ function pzHandle(m,echo){const d=PZ.data;if(!d)return;const P=d.pieces;const me
  if(m.t==='drop-blocked'){const pc=P[m.p];if(!pc)return;for(const [i,x,y] of m.pieces||[]){const q=P[i];if(q){q.x=x;q.y=y;q.onTable=true;q.h=m.by;q.ht=Date.now();}}if(m.by===meId){PZ.carry={p:m.p};pzToast('Move to an open spot, or tap the piece to let go.');}PZ.needDraw=true;return;}
  if(m.t==='drop'){const pc=P[m.p];if(!pc)return;if(!m.l&&m.by===meId&&PZ.clientSession&&typeof m.clientAction==='string'&&m.clientAction.startsWith(PZ.clientSession+':')&&m.clientAction!==PZ.latestActions?.[m.p])return;const active=PZ.drag?.p??PZ.carry?.p??PZ.strip.lift;if(!m.l&&m.by===meId&&active!=null&&P[active]?.g===pc.g)return;const list=m.pieces||[[m.p,m.x,m.y]];for(const [i,x,y] of list){const q=P[i];if(!q)continue;q.x=x;q.y=y;q.onTable=true;q.catalogReady=false;q.h=null;q.g=m.g??q.g;if(m.l){q.l=true;pzStamp(q);}}if(PZ.drag&&P[PZ.drag.p].g===pc.g)PZ.drag=null;if(m.l||m.joined){pzSparkle(pc);if(m.by===meId)pzFeedback(m.l?'lock':'join');}if(m.stats)PZ.stats=m.stats;pzProgress(m.locked);pzPaintPeople();PZ.needDraw=true;return;}
  if(m.t==='tray-return'){for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.by===meId){PZ.carry=null;PZ.drag=null;PZ.strip.lift=null;}PZ.needDraw=true;pzPaintStrip();pzPaintTrays();return;}
- if(m.t==='tidy'){for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&!(PZ.drag&&PZ.drag.p===i)){pc.x=x;pc.y=y;pc.onTable=!!m.tabled;if(m.catalogReady)pc.catalogReady=true;}}pzPaintStrip();PZ.needDraw=true;return;}
+ if(m.t==='tidy'){const active=PZ.drag?.p??PZ.carry?.p??PZ.strip?.lift,activeGroup=P[active]?.g;for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&pc.g!==activeGroup){pc.x=x;pc.y=y;pc.h=null;pc.ht=null;pc.onTable=!!m.tabled;if(m.catalogReady)pc.catalogReady=true;}}pzPaintStrip();PZ.needDraw=true;return;}
  if(m.t==='deny'){pzCancelHeldPiece(m.p,false);for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.people)pzHandle({t:'pong',people:m.people});const holder=PZ.people[P[m.p]?.h];pzToast(holder?holder.name+' has that piece.':'Someone else has that piece.');PZ.needDraw=true;pzPaintStrip();return;}
  if(m.t==='done'){if(m.stats)PZ.stats=m.stats;pzCelebrate(m.by);pzPaintPeople();return;}
  if(m.t==='typing'){if(m.id===meId)return;PZ.typing[m.id]=m.on?Date.now():0;pzPaintPeople();return;}
@@ -7459,7 +7500,7 @@ function coordinatePuzzleHeader(header,home,title,back,next,compact=false){
  title.title=title.textContent;
  for(const [button,column]of [[back,'2'],[next,back?'3':'2']])if(button){header.append(button);set(button,{'grid-column':column,'grid-row':'1',order:'0',position:'static',inset:'auto',display:'inline-flex','align-items':'center','justify-content':'center',gap:'2px',width:button===next?'48px':'44px','min-width':'44px','max-width':'48px',height:'44px','min-height':'44px',margin:'0',padding:'0',background:'none','background-image':'none',border:'0','border-radius':'0','box-shadow':'none',color:'#fff4d6',font:'800 18px/1 Nunito,sans-serif'});for(const icon of button.querySelectorAll('.game-control-icon'))set(icon,{width:'44px',height:'33px','min-width':'44px','flex-shrink':'0'});}
 }
-function mountCoordinatedPuzzleBoardHeader(){const board=document.getElementById('pz-board'),header=board?.querySelector('.pz-head');if(header){coordinatePuzzleHeader(header,header.querySelector('.room-home-control'),header.querySelector('h2'),null,document.getElementById('pz-next-game'),true);document.getElementById('pz-leave')?.style.setProperty('display','none','important');}}
+function mountCoordinatedPuzzleBoardHeader(){const board=document.getElementById('pz-board'),header=board?.querySelector('.pz-head');if(header){coordinatePuzzleHeader(header,header.querySelector('.room-home-control'),header.querySelector('h2'),null,null,true);const play=document.getElementById('pz-next-game'),actions=board.querySelector('.pz-bottom-actions');if(play&&actions)actions.prepend(play);document.getElementById('pz-leave')?.style.setProperty('display','none','important');}}
 function mountCoordinatedUnitedHeader(){
  if(typeof PZ==='undefined'||!PZ.lobby||PZ.id)return;const header=document.querySelector('#app>header'),home=header?.querySelector('.room-home-control');if(!home)return;
  let back=header.querySelector('[data-united-header-back]'),next=header.querySelector('#pz-next-game');
@@ -7478,7 +7519,7 @@ function renderPuzzleBoard(){
  <span id="pz-preview-status" role="status" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap"></span><div class="pz-tray-dock" id="pz-tray-dock"></div>
  <div class="pz-chat-pops" id="pz-chat-pops" aria-live="polite"></div>
  <dialog id="pz-dialog" class="pz-dialog"></dialog></div>`;
- $('#pz-leave').innerHTML=gameControlIcon('back');$('#pz-leave').setAttribute('aria-label','Back to puzzle room');$('#pz-leave').title='Back to puzzle room';const bottom=$('.pz-bottom-actions');bottom.append($('#pz-leave'),$('#pz-next-game'));bottom.insertBefore($('#pz-tray-grip'),$('#pz-next-game'));bottom.insertBefore($('#pz-qt-gear'),$('#pz-tray-grip'));bottom.insertBefore($('#pz-tidy'),$('#pz-tray-grip'));$('#pz-tidy').textContent='Tidy';$('#pz-tidy').setAttribute('aria-label','Tidy and mix loose puzzle pieces');$('#pz-qt-gear').setAttribute('aria-label','Puzzle settings');
+ $('#pz-leave').innerHTML=gameControlIcon('back');$('#pz-leave').setAttribute('aria-label','Back to puzzle room');$('#pz-leave').title='Back to puzzle room';const bottom=$('.pz-bottom-actions');bottom.append($('#pz-leave'),$('#pz-peek-btn'),$('#pz-next-game'));bottom.insertBefore($('#pz-tray-grip'),$('#pz-next-game'));bottom.insertBefore($('#pz-qt-gear'),$('#pz-tray-grip'));bottom.insertBefore($('#pz-tidy'),$('#pz-tray-grip'));$('#pz-tidy').textContent='Tidy';$('#pz-tidy').setAttribute('aria-label','Tidy and mix loose puzzle pieces');$('#pz-qt-gear').setAttribute('aria-label','Puzzle settings');
  $('#pz-leave').onclick=closePuzzle;
  const roomSwapBtn=$('#pz-room-swap');
  if(roomSwapBtn)roomSwapBtn.onclick=async()=>{const id=+roomSwapBtn.dataset.swapRoom;closePuzzle();await enterRoom(id);PZ.lobby=true;render();};
@@ -7489,11 +7530,11 @@ function renderPuzzleBoard(){
  requestAnimationFrame(()=>pzResize());
  $('#pz-fit').onclick=()=>PZ.view.fit();$('#pz-frame').onclick=()=>PZ.view.frame();
  $('#pz-preview').onclick=()=>pzTogglePeek();
- $('#pz-peek-btn').onclick=()=>pzTogglePeek();
+ $('#pz-peek-btn').textContent='Preview';$('#pz-peek-btn').onclick=()=>pzTogglePeek(true);
  pzUpdateTimedPreview();
  pzPaintTrays();
  $('#pz-edges').onclick=()=>{PZ.edges=!PZ.edges;$('#pz-edges').setAttribute('aria-pressed',PZ.edges);PZ.needDraw=true;pzToast(PZ.edges?'Edge pieces only — the rest are dimmed':'Showing every piece');};
- $('#pz-tidy').onclick=()=>pzConfirm('Tidy the loose pieces?','Loose pieces already on the table are mixed and lined up neatly. Main tray, sorting trays, placed pieces and joined chunks stay as they are. Everyone at the table sees it.','🧹 Tidy up',()=>pzSend({t:'tidy'}));
+ $('#pz-tidy').onclick=()=>pzConfirm('Tidy the loose pieces?','Loose pieces and joined groups are arranged around the puzzle. Placed pieces, held groups and sorting trays stay put.','🧹 Tidy up',()=>pzSend({t:'tidy'}));
  $('#pz-recall').onclick=()=>pzConfirm('Recall all the loose pieces?','Every piece that isn’t placed yet comes back to the pile around the picture — nothing can stay lost off the edge. Joined pieces stay joined. Everyone at the table sees it.','↩ Recall all',()=>pzSend({t:'recall'}));
  $('#pz-shuffle').onclick=()=>pzConfirm('Shuffle the loose pieces?','Mixes the loose pieces up into a fresh, jumbled spread to make it a little harder. Pieces you’ve already joined stay together. Everyone at the table sees it.','🔀 Shuffle',()=>pzSend({t:'shuffle'}));
  $('#pz-sort').onclick=()=>pzConfirm('Sort loose pieces by color?','Single pieces get grouped by color around the frame — sky with sky, sand with sand. Chunks stay put. Everyone sees it.','🎨 Sort by color',pzSortByColor);
@@ -7522,26 +7563,8 @@ function pzSuspend(){ // step out of the puzzle board but keep the anchor so we 
  PZ.id=null;PZ.data=null;PZ.trays=[];PZ.sprites=null;PZ.base=null;PZ.doneLayer=null;
  window.removeEventListener('resize',pzResize);
 }
-async function puzzleNextGame(){
- if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
- S.nextGamePending=true;const btn=$('#pz-next-game');if(btn)btn.disabled=true;
- try{
-  const latest=await api('/api/sync?msgSince='+S.lastMsg),next=nextWaitingGame(latest,null);
-  if(!next){await openExistingSharedPuzzle();return;}
-  const room=next.room_id||latest.roomId||S.room;
-  if(Number(room)!==Number(S.room))await enterRoom(room);
-  await openGame(next.id);
- }catch(e){toast(e.message||'Could not check your games.');}
- finally{S.nextGamePending=false;const b=$('#pz-next-game');if(b)b.disabled=false;}
-}
-function pzUpdateNextBtn(){
- const btn=$('#pz-next-game');if(!btn)return;
- const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&g.status==='playing'&&g.my_turn).length;
- btn.hidden=false;
- let notice=document.getElementById('pz-turn-notice');if(!notice){notice=document.createElement('div');notice.id='pz-turn-notice';notice.setAttribute('role','status');btn.after(notice);}notice.hidden=!count;notice.innerHTML=count?'<span>'+count+' game'+(count===1?'':'s')+' waiting for your turn · <a href="#next-turn">Go</a></span>':'';if(count)notice.querySelector('a').onclick=e=>{e.preventDefault();puzzleNextGame();};
- btn.classList.toggle('next-ready',count>0);
- btn.innerHTML=gameControlIcon('next',count);btn.setAttribute('aria-label','Next game, '+count+' games waiting for your turn');
-}
+async function puzzleNextGame(){return openOhanaWaitingGames();}
+function pzUpdateNextBtn(){const button=$('#pz-next-game');document.getElementById('pz-turn-notice')?.remove();paintOhanaPlay(button);if(button)button.hidden=false;}
 function pzWatchTurns(){
  clearInterval(PZ.turnPoll);pzUpdateNextBtn();
  PZ.turnPoll=setInterval(async()=>{
@@ -7808,7 +7831,9 @@ function pzResize(){const cv=$('#pz-canvas');if(!cv)return;const stage=cv.parent
   if(people&&board.querySelector('.pz-bottom')&&people.parentElement!==board.querySelector('.pz-bottom'))board.querySelector('.pz-bottom').append(people);
   const station=$('#pz-workstation .pz-bottom-actions');if(dock&&station&&dock.parentElement!==station)station.append(dock);}
  const room=Math.max(1,st.height-26),cell=pzStripCell();
- const trayH=PZ.trayHidden?0:Math.min(room*.60,(PZ.trayRows||2)*cell+8);
+ const shortLandscape=innerWidth>innerHeight&&innerHeight<=500;
+ const trayLimit=shortLandscape?Math.max(44,Math.min(64,room-96)):Infinity;
+ const trayH=PZ.trayHidden?0:Math.min(room*.60,(PZ.trayRows||2)*cell+8,trayLimit);
  const boardH=room-trayH;
  if(grip){grip.textContent='Tray';grip.setAttribute('aria-label',PZ.trayHidden?'Show piece tray':'Hide piece tray');grip.setAttribute('aria-expanded',String(!PZ.trayHidden));grip.style.right='';grip.style.height='';}
  cv.width=Math.round(st.width*dpr);cv.height=Math.round(boardH*dpr);cv.style.width=st.width+'px';cv.style.height=boardH+'px';
@@ -7821,7 +7846,7 @@ function pzPaintPeople(){
  const st={scores:Object.fromEntries(list.map(p=>[p.id,Number(PZ.stats?.[p.id]?.placed||0)]))};
  e.classList.add('dock-player');
  e.innerHTML=list.map(p=>{const mine=String(p.id)===String(S.me?.id);
-  return worldPortrait(p.id,g,st).replace('class="world-seat ','class="world-seat pz-person '+(mine?'me ':'')).replace(/<\/div>$/, '<i class="pz-live" aria-hidden="true"></i>'+(mine?'<button type="button" class="pz-person-preview" aria-label="Preview the full puzzle picture">Preview</button>':'')+'</div>');
+  return worldPortrait(p.id,g,st).replace('class="world-seat ','class="world-seat pz-person '+(mine?'me ':'')).replace(/<\/div>$/, '<i class="pz-live" aria-hidden="true"></i>'+'</div>');
  }).join('');
  e.hidden=!list.length;e.querySelector('.pz-person-preview')?.addEventListener('click',()=>pzTogglePeek(true));pzUpdateTimedPreview();
 }
@@ -7984,7 +8009,7 @@ function pzPaintStrip(){
  x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);
  x.fillStyle=PZ.trayHidden?pzBoardHex():pzTrayHex();x.fillRect(0,0,W,H);
  const {pw,ph,off}=PZ.geo,sw=pw+2*off,sh=ph+2*off;
- const inner=cell-pad*2,sc=inner/Math.max(sw,sh);
+ const inner=cell-pad*2,sc=Math.min(inner/Math.max(sw,sh),Math.max(0,H-pad*2)/sh);
  const c0=Math.max(0,Math.floor(PZ.strip.scroll/cell)),c1=Math.min(cols-1,Math.ceil((PZ.strip.scroll+W)/cell));
  for(let c=c0;c<=c1;c++)for(let r=0;r<rows;r++){
   const k=c*rows+r,pc=list[k];if(!pc)continue;const spr=pzSprite(pc.i);if(!spr)continue;
@@ -8114,13 +8139,78 @@ function puzzleFindSpot(meta,pieces,members,tx,ty,rows,limits=null){
  for(const [x,y] of candidates)if((rows||limits||Math.hypot(x-tx,y-ty)<=Math.max(pw,ph)*1.25)&&free(x,y))return [x,y];
  return null;
 }
+// Coordinates are unzoomed puzzle-space coordinates; only settled exterior
+// intersections are blocked. Temporary overlap wholly inside the board is legal.
+function puzzlePieceBounds(meta,q,x=q.x,y=q.y){
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows,tab=Math.min(pw,ph)*.36;
+ return {x0:x-(q.c===0?0:tab),y0:y-(q.r===0?0:tab),x1:x+pw+(q.c===meta.cols-1?0:tab),y1:y+ph+(q.r===meta.rows-1?0:tab)};
+}
+function puzzleExteriorIntersects(meta,a,b){
+ const x0=Math.max(a.x0,b.x0),y0=Math.max(a.y0,b.y0),x1=Math.min(a.x1,b.x1),y1=Math.min(a.y1,b.y1);
+ return x1>x0+.01&&y1>y0+.01&&(x0<0||y0<0||x1>meta.w||y1>meta.h);
+}
+function puzzleExtendSurface(meta,pieces){
+ const b=puzzleWorkspace(meta);
+ for(const q of pieces)if(!q.tray){const r=puzzlePieceBounds(meta,q);b.x0=Math.min(b.x0,Math.floor(r.x0)-2);b.y0=Math.min(b.y0,Math.floor(r.y0)-2);b.x1=Math.max(b.x1,Math.ceil(r.x1)+2);b.y1=Math.max(b.y1,Math.ceil(r.y1)+2);}
+ meta.table=b;return b;
+}
+function puzzleSettleExterior(meta,pieces,members){
+ if(!members.length||members.some(q=>q.l))return;
+ const base=members[0],ids=new Set(members.map(q=>q.i)),other=pieces.filter(q=>!q.tray&&!ids.has(q.i)),rects=other.map(q=>puzzlePieceBounds(meta,q));
+ const offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y})),origin={x:base.x,y:base.y};
+ const bounds=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy));
+ const outside=b=>b.x0<0||b.y0<0||b.x1>meta.w||b.y1>meta.h;
+ const wasOutside=bounds(origin.x,origin.y).some(outside);
+ const free=(x,y)=>{const bs=bounds(x,y);return (!wasOutside||bs.some(outside))&&!bs.some(b=>rects.some(r=>puzzleExteriorIntersects(meta,b,r)));};
+ if(free(origin.x,origin.y))return;
+ const own=bounds(0,0),left=Math.min(...own.map(b=>b.x0)),right=Math.max(...own.map(b=>b.x1)),top=Math.min(...own.map(b=>b.y0)),bottom=Math.max(...own.map(b=>b.y1));
+ const candidates=[];
+ for(const r of rects){candidates.push([Math.floor(r.x0-right-2),origin.y],[Math.ceil(r.x1-left+2),origin.y],[origin.x,Math.floor(r.y0-bottom-2)],[origin.x,Math.ceil(r.y1-top+2)]);}
+ candidates.sort((a,b)=>(a[0]-origin.x)**2+(a[1]-origin.y)**2-((b[0]-origin.x)**2+(b[1]-origin.y)**2)||a[1]-b[1]||a[0]-b[0]);
+ let spot=candidates.find(p=>free(p[0],p[1]));
+ // A finite set of existing pieces always leaves space below its lowest bound.
+ if(!spot)spot=[Math.round(origin.x),Math.ceil(Math.max(meta.h,...rects.map(r=>r.y1))-top+2)];
+ const dx=spot[0]-origin.x,dy=spot[1]-origin.y;
+ for(const q of members){q.x+=dx;q.y+=dy;}
+ puzzleExtendSurface(meta,pieces);
+}
+function puzzleTidyAround(meta,pieces,targets){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,tab=Math.min(pw,ph)*.36,gap=2,sx=pw+tab*2+gap,sy=ph+tab*2+gap;
+ const requested=new Set(targets.map(q=>q.i)),groups=new Map();
+ for(const q of pieces){const key=q.g??q.i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(q);}
+ const units=[],seen=new Set();
+ for(const q of targets){const key=q.g??q.i;if(seen.has(key))continue;seen.add(key);const members=groups.get(key);
+  if(members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
+ }
+ const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
+ const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
+ // Finish every side of the nearest ring before using the next ring.
+ function* slots(){for(let ring=0;;ring++)for(let i=0;i<Math.max(nx,ny);i++)for(let side=0;side<4;side++)if(i<(side%2?ny:nx))yield {ring,i,side};}
+ const iterator=slots();
+ for(const members of units){
+  const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y}));
+  const rects=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy)),initial=rects(0,0);
+  const own={x0:Math.min(...initial.map(b=>b.x0)),y0:Math.min(...initial.map(b=>b.y0)),x1:Math.max(...initial.map(b=>b.x1)),y1:Math.max(...initial.map(b=>b.y1))};let x,y,bs;
+  do{const {ring,i,side}=iterator.next().value;
+   if(side===0){x=Math.ceil(i*sx-own.x0);y=Math.floor(-gap-ring*sy-own.y1);}
+   else if(side===1){x=Math.ceil(w+gap+ring*sx-own.x0);y=Math.ceil(i*sy-own.y0);}
+   else if(side===2){x=Math.ceil(i*sx-own.x0);y=Math.ceil(h+gap+ring*sy-own.y0);}
+   else{x=Math.floor(-gap-ring*sx-own.x1);y=Math.ceil(i*sy-own.y0);}
+   bs=rects(x,y);
+  }while(bs.some(b=>occupied.some(r=>puzzleExteriorIntersects(meta,b,r))));
+  for(const o of offsets){o.q.x=x+o.dx;o.q.y=y+o.dy;o.q.onTable=true;}
+  occupied.push(...bs);
+ }
+ puzzleExtendSurface(meta,pieces);
+}
+
 function puzzleArrangeRows(meta,pieces,targets){
  const ids=new Set(targets.map(q=>q.i)),occupied=pieces.filter(q=>!ids.has(q.i)),slots=puzzleGridSlots(meta);
  const pw=meta.w/meta.cols,ph=meta.h/meta.rows,pad=Math.min(pw,ph)*.36;let k=0;
  for(const pc of targets){let spot=null;
   while(k<slots.length){const s=slots[k++];if(!occupied.some(q=>!q.tray&&Math.abs(q.x-s[0])<pw+pad*2-.5&&Math.abs(q.y-s[1])<ph+pad*2-.5)){spot=s;break;}}
   if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,true);
-  if(spot){pc.x=spot[0];pc.y=spot[1];}occupied.push(pc);
+  if(spot){pc.x=spot[0];pc.y=spot[1];}puzzleSettleExterior(meta,occupied.concat(pc),[pc]);occupied.push(pc);
  }
 }
 
@@ -8133,7 +8223,8 @@ function pzReleaseAt(pc){
  for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l)q.onTable=true;
  pzLocalSnap(pc);
  for(const q of PZ.data.pieces)if(q.g===pc.g)q.h=null;
- pzSend({t:'drop',p:pc.i,x:Math.round(pc.x),y:Math.round(pc.y),looseView:!!PZ.trayHidden});PZ.carry=null;PZ.needDraw=true;return true;
+ const target={x:Math.round(pc.x),y:Math.round(pc.y)};puzzleSettleExterior(PZ.data.meta,PZ.data.pieces,PZ.data.pieces.filter(q=>q.g===pc.g&&!q.l));
+ pzSend({t:'drop',p:pc.i,x:target.x,y:target.y,looseView:!!PZ.trayHidden});PZ.carry=null;PZ.needDraw=true;return true;
 }
 // --- drawing ---
 function pzShade(hex,f){let h=String(hex||'').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');if(h.length!==6)return hex;const n=parseInt(h,16);let r=(n>>16)&255,gg=(n>>8)&255,b=n&255;r=Math.max(0,Math.min(255,Math.round(r*f)));gg=Math.max(0,Math.min(255,Math.round(gg*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return `rgb(${r},${gg},${b})`;}
@@ -15557,25 +15648,11 @@ async function openExistingSharedPuzzle(){
  if(String(PZ.id)===String(puzzle.id)&&PZ.data)return true;
  await openPuzzle(puzzle.id);return true;
 }
-async function goToNextGame(){
- if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
- if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters and open your next game?',{cancelLabel:'Stay here',confirmLabel:'Next game'}))return;
- const current=S.game;S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
- try{
-  const latest=await api('/api/sync?msgSince='+S.lastMsg);
-  if(S.game!==current)return;
-  const next=nextWaitingGame(latest,current);
-  if(!next){await openExistingSharedPuzzle();return;}
-  const room=next.room_id||latest.roomId||S.room;
-  if(Number(room)!==Number(S.room))await enterRoom(room);
-  await openGame(next.id);
- }catch(e){toast(e.message||'Could not check your next game. Please try again.');}
- finally{S.nextGamePending=false;document.getElementById('next-game')?.removeAttribute('disabled');}
-}
+async function goToNextGame(){return openOhanaWaitingGames();}
 let roomNextPending=false;
 function refreshRoomNextControls(){
  const current=typeof S.game==='object'?S.game?.id:S.game;
- const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
+ const count=ohanaWaitingGames().length;
  for(const button of document.querySelectorAll('[data-room-next]')){
   if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');button.title=count?'Another table is ready for you':'No other turns waiting';}
   button.disabled=!!(roomNextPending||S.nextGamePending||S.autoAdvancePending||S.movePending);
@@ -15601,21 +15678,12 @@ function mountRoomDialogNavigation(dialog,back,label){
   return window.ohanaCloseOverlayForNext(dialog);
  });
 }
-function updateNextGameAlert(){
- refreshRoomNextControls();
- const button=document.getElementById('next-game');if(!button)return;
- const current=typeof S.game==='object'?S.game?.id:S.game;
- const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
- button.classList.toggle('next-ready',count>0);
- button.innerHTML=gameControlIcon('next',count);
- button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');
- button.title=count?'Another table is ready for you':'No other turns waiting';
-}
+function updateNextGameAlert(){refreshRoomNextControls();refreshOhanaPlayControls();paintOhanaPlay(document.getElementById('next-game'));if(PZ.id)pzUpdateNextBtn();}
 function addNextGameControl(){
  const head=document.getElementById('game-head');if(!head)return;
  let button=document.getElementById('next-game');
  if(!button){button=document.createElement('button');button.type='button';button.id='next-game';button.className='soft';button.textContent='Next game';button.setAttribute('aria-label','Next game waiting for your turn');}
- button.classList.remove('game-replay-word');button.disabled=!!S.nextGamePending;button.onclick=goToNextGame;
+ button.classList.remove('game-replay-word');button.disabled=!!S.nextGamePending;button.onclick=openOhanaWaitingGames;
  const holder=head;
  if(button.parentElement!==holder)holder.append(button);
  document.getElementById('mahjong-next-holder')?.remove();
@@ -16422,9 +16490,10 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
     for(const row of dock.querySelectorAll(':scope > .dock-player,:scope > .gr-save-row,:scope > .pz-active'))set(row,{width:'100%','max-width':'100%','min-height':'72px',height:'auto','max-height':'none','flex-wrap':'wrap','overflow-x':'visible','overflow-y':'visible'});
     if(dock.id==='home-controls-dock'){const player=dock.querySelector(':scope > .dock-player');if(player)set(player,{'padding-right':'188px','box-sizing':'border-box'});}
     if(dock.id==='pz-workstation'){
-     const actions=dock.querySelector(':scope > .pz-bottom-actions');if(actions)set(actions,{display:'flex','flex-wrap':'nowrap',width:'100%','min-width':'0',height:'44px','min-height':'44px',gap:'4px'});
+     const tight=typeof matchMedia==='function'&&matchMedia('(orientation:landscape) and (max-height:500px)').matches;
+     const actions=dock.querySelector(':scope > .pz-bottom-actions');if(actions)set(actions,{display:'flex','flex-wrap':'nowrap',width:tight?'calc(100% - 188px)':'100%','min-width':'0',height:'44px','min-height':'44px',gap:'4px','padding-right':'0','box-sizing':'border-box','overflow-x':tight?'auto':'visible'});
      const tabs=dock.querySelector('#pz-tray-dock');if(tabs)set(tabs,{display:'flex','flex-wrap':'nowrap',flex:'1 1 0','min-width':'0','overflow-x':'auto','overflow-y':'hidden',height:'44px'});
-     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{'padding-right':'188px','box-sizing':'border-box'});
+     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{width:tight?'calc(100% - 188px)':'100%','max-width':tight?'calc(100% - 188px)':'100%','padding-right':tight?'0':'188px','box-sizing':'border-box','min-height':tight?'72px':'var(--landscape-hub-height,112px)','flex-wrap':tight?'nowrap':'wrap','overflow-x':tight?'auto':'visible','overflow-y':tight?'hidden':'visible','justify-content':tight?'flex-start':'center','align-items':'flex-end','align-content':'flex-end'});
     }
     if(dock.id==='gr-workstation')for(const row of dock.querySelectorAll(':scope > .gr-tools,:scope > .gr-answer-actions,:scope > .gr-find-actions'))set(row,{width:'100%',display:'flex','flex-wrap':'wrap','min-height':'44px',gap:'4px'});
     window.ohanaPaintCardinalBowls?.(dock);
@@ -18461,7 +18530,7 @@ const style=document.createElement('style');style.id='ohana-home-category-rooms-
 @media(max-width:500px){.ohana-category-room{padding-inline:8px!important}.ohana-category-room>header{gap:5px}.ohana-category-room>header h2{font-size:20px}.ohana-category-room .room-home-wordmark{width:112px!important}.ohana-category-preview[data-count="3"]{aspect-ratio:1.5}.ohana-category-preview[data-count="3"] img{object-fit:cover}}
 `;style.textContent=style.textContent.replaceAll('.ohana-category-room','#ohana-category-room-active');document.head.append(style);
 function close(){if(!current)return;const {dialog,state,focus,appWasInert}=current;current=null;const app=document.getElementById('app');if(app)app.inert=appWasInert;for(const [node,parent] of state.parents)if(parent.isConnected){const anchor=state.anchors.get(node);if(anchor?.parentNode===parent)parent.insertBefore(node,anchor);else parent.append(node);}dialog.close();dialog.remove();if(focus?.isConnected)focus.focus({preventScroll:true});}
-function updateCategoryNext(dialog){const button=dialog.querySelector('[data-category-next]');if(!button)return;const current=typeof S.game==='object'?S.game?.id:S.game;const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label','Next game, '+count+' games waiting for your turn');button.title=count?'Another table is ready for you':'Open the shared puzzle';}}
+function updateCategoryNext(dialog){const button=dialog.querySelector('[data-category-next]');if(!button)return;const current=typeof S.game==='object'?S.game?.id:S.game;const count=ohanaWaitingGames().length;if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label','Next game, '+count+' games waiting for your turn');button.title=count?'Another table is ready for you':'Open the shared puzzle';}}
 function open(id){const state=lastHome&&states.get(lastHome),category=categories[id];if(!state||!category)return;close();const dialog=document.createElement('dialog');dialog.className='game-setup-room ohana-category-room';dialog.id='ohana-category-room-active';dialog.dataset.ohanaCategory=id;dialog.setAttribute('aria-labelledby','ohana-category-title');dialog.innerHTML='<header>'+roomHomeControl()+'<h2 id="ohana-category-title">'+category.name+'</h2>'+'<button type="button" data-category-next aria-label="Next game waiting for your turn"></button>'+'</header><section class="ohana-home-catalog" aria-label="'+category.name+' games"></section>';const grid=dialog.querySelector('section');const active=document.createElement('section');active.className='category-active-games';active.setAttribute('aria-label','Your games in '+category.name);const title=document.createElement('h3');title.textContent='Our games';active.append(title);for(const key of category.ids)for(const node of state.active.get(key)||[])active.append(node);if(active.children.length>1)grid.before(active);for(const key of category.ids){const node=state.cards.get(key);if(node)grid.append(node);}const app=document.getElementById('app');current={dialog,state,focus:document.activeElement,appWasInert:!!app?.inert};if(app)app.inert=true;const next=dialog.querySelector('[data-category-next]');next.onclick=()=>{close();goToNextGame();};updateCategoryNext(dialog);coordinatePuzzleHeader(dialog.querySelector('header'),dialog.querySelector('.room-home-control'),dialog.querySelector('h2'),null,next,false);dialog.addEventListener('cancel',e=>{e.preventDefault();close();});dialog.addEventListener('click',e=>{if(e.target.closest('[data-ohana-home]'))close();if(e.target.closest('[data-open-colorbook],.granny-invite,[data-open]'))close();},true);dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}});document.body.append(dialog);dialog.show();dialog.querySelector('h2').tabIndex=-1;dialog.querySelector('h2').focus();}
 function orderShelf(shelf){const order=[shelf.querySelector('.tscms-room-entrance-card'),shelf.querySelector('.memories-invite'),shelf.querySelector('.pr-invite'),shelf.querySelector('.granny-invite'),shelf.querySelector('.pz-invite'),shelf.querySelector('[data-category-entrance=journey]'),shelf.querySelector('[data-category-entrance=shuffle]'),shelf.querySelector('[data-category-entrance=tile]')];order.filter(Boolean).forEach((node,i)=>{if(shelf.children[i]!==node)shelf.insertBefore(node,shelf.children[i]||null);});shelf.querySelector('.home-room-group-title')?.remove();const home=shelf.closest('#main');const people=home?.querySelector('.ohana-family-seats');if(people&&shelf.nextElementSibling!==people)shelf.after(people);}
 function prepare(){scheduled=false;if(current){updateCategoryNext(current.dialog);const app=document.getElementById('app');if(app)app.inert=true;if(S.game||S.colorBook||S.granny||PZ.id||PZ.lobby)close();return;}const home=document.querySelector('#main.world-home'),catalog=home?.querySelector('.ohana-home-catalog'),shelf=home?.querySelector('.ohana-feature-invites');if(!home||!catalog||!shelf||!['mine','all','new'].includes(S.gameShelf||'mine'))return;if(states.has(catalog)){lastHome=catalog;orderShelf(shelf);return;}

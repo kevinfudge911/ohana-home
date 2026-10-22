@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "checks": 34,
+  "inlineScripts": 28,
+  "allGameplaySynthetic": true,
+  "noNetworkOrProductionWrites": true,
+  "coverage": [
+    "human/opponent/finished/waiting/solo/bot-only/mixed",
+    "positive human ID named Robot remains human",
+    "fresh duplicate reconciliation",
+    "same Home/workstation count",
+    "list open/close and focus/puzzle view preservation",
+    "rapid double click",
+    "stale turn",
+    "draft cancel/confirm",
+    "cross-room selection and puzzle anchor",
+    "context changes while read pending",
+    "empty list no automatic navigation",
+    "current game no reopen",
+    "Play stays in workstation; Preview distinct"
+  ]
+}

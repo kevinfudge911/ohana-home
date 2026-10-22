@@ -9983,31 +9983,78 @@ function puzzleFindSpot(meta,pieces,members,tx,ty,rows,limits=null){
  for(const [x,y] of candidates)if((rows||limits||Math.hypot(x-tx,y-ty)<=Math.max(pw,ph)*1.25)&&free(x,y))return [x,y];
  return null;
 }
-function puzzleTidyAround(meta,pieces,targets){
- const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,b=puzzleWorkspace(meta),gx=pw*1.72,gy=ph*1.72,pad=Math.min(pw,ph)*.4;
- const buckets=[[],[],[],[]],slots=[],ids=new Set(targets.map(p=>p.i)),occupied=pieces.filter(p=>!p.tray&&!ids.has(p.i)&&(p.l||p.onTable||p.h||puzzleOnTable(meta,p)));
- // Each ring contributes the top, right, bottom and left before expanding out.
- for(let ring=0;ring<Math.ceil(Math.max(b.x1-b.x0,b.y1-b.y0)/Math.min(gx,gy));ring++){
-  const top=-ph-pad-ring*gy,bottom=h+pad+ring*gy,left=-pw-pad-ring*gx,right=w+pad+ring*gx;
-  if(top>=b.y0+pad)for(let x=0;x<=w-pw;x+=gx)buckets[0].push([x,top]);
-  if(right<=b.x1-pw-pad)for(let y=0;y<=h-ph;y+=gy)buckets[1].push([right,y]);
-  if(bottom<=b.y1-ph-pad)for(let x=0;x<=w-pw;x+=gx)buckets[2].push([x,bottom]);
-  if(left>=b.x0+pad)for(let y=0;y<=h-ph;y+=gy)buckets[3].push([left,y]);
- }
- for(let i=0;i<Math.max(...buckets.map(q=>q.length));i++)for(const side of buckets)if(side[i])slots.push(side[i]);
- let k=0;for(const pc of targets){let spot;
-  while(k<slots.length){const p=slots[k++];if(!occupied.some(q=>Math.abs(q.x-p[0])<gx-1&&Math.abs(q.y-p[1])<gy-1)){spot=p;break;}}
-  if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,false,b);
-  if(spot){pc.x=Math.round(spot[0]);pc.y=Math.round(spot[1]);pc.onTable=true;}occupied.push(pc);
- }
+// Coordinates are unzoomed puzzle-space coordinates; only settled exterior
+// intersections are blocked. Temporary overlap wholly inside the board is legal.
+function puzzlePieceBounds(meta,q,x=q.x,y=q.y){
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows,tab=Math.min(pw,ph)*.36;
+ return {x0:x-(q.c===0?0:tab),y0:y-(q.r===0?0:tab),x1:x+pw+(q.c===meta.cols-1?0:tab),y1:y+ph+(q.r===meta.rows-1?0:tab)};
 }
+function puzzleExteriorIntersects(meta,a,b){
+ const x0=Math.max(a.x0,b.x0),y0=Math.max(a.y0,b.y0),x1=Math.min(a.x1,b.x1),y1=Math.min(a.y1,b.y1);
+ return x1>x0+.01&&y1>y0+.01&&(x0<0||y0<0||x1>meta.w||y1>meta.h);
+}
+function puzzleExtendSurface(meta,pieces){
+ const b=puzzleWorkspace(meta);
+ for(const q of pieces)if(!q.tray){const r=puzzlePieceBounds(meta,q);b.x0=Math.min(b.x0,Math.floor(r.x0)-2);b.y0=Math.min(b.y0,Math.floor(r.y0)-2);b.x1=Math.max(b.x1,Math.ceil(r.x1)+2);b.y1=Math.max(b.y1,Math.ceil(r.y1)+2);}
+ meta.table=b;return b;
+}
+function puzzleSettleExterior(meta,pieces,members){
+ if(!members.length||members.some(q=>q.l))return;
+ const base=members[0],ids=new Set(members.map(q=>q.i)),other=pieces.filter(q=>!q.tray&&!ids.has(q.i)),rects=other.map(q=>puzzlePieceBounds(meta,q));
+ const offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y})),origin={x:base.x,y:base.y};
+ const bounds=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy));
+ const outside=b=>b.x0<0||b.y0<0||b.x1>meta.w||b.y1>meta.h;
+ const wasOutside=bounds(origin.x,origin.y).some(outside);
+ const free=(x,y)=>{const bs=bounds(x,y);return (!wasOutside||bs.some(outside))&&!bs.some(b=>rects.some(r=>puzzleExteriorIntersects(meta,b,r)));};
+ if(free(origin.x,origin.y))return;
+ const own=bounds(0,0),left=Math.min(...own.map(b=>b.x0)),right=Math.max(...own.map(b=>b.x1)),top=Math.min(...own.map(b=>b.y0)),bottom=Math.max(...own.map(b=>b.y1));
+ const candidates=[];
+ for(const r of rects){candidates.push([Math.floor(r.x0-right-2),origin.y],[Math.ceil(r.x1-left+2),origin.y],[origin.x,Math.floor(r.y0-bottom-2)],[origin.x,Math.ceil(r.y1-top+2)]);}
+ candidates.sort((a,b)=>(a[0]-origin.x)**2+(a[1]-origin.y)**2-((b[0]-origin.x)**2+(b[1]-origin.y)**2)||a[1]-b[1]||a[0]-b[0]);
+ let spot=candidates.find(p=>free(p[0],p[1]));
+ // A finite set of existing pieces always leaves space below its lowest bound.
+ if(!spot)spot=[Math.round(origin.x),Math.ceil(Math.max(meta.h,...rects.map(r=>r.y1))-top+2)];
+ const dx=spot[0]-origin.x,dy=spot[1]-origin.y;
+ for(const q of members){q.x+=dx;q.y+=dy;}
+ puzzleExtendSurface(meta,pieces);
+}
+function puzzleTidyAround(meta,pieces,targets){
+ const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows,tab=Math.min(pw,ph)*.36,gap=2,sx=pw+tab*2+gap,sy=ph+tab*2+gap;
+ const requested=new Set(targets.map(q=>q.i)),groups=new Map();
+ for(const q of pieces){const key=q.g??q.i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(q);}
+ const units=[],seen=new Set();
+ for(const q of targets){const key=q.g??q.i;if(seen.has(key))continue;seen.add(key);const members=groups.get(key);
+  if(members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
+ }
+ const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
+ const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
+ // Finish every side of the nearest ring before using the next ring.
+ function* slots(){for(let ring=0;;ring++)for(let i=0;i<Math.max(nx,ny);i++)for(let side=0;side<4;side++)if(i<(side%2?ny:nx))yield {ring,i,side};}
+ const iterator=slots();
+ for(const members of units){
+  const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y}));
+  const rects=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy)),initial=rects(0,0);
+  const own={x0:Math.min(...initial.map(b=>b.x0)),y0:Math.min(...initial.map(b=>b.y0)),x1:Math.max(...initial.map(b=>b.x1)),y1:Math.max(...initial.map(b=>b.y1))};let x,y,bs;
+  do{const {ring,i,side}=iterator.next().value;
+   if(side===0){x=Math.ceil(i*sx-own.x0);y=Math.floor(-gap-ring*sy-own.y1);}
+   else if(side===1){x=Math.ceil(w+gap+ring*sx-own.x0);y=Math.ceil(i*sy-own.y0);}
+   else if(side===2){x=Math.ceil(i*sx-own.x0);y=Math.ceil(h+gap+ring*sy-own.y0);}
+   else{x=Math.floor(-gap-ring*sx-own.x1);y=Math.ceil(i*sy-own.y0);}
+   bs=rects(x,y);
+  }while(bs.some(b=>occupied.some(r=>puzzleExteriorIntersects(meta,b,r))));
+  for(const o of offsets){o.q.x=x+o.dx;o.q.y=y+o.dy;o.q.onTable=true;}
+  occupied.push(...bs);
+ }
+ puzzleExtendSurface(meta,pieces);
+}
+
 function puzzleArrangeRows(meta,pieces,targets){
  const ids=new Set(targets.map(q=>q.i)),occupied=pieces.filter(q=>!ids.has(q.i)),slots=puzzleGridSlots(meta);
  const pw=meta.w/meta.cols,ph=meta.h/meta.rows,pad=Math.min(pw,ph)*.36;let k=0;
  for(const pc of targets){let spot=null;
   while(k<slots.length){const s=slots[k++];if(!occupied.some(q=>!q.tray&&Math.abs(q.x-s[0])<pw+pad*2-.5&&Math.abs(q.y-s[1])<ph+pad*2-.5)){spot=s;break;}}
   if(!spot)spot=puzzleFindSpot(meta,occupied.concat(pc),[pc],pc.x,pc.y,true);
-  if(spot){pc.x=spot[0];pc.y=spot[1];pc.onTable=false;}occupied.push(pc);
+  if(spot){pc.x=spot[0];pc.y=spot[1];pc.onTable=false;}puzzleSettleExterior(meta,occupied.concat(pc),[pc]);occupied.push(pc);
  }
 }
 function puzzleScatter(meta,pieces,rng2,onlyLoose){
@@ -10068,6 +10115,7 @@ var PuzzleRoom = class {
       this.stats = await ctx.storage.get("stats") || {};
       if (this.pieces) {
         for (const pc of this.pieces) if (pc.g === void 0) pc.g = pc.i;
+        if(this.meta)puzzleExtendSurface(this.meta,this.pieces);
       }
     });
   }
@@ -10088,6 +10136,7 @@ var PuzzleRoom = class {
     return out;
   }
   broadcast(msg, except) {
+    if(["drop","tidy","tray-piece","tray-return"].includes(msg.t)&&this.meta)msg.table=this.meta.table;
     msg.seq = ++this.seq;
     this.events.push(msg);
     if (this.events.length > 600) this.events = this.events.slice(-600);
@@ -10281,7 +10330,8 @@ var PuzzleRoom = class {
     if (m.t === "tray-out") {
       const pc = piece(m.p);
       if (!pc || !pc.tray || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return null;
-      const members = group4(pc.g).filter((q) => q.tray === pc.tray);
+      const members = group4(pc.g);
+      if(pc.l||members.some(q=>q.tray!==pc.tray))return deny(pc);
       if (members.some(heldByOther)) return deny(pc);
       const surface=puzzleWorkspace(this.meta);
       const dx=Math.max(surface.x0,Math.min(surface.x1,m.x))-pc.x;
@@ -10294,6 +10344,8 @@ var PuzzleRoom = class {
         q.h = null;
         q.ht = null;
       }
+      puzzleSettleExterior(this.meta,P,members);
+      puzzleExtendSurface(this.meta,P);
       this.scheduleSave();
       this.broadcast({ t: "tray-piece", ids: members.map((q) => q.i), tray: null, pieces: members.map((q) => [q.i, q.x, q.y]) });
       return null;
@@ -10307,6 +10359,7 @@ var PuzzleRoom = class {
       if(!spot){const base=members[0],minX=Math.min(...members.map(q=>q.x-base.x)),minY=Math.min(...members.map(q=>q.y-base.y));spot=[b.x0+pw-minX,this.meta.h+ph-minY];}
       const dx=spot[0]-members[0].x,dy=spot[1]-members[0].y;
       for(const q of members){q.x+=dx;q.y+=dy;q.onTable=false;q.tray=null;q.h=null;q.ht=null;delete q._pzOriginX;delete q._pzOriginY;}
+      puzzleSettleExterior(this.meta,P,members);puzzleExtendSurface(this.meta,P);
       this.scheduleSave();this.broadcast({t:"tray-return",by:me.id,pieces:members.map(q=>({...q}))});return null;
     }
     if (m.t === "grab") {
@@ -10393,6 +10446,8 @@ var PuzzleRoom = class {
         const spot=puzzleFindSpot(this.meta,P,members,members[0].x,members[0].y,false,puzzleWorkspace(this.meta));
         if(spot){const dx=spot[0]-members[0].x,dy=spot[1]-members[0].y;for(const q of members){q.x+=dx;q.y+=dy;}}else{if(m.staged===true){for(const q of members){q.x=Number.isFinite(q._pzOriginX)?q._pzOriginX:q.x;q.y=Number.isFinite(q._pzOriginY)?q._pzOriginY:q.y;q.onTable=false;q.h=null;q.ht=null;delete q._pzOriginX;delete q._pzOriginY;}this.scheduleSave();this.broadcast({t:'stage-denied',by:me.id,pieces:members.map(q=>({...q}))});return null;}for(const q of members){q.h=me.id;q.ht=now2;}this.scheduleSave();this.broadcast({t:'drop-blocked',p:m.p,by:me.id,pieces:members.map(q=>[q.i,q.x,q.y])});return null;}
       }
+      if(!locked)puzzleSettleExterior(this.meta,P,members);
+      puzzleExtendSurface(this.meta,P);
       for(const q of members){delete q._pzOriginX;delete q._pzOriginY;}
       this.scheduleSave();
       if (locked || joined) {
@@ -10431,15 +10486,14 @@ var PuzzleRoom = class {
         pc.h = null;
         pc.ht = null;
       }
-      const sizes = {};
-      for (const pc of P) if (!pc.l) sizes[pc.g] = (sizes[pc.g] || 0) + 1;
-      const singles = P.filter((pc) => !pc.l && !pc.h && !pc.tray && sizes[pc.g] === 1 && puzzleOnTable(this.meta,pc));
+      const protectedGroups=new Set(P.filter(pc=>pc.l||pc.h||pc.tray).map(pc=>pc.g));
+      const loose = P.filter(pc=>!protectedGroups.has(pc.g));
       // Mix before laying out: array/solution index must never reveal the picture.
-      for(let i=singles.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[singles[i],singles[j]]=[singles[j],singles[i]];}
-      puzzleTidyAround(this.meta,P,singles);
-      for(const q of singles)q.catalogReady=true;
+      for(let i=loose.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[loose[i],loose[j]]=[loose[j],loose[i]];}
+      puzzleTidyAround(this.meta,P,loose);
+      for(const q of loose)q.catalogReady=true;
       this.scheduleSave();
-      this.broadcast({ t: "tidy", pieces: singles.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true, catalogReady:true });
+      this.broadcast({ t: "tidy", pieces: loose.map((q) => [q.i, q.x, q.y]), by: me.name, tabled:true, catalogReady:true });
       return null;
     }
     if (m.t === "shuffle") {
@@ -10474,25 +10528,29 @@ var PuzzleRoom = class {
       const pw = this.meta.w / this.meta.cols, ph = this.meta.h / this.meta.rows;
       const groups = {};
       for (const pc of P) {
-        if (pc.l || pc.h || pc.tray) continue;
+        if (pc.l || pc.tray) continue;
         (groups[pc.g] = groups[pc.g] || []).push(pc);
       }
       const moved = [];
       let k = 0;
       for (const g in groups) {
         const mem = groups[g];
+        if(mem.some(p=>p.h)||P.some(p=>p.g===mem[0].g&&(p.l||p.tray)))continue;
         const ax = Math.min(...mem.map((p) => p.x)), ay = Math.min(...mem.map((p) => p.y));
         const s = slots[k % slots.length];
         k++;
         const tx = Math.round(s[0] + (rng2() - 0.5) * pw * 0.25), ty = Math.round(s[1] + (rng2() - 0.5) * ph * 0.25);
         const dx = tx - ax, dy = ty - ay;
         for (const p of mem) {
-          p.x = Math.round(p.x + dx);
-          p.y = Math.round(p.y + dy);
+          p.x += dx;
+          p.y += dy;
           p.onTable = false;
-          moved.push([p.i, p.x, p.y]);
+          // Positions are recorded after resolving the complete joined group.
         }
+        puzzleSettleExterior(this.meta,P,mem);
+        for(const p of mem)moved.push([p.i,p.x,p.y]);
       }
+      puzzleExtendSurface(this.meta,P);
       this.scheduleSave();
       this.broadcast({ t: "tidy", pieces: moved, by: me.name, recall: true });
       return null;

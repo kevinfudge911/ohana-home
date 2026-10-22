@@ -1,0 +1,113 @@
+{
+  "at": "2026-10-22T06:13:37.913Z",
+  "checks": 203,
+  "parsedScripts": 28,
+  "cases": [
+    {
+      "w": 600,
+      "h": 400,
+      "pieces": 24,
+      "tidied": 19,
+      "sides": [
+        7,
+        4,
+        6,
+        2
+      ],
+      "repeated": 3
+    },
+    {
+      "w": 1200,
+      "h": 240,
+      "pieces": 48,
+      "tidied": 43,
+      "sides": [
+        18,
+        5,
+        17,
+        3
+      ],
+      "repeated": 3
+    },
+    {
+      "w": 240,
+      "h": 1200,
+      "pieces": 48,
+      "tidied": 43,
+      "sides": [
+        6,
+        17,
+        5,
+        15
+      ],
+      "repeated": 3
+    },
+    {
+      "w": 1000,
+      "h": 1000,
+      "pieces": 400,
+      "tidied": 395,
+      "sides": [
+        100,
+        100,
+        100,
+        95
+      ],
+      "repeated": 3
+    },
+    {
+      "w": 1400,
+      "h": 700,
+      "pieces": 1000,
+      "tidied": 995,
+      "sides": [
+        321,
+        178,
+        321,
+        175
+      ],
+      "repeated": 3
+    }
+  ],
+  "protocolCases": [
+    {
+      "w": 600,
+      "h": 400,
+      "pieces": 24,
+      "recallAndTidyRepeats": 3,
+      "groupedTrayOutReturn": true
+    },
+    {
+      "w": 1200,
+      "h": 240,
+      "pieces": 48,
+      "recallAndTidyRepeats": 3,
+      "groupedTrayOutReturn": true
+    },
+    {
+      "w": 240,
+      "h": 1200,
+      "pieces": 48,
+      "recallAndTidyRepeats": 3,
+      "groupedTrayOutReturn": true
+    }
+  ],
+  "leaseReconciliation": {
+    "serverGrabAt": 100000,
+    "clientReceivedGrabAt": 100200,
+    "serverTidyAt": 115100,
+    "clientObservedHoldAge": 14900,
+    "serverPosition": [
+      602,
+      0
+    ],
+    "clientPosition": [
+      602,
+      0
+    ],
+    "immediateReconciliation": true
+  },
+  "liveMutations": 0,
+  "publication": "held",
+  "limits": "Production functions and real Durable Object handlers/storage tested with fictional state; physical-phone acceptance separate"
+}

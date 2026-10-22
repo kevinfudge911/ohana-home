@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-22T05:57:23.733Z",
+  "productionFiles": [
+    "live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html",
+    "live/worker.js"
+  ],
+  "unrelatedWorkerPrefixAndSuffix": "byte-identical after newline normalization",
+  "bindingsSchemaEnginesArt": "unchanged",
+  "codeReview": "Independent review P2 corrected; targeted independent re-review pending",
+  "findingsResolved": [
+    "whole held-group Recall",
+    "joined loose groups Tidy as rigid units",
+    "fractional offsets",
+    "client active/held/expired group guards",
+    "monotonic surface extents",
+    "Play pressed-state semantics",
+    "remote receipt-clock lease cannot discard authoritative Tidy coordinates"
+  ],
+  "dryRun": {
+    "exit": 0,
+    "wrangler": "4.151.2",
+    "modules": 482,
+    "productionWrites": 0
+  },
+  "preview": {
+    "url": "https://drive.google.com/file/d/1kc_PJ8ih5mD8AxKgpvKgA61OITFlU5YE/view?usp=drivesdk",
+    "shared": false,
+    "ownerOnlyVerified": true
+  },
+  "publication": "held",
+  "reviewCorrection": {
+    "productionDelta": "one client message-handler line; Worker unchanged",
+    "focusedPuzzleChecks": 203,
+    "actualCandidateNavigationChecks": 19,
+    "archivedRootRead": false
+  }
+}

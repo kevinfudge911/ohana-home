@@ -1,0 +1,281 @@
+{
+  "at": "2026-10-22T05:54:51.875Z",
+  "fixture": "production app with fictional local fake transport; real DO verified separately",
+  "viewports": [
+    {
+      "rects": [
+        {
+          "h": 96,
+          "s": "#pz-canvas",
+          "w": 844,
+          "x": 0,
+          "y": 84
+        },
+        {
+          "h": 51,
+          "s": "#pz-strip",
+          "w": 844,
+          "x": 0,
+          "y": 180
+        },
+        {
+          "h": 44,
+          "s": ".pz-bottom-actions",
+          "w": 648,
+          "x": 4,
+          "y": 264
+        },
+        {
+          "h": 72,
+          "s": "#pz-people",
+          "w": 648,
+          "x": 4,
+          "y": 312
+        },
+        {
+          "h": 44,
+          "s": "#pz-peek-btn",
+          "w": 74.67708587646484,
+          "x": 52,
+          "y": 264
+        },
+        {
+          "h": 44,
+          "s": "#pz-next-game",
+          "w": 44,
+          "x": 4,
+          "y": 264
+        },
+        {
+          "h": 80,
+          "s": "[aria-label=\"Open Ohana tools\"]",
+          "w": 120,
+          "x": 660,
+          "y": 306
+        },
+        {
+          "h": 104,
+          "s": ".ohana-workstation-toggle",
+          "w": 56,
+          "x": 784,
+          "y": 282
+        }
+      ],
+      "viewport": [
+        844,
+        390
+      ]
+    },
+    {
+      "proof": "FICTIONAL ONLY • 96 IDs • placed 1 • joined 2 • tabled 96",
+      "rects": [
+        {
+          "h": 89,
+          "s": "#pz-canvas",
+          "w": 667,
+          "x": 0,
+          "y": 84
+        },
+        {
+          "h": 44,
+          "s": "#pz-strip",
+          "w": 667.3333740234375,
+          "x": 0,
+          "y": 173
+        },
+        {
+          "h": 44,
+          "s": ".pz-bottom-actions",
+          "w": 471.3333435058594,
+          "x": 4,
+          "y": 249.33334350585935
+        },
+        {
+          "h": 72,
+          "s": "#pz-people",
+          "w": 471.3333435058594,
+          "x": 4,
+          "y": 297.3333435058594
+        },
+        {
+          "h": 44,
+          "s": "#pz-peek-btn",
+          "w": 74.67708587646484,
+          "x": 52,
+          "y": 249.33334350585935
+        },
+        {
+          "h": 44,
+          "s": "#pz-next-game",
+          "w": 44,
+          "x": 4,
+          "y": 249.33334350585935
+        },
+        {
+          "h": 80,
+          "s": "[aria-label=\"Open Ohana tools\"]",
+          "w": 120,
+          "x": 483.3333435058594,
+          "y": 291.3333435058594
+        },
+        {
+          "h": 104,
+          "s": ".ohana-workstation-toggle",
+          "w": 56,
+          "x": 607.3333740234375,
+          "y": 267.3333435058594
+        }
+      ],
+      "viewport": [
+        667,
+        375
+      ]
+    },
+    {
+      "proof": "FICTIONAL ONLY • 96 IDs • placed 1 • joined 2 • tabled 96",
+      "rects": [
+        {
+          "h": 212.39584350585935,
+          "s": "#pz-canvas",
+          "w": 390,
+          "x": 0,
+          "y": 84
+        },
+        {
+          "h": 318.59375,
+          "s": "#pz-strip",
+          "w": 390,
+          "x": 0,
+          "y": 296.3958435058594
+        },
+        {
+          "h": 44,
+          "s": ".pz-bottom-actions",
+          "w": 382,
+          "x": 4,
+          "y": 648
+        },
+        {
+          "h": 142,
+          "s": "#pz-people",
+          "w": 382,
+          "x": 4,
+          "y": 696
+        },
+        {
+          "h": 44,
+          "s": "#pz-peek-btn",
+          "w": 60.45833587646485,
+          "x": 52,
+          "y": 648
+        },
+        {
+          "h": 44,
+          "s": "#pz-next-game",
+          "w": 44,
+          "x": 4,
+          "y": 648
+        },
+        {
+          "h": 80,
+          "s": "[aria-label=\"Open Ohana tools\"]",
+          "w": 120,
+          "x": 206,
+          "y": 760
+        },
+        {
+          "h": 104,
+          "s": ".ohana-workstation-toggle",
+          "w": 56,
+          "x": 330,
+          "y": 736
+        }
+      ],
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "proof": "FICTIONAL ONLY • 96 IDs • placed 1 • joined 2 • tabled 96",
+      "rects": [
+        {
+          "h": 174.7916717529297,
+          "s": "#pz-canvas",
+          "w": 1280,
+          "x": 0,
+          "y": 84
+        },
+        {
+          "h": 262.19793701171875,
+          "s": "#pz-strip",
+          "w": 1280,
+          "x": 0,
+          "y": 258.79168701171875
+        },
+        {
+          "h": 44,
+          "s": ".pz-bottom-actions",
+          "w": 1272,
+          "x": 4,
+          "y": 554
+        },
+        {
+          "h": 112,
+          "s": "#pz-people",
+          "w": 1272,
+          "x": 4,
+          "y": 602
+        },
+        {
+          "h": 44,
+          "s": "#pz-peek-btn",
+          "w": 74.67708587646484,
+          "x": 52,
+          "y": 554
+        },
+        {
+          "h": 44,
+          "s": "#pz-next-game",
+          "w": 44,
+          "x": 4,
+          "y": 554
+        },
+        {
+          "h": 80,
+          "s": "[aria-label=\"Open Ohana tools\"]",
+          "w": 120,
+          "x": 1096,
+          "y": 636
+        },
+        {
+          "h": 104,
+          "s": ".ohana-workstation-toggle",
+          "w": 56,
+          "x": 1220,
+          "y": 612
+        }
+      ],
+      "viewport": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "checks": [
+    "Preview above scores and cardinal with 44px target",
+    "Play/count same as Home; list closes back to puzzle",
+    "cardinal opens/closes Bridge",
+    "menu Hide/Show restores controls",
+    "joined-group Tidy and 96-piece synthetic reload",
+    "short landscape tray open: canvas96/89px, tray51/44px; double-tap zoom responds",
+    "maximum tray-size setting reachable",
+    "phone and desktop no cardinal/control overlap"
+  ],
+  "productionMutations": 0,
+  "limits": [
+    "No physical phone acceptance",
+    "Browser fake transport is not a deployed server test",
+    "Independent exact-patch review by parent remains required"
+  ]
+}
