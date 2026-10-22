@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "checks": [
+    "Failed engine meld leaves completed=false and all state unchanged",
+    "Successful actual engine meld sets completed=true and stores the six paired cards, retaining the spare hand card",
+    "UI uses this completed flag, not selection or drag state, to hide the requirement"
+  ],
+  "completedView": {
+    "hands": {
+      "1": [
+        {
+          "id": 206,
+          "n": 12,
+          "color": "ocean"
+        }
+      ],
+      "2": 10
+    },
+    "completed": {
+      "1": true,
+      "2": false
+    },
+    "melds": {
+      "1": [
+        {
+          "kind": "pairs",
+          "cards": [
+            {
+              "id": 200,
+              "n": 2,
+              "color": "coral"
+            },
+            {
+              "id": 201,
+              "n": 2,
+              "color": "ocean"
+            },
+            {
+              "id": 202,
+              "n": 5,
+              "color": "leaf"
+            },
+            {
+              "id": 203,
+              "n": 5,
+              "color": "sun"
+            },
+            {
+              "id": 204,
+              "n": 9,
+              "color": "coral"
+            },
+            {
+              "id": 205,
+              "n": 9,
+              "color": "leaf"
+            }
+          ]
+        }
+      ],
+      "2": []
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "state": "READY_FOR_EXACT_REVIEW",
+  "base": "7625f38c4a782b57f5727d4239b2ff7e440db8f2",
+  "tenSource": "582c077248498be7f4523e727a82fc11af68faf6",
+  "opponentRotationSource": "d3a012481e1f1c3fc3e3262ed4c4142eac48d354",
+  "homeOrder": [
+    "United",
+    "Shuffle",
+    "Tile",
+    "Journey",
+    "Granny",
+    "Music",
+    "Memories",
+    "Blessings"
+  ],
+  "browserCases": [
+    {
+      "name": "tablet",
+      "board": {
+        "bottom": 905,
+        "height": 801,
+        "left": 22,
+        "right": 730.6666870117188,
+        "top": 104,
+        "width": 708.6666870117188,
+        "x": 22,
+        "y": 104
+      },
+      "bounded": true,
+      "drawUpright": true,
+      "ids": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "opponentRotations": [
+        "180deg"
+      ],
+      "overflow": false,
+      "ownUpright": true,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "rows": 1,
+      "uniformBacks": true,
+      "viewport": [
+        768,
+        1024
+      ]
+    },
+    {
+      "name": "desktop",
+      "board": {
+        "bottom": 781,
+        "height": 677,
+        "left": 132.33334350585938,
+        "right": 1132.3333435058594,
+        "top": 104,
+        "width": 1000,
+        "x": 132.33334350585938,
+        "y": 104
+      },
+      "bounded": true,
+      "drawUpright": true,
+      "ids": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "opponentRotations": [
+        "180deg"
+      ],
+      "overflow": false,
+      "ownUpright": true,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "rows": 1,
+      "uniformBacks": true,
+      "viewport": [
+        1280,
+        900
+      ]
+    },
+    {
+      "name": "landscape",
+      "board": {
+        "bottom": 560.5833435058594,
+        "height": 456.5833435058594,
+        "left": 22,
+        "right": 806.6666870117188,
+        "top": 104,
+        "width": 784.6666870117188,
+        "x": 22,
+        "y": 104
+      },
+      "bounded": true,
+      "drawUpright": true,
+      "ids": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "opponentRotations": [
+        "180deg"
+      ],
+      "overflow": false,
+      "ownUpright": true,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "rows": 1,
+      "uniformBacks": true,
+      "viewport": [
+        844,
+        390
+      ]
+    },
+    {
+      "name": "long-phone",
+      "bounded": true,
+      "ids": [
+        "1",
+        "12",
+        "24",
+        "2",
+        "13",
+        "25",
+        "3",
+        "14",
+        "26",
+        "4",
+        "15",
+        "27",
+        "16",
+        "28",
+        "17",
+        "29",
+        "18",
+        "30",
+        "5",
+        "19",
+        "20",
+        "6",
+        "21",
+        "7",
+        "22",
+        "8",
+        "9",
+        "11",
+        "23",
+        "10"
+      ],
+      "overflow": false,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "rows": 3
+    }
+  ],
+  "drag": {
+    "before": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "after": [
+      "10",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "reloadedSame": true,
+    "savedGameUnchanged": true,
+    "apiWrites": 0
+  },
+  "fourPlayers": {
+    "opponents": 3,
+    "rotations": [
+      "180deg",
+      "180deg",
+      "180deg"
+    ]
+  },
+  "sourceScriptsParsed": 28,
+  "regressions": {
+    "puzzleProtocol": 212,
+    "tidyProtection": 546,
+    "puzzleDirectNavigation": 24,
+    "homeOrder": 18
+  },
+  "productionWrites": 0,
+  "limits": "Actual current TEN renderer with fictional state. No physical-phone, haptics or screen-reader acceptance; short landscape and long hands require vertical scrolling. Final Home order verified by actual extracted DOM function tests; intermediate Home screenshot is not final-order evidence.",
+  "finalPackaging": {
+    "passed": true,
+    "command": "wrangler deploy --dry-run",
+    "modules": 482,
+    "bindings": [
+      "PUZZLE",
+      "DB",
+      "MUSIC_FILES"
+    ]
+  }
+}

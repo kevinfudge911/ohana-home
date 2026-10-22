@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "syntaxScripts": 28,
+  "allOriginalJavaScriptPreservedExceptTenPresentationRequestedLabelsAndApprovedHomeOrder": true,
+  "explicitRemovals": [
+    "Match this pattern using cards from your hand.",
+    "Example visual label; illustrated pattern retains concise accessible name"
+  ],
+  "otherOriginalTextAndRequirementPreserved": true,
+  "playedCardFacesAndOriginalArtworkPreserved": true,
+  "sharedHandlersAndControlsIdentical": true,
+  "workerAssetsAndFamilyStateUntouched": true,
+  "baseSource": "7625f38c4a782b57f5727d4239b2ff7e440db8f2",
+  "isolatedBase": "7625f38",
+  "app": "live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html",
+  "sha256": "fc9de02390b5875a555c28f4f734c5a3c3571a5c013c1c0441e9206400977d7e"
+}
