@@ -19038,3 +19038,16 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
 }
 }
 </style>
+
+<style id="ohana-ten-content-bounds-v1">
+/* TEN outer felt follows its existing card content. Card geometry is unchanged. */
+@layer ohanaApproved {
+ :root.ohana-world body #app #game[data-game-type=ohana10] #board[data-type=ohana10] .o10 {
+  width:fit-content!important;
+  max-width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  flex:0 0 auto!important;
+ }
+}
+</style>

@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "browser": {
+    "tablet": {
+      "allCardsInside": true,
+      "emptyBottom": 12,
+      "height": 627.4791870117188,
+      "opponentRotation": [
+        "180deg"
+      ],
+      "paddingBottom": 12,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "viewport": [
+        768,
+        1024
+      ],
+      "width": 370.34375
+    },
+    "phone": {
+      "allCardsInside": true,
+      "emptyBottom": 8,
+      "height": 592.4791870117188,
+      "paddingBottom": 8,
+      "proof": "FICTIONAL PREVIEW · saved game unchanged · API writes 0",
+      "viewport": [
+        390,
+        844
+      ],
+      "width": 355.63543701171875
+    },
+    "actualChrome": true,
+    "familyGameplayMoves": 0
+  },
+  "sourceLaneCases": 15,
+  "allPriorHtmlBytesPreserved": true,
+  "uploadKiB": 62457.13,
+  "requiredModules": 482,
+  "allEmittedModuleBytesVerified": true
+}
