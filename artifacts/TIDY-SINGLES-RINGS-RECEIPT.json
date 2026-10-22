@@ -1,0 +1,6 @@
+{
+  "date": "2026-10-22T14:03:40.750Z",
+  "status": "PASS",
+  "checks": 546,
+  "scope": "actual server handler and client handler; joined unlocked interior/exterior and locked groups exact; rings include corners; no family writes"
+}

@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-22T06:13:37.913Z",
-  "checks": 203,
+  "at": "2026-10-22T14:04:06.712Z",
+  "checks": 212,
   "parsedScripts": 28,
   "cases": [
     {
@@ -9,10 +9,10 @@
       "pieces": 24,
       "tidied": 19,
       "sides": [
-        7,
-        4,
-        6,
-        2
+        11,
+        5,
+        5,
+        5
       ],
       "repeated": 3
     },
@@ -22,10 +22,10 @@
       "pieces": 48,
       "tidied": 43,
       "sides": [
-        18,
-        5,
-        17,
-        3
+        23,
+        12,
+        15,
+        4
       ],
       "repeated": 3
     },
@@ -35,10 +35,10 @@
       "pieces": 48,
       "tidied": 43,
       "sides": [
-        6,
-        17,
-        5,
-        15
+        11,
+        24,
+        8,
+        12
       ],
       "repeated": 3
     },
@@ -48,10 +48,10 @@
       "pieces": 400,
       "tidied": 395,
       "sides": [
-        100,
-        100,
-        100,
-        95
+        133,
+        138,
+        138,
+        125
       ],
       "repeated": 3
     },
@@ -61,10 +61,10 @@
       "pieces": 1000,
       "tidied": 995,
       "sides": [
-        321,
-        178,
-        321,
-        175
+        386,
+        279,
+        378,
+        284
       ],
       "repeated": 3
     }
@@ -98,12 +98,12 @@
     "serverTidyAt": 115100,
     "clientObservedHoldAge": 14900,
     "serverPosition": [
-      602,
-      0
+      0,
+      -176
     ],
     "clientPosition": [
-      602,
-      0
+      0,
+      -176
     ],
     "immediateReconciliation": true
   },

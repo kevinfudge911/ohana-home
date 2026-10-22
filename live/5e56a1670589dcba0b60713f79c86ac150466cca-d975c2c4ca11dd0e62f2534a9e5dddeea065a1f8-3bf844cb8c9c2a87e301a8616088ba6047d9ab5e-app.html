@@ -6994,7 +6994,7 @@ function paintOhanaPlay(button,home=false){
   button.dataset.ohanaPlayCount=String(count);button.dataset.ohanaPlayHome=String(home);
   button.innerHTML=home?'Play <span class="home-turn-count" aria-hidden="true">'+count+'</span>':'<svg class="ohana-play-icon" viewBox="0 0 32 36" aria-hidden="true" focusable="false"><path d="M5 3 Q3 2 3 5 L3 31 Q3 34 6 32 L28 20 Q31 18 28 16 Z" fill="#85ef38" stroke="#24531a" stroke-width="2" stroke-linejoin="round"/></svg><span class="ohana-play-count" aria-hidden="true">'+count+'</span>';
  }
- button.removeAttribute('aria-pressed');button.setAttribute('aria-label','Play, '+count+' game'+(count===1?'':'s')+' waiting for your turn');button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','ohana-waiting-games');button.title='Play';button.onclick=openOhanaWaitingGames;button.disabled=!!(S.movePending||S.autoAdvancePending||S.nextGamePending);
+ button.removeAttribute('aria-pressed');button.setAttribute('aria-label','Play, '+count+' game'+(count===1?'':'s')+' waiting for your turn');if(button.id==='pz-next-game'){button.removeAttribute('aria-haspopup');button.removeAttribute('aria-controls');}else{button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','ohana-waiting-games');}button.title='Play';button.onclick=button.id==='pz-next-game'?puzzleNextGame:openOhanaWaitingGames;button.disabled=!!(S.movePending||S.autoAdvancePending||S.nextGamePending);
 }
 function refreshOhanaPlayControls(){for(const button of document.querySelectorAll('[data-ohana-play]'))paintOhanaPlay(button,button.dataset.ohanaPlay==='home');}
 async function openOhanaWaitingGames(){
@@ -7456,7 +7456,7 @@ function pzHandle(m,echo){const d=PZ.data;if(!d)return;if(m.table&&['x0','y0','x
  if(m.t==='drop-blocked'){const pc=P[m.p];if(!pc)return;for(const [i,x,y] of m.pieces||[]){const q=P[i];if(q){q.x=x;q.y=y;q.onTable=true;q.h=m.by;q.ht=Date.now();}}if(m.by===meId){PZ.carry={p:m.p};pzToast('Move to an open spot, or tap the piece to let go.');}PZ.needDraw=true;return;}
  if(m.t==='drop'){const pc=P[m.p];if(!pc)return;if(!m.l&&m.by===meId&&PZ.clientSession&&typeof m.clientAction==='string'&&m.clientAction.startsWith(PZ.clientSession+':')&&m.clientAction!==PZ.latestActions?.[m.p])return;const active=PZ.drag?.p??PZ.carry?.p??PZ.strip.lift;if(!m.l&&m.by===meId&&active!=null&&P[active]?.g===pc.g)return;const list=m.pieces||[[m.p,m.x,m.y]];for(const [i,x,y] of list){const q=P[i];if(!q)continue;q.x=x;q.y=y;q.onTable=true;q.catalogReady=false;q.h=null;q.g=m.g??q.g;if(m.l){q.l=true;pzStamp(q);}}if(PZ.drag&&P[PZ.drag.p].g===pc.g)PZ.drag=null;if(m.l||m.joined){pzSparkle(pc);if(m.by===meId)pzFeedback(m.l?'lock':'join');}if(m.stats)PZ.stats=m.stats;pzProgress(m.locked);pzPaintPeople();PZ.needDraw=true;return;}
  if(m.t==='tray-return'){for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.by===meId){PZ.carry=null;PZ.drag=null;PZ.strip.lift=null;}PZ.needDraw=true;pzPaintStrip();pzPaintTrays();return;}
- if(m.t==='tidy'){const active=PZ.drag?.p??PZ.carry?.p??PZ.strip?.lift,activeGroup=P[active]?.g;for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&pc.g!==activeGroup){pc.x=x;pc.y=y;pc.h=null;pc.ht=null;pc.onTable=!!m.tabled;if(m.catalogReady)pc.catalogReady=true;}}pzPaintStrip();PZ.needDraw=true;return;}
+ if(m.t==='tidy'){const active=PZ.drag?.p??PZ.carry?.p??PZ.strip?.lift,activeGroup=P[active]?.g,tidySingles=m.tabled===true&&m.catalogReady===true,sizes=new Map();if(tidySingles)for(const q of P)sizes.set(q.g,(sizes.get(q.g)||0)+1);for(const [i,x,y] of m.pieces){const pc=P[i];if(pc&&!pc.l&&pc.g!==activeGroup&&(!tidySingles||sizes.get(pc.g)===1)){pc.x=x;pc.y=y;pc.h=null;pc.ht=null;pc.onTable=!!m.tabled;if(m.catalogReady)pc.catalogReady=true;}}pzPaintStrip();PZ.needDraw=true;return;}
  if(m.t==='deny'){pzCancelHeldPiece(m.p,false);for(const state of m.pieces||[]){const q=P[state.i];if(q)Object.assign(q,state);}if(m.people)pzHandle({t:'pong',people:m.people});const holder=PZ.people[P[m.p]?.h];pzToast(holder?holder.name+' has that piece.':'Someone else has that piece.');PZ.needDraw=true;pzPaintStrip();return;}
  if(m.t==='done'){if(m.stats)PZ.stats=m.stats;pzCelebrate(m.by);pzPaintPeople();return;}
  if(m.t==='typing'){if(m.id===meId)return;PZ.typing[m.id]=m.on?Date.now():0;pzPaintPeople();return;}
@@ -7534,7 +7534,7 @@ function renderPuzzleBoard(){
  pzUpdateTimedPreview();
  pzPaintTrays();
  $('#pz-edges').onclick=()=>{PZ.edges=!PZ.edges;$('#pz-edges').setAttribute('aria-pressed',PZ.edges);PZ.needDraw=true;pzToast(PZ.edges?'Edge pieces only — the rest are dimmed':'Showing every piece');};
- $('#pz-tidy').onclick=()=>pzConfirm('Tidy the loose pieces?','Loose pieces and joined groups are arranged around the puzzle. Placed pieces, held groups and sorting trays stay put.','🧹 Tidy up',()=>pzSend({t:'tidy'}));
+ $('#pz-tidy').onclick=()=>pzConfirm('Tidy the loose pieces?','Connected and placed pieces stay put.','🧹 Tidy up',()=>pzSend({t:'tidy'}));
  $('#pz-recall').onclick=()=>pzConfirm('Recall all the loose pieces?','Every piece that isn’t placed yet comes back to the pile around the picture — nothing can stay lost off the edge. Joined pieces stay joined. Everyone at the table sees it.','↩ Recall all',()=>pzSend({t:'recall'}));
  $('#pz-shuffle').onclick=()=>pzConfirm('Shuffle the loose pieces?','Mixes the loose pieces up into a fresh, jumbled spread to make it a little harder. Pieces you’ve already joined stay together. Everyone at the table sees it.','🔀 Shuffle',()=>pzSend({t:'shuffle'}));
  $('#pz-sort').onclick=()=>pzConfirm('Sort loose pieces by color?','Single pieces get grouped by color around the frame — sky with sky, sand with sand. Chunks stay put. Everyone sees it.','🎨 Sort by color',pzSortByColor);
@@ -7563,8 +7563,23 @@ function pzSuspend(){ // step out of the puzzle board but keep the anchor so we 
  PZ.id=null;PZ.data=null;PZ.trays=[];PZ.sprites=null;PZ.base=null;PZ.doneLayer=null;
  window.removeEventListener('resize',pzResize);
 }
-async function puzzleNextGame(){return openOhanaWaitingGames();}
-function pzUpdateNextBtn(){const button=$('#pz-next-game');document.getElementById('pz-turn-notice')?.remove();paintOhanaPlay(button);if(button)button.hidden=false;}
+async function puzzleNextGame(){
+ if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
+ if(PZ.drag||PZ.carry||PZ.strip?.lift!=null){toast('Place your piece first.');return;}
+ const token=S.token,member=String(S.me?.id),room=String(S.room),puzzle=String(PZ.id),game=String(S.game||''),epoch=S.roomEpoch||0,visit=S.gameEntryVisit||0,data=PZ.data;
+ const valid=(expectedRoom=room,expectedEpoch=epoch)=>S.token===token&&String(S.me?.id)===member&&String(S.room)===String(expectedRoom)&&(S.roomEpoch||0)===expectedEpoch&&String(PZ.id)===puzzle&&PZ.data===data&&(S.gameEntryVisit||0)===visit&&String(S.game||'')===game;
+ const holding=()=>!!(PZ.drag||PZ.carry||PZ.strip?.lift!=null);
+ S.nextGamePending=true;pzUpdateNextBtn();
+ try{const latest=await api('/api/sync?msgSince='+S.lastMsg);if(!valid())return;S.sync=latest;S.lastMsg=latest.lastMsg||S.lastMsg;
+  const next=ohanaWaitingGames(latest,Number(member))[0];if(!next){toast('No turns waiting.');return;}
+  const anchor=PZ.id,targetRoom=Number(next.room_id||S.room);if(holding()){toast('Place your piece first.');return;}
+  if(targetRoom!==Number(S.room)){await enterRoom(targetRoom);if(!valid(targetRoom,epoch+1))return;}else if(!valid())return;
+  if(holding()){toast('Place your piece first.');return;}await openGame(next.id);
+  if(anchor&&Number(S.game)===Number(next.id)){S.puzzleAnchor=anchor;try{localStorage.setItem('ohana_pz_anchor',anchor);}catch{}}
+ }catch(e){toast(e.message||'Could not open your next turn.');}
+ finally{S.nextGamePending=false;if(PZ.id)pzUpdateNextBtn();}
+}
+function pzUpdateNextBtn(){const button=$('#pz-next-game');document.getElementById('pz-turn-notice')?.remove();paintOhanaPlay(button,true);if(button){button.classList.add('home-turn-word');button.hidden=false;}}
 function pzWatchTurns(){
  clearInterval(PZ.turnPoll);pzUpdateNextBtn();
  PZ.turnPoll=setInterval(async()=>{
@@ -7670,9 +7685,7 @@ function pzPaintTrays(){if(document.querySelector('.pz-float-tray[data-pinching=
  pzRevealLocatedTrayPiece();
 }
 function pzPutInTray(pc,id){if(!pc||pc.l)return;PZ.carry=null;if(id===0){PZ.drag=null;PZ.strip.lift=null;pzSend({t:'tray-return',p:pc.i});return;}if(pc.tray===id)return;pzSend({t:'tray-add',p:pc.i,id});}
-function pzTakeFromTray(i,x,y){const pc=PZ.data?.pieces[i];if(!pc||!pc.tray)return;const {pw,ph}=PZ.geo;const dx=x-pw/2-pc.x,dy=y-ph/2-pc.y;
- for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;q.tray=null;q.onTable=true;q.h=null;pzRaise(q.i);}
- pzSend({t:'tray-out',p:i,x:Math.round(pc.x),y:Math.round(pc.y)});pzSend({t:'drop',p:i,x:Math.round(pc.x),y:Math.round(pc.y)});PZ.needDraw=true;pzPaintTrays();pzPaintStrip();}
+function pzTakeFromTray(i,x,y){const pc=PZ.data?.pieces[i];if(!pc||!pc.tray)return;pzDeployPieces([i]);}
 function pzBindTrayPiece(btn,i,id){let start=null,ghost=null;
  btn.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pzDeployPieces([i]);}};
  btn.onpointerdown=e=>{e.preventDefault();start={x:e.clientX,y:e.clientY};btn.setPointerCapture(e.pointerId);};
@@ -7684,7 +7697,7 @@ function pzBindTrayPiece(btn,i,id){let start=null,ghost=null;
 }
 
 function pzCanManage(){const room=(S.sync?.rooms||[]).find(r=>r.id===S.room);return room?(room.id===1?!!S.me?.is_admin:room.owner_id===S.me?.id):!!S.me?.is_admin;}
-function pzSettingsDialog(){const rowChoices=[[2,'Short'],[3,'Medium'],[4,'Tall']],zoomChoices=[[1,'7 at a time'],[1.5,'4 at a time'],[2.2,'2 at a time']];pzDialog(`<h3>Customize</h3><div class="setup-field"><div class="pz-dlg-grid pz-tool-grid">${PZ_TOOLS.map(([id,l])=>`<button data-pz-tool="${id}" data-pz-tone="${$('#'+id)?.getAttribute('aria-pressed')==='true'?'mango':'reef'}">${l}</button>`).join('')}</div></div><div class="setup-field"><small>Your colors — just for you, pick whatever's easiest on your eyes</small><label class="pz-topcolor-row"><span>🖼 Background</span><input type="color" id="pz-topcolor" value="${pzBoardHex()}"></label><label class="pz-topcolor-row"><span>🧺 Tray</span><input type="color" id="pz-traycolor" value="${pzTrayHex()}"></label></div><div class="setup-field"><small>Pieces tray</small><button id="pz-tray-loose" data-pz-tone="${PZ.trayHidden?'mango':'reef'}">${PZ.trayHidden?'🫳 Loose on the table':'📦 In a tray'}</button><small>How tall</small><div class="pz-dlg-grid">${rowChoices.map(([n,l])=>`<button data-pz-rows="${n}" data-pz-tone="${(PZ.trayRows||2)===n&&!PZ.trayHidden?'mango':'reef'}">${l}</button>`).join('')}</div><small>Piece size</small><div class="pz-dlg-grid">${zoomChoices.map(([z,l])=>`<button data-pz-zoom="${z}" data-pz-tone="${Math.abs((PZ.trayZoom||1)-z)<0.01?'mango':'reef'}">${l}</button>`).join('')}</div><small>Little sorting trays — move them anywhere on the table</small><button id="pz-tray-add" data-pz-tone="palm"${(PZ.trays||[]).length>=5?' disabled':''}>＋ Add a sorting tray</button></div><div class="setup-field"><small>Sound & buzz</small><button id="pz-quiet" data-pz-tone="${PZ.quiet?'coral':'palm'}">${PZ.quiet?'🔇 Off — tap to turn on':'🔊 On — tap to turn off'}</button></div>${pzCanManage()?`<div class="setup-field"><small>Host</small><button id="pz-recount" data-pz-tone="palm">🧩 Change piece count</button><button id="pz-savealbum" data-pz-tone="mango">💾 Save to family album</button><button id="pz-putaway" data-pz-tone="coral">🗑 Delete this puzzle</button></div>`:''}`,dlg=>{
+function pzSettingsDialog(){const rowChoices=[[2,'Short'],[3,'Medium'],[4,'Tall']],zoomChoices=[[1,'7 at a time'],[1.5,'4 at a time'],[2.2,'2 at a time']];pzDialog(`<h3>Customize</h3><div class="setup-field"><div class="pz-dlg-grid pz-tool-grid">${PZ_TOOLS.map(([id,l])=>`<button data-pz-tool="${id}" data-pz-tone="${$('#'+id)?.getAttribute('aria-pressed')==='true'?'mango':'reef'}">${l}</button>`).join('')}</div></div><div class="setup-field"><small>Your colors — just for you, pick whatever's easiest on your eyes</small><label class="pz-topcolor-row"><span>🖼 Background</span><input type="color" id="pz-topcolor" value="${pzBoardHex()}"></label><label class="pz-topcolor-row"><span>🧺 Tray</span><input type="color" id="pz-traycolor" value="${pzTrayHex()}"></label></div><div class="setup-field"><small>Pieces tray</small><button id="pz-tray-loose" data-pz-tone="${PZ.trayHidden?'mango':'reef'}">${PZ.trayHidden?'🫳 Loose on the table':'📦 In a tray'}</button><small>Piece size</small><div class="pz-dlg-grid">${zoomChoices.map(([z,l])=>`<button data-pz-zoom="${z}" data-pz-tone="${Math.abs((PZ.trayZoom||1)-z)<0.01?'mango':'reef'}">${l}</button>`).join('')}</div><small>Little sorting trays — move them anywhere on the table</small><button id="pz-tray-add" data-pz-tone="palm"${(PZ.trays||[]).length>=5?' disabled':''}>＋ Add a sorting tray</button></div><div class="setup-field"><small>Sound & buzz</small><button id="pz-quiet" data-pz-tone="${PZ.quiet?'coral':'palm'}">${PZ.quiet?'🔇 Off — tap to turn on':'🔊 On — tap to turn off'}</button></div>${pzCanManage()?`<div class="setup-field"><small>Host</small><button id="pz-recount" data-pz-tone="palm">🧩 Change piece count</button><button id="pz-savealbum" data-pz-tone="mango">💾 Save to family album</button><button id="pz-putaway" data-pz-tone="coral">🗑 Delete this puzzle</button></div>`:''}`,dlg=>{
  const rc=dlg.querySelector('#pz-recount');if(rc)rc.onclick=()=>{dlg.close();pzRecountDialog();};
  dlg.querySelectorAll('[data-pz-tool]').forEach(b=>b.onclick=()=>{dlg.close();$('#'+b.dataset.pzTool)?.click();});
  const tc=dlg.querySelector('#pz-topcolor');if(tc){const apply=()=>{PZ.boardColor=tc.value;try{localStorage.setItem('ohana_pz_board',PZ.boardColor);}catch{}PZ.needDraw=true;};tc.oninput=apply;tc.onchange=apply;}
@@ -7692,12 +7705,32 @@ function pzSettingsDialog(){const rowChoices=[[2,'Short'],[3,'Medium'],[4,'Tall'
  const loose=dlg.querySelector('#pz-tray-loose');if(loose)loose.onclick=()=>{pzSetTrayHidden(!PZ.trayHidden);dlg.close();pzSettingsDialog();};
  const ta=dlg.querySelector('#pz-tray-add');if(ta)ta.onclick=()=>{pzSend({t:'tray-create'});dlg.close();};
  dlg.querySelectorAll('[data-pz-rows]').forEach(b=>b.onclick=()=>{PZ.trayRows=+b.dataset.pzRows;try{localStorage.setItem('ohana_pz_tray_rows',PZ.trayRows);}catch{}if(PZ.trayHidden)pzSetTrayHidden(false);else pzResize();dlg.close();pzSettingsDialog();});
- dlg.querySelectorAll('[data-pz-zoom]').forEach(b=>b.onclick=()=>{PZ.trayZoom=+b.dataset.pzZoom;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzPaintStrip();dlg.close();pzSettingsDialog();});
+ dlg.querySelectorAll('[data-pz-zoom]').forEach(b=>b.onclick=()=>{PZ.trayZoom=+b.dataset.pzZoom;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzResize();dlg.close();pzSettingsDialog();});
  dlg.querySelector('#pz-quiet').onclick=()=>{PZ.quiet=!PZ.quiet;try{localStorage.setItem('ohana_pz_quiet',PZ.quiet?'1':'0');}catch{}dlg.close();};
  const sa=dlg.querySelector('#pz-savealbum');if(sa)sa.onclick=async()=>{if(!await ohanaConfirm('Save this puzzle’s picture to the family album? The picture is kept and the table is cleared.'))return;sa.disabled=true;try{await api('/api/puzzle/'+PZ.id+'/album',{});toast('Saved to the album 🌺');closePuzzle();}catch(e){toast(e.message);sa.disabled=false;}};
  const pa=dlg.querySelector('#pz-putaway');if(pa)pa.onclick=async()=>{if(!await ohanaConfirm('Put this puzzle away for everyone? Pieces will not be saved.'))return;try{await api('/api/puzzle/'+PZ.id+'/delete',{});closePuzzle();}catch(e){toast(e.message);}};});}
 function pzPieceColor(i){PZ.colors=PZ.colors||{};if(PZ.colors[i])return PZ.colors[i];const {pw,ph}=PZ.geo;const pc=PZ.data.pieces[i];const x=PZ.base.getContext('2d');const d=x.getImageData(Math.round(pc.c*pw+pw*0.2),Math.round(pc.r*ph+ph*0.2),Math.max(1,Math.round(pw*0.6)),Math.max(1,Math.round(ph*0.6))).data;let r=0,g=0,b=0,n=0;for(let k=0;k<d.length;k+=16){r+=d[k];g+=d[k+1];b+=d[k+2];n++;}r/=n;g/=n;b/=n;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0;const s=mx?(mx-mn)/mx:0;if(mx!==mn){if(mx===r)h=((g-b)/(mx-mn))%6;else if(mx===g)h=(b-r)/(mx-mn)+2;else h=(r-g)/(mx-mn)+4;h=(h*60+360)%360;}return PZ.colors[i]={h,s,l:(mx+mn)/510};}
 function pzSortByColor(){const P=PZ.data.pieces;const sizes={};for(const pc of P)if(!pc.l)sizes[pc.g]=(sizes[pc.g]||0)+1;const singles=P.filter(pc=>!pc.l&&!pc.h&&sizes[pc.g]===1);const key=i=>{const c=pzPieceColor(i);return c.s<0.18?900+c.l*100:Math.round(c.h/30)*100+c.l*50;};const order=singles.map(pc=>pc.i).sort((a,b)=>key(a)-key(b));pzSend({t:'arrange',order});}
+function puzzleTrayDeploymentPlan(data,requestedIds,area=null,holder=0,fromTray=false){
+ const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P)||!Array.isArray(requestedIds))return {moves:[],reason:'not-ready'};
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
+ const groups=new Map();for(const q of P){const g=q.g??q.i;if(!groups.has(g))groups.set(g,[]);groups.get(g).push(q);}
+ const byId=new Map(P.map(q=>[q.i,q])),seen=new Set(),moves=[],activeHold=q=>!!q.h&&Date.now()-(q.ht||0)<=15000;
+ const cx=area&&Number.isFinite(area.x0)&&Number.isFinite(area.x1)?(area.x0+area.x1)/2:meta.w/2,cy=area&&Number.isFinite(area.y0)&&Number.isFinite(area.y1)?(area.y0+area.y1)/2:meta.h/2;
+ for(const i of requestedIds){const pc=byId.get(i);if(!pc)continue;const g=pc.g??pc.i;if(seen.has(g))continue;seen.add(g);const members=groups.get(g);
+  if(members.some(q=>q.l||(activeHold(q)&&!(fromTray&&q.h===holder&&q._pzOriginTrayEntry))||!(q.tray||!q.onTable||q.catalogReady||(q.h&&q._pzOriginTrayEntry&&(!activeHold(q)||fromTray&&q.h===holder)))))continue;
+  const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y})),bounds=offsets.map(o=>puzzlePieceBounds(meta,o.q,o.dx,o.dy));
+  const loX=-Math.min(...bounds.map(b=>b.x0)),hiX=meta.w-Math.max(...bounds.map(b=>b.x1)),loY=-Math.min(...bounds.map(b=>b.y0)),hiY=meta.h-Math.max(...bounds.map(b=>b.y1));if(loX>hiX||loY>hiY)continue;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),x=clamp(cx-pw/2,loX,hiX),y=clamp(cy-ph/2,loY,hiY),spots=[[x,y]];
+  for(let n=1;n<=24;n++){const angle=n*2.399963229728653,step=Math.ceil(n/6);spots.push([clamp(x+Math.cos(angle)*pw*.6*step,loX,hiX),clamp(y+Math.sin(angle)*ph*.6*step,loY,hiY)]);}
+  const tol=Math.min(pw,ph)*.3,safe=spots.filter(([a,b])=>offsets.every(o=>Math.abs(a+o.dx-o.q.c*pw)>=tol||Math.abs(b+o.dy-o.q.r*ph)>=tol));
+  const candidates=safe.length?safe:spots;let best=candidates[0],score=Infinity;
+  for(const spot of candidates){let overlap=0;for(const o of offsets){const b=puzzlePieceBounds(meta,o.q,spot[0]+o.dx,spot[1]+o.dy);for(const q of P)if((q.g??q.i)!==g&&!q.tray&&q.onTable){const z=puzzlePieceBounds(meta,q);if(Math.min(b.x1,z.x1)>Math.max(b.x0,z.x0)&&Math.min(b.y1,z.y1)>Math.max(b.y0,z.y0))overlap++;}}const cost=overlap*pw*ph*4+(spot[0]-x)**2+(spot[1]-y)**2;if(cost<score){score=cost;best=spot;}}
+  for(const o of offsets)moves.push({i:o.q.i,x:best[0]+o.dx,y:best[1]+o.dy});
+ }
+ return {moves,reason:moves.length?'':'none'};
+}
+
 function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null,area=null){
  const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P))return {moves:[],reason:'not-ready'};
  const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
@@ -7747,11 +7780,11 @@ function pzDeployPieces(ids,edgesOnly=false){
  if(!PZ.data||!PZ.id)return;
  if(PZ.drag||PZ.carry||PZ.strip?.lift!=null){pzToast('Finish placing the piece in your hand before deploying pieces.');return;}
  if(PZ.mode==='ws'&&PZ.ws?.readyState!==1){pzToast('The puzzle is reconnecting. Try deployment when it is connected.');return;}
- const visible=edgesOnly||(Array.isArray(ids)&&ids.length===1),area=visible?pzVisiblePuzzleArea():null;
+ const visible=edgesOnly,area=pzVisiblePuzzleArea();
  if(visible&&!area){pzToast('Move the view inside the puzzle boundary, then try again. Your pieces are unchanged.');return;}
- const plan=puzzleInsideDeploymentPlan(PZ.data,edgesOnly,ids,area);
+ const plan=edgesOnly?puzzleInsideDeploymentPlan(PZ.data,true,ids,area):puzzleTrayDeploymentPlan(PZ.data,ids,area);
  if(!plan.moves.length){pzToast(plan.reason==='visible-crowded'||plan.reason==='view-unavailable'?'There is no clear space in the visible puzzle area. Clear a space or zoom out, then try again. Your pieces are unchanged.':plan.reason==='crowded'?'There is not enough open space inside the puzzle to deploy safely. Your pieces are unchanged.':'Only loose, unheld, unjoined pieces can be deployed. Pieces already on the puzzle stay put.');return;}
- pzSend({t:'deploy',edges:edgesOnly,ids:edgesOnly?null:ids,...(visible?{area}: {})});
+ pzSend({t:'deploy',edges:edgesOnly,ids:edgesOnly?null:ids,...(visible?{area}:{inside:true,area})});
 }
 function puzzleEdgeInventory(data,trays=[],view=null,geo=null,order=null,context={}){
  const m=data?.meta,P=data?.pieces;if(!m||!Array.isArray(P))return {expected:0,present:0,locked:0,missing:[],duplicate:[],missingIds:[],edges:[]};
@@ -7833,7 +7866,7 @@ function pzResize(){const cv=$('#pz-canvas');if(!cv)return;const stage=cv.parent
  const room=Math.max(1,st.height-26),cell=pzStripCell();
  const shortLandscape=innerWidth>innerHeight&&innerHeight<=500;
  const trayLimit=shortLandscape?Math.max(44,Math.min(64,room-96)):Infinity;
- const trayH=PZ.trayHidden?0:Math.min(room*.60,(PZ.trayRows||2)*cell+8,trayLimit);
+ const trayH=pzSnugTrayHeight(room);
  const boardH=room-trayH;
  if(grip){grip.textContent='Tray';grip.setAttribute('aria-label',PZ.trayHidden?'Show piece tray':'Hide piece tray');grip.setAttribute('aria-expanded',String(!PZ.trayHidden));grip.style.right='';grip.style.height='';}
  cv.width=Math.round(st.width*dpr);cv.height=Math.round(boardH*dpr);cv.style.width=st.width+'px';cv.style.height=boardH+'px';
@@ -7996,36 +8029,44 @@ function pzStripPieces(){
  return out;
 }
 function pzStripCell(){return PZ_STRIP_CELL*(PZ.trayZoom||1);}
-function pzStripLayout(cv){const cell=pzStripCell()*(PZ.dpr||1),rows=Math.max(1,Math.floor(cv.height/cell));return {cell,rows,top:(cv.height-rows*cell)/2};}
+function pzStripLayout(cv){return {cell:pzStripCell()*(PZ.dpr||1),rows:1,top:0};}
 function pzStripRows(){const cv=$('#pz-strip');return cv?pzStripLayout(cv).rows:1;}
 function pzSetTrayHidden(hide){PZ.trayHidden=!!hide;try{localStorage.setItem('ohana_pz_tray_hidden',PZ.trayHidden?'1':'0');}catch{}PZ.needDraw=true;pzResize();}
+const PZ_STRIP_ALPHA=new WeakMap();
+function pzStripOpaqueBounds(sprite){
+ let b=PZ_STRIP_ALPHA.get(sprite);if(b)return b;
+ try{const data=sprite.getContext('2d').getImageData(0,0,sprite.width,sprite.height).data;let x0=sprite.width,y0=sprite.height,x1=0,y1=0;for(let y=0;y<sprite.height;y++)for(let x=0;x<sprite.width;x++)if(data[(y*sprite.width+x)*4+3]>2){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1);}b=x1>x0?{x0,y0,x1,y1}:{x0:0,y0:0,x1:sprite.width,y1:sprite.height};}catch{b={x0:0,y0:0,x1:sprite.width,y1:sprite.height};}
+ PZ_STRIP_ALPHA.set(sprite,b);return b;
+}
+function pzStripRenderPlans(list,height=Infinity){
+ if(!PZ.geo||!PZ.data||!PZ.sprites)return [];
+ const dpr=PZ.dpr||1,pad=2*dpr,{pw,ph,off}=PZ.geo,sw=pw+2*off,sh=ph+2*off,target=Math.max(1,Math.min((pzStripCell()-8)*dpr,height-pad*2));
+ const groups=new Map();for(const q of PZ.data.pieces)if(!q.l&&!q.tray){if(!groups.has(q.g))groups.set(q.g,[]);groups.get(q.g).push(q);}
+ let cursor=0;return list.map(pc=>{const members=(groups.get(pc.g)||[pc]).map(q=>{const sprite=pzSprite(q.i),a=pzStripOpaqueBounds(sprite);return {q,sprite,x:q.x-pc.x-off,y:q.y-pc.y-off,b:{x0:q.x-pc.x-off+a.x0*sw/sprite.width,y0:q.y-pc.y-off+a.y0*sh/sprite.height,x1:q.x-pc.x-off+a.x1*sw/sprite.width,y1:q.y-pc.y-off+a.y1*sh/sprite.height}};});
+  const b={x0:Math.min(...members.map(m=>m.b.x0)),y0:Math.min(...members.map(m=>m.b.y0)),x1:Math.max(...members.map(m=>m.b.x1)),y1:Math.max(...members.map(m=>m.b.y1))},scale=target/Math.max(1,b.y1-b.y0),width=Math.ceil((b.x1-b.x0)*scale+pad*2),plan={pc,members,b,scale,start:cursor,width,height:target,pad,sw,sh};cursor+=width;return plan;
+ });
+}
+function pzSnugTrayHeight(room){
+ if(PZ.trayHidden)return 0;const short=innerWidth>innerHeight&&innerHeight<=500,limit=short?Math.max(44,Math.min(64,room-96)):Infinity;
+ return Math.min(room*.60,Math.max(44,pzStripCell()-4),limit);
+}
+
 function pzPaintStrip(){
  const cv=$('#pz-strip');if(!cv||!PZ.data||!PZ.sprites)return;
- const dpr=PZ.dpr||1,W=cv.width,H=cv.height,x=cv.getContext('2d');
- const list=PZ.strip.list=pzStripPieces(),trayGroups=new Set(list.map(q=>q.g));PZ.strip.set=new Set(PZ.trayHidden?[]:PZ.data.pieces.filter(q=>trayGroups.has(q.g)).map(q=>q.i));
- const {cell,rows,top}=pzStripLayout(cv),pad=4*dpr;PZ.strip.rows=rows;
- const cols=Math.ceil(list.length/rows),max=Math.max(0,cols*cell-W);
- if(PZ.strip.scroll>max)PZ.strip.scroll=max;if(PZ.strip.scroll<0)PZ.strip.scroll=0;
- x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);
- x.fillStyle=PZ.trayHidden?pzBoardHex():pzTrayHex();x.fillRect(0,0,W,H);
- const {pw,ph,off}=PZ.geo,sw=pw+2*off,sh=ph+2*off;
- const inner=cell-pad*2,sc=Math.min(inner/Math.max(sw,sh),Math.max(0,H-pad*2)/sh);
- const c0=Math.max(0,Math.floor(PZ.strip.scroll/cell)),c1=Math.min(cols-1,Math.ceil((PZ.strip.scroll+W)/cell));
- for(let c=c0;c<=c1;c++)for(let r=0;r<rows;r++){
-  const k=c*rows+r,pc=list[k];if(!pc)continue;const spr=pzSprite(pc.i);if(!spr)continue;
-  x.drawImage(spr,c*cell-PZ.strip.scroll+(cell-sw*sc)/2,top+r*cell+(cell-sh*sc)/2,sw*sc,sh*sc);
- }
+ const dpr=PZ.dpr||1,W=cv.width,H=cv.height,x=cv.getContext('2d'),list=PZ.strip.list=pzStripPieces(),trayGroups=new Set(list.map(q=>q.g));
+ PZ.strip.set=new Set(PZ.trayHidden?[]:PZ.data.pieces.filter(q=>trayGroups.has(q.g)).map(q=>q.i));PZ.strip.rows=1;
+ const plans=PZ.strip.renderPlans=pzStripRenderPlans(list,H),total=plans.length?plans.at(-1).start+plans.at(-1).width:0,max=Math.max(0,total-W);
+ PZ.strip.scroll=Math.max(0,Math.min(max,PZ.strip.scroll||0));x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,W,H);x.fillStyle=PZ.trayHidden?pzBoardHex():pzTrayHex();x.fillRect(0,0,W,H);
+ for(const plan of plans){if(plan.start+plan.width<PZ.strip.scroll||plan.start>PZ.strip.scroll+W)continue;for(const m of plan.members)x.drawImage(m.sprite,plan.start-PZ.strip.scroll+plan.pad+(m.x-plan.b.x0)*plan.scale,plan.pad+(m.y-plan.b.y0)*plan.scale,plan.sw*plan.scale,plan.sh*plan.scale);}
  if(!list.length){x.fillStyle='#ffe9c2';x.font=(13*dpr)+'px Nunito,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('All pieces are on the table',W/2,H/2);x.textAlign='left';x.textBaseline='alphabetic';}
 }
 function pzCanvasPoint(cv,clientX,clientY){const r=cv.getBoundingClientRect();if(!r.width||!r.height)return null;return [(clientX-r.left)*cv.width/r.width,(clientY-r.top)*cv.height/r.height];}
 function pzStripAt(clientX,clientY){
  const cv=$('#pz-strip');if(!cv)return null;const pt=pzCanvasPoint(cv,clientX,clientY);if(!pt||pt[0]<0||pt[0]>=cv.width||pt[1]<0||pt[1]>=cv.height)return null;
- const {cell,rows,top}=pzStripLayout(cv),c=Math.floor((pt[0]+PZ.strip.scroll)/cell),rw=Math.floor((pt[1]-top)/cell);
- if(c<0||rw<0||rw>=rows)return null;
- return PZ.strip.list?.[c*rows+rw]||null;
+ const position=pt[0]+(PZ.strip.scroll||0);return (PZ.strip.renderPlans||[]).find(plan=>position>=plan.start&&position<plan.start+plan.width)?.pc||null;
 }
 function pzBoardPoint(e){const cv=$('#pz-canvas');if(!cv)return null;const pt=pzCanvasPoint(cv,e.clientX,e.clientY);return pt?[(pt[0]-PZ.view.x)/PZ.view.s,(pt[1]-PZ.view.y)/PZ.view.s]:null;}
-function pzTrayLanding(pc){return puzzleInsideDeploymentPlan(PZ.data,false,[pc.i]).moves.map(m=>[m.x,m.y])[0]||null;}
+function pzTrayLanding(pc){return puzzleTrayDeploymentPlan(PZ.data,[pc.i],pzVisiblePuzzleArea()).moves.map(m=>[m.x,m.y])[0]||null;}
 function pzBindStrip(){
  const cv=$('#pz-strip');if(!cv)return;
  let st=null;const ptrs=new Map();let pinch=null;
@@ -8041,7 +8082,7 @@ function pzBindStrip(){
   if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(pinch&&ptrs.size>=2){const p=[...ptrs.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)||1;
    let z=Math.max(1,Math.min(2.2,pinch.z0*(d/pinch.d0)));
-   if(Math.abs(z-(PZ.trayZoom||1))>0.004){PZ.trayZoom=z;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzPaintStrip();}return;}
+   if(Math.abs(z-(PZ.trayZoom||1))>0.004){PZ.trayZoom=z;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzResize();}return;}
   if(!st||st.returning)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
   const lifting=st.pc&&(e.clientY<cv.getBoundingClientRect().top-8||(!st.mode&&dy<-18&&Math.abs(dy)>Math.abs(dx)*1.2));
   if(lifting&&st.mode!=='lift'){pzRememberPickup(st.pc);st.mode='lift';PZ.strip.lift=st.pc.i;PZ.carry=null;
@@ -8059,7 +8100,7 @@ function pzBindStrip(){
   if(!st)return;const s0=st;st=null;
   if(s0.returning){pzPutInTray(s0.returning,0);return;}
   if(s0.mode==='lift'){const pc=PZ.data.pieces[PZ.strip.lift];PZ.strip.lift=null;
-   if(pc){const bp=pzBoardPoint(e),{pw,ph}=PZ.geo;if(bp){const dx=bp[0]-pw/2-pc.x,dy=bp[1]-ph/2-pc.y;for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;}}const tray=pzTrayAt(e.clientX,e.clientY);if(tray!==null)pzPutInTray(pc,tray);else pzReleaseAt(pc);}
+   if(pc){const bp=pzBoardPoint(e),{pw,ph}=PZ.geo;if(bp){const dx=bp[0]-pw/2-pc.x,dy=bp[1]-ph/2-pc.y;for(const q of PZ.data.pieces)if(q.g===pc.g&&!q.l){q.x+=dx;q.y+=dy;}}const tray=pzTrayAt(e.clientX,e.clientY);if(tray!==null)pzPutInTray(pc,tray);else{PZ.carry=null;pzSend({t:'deploy',ids:[pc.i],inside:true,fromTray:true,area:pzVisiblePuzzleArea()});}}
    PZ.needDraw=true;pzPaintStrip();return;}
   if(s0.mode==='scroll'){pzPaintStrip();return;}
   if(s0.pc){
@@ -8067,7 +8108,7 @@ function pzBindStrip(){
   }};
  cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);if(PZ.strip.lift!=null)pzCancelHeldPiece(PZ.strip.lift,true);st=null;if(ptrs.size<2)pinch=null;});
  cv.addEventListener('wheel',e=>{e.preventDefault();
-  if(e.ctrlKey){let z=Math.max(1,Math.min(2.2,(PZ.trayZoom||1)*(1-e.deltaY*0.01)));PZ.trayZoom=z;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzPaintStrip();return;} // trackpad pinch
+  if(e.ctrlKey){let z=Math.max(1,Math.min(2.2,(PZ.trayZoom||1)*(1-e.deltaY*0.01)));PZ.trayZoom=z;try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}pzResize();return;} // trackpad pinch
   PZ.strip.scroll+=(e.deltaX||e.deltaY)*cv.width/cv.getBoundingClientRect().width;pzPaintStrip();},{passive:false});
 }
 function pzRaise(i){PZ.order=PZ.order||PZ.data.pieces.map(p=>p.i);const k=PZ.order.indexOf(i);if(k>=0){PZ.order.splice(k,1);PZ.order.push(i);}}
@@ -8180,22 +8221,28 @@ function puzzleTidyAround(meta,pieces,targets){
  for(const q of pieces){const key=q.g??q.i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(q);}
  const units=[],seen=new Set();
  for(const q of targets){const key=q.g??q.i;if(seen.has(key))continue;seen.add(key);const members=groups.get(key);
-  if(members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
+  if(members.length===1&&members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
  }
  const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
  const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
  // Finish every side of the nearest ring before using the next ring.
- function* slots(){for(let ring=0;;ring++)for(let i=0;i<Math.max(nx,ny);i++)for(let side=0;side<4;side++)if(i<(side%2?ny:nx))yield {ring,i,side};}
+ function* slots(){
+  const xAt=i=>i<0?-gap+i*sx:i>=nx?w+gap+(i-nx)*sx:i*sx;
+  const yAt=i=>i<0?-gap+i*sy:i>=ny?h+gap+(i-ny)*sy:i*sy;
+  for(let ring=0;;ring++){
+   const left=-ring-1,right=nx+ring,top=-ring-1,bottom=ny+ring;
+   for(let x=left;x<=right;x++)yield {x:xAt(x),y:yAt(top)};
+   for(let y=top+1;y<=bottom;y++)yield {x:xAt(right),y:yAt(y)};
+   for(let x=right-1;x>=left;x--)yield {x:xAt(x),y:yAt(bottom)};
+   for(let y=bottom-1;y>top;y--)yield {x:xAt(left),y:yAt(y)};
+  }
+ }
  const iterator=slots();
  for(const members of units){
   const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y}));
   const rects=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy)),initial=rects(0,0);
   const own={x0:Math.min(...initial.map(b=>b.x0)),y0:Math.min(...initial.map(b=>b.y0)),x1:Math.max(...initial.map(b=>b.x1)),y1:Math.max(...initial.map(b=>b.y1))};let x,y,bs;
-  do{const {ring,i,side}=iterator.next().value;
-   if(side===0){x=Math.ceil(i*sx-own.x0);y=Math.floor(-gap-ring*sy-own.y1);}
-   else if(side===1){x=Math.ceil(w+gap+ring*sx-own.x0);y=Math.ceil(i*sy-own.y0);}
-   else if(side===2){x=Math.ceil(i*sx-own.x0);y=Math.ceil(h+gap+ring*sy-own.y0);}
-   else{x=Math.floor(-gap-ring*sx-own.x1);y=Math.ceil(i*sy-own.y0);}
+  do{const slot=iterator.next().value;x=Math.ceil(slot.x-own.x0);y=Math.ceil(slot.y-own.y0);
    bs=rects(x,y);
   }while(bs.some(b=>occupied.some(r=>puzzleExteriorIntersects(meta,b,r))));
   for(const o of offsets){o.q.x=x+o.dx;o.q.y=y+o.dy;o.q.onTable=true;}
@@ -15648,11 +15695,25 @@ async function openExistingSharedPuzzle(){
  if(String(PZ.id)===String(puzzle.id)&&PZ.data)return true;
  await openPuzzle(puzzle.id);return true;
 }
-async function goToNextGame(){return openOhanaWaitingGames();}
+async function goToNextGame(){
+ if(S.nextGamePending||S.autoAdvancePending||S.movePending)return;
+ if(S.placed?.length&&!await ohanaConfirm('Leave your unplayed letters and open your next game?',{cancelLabel:'Stay here',confirmLabel:'Next game'}))return;
+ const current=S.game;S.nextGamePending=true;document.getElementById('next-game')?.setAttribute('disabled','');
+ try{
+  const latest=await api('/api/sync?msgSince='+S.lastMsg);
+  if(S.game!==current)return;
+  const next=nextWaitingGame(latest,current);
+  if(!next){await openExistingSharedPuzzle();return;}
+  const room=next.room_id||latest.roomId||S.room;
+  if(Number(room)!==Number(S.room))await enterRoom(room);
+  await openGame(next.id);
+ }catch(e){toast(e.message||'Could not check your next game. Please try again.');}
+ finally{S.nextGamePending=false;document.getElementById('next-game')?.removeAttribute('disabled');}
+}
 let roomNextPending=false;
 function refreshRoomNextControls(){
  const current=typeof S.game==='object'?S.game?.id:S.game;
- const count=ohanaWaitingGames().length;
+ const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
  for(const button of document.querySelectorAll('[data-room-next]')){
   if(button.dataset.waitingCount!==String(count)){button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');button.title=count?'Another table is ready for you':'No other turns waiting';}
   button.disabled=!!(roomNextPending||S.nextGamePending||S.autoAdvancePending||S.movePending);
@@ -15678,12 +15739,21 @@ function mountRoomDialogNavigation(dialog,back,label){
   return window.ohanaCloseOverlayForNext(dialog);
  });
 }
-function updateNextGameAlert(){refreshRoomNextControls();refreshOhanaPlayControls();paintOhanaPlay(document.getElementById('next-game'));if(PZ.id)pzUpdateNextBtn();}
+function updateNextGameAlert(){
+ refreshRoomNextControls();refreshOhanaPlayControls();if(PZ.id)pzUpdateNextBtn();
+ const button=document.getElementById('next-game');if(!button)return;
+ const current=typeof S.game==='object'?S.game?.id:S.game;
+ const count=(S.sync?.allGames||S.sync?.games||[]).filter(g=>String(g.id)!==String(current)&&g.in_game&&g.status==='playing'&&g.my_turn).length;
+ button.classList.toggle('next-ready',count>0);
+ button.innerHTML=gameControlIcon('next',count);
+ button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');
+ button.title=count?'Another table is ready for you':'No other turns waiting';
+}
 function addNextGameControl(){
  const head=document.getElementById('game-head');if(!head)return;
  let button=document.getElementById('next-game');
  if(!button){button=document.createElement('button');button.type='button';button.id='next-game';button.className='soft';button.textContent='Next game';button.setAttribute('aria-label','Next game waiting for your turn');}
- button.classList.remove('game-replay-word');button.disabled=!!S.nextGamePending;button.onclick=openOhanaWaitingGames;
+ button.classList.remove('game-replay-word');button.disabled=!!S.nextGamePending;button.onclick=goToNextGame;
  const holder=head;
  if(button.parentElement!==holder)holder.append(button);
  document.getElementById('mahjong-next-holder')?.remove();
@@ -16491,9 +16561,17 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
     if(dock.id==='home-controls-dock'){const player=dock.querySelector(':scope > .dock-player');if(player)set(player,{'padding-right':'188px','box-sizing':'border-box'});}
     if(dock.id==='pz-workstation'){
      const tight=typeof matchMedia==='function'&&matchMedia('(orientation:landscape) and (max-height:500px)').matches;
-     const actions=dock.querySelector(':scope > .pz-bottom-actions');if(actions)set(actions,{display:'flex','flex-wrap':'nowrap',width:tight?'calc(100% - 188px)':'100%','min-width':'0',height:'44px','min-height':'44px',gap:'4px','padding-right':'0','box-sizing':'border-box','overflow-x':tight?'auto':'visible'});
+     const actions=dock.querySelector(':scope > .pz-bottom-actions');if(actions){
+      let tools=actions.querySelector(':scope > .pz-other-actions');if(!tools){tools=document.createElement('div');tools.className='pz-other-actions';actions.prepend(tools);}
+      for(const child of Array.from(actions.children))if(child!==tools&&!['pz-next-game','pz-peek-btn'].includes(child.id))tools.append(child);
+      set(actions,{display:'grid','grid-template-columns':'minmax(0,1fr) auto minmax(0,1fr)','grid-template-rows':'44px',width:'100%','min-width':'0',height:'44px','min-height':'44px',gap:'4px','padding-right':'0','box-sizing':'border-box','overflow-x':'visible'});
+      set(tools,{display:'flex','grid-column':'1','grid-row':'1','align-items':'center','justify-self':'start',gap:'4px','min-width':'0','max-width':'100%',height:'44px','overflow-x':'auto','overflow-y':'hidden'});
+      for(const control of tools.querySelectorAll('#pz-qt-gear,#pz-tidy,#pz-tray-grip'))set(control,{width:'44px','min-width':'44px',flex:'0 0 44px',padding:'0'});
+      const play=actions.querySelector('#pz-next-game');if(play)set(play,{'grid-column':'2','grid-row':'1','justify-self':'center',width:'auto','min-width':'80px','max-width':'none',height:'44px','min-height':'44px',padding:'4px 8px',background:'none',border:'0','box-shadow':'none',color:'#85ef38','text-shadow':'0 2px 2px #32180c',font:'700 clamp(24px,4.7vw,34px)/1.2 Fredoka,Nunito,sans-serif','white-space':'nowrap'});
+      const preview=actions.querySelector('#pz-peek-btn');if(preview)set(preview,{'grid-column':'3','grid-row':'1','justify-self':'end',color:'#85ef38',width:'auto','min-width':'44px','min-height':'44px'});
+     }
      const tabs=dock.querySelector('#pz-tray-dock');if(tabs)set(tabs,{display:'flex','flex-wrap':'nowrap',flex:'1 1 0','min-width':'0','overflow-x':'auto','overflow-y':'hidden',height:'44px'});
-     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{width:tight?'calc(100% - 188px)':'100%','max-width':tight?'calc(100% - 188px)':'100%','padding-right':tight?'0':'188px','box-sizing':'border-box','min-height':tight?'72px':'var(--landscape-hub-height,112px)','flex-wrap':tight?'nowrap':'wrap','overflow-x':tight?'auto':'visible','overflow-y':tight?'hidden':'visible','justify-content':tight?'flex-start':'center','align-items':'flex-end','align-content':'flex-end'});
+     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{width:tight?'calc(100% - 188px)':'100%','max-width':tight?'calc(100% - 188px)':'100%','padding-right':tight?'0':'188px','box-sizing':'border-box','min-height':tight?'80px':'var(--landscape-hub-height,112px)','flex-wrap':tight?'nowrap':'wrap','overflow-x':tight?'auto':'visible','overflow-y':tight?'hidden':'visible','justify-content':tight?'flex-start':'center','align-items':'flex-end','align-content':'flex-end'});
     }
     if(dock.id==='gr-workstation')for(const row of dock.querySelectorAll(':scope > .gr-tools,:scope > .gr-answer-actions,:scope > .gr-find-actions'))set(row,{width:'100%',display:'flex','flex-wrap':'wrap','min-height':'44px',gap:'4px'});
     window.ohanaPaintCardinalBowls?.(dock);

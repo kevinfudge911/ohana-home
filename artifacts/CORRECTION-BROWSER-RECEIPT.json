@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-22T14:17:00Z",
+  "environment": "Local fictional fixture at 127.0.0.1:8799; no production forwarding",
+  "productionMutations": 0,
+  "viewports": [
+    {"name":"phone","width":390,"height":844,"playCenter":195,"previewRightInset":4,"previewColor":"rgb(133, 239, 56)","trayMaxZoomHeight":163.198,"screenshot":"corrected-phone-maxzoom.png"},
+    {"name":"tablet","width":768,"height":1024,"playCenter":384,"previewRightInset":4,"previewColor":"rgb(133, 239, 56)","trayMaxZoomHeight":163.198,"screenshot":"corrected-tablet-maxzoom.png"},
+    {"name":"desktop","width":1280,"height":720,"playCenter":640,"previewRightInset":4,"previewColor":"rgb(133, 239, 56)","trayMaxZoomHeight":163.198,"screenshot":"corrected-desktop-maxzoom.png"},
+    {"name":"landscape","width":844,"height":390,"playCenter":422,"previewRightInset":4,"previewColor":"rgb(133, 239, 56)","trayMaxZoomHeight":44,"previewBottom":300,"scoresTop":304,"screenshot":"corrected-landscape-maxzoom.png"}
+  ],
+  "paintReview": "Actual screenshots inspected: painted pieces fill the single row without the previous large empty band or vertical clipping. Landscape caps rendered height to retain a usable board. Play word/count centered; Preview green/right; players/cardinal below without overlap.",
+  "tap": {"beforeTabled":20,"afterTabled":21,"deployedId":20,"placedCount":1,"findRoomWarning":false},
+  "drag": {"beforeTabled":21,"afterTabled":22,"deployedId":21,"from":[80,735],"to":[340,410],"placedCount":1,"findRoomWarning":false},
+  "joinedBeforeAndAfter": [{"i":1,"x":-200,"y":100},{"i":2,"x":-150,"y":100}],
+  "directPlay": {"singleClick":true,"destinationHeading":"Ohana Shuffle Regular Rummy","waitingDialogShown":false,"gameplayMove":false},
+  "tidy": {"eligibleSingles":93,"tabledAfter":96,"joinedCoordinatesUnchanged":true,"placedCount":1,"confirmation":"Connected and placed pieces stay put."},
+  "otherGames": {"actualGame":"Words","viewports":[390,768,1280,844],"shortcut":"original aqua SVG arrow/count in game header top-right","greenPainterClass":false,"desktopAlignment":"right edge of existing centered game header, not full browser width","sourceBaselineEquality":"puzzle-next-direct.cjs verifies unchanged original manual/room navigation functions"},
+  "limits": "Browser fixture uses an in-memory adapter around production planner functions. Actual Durable Object handlers and persistence were separately exercised by tests. This does not claim physical-phone acceptance or real-family gameplay certification."
+}

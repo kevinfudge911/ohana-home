@@ -27,10 +27,10 @@ function clearExterior(meta,P){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.leng
   checks++;cases.push({w,h,pieces:P.length,tidied:targets.length,sides:sideCounts,repeated:3});
  }
  const meta={w:600,h:400,cols:6,rows:4},P=pieces(meta),{r,store,messages}=await room(meta,P);
- r.pieces[0].l=true;r.pieces[0].x=0;r.pieces[0].y=0;r.pieces[1].g=r.pieces[2].g=1;r.pieces[3].tray=5;r.pieces[4].h=2;r.pieces[4].ht=Date.now();
+ r.pieces[0].l=true;r.pieces[0].x=0;r.pieces[0].y=0;r.pieces[1].g=r.pieces[2].g=1;r.pieces[1].x=200;r.pieces[2].x=300;r.pieces[1].y=r.pieces[2].y=200;r.pieces[3].tray=5;r.pieces[4].h=2;r.pieces[4].ht=Date.now();
  const fixed=clone(r.pieces.slice(0,5)),stats=JSON.stringify(r.stats),pairOffset=[r.pieces[2].x-r.pieces[1].x,r.pieces[2].y-r.pieces[1].y];r.handle({id:1,name:'Fixture'}, {t:'tidy'});
- ok(messages.at(-1).t==='tidy'&&messages.at(-1).pieces.length===21,'real DO tidy includes off-table singles and joined loose group');
- ok([0,3,4].every(i=>JSON.stringify(r.pieces[i])===JSON.stringify(fixed[i])),'DO protected state');ok(JSON.stringify(r.stats)===stats,'no Tidy scoring');
+ ok(messages.at(-1).t==='tidy'&&messages.at(-1).pieces.length===19,'real DO tidy includes only off-table unconnected singles');
+ ok([0,1,2,3,4].every(i=>JSON.stringify(r.pieces[i])===JSON.stringify(fixed[i])),'DO joined groups and protected state exact');ok(JSON.stringify(r.stats)===stats,'no Tidy scoring');
  ok(r.pieces[2].g===r.pieces[1].g&&r.pieces[2].x-r.pieces[1].x===pairOffset[0]&&r.pieces[2].y-r.pieces[1].y===pairOffset[1],'Tidy preserves joined group identity and offsets');clearExterior(meta,r.pieces);
  const fresh=await room(store.meta,store.pieces);ok(JSON.stringify(fresh.r.pieces)===JSON.stringify(r.pieces),'restart preserves all positions');
  ok(fresh.r.meta.table.y1>=Math.max(...r.pieces.filter(q=>!q.tray).map(q=>box(meta,q)[3])),'restart derives reachable table extent');
@@ -69,7 +69,7 @@ function clearExterior(meta,P){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.leng
    rr.handle(me,{t:'recall'});event=x.messages.at(-1);ok(event.t==='tidy'&&event.recall&&new Set(event.pieces.map(p=>p[0])).size===n-4,'Recall covers every eligible member exactly once');
    ok([2,3,n-2,n-1].every(i=>JSON.stringify(rr.pieces[i])===JSON.stringify(protectedBefore[i])),'Recall preserves whole held group, placed and sorting tray pieces');
    ok(rr.pieces[1].g===0&&rr.pieces[1].x-rr.pieces[0].x===pw&&rr.pieces[1].y===rr.pieces[0].y,'Recall joined group offsets');clearExterior(m,rr.pieces);
-   rr.handle(me,{t:'tidy'});event=x.messages.at(-1);ok(event.t==='tidy'&&event.pieces.length===n-4,'Tidy covers singles and joined loose group');clearExterior(m,rr.pieces);
+   const beforeTidyGroup=clone(rr.pieces.slice(0,2));rr.handle(me,{t:'tidy'});event=x.messages.at(-1);ok(event.t==='tidy'&&event.pieces.length===n-6,'Tidy covers singles only');ok(JSON.stringify(rr.pieces.slice(0,2))===JSON.stringify(beforeTidyGroup),'Tidy joined absolute coordinates unchanged');clearExterior(m,rr.pieces);
   }
   ok(rr.pieces[3].x-rr.pieces[2].x===heldOffset[0]&&rr.pieces[3].y-rr.pieces[2].y===heldOffset[1],'held partial group never distorted');
   const groupBefore=clone(rr.pieces.slice(0,2));rr.handle(me,{t:'shuffle'});ok(JSON.stringify(rr.pieces.slice(0,2))===JSON.stringify(groupBefore),'Shuffle keeps joined group intact and stationary');clearExterior(m,rr.pieces);
@@ -95,20 +95,21 @@ function clearExterior(meta,P){for(let i=0;i<P.length;i++)for(let j=i+1;j<P.leng
  const clock={server:100000,client:100000},RealDate=Date;
  class ServerDate extends RealDate{static now(){return clock.server;}}
  class ClientDate extends RealDate{static now(){return clock.client;}}
- c.Date=ServerDate;const leasePieces=pieces(meta,4);leasePieces[0].x=800;leasePieces[0].y=800;leasePieces[1].g=0;leasePieces[1].x=900;leasePieces[1].y=800;
+ c.Date=ServerDate;const leasePieces=pieces(meta,4);leasePieces[0].x=800;leasePieces[0].y=800;leasePieces[1].x=900;leasePieces[1].y=800;
  const leaseServer=await room(meta,leasePieces),leaseClientP=clone(leasePieces),leaseClient=vm.createContext({Date:ClientDate,PZ:{data:{meta:clone(meta),pieces:leaseClientP},drag:null,carry:null,strip:{lift:null}},S:{me:{id:1}},puzzleWorkspace:c.puzzleWorkspace,pzPaintStrip:()=>{},pzRaise:()=>{}});
  vm.runInContext(app.slice(app.indexOf('function pzHandle('),app.indexOf('function pzStatus(')),leaseClient);
  const deliver=m=>{leaseClient.message=clone(m);vm.runInContext('pzHandle(message)',leaseClient);};
  leaseServer.r.handle({id:2,name:'Remote fixture'},{t:'grab',p:0});clock.client=clock.server+200;deliver(leaseServer.messages.at(-1));
  ok(leaseClientP[0].h===2&&leaseClientP[0].ht===100200,'remote receipt starts later local clock');
  clock.server=115100;clock.client=115100;ok(clock.client-leaseClientP[0].ht===14900,'client remote lease still appears unexpired');leaseServer.r.handle({id:1,name:'Fixture'},{t:'tidy'});deliver(leaseServer.messages.at(-1));
- ok(leaseServer.r.pieces[0].x!==800||leaseServer.r.pieces[0].y!==800,'server expired hold and tidied group');
+ ok(leaseServer.r.pieces[0].x!==800||leaseServer.r.pieces[0].y!==800,'server expired hold and tidied unconnected single');
  ok(leaseClientP.every((q,i)=>q.x===leaseServer.r.pieces[i].x&&q.y===leaseServer.r.pieces[i].y),'delayed-delivery client immediately matches authoritative coordinates');
  const leaseReconciliation={serverGrabAt:100000,clientReceivedGrabAt:100200,serverTidyAt:115100,clientObservedHoldAge:14900,serverPosition:[leaseServer.r.pieces[0].x,leaseServer.r.pieces[0].y],clientPosition:[leaseClientP[0].x,leaseClientP[0].y],immediateReconciliation:true};
- ok(leaseClientP.slice(0,2).every(q=>q.h===null&&q.ht===null)&&leaseClientP[1].x-leaseClientP[0].x===100,'delayed-delivery group clears lease and retains offsets');
+ ok(leaseClientP[0].h===null&&leaseClientP[0].ht===null,'delayed-delivery single clears expired lease');
  // A currently valid remote lease is omitted by the server, so it is untouched.
  leaseServer.r.handle({id:2,name:'Remote fixture'},{t:'grab',p:2});clock.client=clock.server+200;deliver(leaseServer.messages.at(-1));const validRemote=clone(leaseClientP[2]);clock.server+=1000;clock.client=clock.server;leaseServer.r.handle({id:1,name:'Fixture'},{t:'tidy'});const leaseEvent=leaseServer.messages.at(-1);ok(!leaseEvent.pieces.some(q=>q[0]===2),'server excludes valid remote lease');deliver(leaseEvent);ok(JSON.stringify(leaseClientP[2])===JSON.stringify(validRemote),'client retains valid remote lease omitted from authoritative Tidy');
  // Local pointer/carry/lift state protects a whole group, without a clock guess.
+ leaseClientP[1].g=leaseClientP[0].g;
  for(const mode of ['drag','carry','lift']){leaseClient.PZ.drag=null;leaseClient.PZ.carry=null;leaseClient.PZ.strip.lift=null;if(mode==='lift')leaseClient.PZ.strip.lift=0;else leaseClient.PZ[mode]={p:0};const before=clone(leaseClientP.slice(0,2));deliver({t:'tidy',tabled:true,pieces:[[0,9000,9000],[1,9100,9000]]});ok(JSON.stringify(leaseClientP.slice(0,2))===JSON.stringify(before),'active local '+mode+' preserves entire group');}
  c.Date=RealDate;
  // Exercise the real deferred storage writer, rather than only the synchronous fixture save.

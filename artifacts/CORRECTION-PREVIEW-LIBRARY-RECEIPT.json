@@ -1,0 +1,21 @@
+{
+  "status": "PREVIEWS_SAVED_PRIVATELY",
+  "views": [
+    {
+      "view": "phone",
+      "width": 390,
+      "height": 844,
+      "zoom": 2.2,
+      "mime": "image/png"
+    },
+    {
+      "view": "tablet",
+      "width": 768,
+      "height": 1024,
+      "zoom": 2.2,
+      "mime": "image/png"
+    }
+  ],
+  "state": "fictional",
+  "identifiers": "Private Library identifiers retained outside the publication tree."
+}

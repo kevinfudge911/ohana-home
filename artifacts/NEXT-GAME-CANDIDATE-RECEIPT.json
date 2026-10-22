@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-22T06:13:52.210Z",
-  "checks": 19,
+  "at": "2026-10-22T14:13:04.595Z",
+  "checks": 18,
   "source": "live\\5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html",
   "archivedRootRead": false,
   "fixture": "actual candidate functions in isolated DOM",

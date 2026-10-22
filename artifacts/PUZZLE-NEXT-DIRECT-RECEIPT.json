@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-22T14:10:22.457Z",
+  "status": "PASS",
+  "checks": 24,
+  "openedGameIds": [
+    20
+  ],
+  "hubCalls": 0,
+  "allGameplaySynthetic": true
+}

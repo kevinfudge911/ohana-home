@@ -9903,6 +9903,26 @@ __name2(puzzleEdges, "puzzleEdges");
 __name22(puzzleEdges, "puzzleEdges");
 __name222(puzzleEdges, "puzzleEdges");
 __name2222(puzzleEdges, "puzzleEdges");
+function puzzleTrayDeploymentPlan(data,requestedIds,area=null,holder=0,fromTray=false){
+ const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P)||!Array.isArray(requestedIds))return {moves:[],reason:'not-ready'};
+ const pw=meta.w/meta.cols,ph=meta.h/meta.rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
+ const groups=new Map();for(const q of P){const g=q.g??q.i;if(!groups.has(g))groups.set(g,[]);groups.get(g).push(q);}
+ const byId=new Map(P.map(q=>[q.i,q])),seen=new Set(),moves=[],activeHold=q=>!!q.h&&Date.now()-(q.ht||0)<=15000;
+ const cx=area&&Number.isFinite(area.x0)&&Number.isFinite(area.x1)?(area.x0+area.x1)/2:meta.w/2,cy=area&&Number.isFinite(area.y0)&&Number.isFinite(area.y1)?(area.y0+area.y1)/2:meta.h/2;
+ for(const i of requestedIds){const pc=byId.get(i);if(!pc)continue;const g=pc.g??pc.i;if(seen.has(g))continue;seen.add(g);const members=groups.get(g);
+  if(members.some(q=>q.l||(activeHold(q)&&!(fromTray&&q.h===holder&&q._pzOriginTrayEntry))||!(q.tray||!q.onTable||q.catalogReady||(q.h&&q._pzOriginTrayEntry&&(!activeHold(q)||fromTray&&q.h===holder)))))continue;
+  const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y})),bounds=offsets.map(o=>puzzlePieceBounds(meta,o.q,o.dx,o.dy));
+  const loX=-Math.min(...bounds.map(b=>b.x0)),hiX=meta.w-Math.max(...bounds.map(b=>b.x1)),loY=-Math.min(...bounds.map(b=>b.y0)),hiY=meta.h-Math.max(...bounds.map(b=>b.y1));if(loX>hiX||loY>hiY)continue;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),x=clamp(cx-pw/2,loX,hiX),y=clamp(cy-ph/2,loY,hiY),spots=[[x,y]];
+  for(let n=1;n<=24;n++){const angle=n*2.399963229728653,step=Math.ceil(n/6);spots.push([clamp(x+Math.cos(angle)*pw*.6*step,loX,hiX),clamp(y+Math.sin(angle)*ph*.6*step,loY,hiY)]);}
+  const tol=Math.min(pw,ph)*.3,safe=spots.filter(([a,b])=>offsets.every(o=>Math.abs(a+o.dx-o.q.c*pw)>=tol||Math.abs(b+o.dy-o.q.r*ph)>=tol));
+  const candidates=safe.length?safe:spots;let best=candidates[0],score=Infinity;
+  for(const spot of candidates){let overlap=0;for(const o of offsets){const b=puzzlePieceBounds(meta,o.q,spot[0]+o.dx,spot[1]+o.dy);for(const q of P)if((q.g??q.i)!==g&&!q.tray&&q.onTable){const z=puzzlePieceBounds(meta,q);if(Math.min(b.x1,z.x1)>Math.max(b.x0,z.x0)&&Math.min(b.y1,z.y1)>Math.max(b.y0,z.y0))overlap++;}}const cost=overlap*pw*ph*4+(spot[0]-x)**2+(spot[1]-y)**2;if(cost<score){score=cost;best=spot;}}
+  for(const o of offsets)moves.push({i:o.q.i,x:best[0]+o.dx,y:best[1]+o.dy});
+ }
+ return {moves,reason:moves.length?'':'none'};
+}
+
 function puzzleInsideDeploymentPlan(data,edgesOnly=true,requestedIds=null,area=null){
  const meta=data?.meta,P=data?.pieces;if(!meta||!Array.isArray(P))return {moves:[],reason:'not-ready'};
  const {w,h,cols,rows}=meta,pw=w/cols,ph=h/rows;if(!(pw>0&&ph>0))return {moves:[],reason:'not-ready'};
@@ -10024,22 +10044,28 @@ function puzzleTidyAround(meta,pieces,targets){
  for(const q of pieces){const key=q.g??q.i;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(q);}
  const units=[],seen=new Set();
  for(const q of targets){const key=q.g??q.i;if(seen.has(key))continue;seen.add(key);const members=groups.get(key);
-  if(members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
+  if(members.length===1&&members.every(p=>requested.has(p.i)&&!p.l&&!p.h&&!p.tray))units.push(members);
  }
  const ids=new Set(units.flatMap(u=>u.map(q=>q.i))),occupied=pieces.filter(q=>!q.tray&&!ids.has(q.i)).map(q=>puzzlePieceBounds(meta,q));
  const nx=Math.max(1,Math.floor(w/sx)),ny=Math.max(1,Math.floor(h/sy));
  // Finish every side of the nearest ring before using the next ring.
- function* slots(){for(let ring=0;;ring++)for(let i=0;i<Math.max(nx,ny);i++)for(let side=0;side<4;side++)if(i<(side%2?ny:nx))yield {ring,i,side};}
+ function* slots(){
+  const xAt=i=>i<0?-gap+i*sx:i>=nx?w+gap+(i-nx)*sx:i*sx;
+  const yAt=i=>i<0?-gap+i*sy:i>=ny?h+gap+(i-ny)*sy:i*sy;
+  for(let ring=0;;ring++){
+   const left=-ring-1,right=nx+ring,top=-ring-1,bottom=ny+ring;
+   for(let x=left;x<=right;x++)yield {x:xAt(x),y:yAt(top)};
+   for(let y=top+1;y<=bottom;y++)yield {x:xAt(right),y:yAt(y)};
+   for(let x=right-1;x>=left;x--)yield {x:xAt(x),y:yAt(bottom)};
+   for(let y=bottom-1;y>top;y--)yield {x:xAt(left),y:yAt(y)};
+  }
+ }
  const iterator=slots();
  for(const members of units){
   const base=members[0],offsets=members.map(q=>({q,dx:q.x-base.x,dy:q.y-base.y}));
   const rects=(x,y)=>offsets.map(o=>puzzlePieceBounds(meta,o.q,x+o.dx,y+o.dy)),initial=rects(0,0);
   const own={x0:Math.min(...initial.map(b=>b.x0)),y0:Math.min(...initial.map(b=>b.y0)),x1:Math.max(...initial.map(b=>b.x1)),y1:Math.max(...initial.map(b=>b.y1))};let x,y,bs;
-  do{const {ring,i,side}=iterator.next().value;
-   if(side===0){x=Math.ceil(i*sx-own.x0);y=Math.floor(-gap-ring*sy-own.y1);}
-   else if(side===1){x=Math.ceil(w+gap+ring*sx-own.x0);y=Math.ceil(i*sy-own.y0);}
-   else if(side===2){x=Math.ceil(i*sx-own.x0);y=Math.ceil(h+gap+ring*sy-own.y0);}
-   else{x=Math.floor(-gap-ring*sx-own.x1);y=Math.ceil(i*sy-own.y0);}
+  do{const slot=iterator.next().value;x=Math.ceil(slot.x-own.x0);y=Math.ceil(slot.y-own.y0);
    bs=rects(x,y);
   }while(bs.some(b=>occupied.some(r=>puzzleExteriorIntersects(meta,b,r))));
   for(const o of offsets){o.q.x=x+o.dx;o.q.y=y+o.dy;o.q.onTable=true;}
@@ -10273,12 +10299,12 @@ var PuzzleRoom = class {
     if (m.t === "deploy") {
       const ids=Array.isArray(m.ids)?m.ids.filter(Number.isInteger):null;
       if(m.edges!==true&&!ids?.length)return null;
-      const hasArea=(m.edges===true||ids?.length===1)&&Object.prototype.hasOwnProperty.call(m,"area");
+      const hasArea=m.edges===true&&Object.prototype.hasOwnProperty.call(m,"area");
       if(hasArea&&(!m.area||typeof m.area!=="object"||Array.isArray(m.area)))return {t:"tray-deny",text:"The visible puzzle area is unavailable. Try again without moving any pieces."};
       const area=hasArea?m.area:null;
-      const plan=puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},m.edges===true,ids,area);
+      const plan=m.edges===true?puzzleInsideDeploymentPlan({meta:this.meta,pieces:P},true,ids,area):puzzleTrayDeploymentPlan({meta:this.meta,pieces:P},ids,m.area,me.id,m.fromTray===true);
       if(!plan.moves.length)return {t:"tray-deny",text:plan.reason==="visible-crowded"||plan.reason==="view-unavailable"?"There is no clear space in the visible puzzle area. Clear a space or zoom out, then try again. Your pieces are unchanged.":plan.reason==="crowded"?"There is not enough open space inside the puzzle to deploy safely. Your pieces are unchanged.":"No eligible loose pieces are available. Placed, held and joined pieces stay put."};
-      for(const move of plan.moves){const q=P[move.i];q.x=move.x;q.y=move.y;q.tray=null;q.onTable=true;q.catalogReady=false;q.h=null;q.ht=null;}
+      for(const move of plan.moves){const q=P[move.i];q.x=move.x;q.y=move.y;q.tray=null;q.onTable=true;q.catalogReady=false;q.h=null;q.ht=null;delete q._pzOriginTrayEntry;}
       this.scheduleSave();
       this.broadcast({t:"tray-piece",ids:plan.moves.map(q=>q.i),tray:null,pieces:plan.moves.map(q=>[q.i,q.x,q.y]),deployed:true,edges:m.edges===true,by:me.id});
       return null;
@@ -10368,7 +10394,7 @@ var PuzzleRoom = class {
       const members = group4(pc.g);
       if (members.some(heldByOther)) return deny(pc);
       for (const q of members) {
-        if(q.h!==me.id){q._pzOriginX=q.x;q._pzOriginY=q.y;}
+        if(q.h!==me.id){q._pzOriginX=q.x;q._pzOriginY=q.y;q._pzOriginTrayEntry=!q.onTable||!!q.catalogReady;}
         q.h = me.id;
         q.ht = now2;
         q.catalogReady = false;
@@ -10487,7 +10513,8 @@ var PuzzleRoom = class {
         pc.ht = null;
       }
       const protectedGroups=new Set(P.filter(pc=>pc.l||pc.h||pc.tray).map(pc=>pc.g));
-      const loose = P.filter(pc=>!protectedGroups.has(pc.g));
+      const sizes=new Map();for(const q of P)sizes.set(q.g,(sizes.get(q.g)||0)+1);
+      const loose = P.filter(pc=>!protectedGroups.has(pc.g)&&sizes.get(pc.g)===1);
       // Mix before laying out: array/solution index must never reveal the picture.
       for(let i=loose.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[loose[i],loose[j]]=[loose[j],loose[i]];}
       puzzleTidyAround(this.meta,P,loose);
