@@ -1,0 +1,4 @@
+// Keep actual navigation/race assertions intact; the combined inverse verifies source preservation on this newer base.
+require('./media-integration-preservation.cjs');
+const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path'),Module=require('node:module');
+let source=fs.readFileSync('tests/direct-play-routing.cjs','utf8');const from=source.indexOf(' // Source-preservation evidence:'),to=source.indexOf(' let n=0;',from);assert(from>0&&to>from);source=source.slice(0,from)+source.slice(to);source=source.replace("fs.mkdirSync('artifacts/direct-play',{recursive:true});fs.writeFileSync('artifacts/direct-play/tests.json',JSON.stringify(receipt,null,2));",'');const m=new Module(path.resolve('tests/direct-play-routing.cjs'),module);m.filename=path.resolve('tests/direct-play-routing.cjs');m.paths=module.paths;m._compile(source,m.filename);

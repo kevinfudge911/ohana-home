@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "baseline": "3e7fe6e98aa7da0133af0e61a150cd6cf52f36fb",
+  "wholeAppInverse": true,
+  "wholeWorkerInverse": true,
+  "reviewedMediaSourcesExact": true,
+  "gzipExact": true,
+  "scripts": 32,
+  "realDataWrites": 0
+}

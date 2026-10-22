@@ -1,3 +1,4 @@
+import { handleAnnouncementMedia } from "./ohana-announcement-media.js";
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
 import { shuffleMode, shuffleInit, shuffleMove, shuffleView, chooseShuffleBotMove } from "./shuffle-engine.js";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
@@ -11458,9 +11459,8 @@ __name2222(prayerApi, "prayerApi");
 __name22222(prayerApi, "prayerApi");
 // Private megaphone responses. Author identity and original recipients are persisted.
 function ohanaAnnouncementImages(images){
- if(images==null)return [];if(!Array.isArray(images)||images.length>2)throw Error('Choose up to two announcement pictures.');
- const allowed=new Set(['/ohana-announcement-menu-hide-v1.jpg']),out=[];
- for(const image of images){if(!image||typeof image.src!=='string'||!allowed.has(image.src)||image.alt!=null&&typeof image.alt!=='string')throw Error('Choose an available announcement picture.');if(!out.some(x=>x.src===image.src))out.push({src:image.src,alt:String(image.alt||'Ohana Menu controls').trim().slice(0,160)});}return out;
+ if(images==null)return [];if(!Array.isArray(images)||images.length>2)throw Error('Choose up to two announcement pictures/videos.');
+ const out=[];for(const image of images){const builtin=image?.src==='/ohana-announcement-menu-hide-v1.jpg',privateMedia=/^\/api\/announce-media\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(image?.src||'');if(!image||(!builtin&&!privateMedia)||image.alt!=null&&typeof image.alt!=='string'||privateMedia&&!['image/jpeg','video/mp4','video/webm'].includes(image.mime))throw Error('Choose an available announcement picture/video.');if(!out.some(x=>x.src===image.src))out.push({src:image.src,alt:String(image.alt||'Ohana announcement').trim().slice(0,160),...(privateMedia?{mime:image.mime}:{})});}return out;
 }
 async function ensureOhanaAnnouncementSchema(db){
  await db.batch([
@@ -11473,7 +11473,7 @@ async function ensureOhanaAnnouncementSchema(db){
 async function ohanaAnnouncementRoomAccess(db,roomId,memberId){return !!await db.prepare("SELECT r.id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE r.id=? AND rm.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(roomId,memberId).first();}
 async function createOhanaAnnouncement(db,me,roomId,text,media){
  if(!await ohanaAnnouncementRoomAccess(db,roomId,me.id))throw Error('This room is no longer available.');
- const images=ohanaAnnouncementImages(media);await ensureOhanaAnnouncementSchema(db);const createdAt=now();
+ const images=ohanaAnnouncementImages(media);if(images.some(i=>i.src.startsWith('/api/')))throw Error('Use the photo/video composer to send uploaded media.');await ensureOhanaAnnouncementSchema(db);const createdAt=now();
  const inserted=await db.prepare("INSERT INTO megaphone_announcements(id,room_id,author_id,text,name,avatar,created_at) SELECT MAX(?,COALESCE((SELECT MAX(id) FROM megaphone_announcements),0)+1),?,?,?,?,?,?").bind(createdAt,roomId,me.id,text,String(me.name||''),String(me.avatar||''),createdAt).run();
  const id=Number(inserted.meta.last_row_id);
  if(!Number.isSafeInteger(id)||id<=0)throw Error('The announcement was not saved. Please try again.');
@@ -11550,7 +11550,7 @@ async function ohanaCreateReplay(db,env,me,g,players,names){
 async function api2(req, env222222, url) {
   const db = env222222.DB;
   const p = url.pathname;
-  const body = req.method === "POST" && p!=="/api/music/upload" ? await req.json().catch(() => ({})) : {};
+  const body = req.method === "POST" && p!=="/api/music/upload" && !p.startsWith("/api/announce-media/") ? await req.json().catch(() => ({})) : {};
   if (p === "/api/ai-chat") {
     const conv = "ohana-ai-chat";
     const AI_CODES = { "CLAUDE-KTAMA3L5TCW6": "claude", "ANTIGRAV-P7OY4JFRL936": "antigravity", "CHATGPT-9IS145SNOYKZ": "chatgpt" };
@@ -11773,6 +11773,7 @@ async function api2(req, env222222, url) {
   if (!activeRoom) return err("You do not belong to this room. Open Rooms or use a room invitation.", 403);
   const roomId = activeRoom.id;
   const canManageRoom = /* @__PURE__ */ __name22222(() => roomId === 1 ? !!me.is_admin : activeRoom.owner_id === me.id, "canManageRoom");
+  if(p.startsWith('/api/announce-media/'))return handleAnnouncementMedia(req,{db,me,room:roomId,roomAccess:ohanaAnnouncementRoomAccess,normalize:ohanaAnnouncementImages,ensureSchema:ensureOhanaAnnouncementSchema});
   if(p==='/api/music/upload')return handleMusicUpload(req,{db,me,room:roomId,bucket:env222222.MUSIC_FILES,ensureMusicSchema:ensureOhanaMusicSchema,audience:ohanaMusicAudience,track:ohanaMusicTrack,text:ohanaMusicText,requestId:ohanaMusicRequestId});
   const musicPlayback=p.match(/^\/api\/music\/tracks\/(m_[a-f0-9-]+)\/playback$/);
   if(musicPlayback)return createMusicPlaybackTicket(req,{db,me,room:roomId,bucket:env222222.MUSIC_FILES,id:musicPlayback[1],readable:ohanaMusicReadable});
@@ -12428,7 +12429,12 @@ const rooms=(await db.prepare("SELECT r.id,r.name,r.owner_id FROM rooms r JOIN r
   const cols=(await db.prepare('PRAGMA table_info(ohana_memories)').all()).results;
   if(!cols.some(c=>c.name==='album_id')){try{await db.prepare("ALTER TABLE ohana_memories ADD COLUMN album_id TEXT NOT NULL DEFAULT '0'").run();}catch(e){const check=(await db.prepare('PRAGMA table_info(ohana_memories)').all()).results;if(!check.some(c=>c.name==='album_id'))throw e;}}
   const validAlbum=async id=>id==='0'||!!(await db.prepare('SELECT id FROM ohana_memory_albums WHERE id=? AND room_id=?').bind(id,room).first());
+  await db.prepare('CREATE TABLE IF NOT EXISTS ohana_memory_video_parts(memory_id TEXT NOT NULL,part INTEGER NOT NULL,data BLOB NOT NULL,PRIMARY KEY(memory_id,part))').run();
   const path=url.pathname;
+  if(path==='/api/memories/frames'&&req.method==='GET'){
+    const photos=(await db.prepare("SELECT id,caption FROM ohana_memories WHERE room_id=? AND hidden=0 AND mime='image/jpeg' ORDER BY created_at DESC,id DESC LIMIT 6").bind(room).all()).results;
+    return reply({photos:photos.map(p=>({...p,image_url:'/api/memories/photo/'+p.id+'?thumbnail=1'}))});
+  }
   const feedback=await ohanaPhotoFeedbackApi(req,env,url,me,room,reply);if(feedback)return feedback;
   if(path==='/api/memories/family-original'&&req.method==='GET'){
     const original=APP_HTML.match(/const GR_FAMILY_MEMORY=['"]data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)/);
@@ -12441,7 +12447,7 @@ const rooms=(await db.prepare("SELECT r.id,r.name,r.owner_id FROM rooms r JOIN r
     await ensureJourneyMemories(db);
     const album=url.searchParams.get('album');
     if(album&&!await validAlbum(album))return reply({error:'This album is not in your family room.'},404);
-    const uploaded=(await db.prepare('SELECT p.id,p.member_id,p.caption,p.created_at,p.album_id,m.name AS author FROM ohana_memories p JOIN members m ON m.id=p.member_id WHERE p.room_id=? AND p.hidden=0'+(album?' AND p.album_id=?':'')+' ORDER BY p.created_at DESC LIMIT 1000').bind(...(album?[room,album]:[room])).all()).results;
+    const uploaded=(await db.prepare('SELECT p.id,p.member_id,p.caption,p.created_at,p.album_id,p.mime,m.name AS author FROM ohana_memories p JOIN members m ON m.id=p.member_id WHERE p.room_id=? AND p.hidden=0'+(album?' AND p.album_id=?':'')+' ORDER BY p.created_at DESC LIMIT 1000').bind(...(album?[room,album]:[room])).all()).results;
     let photos=uploaded.map(p=>({...p,image_url:'/api/memories/photo/'+p.id,thumbnail_url:'/api/memories/photo/'+p.id+'?thumbnail=1'}));
     if(!album){
       const journeys=(await db.prepare("SELECT puzzle_id,name,finished_at FROM ohana_journey_memories WHERE room_id=? AND image LIKE 'data:image/%' ORDER BY finished_at DESC LIMIT 1000").bind(room).all()).results;
@@ -12489,22 +12495,28 @@ const rooms=(await db.prepare("SELECT r.id,r.name,r.owner_id FROM rooms r JOIN r
     const album=url.searchParams.get('album');if(album!==null&&!await validAlbum(album))return reply({error:'This album is not in your family room.'},404);
     const filter=album!==null?' AND p.album_id=?':'';
     const args=album!==null?[room,album,before,before,beforeId]:[room,before,before,beforeId];
-    const photos=(await db.prepare('SELECT p.id,p.room_id,p.member_id,p.caption,p.created_at,p.album_id,a.name AS album_name,m.name AS author FROM ohana_memories p JOIN members m ON m.id=p.member_id LEFT JOIN ohana_memory_albums a ON a.id=p.album_id AND a.room_id=p.room_id WHERE p.room_id=? AND p.hidden=0'+filter+' AND (p.created_at<? OR (p.created_at=? AND p.id<?)) ORDER BY p.created_at DESC,p.id DESC LIMIT 31').bind(...args).all()).results;
+    const photos=(await db.prepare('SELECT p.id,p.room_id,p.member_id,p.caption,p.created_at,p.album_id,p.mime,a.name AS album_name,m.name AS author FROM ohana_memories p JOIN members m ON m.id=p.member_id LEFT JOIN ohana_memory_albums a ON a.id=p.album_id AND a.room_id=p.room_id WHERE p.room_id=? AND p.hidden=0'+filter+' AND (p.created_at<? OR (p.created_at=? AND p.id<?)) ORDER BY p.created_at DESC,p.id DESC LIMIT 31').bind(...args).all()).results;
     const more=photos.length>30;if(more)photos.pop();return reply({photos,more});
   }
   if(path==='/api/memories' && req.method==='POST'){
-    if(Number(req.headers.get('content-length'))>1100000)return reply({error:'This picture is too large. Choose it again so Ohana can resize it.'},413);
-    const form=await req.formData();const image=form.get('photo'),thumb=form.get('thumbnail');
-    const id=String(form.get('id')||'');
-    const album=String(form.get('album')||'0');if(!await validAlbum(album))return reply({error:'Choose an album in this family room.'},400);
-    if(!/^[a-f0-9-]{36}$/.test(id)||!image?.arrayBuffer||!thumb?.arrayBuffer)return reply({error:'Choose a picture to share.'},400);
-    if(image.size<4||image.size>900000||thumb.size<4||thumb.size>100000)return reply({error:'This picture is too large. Choose it again so Ohana can resize it.'},413);
-    const data=await image.arrayBuffer(),small=await thumb.arrayBuffer();
+    const limit=20*1024*1024;
+    if(Number(req.headers.get('content-length'))>limit+200000)return reply({error:'Choose a video up to 20 MB or a photo Ohana can resize.'},413);
+    const form=await req.formData(),image=form.get('photo'),thumb=form.get('thumbnail');
+    const id=String(form.get('id')||''),album=String(form.get('album')||'0');
+    if(!await validAlbum(album))return reply({error:'Choose an album in this family room.'},400);
+    if(!/^[a-f0-9-]{36}$/.test(id)||!image?.arrayBuffer||!thumb?.arrayBuffer)return reply({error:'Choose a photo or video to share.'},400);
+    const video=['video/mp4','video/webm'].includes(image.type),mime=video?image.type:'image/jpeg';
+    if(image.size<4||image.size>(video?limit:900000)||thumb.size<4||thumb.size>100000)return reply({error:'Videos must be up to 20 MB. Choose the photo again to resize it.'},413);
+    const data=await image.arrayBuffer(),small=await thumb.arrayBuffer(),bytes=new Uint8Array(data);
     const jpeg=b=>{const a=new Uint8Array(b);return a[0]===255&&a[1]===216&&a[a.length-2]===255&&a[a.length-1]===217;};
-    if(!jpeg(data)||!jpeg(small))return reply({error:'Please choose a supported photo.'},400);
+    const supported=video?(mime==='video/mp4'?bytes.length>=12&&String.fromCharCode(...bytes.slice(4,8))==='ftyp':bytes[0]===26&&bytes[1]===69&&bytes[2]===223&&bytes[3]===163):jpeg(data);
+    if(!supported||!jpeg(small))return reply({error:'Choose a JPG photo or a supported MP4/WebM video.'},400);
     const old=await db.prepare('SELECT room_id,member_id FROM ohana_memories WHERE id=?').bind(id).first();
-    if(old)return old.room_id===room&&old.member_id===me.id?reply({id,saved:true}):reply({error:'Please choose this photo again.'},409);
-    await db.prepare('INSERT INTO ohana_memories(id,room_id,member_id,caption,created_at,mime,data,thumbnail,album_id) VALUES(?,?,?,?,?,?,?,?,?)').bind(id,room,me.id,String(form.get('caption')||'').trim().slice(0,500),Date.now(),'image/jpeg',data,small,album).run();
+    if(old)return old.room_id===room&&old.member_id===me.id?reply({id,saved:true}):reply({error:'Please choose this memory again.'},409);
+    const statements=[db.prepare('INSERT INTO ohana_memories(id,room_id,member_id,caption,created_at,mime,data,thumbnail,album_id) VALUES(?,?,?,?,?,?,?,?,?)').bind(id,room,me.id,String(form.get('caption')||'').trim().slice(0,500),Date.now(),mime,video?new Uint8Array([0]):data,small,album)];
+    // Keep each D1 row below its size limit. Batch is atomic, including the metadata row.
+    if(video)for(let offset=0,part=0;offset<bytes.length;offset+=1024*1024,part++)statements.push(db.prepare('INSERT INTO ohana_memory_video_parts(memory_id,part,data) VALUES(?,?,?)').bind(id,part,bytes.slice(offset,offset+1024*1024)));
+    await db.batch(statements);
     return reply({id,saved:true},201);
   }
   const move=path.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})\/album$/);
@@ -12517,10 +12529,20 @@ const rooms=(await db.prepare("SELECT r.id,r.name,r.owner_id FROM rooms r JOIN r
   }
   const media=path.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})$/);
   if(media&&req.method==='GET'){
-    const column=url.searchParams.has('thumbnail')?'thumbnail':'data';
+    const thumbnail=url.searchParams.has('thumbnail'),column=thumbnail?'thumbnail':'data';
     const photo=await db.prepare('SELECT '+column+' AS bytes,mime FROM ohana_memories WHERE id=? AND room_id=? AND hidden=0').bind(media[1],room).first();
-    if(!photo)return reply({error:'This photo is not in your album.'},404);
-    return new Response(new Uint8Array(photo.bytes),{headers:{...headers,'content-type':photo.mime}});
+    if(!photo)return reply({error:'This memory is not in your album.'},404);
+    let bytes=new Uint8Array(photo.bytes);
+    if(!thumbnail&&photo.mime.startsWith('video/')){
+      // Read parts individually: a D1 result row never contains the entire video.
+      const count=await db.prepare('SELECT COUNT(*) AS n FROM ohana_memory_video_parts WHERE memory_id=?').bind(media[1]).first();
+      const parts=[];let length=0;
+      if(!count.n||count.n>20)return reply({error:'This video is temporarily unavailable.'},404);
+      for(let part=0;part<count.n;part++){const row=await db.prepare('SELECT data FROM ohana_memory_video_parts WHERE memory_id=? AND part=?').bind(media[1],part).first();if(!row)return reply({error:'This video is temporarily unavailable.'},404);const data=new Uint8Array(row.data);parts.push(data);length+=data.length;}
+      bytes=new Uint8Array(length);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}
+    }
+    const type=thumbnail?'image/jpeg':photo.mime;
+    return new Response(bytes,{headers:{...headers,'content-type':type,'content-length':String(bytes.length)}});
   }
   const hide=path.match(/^\/api\/memories\/photo\/([a-f0-9-]{36})\/hide$/);
   if(hide&&req.method==='POST'){

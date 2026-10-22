@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "baseline": "3e7fe6e98aa7da0133af0e61a150cd6cf52f36fb",
+  "reviewedPatchSha256": [
+    "d0d7a76fa751436bd406b0a9646372b770d20ee185dea473f7fd9d488ca62258",
+    "75bbf096453865bde806ba68162c80fbb05a23a26bdce6c63bbbd5da09a365f8"
+  ],
+  "configuredAppWorkerMemoriesAndModuleExact": true,
+  "additionalRuntimeEdits": 0,
+  "realDataWrites": 0
+}

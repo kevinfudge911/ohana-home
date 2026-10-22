@@ -1,0 +1,389 @@
+{
+  "passed": true,
+  "appSha256": "0f28904e3439c310c241525aa22e0c5e3959e08a6fe87988f275cf7e6c632d3a",
+  "memories": {
+    "scope": "actual candidate handlers, generated media and local in-memory SQLite only",
+    "security": [
+      {
+        "label": "no bearer ",
+        "status": 401
+      },
+      {
+        "label": "invalid bearer ",
+        "status": 401
+      },
+      {
+        "label": "outside room ",
+        "status": 403
+      },
+      {
+        "label": "guess from other room ",
+        "status": 404
+      },
+      {
+        "label": "no bearer ?thumbnail=1",
+        "status": 401
+      },
+      {
+        "label": "invalid bearer ?thumbnail=1",
+        "status": 401
+      },
+      {
+        "label": "outside room ?thumbnail=1",
+        "status": 403
+      },
+      {
+        "label": "guess from other room ?thumbnail=1",
+        "status": 404
+      },
+      {
+        "label": "guest cannot move upload",
+        "status": 403
+      },
+      {
+        "label": "uploader can move own upload",
+        "status": 200
+      },
+      {
+        "label": "cross-room destination denied",
+        "status": 400
+      },
+      {
+        "label": "room owner can organize",
+        "status": 200
+      },
+      {
+        "label": "move byte/owner preservation",
+        "passed": true
+      },
+      {
+        "label": "video/mp4 original denied: no bearer",
+        "status": 401
+      },
+      {
+        "label": "video/mp4 original denied: invalid-token",
+        "status": 401
+      },
+      {
+        "label": "video/mp4 original denied: outsider",
+        "status": 403
+      },
+      {
+        "label": "video/mp4 thumbnail denied: no bearer",
+        "status": 401
+      },
+      {
+        "label": "video/mp4 thumbnail denied: invalid-token",
+        "status": 401
+      },
+      {
+        "label": "video/mp4 thumbnail denied: outsider",
+        "status": 403
+      },
+      {
+        "label": "video/webm original denied: no bearer",
+        "status": 401
+      },
+      {
+        "label": "video/webm original denied: invalid-token",
+        "status": 401
+      },
+      {
+        "label": "video/webm original denied: outsider",
+        "status": 403
+      },
+      {
+        "label": "video/webm thumbnail denied: no bearer",
+        "status": 401
+      },
+      {
+        "label": "video/webm thumbnail denied: invalid-token",
+        "status": 401
+      },
+      {
+        "label": "video/webm thumbnail denied: outsider",
+        "status": 403
+      }
+    ],
+    "mp4": {
+      "passed": true,
+      "kind": "playback",
+      "viewport": [
+        390,
+        844
+      ],
+      "noUploadOnSelect": true,
+      "explicitAlbum": true,
+      "playback": {
+        "mime": "video/mp4",
+        "duration": 2.659033,
+        "videoWidth": 320,
+        "videoHeight": 180,
+        "firstTime": 0.142713,
+        "seekTime": 0.899276,
+        "decodedFrames": 15,
+        "noAutoPlay": true,
+        "mutedForTest": true
+      },
+      "session": {
+        "nativeStorageEvent": true,
+        "sameDocumentGuard": true,
+        "staleRequestsBlocked": true,
+        "privateStateCleared": true,
+        "explicitReauthentication": true,
+        "guestMember": 3,
+        "guestMoveHidden": true
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+    },
+    "webm": {
+      "passed": true,
+      "kind": "playback",
+      "viewport": [
+        390,
+        844
+      ],
+      "noUploadOnSelect": true,
+      "explicitAlbum": true,
+      "playback": {
+        "mime": "video/webm",
+        "duration": 2.51,
+        "videoWidth": 320,
+        "videoHeight": 180,
+        "firstTime": 0.152658,
+        "seekTime": 0.896647,
+        "decodedFrames": 16,
+        "noAutoPlay": true,
+        "mutedForTest": true
+      },
+      "session": {
+        "nativeStorageEvent": true,
+        "sameDocumentGuard": true,
+        "staleRequestsBlocked": true,
+        "privateStateCleared": true,
+        "explicitReauthentication": true,
+        "guestMember": 3,
+        "guestMoveHidden": true
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+    },
+    "frameViewports": [
+      [
+        1536,
+        1120
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        844,
+        390
+      ]
+    ],
+    "generatedMediaOnly": true
+  },
+  "composer": {
+    "cases": [
+      {
+        "case": "jpg",
+        "passed": true,
+        "kind": "jpg",
+        "viewport": [
+          390,
+          844
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": null,
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 0,
+            "media": 0,
+            "recipients": 0
+          },
+          "after": {
+            "announcements": 1,
+            "media": 1,
+            "recipients": 1
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      },
+      {
+        "case": "mp4",
+        "passed": true,
+        "kind": "mp4",
+        "viewport": [
+          390,
+          844
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": {
+          "width": 320,
+          "height": 180,
+          "duration": 2.659033,
+          "currentTime": 0.925314,
+          "decodedFrames": 18
+        },
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 1,
+            "media": 1,
+            "recipients": 1
+          },
+          "after": {
+            "announcements": 2,
+            "media": 2,
+            "recipients": 2
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      },
+      {
+        "case": "webm",
+        "passed": true,
+        "kind": "webm",
+        "viewport": [
+          390,
+          844
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": {
+          "width": 320,
+          "height": 180,
+          "duration": 2.51,
+          "currentTime": 0.923226,
+          "decodedFrames": 20
+        },
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 2,
+            "media": 2,
+            "recipients": 2
+          },
+          "after": {
+            "announcements": 3,
+            "media": 3,
+            "recipients": 3
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      },
+      {
+        "case": "jpg-tablet",
+        "passed": true,
+        "kind": "jpg",
+        "viewport": [
+          834,
+          1112
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": null,
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 3,
+            "media": 3,
+            "recipients": 3
+          },
+          "after": {
+            "announcements": 4,
+            "media": 4,
+            "recipients": 4
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      },
+      {
+        "case": "jpg-desktop",
+        "passed": true,
+        "kind": "jpg",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": null,
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 4,
+            "media": 4,
+            "recipients": 4
+          },
+          "after": {
+            "announcements": 5,
+            "media": 5,
+            "recipients": 5
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      },
+      {
+        "case": "jpg-landscape",
+        "passed": true,
+        "kind": "jpg",
+        "viewport": [
+          844,
+          390
+        ],
+        "selectionAndPreviewLocal": true,
+        "explicitSend": true,
+        "atomic": true,
+        "doubleClickAndRetryDeduplicated": true,
+        "recipientAuthorized": true,
+        "playback": null,
+        "accountSwitchClearsAndBlocks": true,
+        "unauthorizedSenderDenied": true,
+        "counts": {
+          "before": {
+            "announcements": 5,
+            "media": 5,
+            "recipients": 5
+          },
+          "after": {
+            "announcements": 6,
+            "media": 6,
+            "recipients": 6
+          }
+        },
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      }
+    ],
+    "explicitSendOnly": true
+  },
+  "harness": "Supported CUA tabs; loopback in-memory SQLite with generated images and clips. Composer fixture declares UTF-8 like production.",
+  "physicalDevicesVerified": false,
+  "audibleOutputVerified": false,
+  "fullSizeD1PerformanceVerified": false,
+  "realFamilyWrites": 0,
+  "productionBroadcasts": 0
+}

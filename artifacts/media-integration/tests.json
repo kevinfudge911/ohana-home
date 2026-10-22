@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "memoriesActualApiAndDom": true,
+  "memoriesSessionBoundaries": true,
+  "composerActualApiAndDom": true,
+  "legacyMenuNoticeCompatibility": true,
+  "homeOrderChecks": 18,
+  "humanBadgeAssertions": 45,
+  "bridgeContextAssertions": 199,
+  "bridgeDispatchAssertions": 71,
+  "headerOwnershipChecks": 18,
+  "directRoutingAssertions": 79,
+  "directRoutingContexts": 12,
+  "scripts": 32,
+  "requiredModules": 483,
+  "emittedModuleBytesExact": true,
+  "uploadKiB": 62668.46,
+  "gzipIdempotence": true,
+  "browserRecipientCases": 6,
+  "memoriesBrowserCases": 7,
+  "productionDataWrites": 0
+}
