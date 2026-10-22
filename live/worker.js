@@ -11890,7 +11890,9 @@ async function api2(req, env222222, url) {
         const a = JSON.parse(raw);
         const ackRaw = await getSetting(db, "announce_ack_" + me.id + "_" + roomId);
         const acked = ackRaw ? Number(ackRaw) : 0;
-        if (a && a.id > acked) { announcement = a; if(a.responses_enabled) announcement={...a,can_respond:Number(a.member_id)!==Number(me.id)&&!!await db.prepare("SELECT member_id FROM megaphone_recipients WHERE announcement_id=? AND member_id=?").bind(a.id,me.id).first()}; }
+        const imageAck=Number(await getSetting(db,"announce_image_ack_"+me.id+"_"+roomId))||0;
+        const imageDue=url.searchParams.get("announcementMedia")==="1"&&Array.isArray(a?.images)&&a.images.length>0&&Number(a.id)>imageAck;
+        if (a && (a.id > acked || imageDue)) { announcement = a; if(a.responses_enabled) announcement={...a,can_respond:Number(a.member_id)!==Number(me.id)&&!!await db.prepare("SELECT member_id FROM megaphone_recipients WHERE announcement_id=? AND member_id=?").bind(a.id,me.id).first()}; }
       }
     } catch {
     }
@@ -11914,7 +11916,8 @@ async function api2(req, env222222, url) {
   if (p === "/api/announce/ack" && req.method === "POST") {
     const id = Number(body.id) || 0;
     if (!id) throw new Error("Nothing to acknowledge.");
-    await db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind("announce_ack_" + me.id + "_" + roomId, String(id)).run();
+    await db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=CAST(MAX(CAST(settings.value AS INTEGER),CAST(excluded.value AS INTEGER)) AS TEXT)").bind("announce_ack_" + me.id + "_" + roomId, String(id)).run();
+    if(body.images_seen===true&&await db.prepare("SELECT id FROM megaphone_announcements WHERE id=? AND room_id=?").bind(id,roomId).first())await db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=CAST(MAX(CAST(settings.value AS INTEGER),CAST(excluded.value AS INTEGER)) AS TEXT)").bind("announce_image_ack_"+me.id+"_"+roomId,String(id)).run();
     return json({ ok: true });
   }
   if (p === "/api/leaderboard" && req.method === "GET") {
