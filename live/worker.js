@@ -2,6 +2,7 @@ import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
 import { shuffleMode, shuffleInit, shuffleMove, shuffleView, chooseShuffleBotMove } from "./shuffle-engine.js";
 import { handleMusicUpload, handleMusicAudio, createMusicPlaybackTicket } from "./ohana-music-upload.js";
 import OHANA_COLOR_ENTRANCE from "./ohana-color-entrance-v1.webp";
+import OHANA_MENU_HIDE_NOTICE from "./ohana-announcement-menu-hide-v1.jpg";
 import OHANA_SHUFFLE_ENTRANCE from "./ohana-shuffle-entrance-v1.webp";
 import OHANA_TILE_ENTRANCE from "./ohana-tile-entrance-v1.webp";
 import OHANA_ROOM_GUIDE_JOURNEY from "./ohana-guide-journey-v1.webp";
@@ -10874,6 +10875,7 @@ if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(O
     if(req.method==='GET'&&p==='/ohana-bridge-command-icons-v1.webp')return new Response(OHANA_BRIDGE_COMMAND_ICONS,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-bridge-setting-portrait-v1.webp')return new Response(OHANA_BRIDGE_PORTRAIT,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-hub-record-player-v1.webp')return new Response(OHANA_BRIDGE_RECORD,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
+    if(req.method==='GET'&&p==='/ohana-announcement-menu-hide-v1.jpg')return new Response(OHANA_MENU_HIDE_NOTICE,{headers:{'content-type':'image/jpeg','cache-control':'public,max-age=31536000,immutable'}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
     try{const senior=await seniorRoute(req,env222222,url,{auth,childPolicy,grannyApi,unifiedChat,page:APP_HTML,setup:SENIOR_SETUP_HTML,api:api2,grannyWordCheck,wardrobeApi,memoriesApi,memoriesPage:MEMORIES_HTML,puzzleWs,puzzlePoll,ctx});if(senior)return senior;}catch(e){return Response.json({error:'Could not open this invitation. Please try again.'},{status:500,headers:{'cache-control':'no-store'}});}
@@ -11367,26 +11369,33 @@ __name222(prayerApi, "prayerApi");
 __name2222(prayerApi, "prayerApi");
 __name22222(prayerApi, "prayerApi");
 // Private megaphone responses. Author identity and original recipients are persisted.
+function ohanaAnnouncementImages(images){
+ if(images==null)return [];if(!Array.isArray(images)||images.length>2)throw Error('Choose up to two announcement pictures.');
+ const allowed=new Set(['/ohana-announcement-menu-hide-v1.jpg']),out=[];
+ for(const image of images){if(!image||typeof image.src!=='string'||!allowed.has(image.src)||image.alt!=null&&typeof image.alt!=='string')throw Error('Choose an available announcement picture.');if(!out.some(x=>x.src===image.src))out.push({src:image.src,alt:String(image.alt||'Ohana Menu controls').trim().slice(0,160)});}return out;
+}
 async function ensureOhanaAnnouncementSchema(db){
  await db.batch([
+  db.prepare("CREATE TABLE IF NOT EXISTS megaphone_attachments(announcement_id INTEGER PRIMARY KEY,images TEXT NOT NULL)"),
   db.prepare("CREATE TABLE IF NOT EXISTS megaphone_announcements(id INTEGER PRIMARY KEY,room_id INTEGER NOT NULL,author_id INTEGER NOT NULL,text TEXT NOT NULL,name TEXT NOT NULL,avatar TEXT NOT NULL,created_at INTEGER NOT NULL)"),
   db.prepare("CREATE TABLE IF NOT EXISTS megaphone_recipients(announcement_id INTEGER NOT NULL,member_id INTEGER NOT NULL,PRIMARY KEY(announcement_id,member_id))"),
   db.prepare("CREATE TABLE IF NOT EXISTS megaphone_responses(announcement_id INTEGER NOT NULL,member_id INTEGER NOT NULL,emoji TEXT NOT NULL DEFAULT '',text TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(announcement_id,member_id))")
  ]);
 }
 async function ohanaAnnouncementRoomAccess(db,roomId,memberId){return !!await db.prepare("SELECT r.id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE r.id=? AND rm.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(roomId,memberId).first();}
-async function createOhanaAnnouncement(db,me,roomId,text){
+async function createOhanaAnnouncement(db,me,roomId,text,media){
  if(!await ohanaAnnouncementRoomAccess(db,roomId,me.id))throw Error('This room is no longer available.');
- await ensureOhanaAnnouncementSchema(db);const createdAt=now();
+ const images=ohanaAnnouncementImages(media);await ensureOhanaAnnouncementSchema(db);const createdAt=now();
  const inserted=await db.prepare("INSERT INTO megaphone_announcements(id,room_id,author_id,text,name,avatar,created_at) SELECT MAX(?,COALESCE((SELECT MAX(id) FROM megaphone_announcements),0)+1),?,?,?,?,?,?").bind(createdAt,roomId,me.id,text,String(me.name||''),String(me.avatar||''),createdAt).run();
  const id=Number(inserted.meta.last_row_id);
  if(!Number.isSafeInteger(id)||id<=0)throw Error('The announcement was not saved. Please try again.');
- const announcement={id,text,member_id:me.id,name:me.name,avatar:me.avatar,created_at:createdAt,responses_enabled:true};
- await db.batch([
-  db.prepare("INSERT INTO megaphone_recipients(announcement_id,member_id) SELECT ?,member_id FROM room_members WHERE room_id=? AND member_id<>?").bind(id,roomId,me.id),
+ const announcement={id,text,member_id:me.id,name:me.name,avatar:me.avatar,created_at:createdAt,responses_enabled:true,images};
+  const writes=await db.batch([
+   db.prepare("INSERT INTO megaphone_attachments(announcement_id,images) VALUES(?,?)").bind(id,JSON.stringify(images)),
+   db.prepare("INSERT INTO megaphone_recipients(announcement_id,member_id) SELECT ?,member_id FROM room_members WHERE room_id=? AND member_id<>?").bind(id,roomId,me.id),
   db.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind('announce_room_'+roomId,JSON.stringify(announcement))
  ]);
- return announcement;
+  announcement.recipient_count=Number(writes[1]?.meta?.changes||0);return announcement;
 }
 async function ohanaAnnouncementResponseApi(req,db,me,roomId,body,url){
  const p=url.pathname,m=p.match(/^\/api\/announce\/(\d+)\/(responses|respond)$/);
@@ -11395,8 +11404,8 @@ async function ohanaAnnouncementResponseApi(req,db,me,roomId,body,url){
  await ensureOhanaAnnouncementSchema(db);
  if(p==='/api/announce/mine'){
   if(req.method!=='GET')return err('Use GET to view your announcements.',405);
-  const announcements=(await db.prepare("SELECT a.id,a.text,a.name,a.avatar,a.created_at,a.author_id AS member_id,(SELECT COUNT(*) FROM megaphone_responses x WHERE x.announcement_id=a.id) AS response_count FROM megaphone_announcements a WHERE a.room_id=? AND a.author_id=? ORDER BY a.id DESC LIMIT 50").bind(roomId,me.id).all()).results;
-  return json({announcements});
+  const announcements=(await db.prepare("SELECT a.id,a.text,a.name,a.avatar,a.created_at,a.author_id AS member_id,COALESCE(media.images,'[]') AS images_json,(SELECT COUNT(*) FROM megaphone_recipients r WHERE r.announcement_id=a.id) AS recipient_count,(SELECT COUNT(*) FROM megaphone_responses x WHERE x.announcement_id=a.id) AS response_count FROM megaphone_announcements a LEFT JOIN megaphone_attachments media ON media.announcement_id=a.id WHERE a.room_id=? AND a.author_id=? ORDER BY a.id DESC LIMIT 50").bind(roomId,me.id).all()).results;
+  return json({announcements:announcements.map(a=>{let images=[];try{images=ohanaAnnouncementImages(JSON.parse(a.images_json));}catch{}const {images_json,...rest}=a;return {...rest,images};})});
  }
  const id=Number(m[1]);if(!Number.isSafeInteger(id)||id<=0)return err('This announcement is unavailable.',404);
  const announcement=await db.prepare("SELECT id,room_id,author_id FROM megaphone_announcements WHERE id=? AND room_id=?").bind(id,roomId).first();
@@ -11899,7 +11908,7 @@ async function api2(req, env222222, url) {
     if (!me.is_admin && await getSetting(db,"announce_access_"+roomId+"_"+me.id)!=="1") return err("Ask an administrator for shout-out access in this room.", 403);
     const text = String(body.text || "").trim().slice(0, 300);
     if (!text) throw new Error("Write something to announce first.");
-    const announcement = await createOhanaAnnouncement(db,me,roomId,text);
+    const announcement = await createOhanaAnnouncement(db,me,roomId,text,body.images);
     return json({ ok: true, announcement });
   }
   if (p === "/api/announce/ack" && req.method === "POST") {

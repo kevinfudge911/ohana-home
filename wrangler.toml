@@ -20,7 +20,7 @@ fallthrough = true
 
 [[rules]]
 type = "Data"
-globs = ["**/*.png", "**/*.webp", "**/*.gz"]
+globs = ["**/*.png", "**/*.webp", "**/*.gz", "**/ohana-announcement-menu-*-v1.jpg"]
 fallthrough = true
 
 [[routes]]
