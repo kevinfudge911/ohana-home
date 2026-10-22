@@ -15,8 +15,10 @@ database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
 
 [[rules]]
 type = "Text"
-globs = ["**/*.html", "**/*.js.txt", "**/*.svg"]
-fallthrough = true
+# The main HTML is packaged losslessly as gzip and expanded by worker.js.
+# Preserve the source HTML in Git without including a second uncompressed copy.
+globs = ["0350a042e91c6ec3042c81d1400869ae15ba2a43-0350a042e91c6ec3042c81d1400869ae15ba2a43-0350a042e91c6ec3042c81d1400869ae15ba2a43-setup-preview.html", "09246ba466da98b180a867e23a67c4a96f3b9dbc-09246ba466da98b180a867e23a67c4a96f3b9dbc-09246ba466da98b180a867e23a67c4a96f3b9dbc-mahjong-preview.html", "1500537fb28b2cdda20f2b3b3e2f5aeef5b00a0f-1500537fb28b2cdda20f2b3b3e2f5aeef5b00a0f-1500537fb28b2cdda20f2b3b3e2f5aeef5b00a0f-buddies-preview.html", "578674b03e14cf233118aaf623cea3be759ee17c-578674b03e14cf233118aaf623cea3be759ee17c-578674b03e14cf233118aaf623cea3be759ee17c-word-error-preview.html", "6792be01ece7d11b49521a915e03c00211c8ec4c-6792be01ece7d11b49521a915e03c00211c8ec4c-6792be01ece7d11b49521a915e03c00211c8ec4c-nook-preview.html", "850bb52f5cd174bb7a67ce80538e6b3fa7387701-850bb52f5cd174bb7a67ce80538e6b3fa7387701-850bb52f5cd174bb7a67ce80538e6b3fa7387701-settings-preview.html", "910ab9c1f683637ead1416f0f2b98d8cfc4a2b4c-910ab9c1f683637ead1416f0f2b98d8cfc4a2b4c-910ab9c1f683637ead1416f0f2b98d8cfc4a2b4c-rooms-preview.html", "979fbbd59bd0b64fdcba95a94dd9029effd1c62b-979fbbd59bd0b64fdcba95a94dd9029effd1c62b-979fbbd59bd0b64fdcba95a94dd9029effd1c62b-handfoot-preview.html", "cc9d63f5e409499aae54d64850d612b9532a23bb-cc9d63f5e409499aae54d64850d612b9532a23bb-get.html", "d455966e2cbefa386f2f905a2bbb6ad4cd869617-d455966e2cbefa386f2f905a2bbb6ad4cd869617-d455966e2cbefa386f2f905a2bbb6ad4cd869617-ohana-preview.html", "eb607b960d62275db46017823e483f847d081e54-eb607b960d62275db46017823e483f847d081e54-eb607b960d62275db46017823e483f847d081e54-game-preview.html", "ohana-memories-layout-check.html", "ohana-memories.html", "ohana-o10-touch-check.html", "ohana-puzzle-deploy-check.html", "ohana-spades-bid-check.html", "ohana-words-draft-check.html", "senior-setup.html", "**/*.js.txt", "**/*.svg"]
+fallthrough = false
 
 [[rules]]
 type = "Data"

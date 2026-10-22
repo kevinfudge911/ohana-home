@@ -1388,7 +1388,9 @@ import PZPIC_4 from "./ca39a7ee770c11afeae7a9c84a8d2804235560dc-ca39a7ee770c11af
 import PZTHUMB_4 from "./e88322a286bf3570614bbd944151ebe7f6cc11f1-e88322a286bf3570614bbd944151ebe7f6cc11f1-pzthumb-market-day.webp";
 import PZPIC_5 from "./dcde1056c3872d0dd60ed70d4d94d7ee226a742a-dcde1056c3872d0dd60ed70d4d94d7ee226a742a-puzzle-canoe-cove.webp";
 import PZTHUMB_5 from "./13d67d8a69aac62e9a3f7e9e6cd846fa3e0ebb92-13d67d8a69aac62e9a3f7e9e6cd846fa3e0ebb92-pzthumb-canoe-cove.webp";
-import APP_HTML from "./5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html";
+import APP_HTML_GZIP from "./5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html.gz";
+import { gunzipSync as gunzipAppHtml } from "node:zlib";
+const APP_HTML = gunzipAppHtml(APP_HTML_GZIP).toString("utf8");
 import TSCMS_CABINET_V1 from "./ohana-jukebox.webp";
 import TSCMS_DAD_CARDINAL_V1 from "./dad-cardinal.webp";
 import HONU_IMAGE from "./94d28c5510f33949297a3b2655dceac18a9966e1-94d28c5510f33949297a3b2655dceac18a9966e1-94d28c5510f33949297a3b2655dceac18a9966e1-honu.webp";
