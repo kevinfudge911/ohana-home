@@ -1,10 +1,11 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
-const worker=fs.readFileSync('live/worker.js','utf8'),html=fs.readFileSync('live/'+worker.match(/^import APP_HTML from "\.\/(.*?)";/m)[1],'utf8');
+const worker=fs.readFileSync('live/worker.js','utf8'),html=fs.readFileSync('live/'+worker.match(/^import APP_HTML(?:_GZIP)? from "\.\/(.*?)";/m)[1].replace(/\.gz$/,''),'utf8');
 const start=html.indexOf('async function move(m, after)'),end=html.indexOf('// ----- Game Chat',start);assert(start>=0&&end>start);const move=html.slice(start,end);
 function fixture(mode){const dom=new JSDOM('<!doctype html><div id="app"></div>',{url:'https://fictional.test',runScripts:'outside-only'}),w=dom.window;w.structuredClone=structuredClone;
  w.eval(`const S=window.S={me:{id:101},room:1,game:999,movePending:false,shuffleDraft:null},app=document.getElementById('app'),gameSetups={};const esc=String,nameOf=id=>'Fixture '+id,roomHomeControl=a=>'<button '+a+'>Home</button>',ensureWorldScene=()=>{},closeGame=()=>{},goHomePorch=()=>{},showGameSetup=()=>{},requestRematch=()=>{},schedulePoll=()=>{},runLastReveal=()=>{},advanceConfirmedTurn=()=>{},showPlayError=()=>{},getTaunt=()=>'',celebrate=()=>{};const toast=m=>window.notice=m;
  const calls=window.calls=[];const api=(route,payload)=>{calls.push({route,payload});return new Promise((resolve,reject)=>window.pending={resolve,reject})};async function loadGame(){if(S.game===999)renderGame()};function renderGame(){S.gstate=window.game;renderShuffleScreen(window.game)};
  ${move}
+ function mountGameControlDock(){const root=document.getElementById('game');let dock=root.querySelector('#game-controls-dock');if(!dock){dock=document.createElement('nav');dock.id='game-controls-dock';dock.innerHTML='<div class="dock-actions"></div><div class="dock-gear-menu"></div>';root.append(dock);}}const observeGameRail=()=>{},addNextGameControl=()=>{};
  const OhanaCardRules=(()=>{${fs.readFileSync('live/shuffle-engine.js','utf8').replace(/export /g,'')}return {shuffleInit,shuffleView,isCardMeld,bestCardHand}})();const OHANA_CARD_CATALOG=[];
  ${fs.readFileSync('live/shuffle-ui.js','utf8')}
  window.setup=mode=>{const raw=OhanaCardRules.shuffleInit([101,202],()=>.5,mode);raw.phase='play';window.game={id:999,room_id:1,type:'shuffle',status:'playing',in_game:true,players:[101,202],turn:0,state:OhanaCardRules.shuffleView(raw,101)};renderGame()};`);w.setup(mode);return {dom,w,d:w.document};}

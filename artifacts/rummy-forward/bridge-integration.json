@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "baseline": "b3ca9e46966f03f5aecdb3b0092fa89cc92ed190",
+  "untouchedFiles": [
+    "live/worker.js",
+    "wrangler.toml",
+    "scripts/package-main-html.cjs",
+    "live/shuffle-engine.js",
+    "live/shuffle-catalog.json"
+  ],
+  "preservedFunctions": [
+    "renderOhana10",
+    "o10Face",
+    "puzzleNextGame",
+    "pzUpdateNextBtn",
+    "goToNextGame",
+    "nextWaitingGame",
+    "advanceConfirmedTurn",
+    "openOhanaWaitingGames",
+    "paintOhanaPlay",
+    "bridgeCommandsHtml",
+    "bridgeGameContext",
+    "bridgeDismissForGameExit",
+    "messengerGo",
+    "openChatInbox",
+    "requestRematch",
+    "requestFreshTable"
+  ],
+  "bridgeHookExact": true,
+  "correctedComponentExact": true,
+  "componentDefinitions": 1,
+  "signArtworkExact": true,
+  "allOtherHtmlOutsideReviewedUiHeaderAdaptersAndStartupRelocationExact": true,
+  "losslessTransport": true,
+  "scripts": 30,
+  "appSha256": "1735832bde349d5e01bdb79986a04ed68eb331d5dc78358b9e59d33a3bd8b6f5",
+  "rawBytes": 6898099,
+  "gzipBytes": 3453806,
+  "familyMoves": 0
+}

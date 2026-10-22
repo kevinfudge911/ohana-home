@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "checks": 77,
+  "checks": 87,
   "base": "d5d48bd8",
   "actualHandlers": [
     "ohanaUniqueGames",

@@ -1,0 +1,11 @@
+# Rummy and shared headers after Bridge
+
+Baseline: b3ca9e46966f03f5aecdb3b0092fa89cc92ed190. This candidate forward-integrates reviewed Rummy/Decks and shared headers (25cf89df) plus the reviewed Music startup relocation (56405481).
+
+Ohana Shuffle remains the room; Ohana Decks selects Regular Rummy or Gin. Actions use the wooden workstation and short labels. Hand ordering remains private; rules, bots, engine, catalog, Worker and saved-game data are unchanged. The shared sign uses actual saved titles. TEN keeps its approved sign. The live Bridge adapter and all Bridge action functions are exact. Packaging asserts the existing Bridge component equals the global component before removing the standalone duplicate; there is one component definition and one Bridge hook.
+
+Preservation checks restore the two Music startup hunks and mask only the reviewed card module, shared-sign insertion and seven narrow UI/header adapters; every other HTML byte matches the live baseline after Git newline normalization. No title demo is used as a default. Home order, puzzle behavior and direct navigation are preserved. Rummy alone moves its existing Next node into its reviewed workstation; actual click tests assert the container and opened game ID in all 12 contexts, with no waiting-list intermediary.
+
+Current nonvisual checks: 60 engine simulations; 4,285 bot assertions over 40 hands; active Worker with in-memory SQLite; setup, private selection/order/reload, six interrupted flows; 199 Bridge context and 71 dispatch checks; 10 Worker Quit checks; 87 direct-navigation assertions; 25 Puzzle assertions; 18 header ownership/title/TEN-exclusion checks; music queue lifecycle regression. All 30 executable scripts parse. Derived gzip is exact and all 482 emitted modules match; upload 62,639.15 KiB.
+
+Three older fragment fixtures were updated for the approved two-stage Decks setup, removed sorting buttons and shared workstation hardware. Geometry is not certified by these DOM tests. The earlier independent browser reviews remain supporting evidence; the current forward integration still needs its coordinated browser visual check. An isolated browser could not reach the laptop's localhost fixture. No family game or invitation was created, no real moves were made, and no publication or announcement is included.

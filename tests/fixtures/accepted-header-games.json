@@ -1,0 +1,421 @@
+{
+  "handfoot": {
+    "id": 9901,
+    "type": "handfoot",
+    "name": "Ohanda & Foot",
+    "room_id": 1,
+    "players": [
+      1,
+      2
+    ],
+    "turn": 0,
+    "status": "playing",
+    "in_game": true,
+    "my_turn": true,
+    "names": {
+      "1": {
+        "id": 1,
+        "name": "Alex Fixture",
+        "avatar": "@hon"
+      },
+      "2": {
+        "id": 2,
+        "name": "Jamie Fixture",
+        "avatar": "@flo"
+      },
+      "3": {
+        "id": 3,
+        "name": "Riley Fixture",
+        "avatar": "@eag"
+      },
+      "4": {
+        "id": 4,
+        "name": "Casey Fixture",
+        "avatar": "@sun"
+      }
+    },
+    "state": {
+      "drawPile": 114,
+      "discardPile": [
+        {
+          "rank": "10",
+          "suit": "♣",
+          "id": 47
+        }
+      ],
+      "hands": {
+        "1": [
+          {
+            "rank": "5",
+            "suit": "♥",
+            "id": 0
+          },
+          {
+            "rank": "10",
+            "suit": "♣",
+            "id": 1
+          },
+          {
+            "rank": "4",
+            "suit": "♦",
+            "id": 2
+          },
+          {
+            "rank": "5",
+            "suit": "♦",
+            "id": 3
+          },
+          {
+            "rank": "Joker",
+            "suit": "🃏",
+            "id": 4
+          },
+          {
+            "rank": "6",
+            "suit": "♦",
+            "id": 5
+          },
+          {
+            "rank": "Q",
+            "suit": "♣",
+            "id": 6
+          },
+          {
+            "rank": "10",
+            "suit": "♥",
+            "id": 7
+          },
+          {
+            "rank": "7",
+            "suit": "♦",
+            "id": 8
+          },
+          {
+            "rank": "6",
+            "suit": "♥",
+            "id": 9
+          },
+          {
+            "rank": "10",
+            "suit": "♠",
+            "id": 10
+          }
+        ],
+        "2": 11
+      },
+      "feet": {
+        "1": 11,
+        "2": 11
+      },
+      "melds": {
+        "1": [],
+        "2": []
+      },
+      "red3s": {
+        "1": [],
+        "2": [
+          {
+            "rank": "3",
+            "suit": "♦",
+            "id": 32
+          },
+          {
+            "rank": "3",
+            "suit": "♥",
+            "id": 29
+          },
+          {
+            "rank": "3",
+            "suit": "♦",
+            "id": 24
+          }
+        ]
+      },
+      "scores": {
+        "1": 0,
+        "2": 0
+      },
+      "rulesVersion": 2,
+      "inFoot": {},
+      "round": 1,
+      "roundScores": [],
+      "hasDrawn": false,
+      "history": [],
+      "goOutApproval": null,
+      "discardCount": 1
+    }
+  },
+  "ten": {
+    "id": 9902,
+    "type": "ohana10",
+    "name": "Ohana TEN",
+    "room_id": 1,
+    "players": [
+      1,
+      2
+    ],
+    "turn": 0,
+    "status": "playing",
+    "in_game": true,
+    "my_turn": true,
+    "names": {
+      "1": {
+        "id": 1,
+        "name": "Alex Fixture",
+        "avatar": "@hon"
+      },
+      "2": {
+        "id": 2,
+        "name": "Jamie Fixture",
+        "avatar": "@flo"
+      },
+      "3": {
+        "id": 3,
+        "name": "Riley Fixture",
+        "avatar": "@eag"
+      },
+      "4": {
+        "id": 4,
+        "name": "Casey Fixture",
+        "avatar": "@sun"
+      }
+    },
+    "state": {
+      "hands": {
+        "1": [
+          {
+            "id": 104,
+            "wild": true,
+            "n": 0,
+            "color": "star"
+          },
+          {
+            "id": 22,
+            "n": 10,
+            "color": "ocean"
+          },
+          {
+            "id": 97,
+            "wild": true,
+            "n": 0,
+            "color": "star"
+          },
+          {
+            "id": 63,
+            "n": 3,
+            "color": "ocean"
+          },
+          {
+            "id": 27,
+            "n": 3,
+            "color": "sun"
+          },
+          {
+            "id": 81,
+            "n": 9,
+            "color": "sun"
+          },
+          {
+            "id": 73,
+            "n": 1,
+            "color": "sun"
+          },
+          {
+            "id": 20,
+            "n": 8,
+            "color": "ocean"
+          },
+          {
+            "id": 60,
+            "n": 12,
+            "color": "coral"
+          },
+          {
+            "id": 28,
+            "n": 4,
+            "color": "sun"
+          }
+        ],
+        "2": 10
+      },
+      "deck": 83,
+      "discard": [
+        {
+          "id": 66,
+          "n": 6,
+          "color": "ocean"
+        }
+      ],
+      "journeys": {
+        "1": 0,
+        "2": 0
+      },
+      "penalties": {
+        "1": 0,
+        "2": 0
+      },
+      "completed": {
+        "1": false,
+        "2": false
+      },
+      "melds": {
+        "1": [],
+        "2": []
+      },
+      "hasDrawn": false,
+      "voyage": 1,
+      "history": [],
+      "chat": [],
+      "winner": null,
+      "discardCount": 1
+    }
+  },
+  "spades": {
+    "id": 9903,
+    "type": "spades",
+    "name": "Ohana Mike’s",
+    "room_id": 1,
+    "players": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "turn": 0,
+    "status": "playing",
+    "in_game": true,
+    "my_turn": true,
+    "names": {
+      "1": {
+        "id": 1,
+        "name": "Alex Fixture",
+        "avatar": "@hon"
+      },
+      "2": {
+        "id": 2,
+        "name": "Jamie Fixture",
+        "avatar": "@flo"
+      },
+      "3": {
+        "id": 3,
+        "name": "Riley Fixture",
+        "avatar": "@eag"
+      },
+      "4": {
+        "id": 4,
+        "name": "Casey Fixture",
+        "avatar": "@sun"
+      }
+    },
+    "state": {
+      "hands": {
+        "1": [
+          {
+            "rank": "5",
+            "suit": "♣",
+            "id": 11
+          },
+          {
+            "rank": "7",
+            "suit": "♣",
+            "id": 7
+          },
+          {
+            "rank": "J",
+            "suit": "♣",
+            "id": 10
+          },
+          {
+            "rank": "K",
+            "suit": "♣",
+            "id": 0
+          },
+          {
+            "rank": "4",
+            "suit": "♦",
+            "id": 9
+          },
+          {
+            "rank": "6",
+            "suit": "♦",
+            "id": 8
+          },
+          {
+            "rank": "7",
+            "suit": "♦",
+            "id": 4
+          },
+          {
+            "rank": "Q",
+            "suit": "♦",
+            "id": 6
+          },
+          {
+            "rank": "A",
+            "suit": "♦",
+            "id": 3
+          },
+          {
+            "rank": "4",
+            "suit": "♥",
+            "id": 2
+          },
+          {
+            "rank": "Q",
+            "suit": "♥",
+            "id": 12
+          },
+          {
+            "rank": "7",
+            "suit": "♠",
+            "id": 1
+          },
+          {
+            "rank": "Q",
+            "suit": "♠",
+            "id": 5
+          }
+        ],
+        "2": 13,
+        "3": 13,
+        "4": 13
+      },
+      "bids": {
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "tricksWon": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "phase": "bidding",
+      "dealerIdx": 3,
+      "currentTrick": [],
+      "lastTrick": null,
+      "leadIdx": 0,
+      "spadesBroken": false,
+      "teamScores": {
+        "A": 0,
+        "B": 0
+      },
+      "scores": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "bags": {
+        "A": 0,
+        "B": 0
+      },
+      "round": 1,
+      "roundHistory": [],
+      "history": [],
+      "gameOver": false
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "passedNonvisual": true,
+  "tests": {
+    "engineSimulations": 60,
+    "botAssertions": 4285,
+    "botHands": 40,
+    "workerApi": "PASS fresh in-memory SQLite",
+    "privateSelectionKeyboardOrderReload": "PASS actual UI functions in jsdom",
+    "setupBindings": "PASS robot/family and six-seat chooser",
+    "interruptedFlows": 6,
+    "bridgeContext": 199,
+    "bridgeDispatch": 71,
+    "bridgeWorker": 10,
+    "directPlayAssertions": 87,
+    "directContexts": 12,
+    "puzzleNextAssertions": 25,
+    "headerOwnershipAssertions": 18,
+    "musicQueue": "PASS",
+    "startupRelocation": "Exact reviewed two-hunk relocation; inverse included in whole-app preservation proof",
+    "priorIndependentBrowserReview": "25cf89df and 56405481 passed before forward integration",
+    "currentVisualReview": "PENDING coordinated Chrome; isolated browser could not reach laptop localhost",
+    "scripts": 30,
+    "requiredModules": 482,
+    "emittedBytesVerified": true,
+    "uploadKiB": 62639.15
+  },
+  "familyMoves": 0,
+  "productionChanged": false
+}

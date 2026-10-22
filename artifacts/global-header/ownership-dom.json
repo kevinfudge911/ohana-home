@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "checks": 18,
+  "fixture": "isolated jsdom controllers; deterministic canvas metrics, no visual geometry claim",
+  "sharedOwner": true,
+  "bridgeHooks": 1,
+  "familyMoves": 0
+}
