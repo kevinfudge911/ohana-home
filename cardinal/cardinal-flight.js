@@ -26,41 +26,40 @@ function plan(room='bridge',tour=0){
  if(tour===1){let start=1;return legs.slice().reverse().map(leg=>{const points=leg.points.slice().reverse(),end=points.at(-1),destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers',next={points,duration:leg.duration,start,end:start+leg.duration,label:'Visiting '+destination,destination};start=next.end+3;return next;});}
  legs.forEach(leg=>{const end=leg.points.at(-1);leg.destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers';});return legs;
 }
-function pose(time,room='bridge',tour=0){
- const legs=plan(room,tour),m=maps[room];let perch=m.home,last=null;
+function pose(time,room='bridge',tour=0,customPlan=null){
+ const edge=customPlan?.[0]?.edgeVisit;if(edge){const h=edge.home,rest={...h,scale:distanceScale(h.z),phase:'rest',facing:1};if(time<edge.tuckStart)return rest;if(time<edge.tuckEnd)return{...rest,phase:'perch-tuck',maskedPerch:true,tuck:(time-edge.tuckStart)/(edge.tuckEnd-edge.tuckStart)};if(time<customPlan[0].start)return{...rest,phase:'hidden',visible:false};const last=customPlan.at(-1);if(time>=last.end){if(time<edge.revealStart)return{...rest,phase:'hidden',visible:false};if(time<edge.end)return{...rest,phase:'landing',maskedPerch:true,tuck:1-(time-edge.revealStart)/(edge.end-edge.revealStart)};return{...rest,complete:true};}}
+ const legs=customPlan||plan(room,tour),m=maps[room];let perch=legs[0]?.points[0]||m.home,last=null;
  for(const leg of legs){if(time<leg.start)return {...perch,scale:distanceScale(perch.z),phase:'rest',label:last?'Settled on '+last.destination:'Resting on the original Ohana perch',facing:last===legs[0]?-1:1};if(time<=leg.end){let u=(time-leg.start)/leg.duration;
  // Acceleration after push-off, long middle flight, deceleration into contact.
- let q=u*u*(3-2*u),p=path(leg.points,q),n=path(leg.points,clamp(q+.001,0,1)),prev=path(leg.points,clamp(q-.001,0,1));let dx=n.x-prev.x,dy=n.y-prev.y;
+ let q=customPlan?(u<.04?u*u/.08/.96:u>.96?1-(1-u)*(1-u)/.08/.96:(u-.02)/.96):u*u*(3-2*u),p=path(leg.points,q),n=path(leg.points,clamp(q+.001,0,1)),prev=path(leg.points,clamp(q-.001,0,1));let dx=n.x-prev.x,dy=n.y-prev.y;
  const envelope=Math.sin(Math.PI*clamp(u*4,0,1))*.5+.5;
  const landing=clamp((u-.86)/.14,0,1),launch=clamp(u/.12,0,1);
  const bound=0.5+0.5*Math.sin((u*leg.duration)*Math.PI*2*1.5);
- const glideWeight=u>.25&&u<.78?clamp((bound-.6)/.4,0,1):0,glide=glideWeight>.5; const yaw=dx/(Math.abs(dy)*.7+Math.abs(dx)+.000001);const facing=yaw===0?1:Math.sign(yaw)*(.32+.68*Math.abs(yaw));
+ const glideWeight=leg.flightStyle==='glide'?1:u>.25&&u<.78?clamp((bound-.6)/.4,0,1):0,glide=glideWeight>.5; const yaw=dx/(Math.abs(dy)*.7+Math.abs(dx)+.000001);const facing=yaw===0?1:Math.sign(yaw)*(.32+.68*Math.abs(yaw));
  return {...p,scale:distanceScale(p.z),phase:landing>0?'landing':launch<1?'launch':'flight',label:leg.label,u,flightTime:time-leg.start,facing,pitch:clamp(Math.atan2(dy,Math.abs(dx))*.28,-.28,.28)+.16*(1-landing),wing:lerp(Math.sin((time-leg.start)*Math.PI*2*7.2),.12,glideWeight),glide,landing,launch,envelope};}
  perch=leg.points.at(-1);last=leg;
  }
- return {...m.home,scale:distanceScale(m.home.z),phase:'rest',label:'Resting on the original Ohana perch',facing:1,complete:true};
+ const home=legs.at(-1)?.points.at(-1)||m.home;return {...home,scale:distanceScale(home.z),phase:'rest',label:'Resting on the original Ohana perch',facing:1,complete:true};
 }
-function bounds(p){
- // Bezier curves stay inside their control-point hull. Bound both wings and
- // every primary at this pose, including stroke, body clip, bob and draw transform.
- const points=[[-151,-170],[64,-170],[-151,-9],[64,-9]];
+function bounds(p){if(p.visible===false)return{x:p.x,y:p.y,w:0,h:0};if(p.maskedPerch)return bounds({...p,maskedPerch:false,phase:'rest'});
+ // Same Bezier-control and stroke hull as the reviewed renderer, streamed into
+ // extrema without allocating hundreds of corner arrays on every sample.
+ const bob=p.phase==='rest'?0:Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0)),angle=p.pitch||0,cos=Math.cos(angle),sin=Math.sin(angle),facing=p.facing===undefined?1:p.facing,scale=p.scale;
+ let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
+ const add=(x,y,pad=0)=>{const px=p.x+scale*facing*(x*cos-(y+bob)*sin),py=p.y+scale*(x*sin+(y+bob)*cos),radius=pad*(Math.abs(cos)+Math.abs(sin)),rx=scale*Math.abs(facing)*radius,ry=scale*radius;left=Math.min(left,px-rx);right=Math.max(right,px+rx);top=Math.min(top,py-ry);bottom=Math.max(bottom,py+ry);};
+ add(-151,-170);add(64,-170);add(-151,-9);add(64,-9);
  if(p.phase!=='rest'){
   const w=p.wing||0,land=p.landing||0,amp=(1-land*.68)*(p.launch===undefined?1:Math.max(.3,p.launch)),tx=-92-Math.max(0,-w)*24,ty=-45-w*117*amp;
   for(const [ox,oy]of [[10,-10],[-3,2]]){
-   const wing=[[-7,-48],[-47,-73],[tx-8,ty-17],[tx,ty],[tx+14,ty+24],[-45,-22],[-23,-20]];
-   for(let i=0;i<8;i++){const f=i/7,x=tx+f*58,y=ty+f*(42+w*43*amp);wing.push([-35+f*12,-46+f*10],[x+11,y-12],[x,y],[x-6,y+4],[-44+f*20,-27+f*4]);}
-   // Default miter limit 10 with a 1.3 stroke can reach 6.5 local units.
-   for(const [x,y]of wing)for(const [dx,dy]of [[-7,-7],[7,-7],[-7,7],[7,7]])points.push([x+ox+dx,y+oy+dy]);
+   const wing=(x,y)=>add(x+ox,y+oy,7);
+   wing(-7,-48);wing(-47,-73);wing(tx-8,ty-17);wing(tx,ty);wing(tx+14,ty+24);wing(-45,-22);wing(-23,-20);
+   for(let i=0;i<8;i++){const f=i/7,x=tx+f*58,y=ty+f*(42+w*43*amp);wing(-35+f*12,-46+f*10);wing(x+11,y-12);wing(x,y);wing(x-6,y+4);wing(-44+f*20,-27+f*4);}
   }
  }
- // Feet use a 2.6 stroke: include its full 13-unit miter envelope.
- if(p.phase==='rest'||p.landing>.55)points.push([-36,-23],[21,-23],[-36,14],[21,14]);
- const bob=p.phase==='rest'?0:Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0));
- const angle=p.pitch||0,cos=Math.cos(angle),sin=Math.sin(angle),facing=p.facing===undefined?1:p.facing;
- const corners=points.map(([x,y])=>({x:p.x+p.scale*facing*(x*cos-(y+bob)*sin),y:p.y+p.scale*(x*sin+(y+bob)*cos)}));
- const left=Math.min(...corners.map(q=>q.x))-2,top=Math.min(...corners.map(q=>q.y))-2;
- return{x:left,y:top,w:Math.max(...corners.map(q=>q.x))+2-left,h:Math.max(...corners.map(q=>q.y))+2-top};
+ if(p.phase==='rest'||p.landing>.55){add(-36,-23);add(21,-23);add(-36,14);add(21,14);}
+ return{x:left-2,y:top-2,w:right-left+4,h:bottom-top+4};
 }
+
 function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function birdClip(c){c.beginPath();c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
 function drawWing(c,p,far){
@@ -74,21 +73,33 @@ function drawWing(c,p,far){
  for(let i=0;i<8;i++){const f=i/7,tx=tip.x+f*58,ty=tip.y+f*(42+w*43*amp);c.fillStyle=i%2?'#c53222':'#d13a27';c.beginPath();c.moveTo(-35+f*12,-46+f*10);c.quadraticCurveTo(tx+11,ty-12,tx,ty);c.quadraticCurveTo(tx-6,ty+4,-44+f*20,-27+f*4);c.closePath();c.fill();c.stroke();}
  c.restore();
 }
+function createPerchTuck(image){const w=image.naturalWidth,h=image.naturalHeight,make=()=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;},original=make(),mask=make(),body=make(),perch=make(),moving=make(),output=make();original.getContext('2d').drawImage(image,0,0);const source=original.getContext('2d').getImageData(0,0,w,h),mc=mask.getContext('2d');mc.fillStyle='#fff';mc.fillRect(164,0,130,126);mc.fillRect(164,0,102,145);mc.beginPath();for(const[i,p]of [[184,5],[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]].entries())i?mc.lineTo(...p):mc.moveTo(...p);mc.closePath();mc.fill();mc.strokeStyle='#fff';mc.lineWidth=12;mc.lineJoin='round';mc.stroke();mc.beginPath();for(const[i,p]of [[139,77],[155,71],[181,78],[181,96],[151,101]].entries())i?mc.lineTo(...p):mc.moveTo(...p);mc.closePath();mc.fill();
+ // Claws are isolated with their own small silhouettes; source colors are copied.
+ for(const ps of [[[183,158],[190,154],[202,155],[211,164],[209,172],[203,177],[195,177],[188,175],[182,168]],[[225,157],[233,152],[245,154],[254,163],[253,170],[246,175],[240,173],[235,175],[228,171]]]){mc.beginPath();ps.forEach((p,i)=>i?mc.lineTo(...p):mc.moveTo(...p));mc.closePath();mc.fill();}
+ const alpha=mask.getContext('2d').getImageData(0,0,w,h).data,partition=Array.from({length:w*h},(_,i)=>alpha[i*4+3]>0),bi=body.getContext('2d').createImageData(w,h),pi=perch.getContext('2d').createImageData(w,h);for(let i=0;i<partition.length;i++)for(let k=0;k<4;k++)(partition[i]?bi:pi).data[i*4+k]=source.data[i*4+k];body.getContext('2d').putImageData(bi,0,0);perch.getContext('2d').drawImage(original,0,0);for(let y=0;y<h;y++){let start=-1;for(let x=0;x<=w;x++){const on=x<w&&partition[y*w+x];if(on&&start<0)start=x;if(!on&&start>=0){perch.getContext('2d').clearRect(start,y,x-start,1);start=-1;}}}
+ const sharedResult=output.getContext('2d').createImageData(w,h);
+ function frame(progress){const q=Math.max(0,Math.min(1,progress)),ease=q*q*(3-2*q),c=moving.getContext('2d');c.clearRect(0,0,w,h);c.save();c.translate(220,174+190*ease);c.scale(1-.05*ease,1-.05*ease);c.translate(-220,-174);c.drawImage(body,0,0);c.restore();const pixels=c.getImageData(0,0,w,h),result=sharedResult;result.data.fill(0);for(let i=0;i<partition.length;i++){const n=i*4;if(partition[i]){result.data[n]=pixels.data[n];result.data[n+1]=pixels.data[n+1];result.data[n+2]=pixels.data[n+2];result.data[n+3]=Math.min(pixels.data[n+3],source.data[n+3]);}else for(let k=0;k<4;k++)result.data[n+k]=source.data[n+k];}for(let i=0;i<partition.length;i++)if(!partition[i])result.data.fill(0,i*4,i*4+4);const dc=output.getContext('2d');dc.clearRect(0,0,w,h);if(q===0)dc.drawImage(original,0,0);else{moving.getContext('2d').putImageData(result,0,0);dc.drawImage(perch,0,0);dc.drawImage(moving,0,0);}return output;}
+ function prove(){let introducedAlpha=0,changedPerchPixels=0,changedPerchAlpha=0,maxPerchPremultipliedError=0,visibleAtHidden=0,checkedPixels=0;for(let t=0;t<=100;t++){const q=t/100,d=frame(q).getContext('2d').getImageData(0,0,w,h).data;for(let i=0;i<partition.length;i++){const n=i*4;checkedPixels++;if(d[n+3]>source.data[n+3])introducedAlpha++;if(!partition[i]){if([0,1,2,3].some(k=>d[n+k]!==source.data[n+k]))changedPerchPixels++;if(d[n+3]!==source.data[n+3])changedPerchAlpha++;for(let k=0;k<3;k++)maxPerchPremultipliedError=Math.max(maxPerchPremultipliedError,Math.abs(Math.round(d[n+k]*d[n+3]/255)-Math.round(source.data[n+k]*source.data[n+3]/255)));}if(q===1&&partition[i]&&d[n+3])visibleAtHidden++;}}return{frames:101,checkedPixels,introducedAlpha,changedPerchPixels,changedPerchAlpha,maxPerchPremultipliedError,visibleAtHidden,pass:!introducedAlpha&&!changedPerchAlpha&&maxPerchPremultipliedError===0&&!visibleAtHidden};}
+ return{frame,prove,body,perch,partition};
+}
 class Study{
- constructor(canvas,image,{room='bridge',getExclusions=()=>[]}={}){this.canvas=canvas;this.c=canvas.getContext('2d');this.image=image;this.room=room;this.tour=-1;this.getExclusions=getExclusions;this.time=0;this.paused=false;this.reduced=false;this.active=false;this.safe=true;this.draw();}
- getMouthAnchor(){const p=this.snapshot,a=p.pitch||0;return{x:p.x+p.scale*p.facing*(61*Math.cos(a)+77*Math.sin(a)),y:p.y+p.scale*(61*Math.sin(a)-77*Math.cos(a)),scale:p.scale,visible:this.safe};}
+ constructor(canvas,image,{room='bridge',getExclusions=()=>[],getPlan=()=>null,home=null}={}){this.getPlan=getPlan;this.home=home;this.canvas=canvas;this.c=canvas.getContext('2d');this.image=image;this.room=room;this.tour=-1;this.getExclusions=getExclusions;this.time=0;this.paused=false;this.reduced=false;this.active=false;this.safe=true;this.draw();}
+ edgeStudy(){return this.perchTuck||(this.perchTuck=createPerchTuck(this.image));}
+ drawPerchTuck(q){const c=this.c,h=this.home;c.save();c.translate(h.x,h.y);c.scale(distanceScale(h.z),distanceScale(h.z));c.translate(-220,-174);c.drawImage(q>=1?this.edgeStudy().perch:q<=0?this.image:this.edgeStudy().frame(q),0,0);c.restore();}
+ getMouthAnchor(){const p=this.snapshot,a=p.pitch||0;return{x:p.x+p.scale*p.facing*(61*Math.cos(a)+77*Math.sin(a)),y:p.y+p.scale*(61*Math.sin(a)-77*Math.cos(a)),scale:p.scale,visible:this.safe&&p.visible!==false&&!p.maskedPerch};}
  setRoom(room){if(!maps[room])throw Error('Unknown room');this.room=room;this.reset();}
  reset(){this.time=0;this.active=false;this.draw();}
  preview(){if(this.reduced||this.paused)return false;this.tour=this.tour<0?0:(this.tour+1+Math.floor(Math.random()*2))%3;this.time=0;this.active=true;this.safe=true;this.draw();return true;}
  setReduced(value){this.reduced=!!value;if(value)this.reset();}
  setPaused(value){this.paused=!!value;}
  update(dt){if(!this.paused&&!this.reduced&&this.active){this.time+=Math.min(dt,.05);if(this.time>30.5)this.active=false;}return this.draw();}
- draw(at=this.time){const c=this.c,m=maps[this.room],p=pose(this.reduced?0:at,this.room,Math.max(0,this.tour));c.clearRect(0,0,this.canvas.width,this.canvas.height);this.snapshot=p;
- const exclusions=[...m.exclusions,...this.getExclusions()];const unsafe=exclusions.some(b=>intersects(bounds(p),b));this.safe=!unsafe;
+ draw(at=this.time){const c=this.c,m={...maps[this.room],home:this.home||maps[this.room].home},customPlan=this.getPlan(),p=pose(this.reduced?0:at,this.room,Math.max(0,this.tour),customPlan);c.clearRect(0,0,this.canvas.width,this.canvas.height);this.snapshot=p;if(customPlan?.[0]?.edgeVisit&&(p.visible===false||p.maskedPerch)){this.safe=true;this.drawPerchTuck(p.visible===false?1:p.tuck);return p;}
+ const exclusions=[...(customPlan?[]:m.exclusions),...this.getExclusions()],unchangedHome=p.phase==='rest'&&p.x===m.home.x&&p.y===m.home.y&&Math.abs(p.scale-distanceScale(m.home.z))<1e-9&&(p.facing===undefined||p.facing===1)&&!p.pitch;
+ const unsafe=!unchangedHome&&exclusions.some(b=>intersects(bounds(p),b));this.safe=!unsafe;
  // Keep the original stationary perch. Only hide its bird pixels during a visit.
  c.save();c.translate(m.home.x,m.home.y);c.scale(distanceScale(m.home.z),distanceScale(m.home.z));c.translate(-220,-174);
  if(unsafe||(p.phase==='rest'&&p.x===m.home.x&&p.y===m.home.y)){c.drawImage(this.image,0,0);c.restore();return p;}
- c.save();c.beginPath();c.moveTo(0,177);c.lineTo(105,177);c.lineTo(108,160);c.lineTo(147,174);c.lineTo(253,174);c.lineTo(264,145);c.lineTo(384,128);c.lineTo(384,256);c.lineTo(0,256);c.closePath();c.clip();c.drawImage(this.image,0,0);c.restore();c.restore();
+ if(customPlan?.[0]?.edgeVisit)c.drawImage(this.edgeStudy().perch,0,0);else{c.save();c.beginPath();c.moveTo(0,177);c.lineTo(105,177);c.lineTo(108,160);c.lineTo(147,174);c.lineTo(253,174);c.lineTo(264,145);c.lineTo(384,128);c.lineTo(384,256);c.lineTo(0,256);c.closePath();c.clip();c.drawImage(this.image,0,0);c.restore();}c.restore();
  // Fail closed if a newly placed dialog/input intersects a pre-authored route.
  if(unsafe){return p;}
  c.save();c.translate(p.x,p.y);c.scale(p.scale*p.facing,p.scale);c.rotate(p.pitch||0);
@@ -99,5 +110,5 @@ class Study{
  c.restore();return p;
  }
 }
-return {W,H,maps,plan,pose,bounds,intersects,distanceScale,Study};
+return {W,H,maps,plan,pose,bounds,intersects,distanceScale,createPerchTuck,Study};
 });

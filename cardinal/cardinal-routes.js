@@ -1,0 +1,71 @@
+/* Decorative route planning only; no application state mutations or requests. */
+(function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.OhanaCardinalRoutes=api;})(typeof window!=='undefined'?window:globalThis,function(){
+'use strict';
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function index(rects){const buckets=new Map(),cell=80;for(const r of rects){if(![r.x,r.y,r.w,r.h].every(Number.isFinite)||r.w<=0||r.h<=0)continue;for(let x=Math.floor(r.x/cell);x<=Math.floor((r.x+r.w)/cell);x++)for(let y=Math.floor(r.y/cell);y<=Math.floor((r.y+r.h)/cell);y++){const key=x+','+y;if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(r);}}
+ return box=>{for(let x=Math.floor(box.x/cell);x<=Math.floor((box.x+box.w)/cell);x++)for(let y=Math.floor(box.y/cell);y<=Math.floor((box.y+box.h)/cell);y++)for(const r of buckets.get(x+','+y)||[])if(intersects(box,r))return true;return false;};}
+function hull(api,scale,facings=[-1,1]){const boxes=[];for(const pitch of [-.44,0,.44])for(const facing of facings)for(const wing of [-1,0,1])for(const landing of [0,1])boxes.push(api.bounds({x:0,y:0,scale,pitch,facing,wing,landing,phase:'flight',launch:1,flightTime:0}));const x=Math.min(...boxes.map(b=>b.x))-4,y=Math.min(...boxes.map(b=>b.y))-4;return{x,y,w:Math.max(...boxes.map(b=>b.x+b.w))+4-x,h:Math.max(...boxes.map(b=>b.y+b.h))+4-y};}
+function shifted(p,h){return{x:p.x+h.x,y:p.y+h.y,w:h.w,h:h.h};}
+function inView(b,w,h){return b.x>=1&&b.y>=1&&b.x+b.w<=w-1&&b.y+b.h<=h-1;}
+function* gridSteps(c,api,scale){let checks=0;const hit=index(c.obstacles),guard=hull(api,scale,[-.34,.34]),wideGuard=hull(api,scale),step=40,nodes=[];for(let y=Math.ceil(-guard.y+3);y<c.height-guard.y-guard.h-3;y+=step)for(let x=Math.ceil(-guard.x+3);x<c.width-guard.x-guard.w-3;x+=step){const p={x,y};if(!hit(shifted(p,guard)))nodes.push(p);if(++checks%32===0)yield;}return{nodes,hit,guard,wideGuard,step,lookup:new Map(nodes.map((p,i)=>[p.x+','+p.y,i]))};}
+function lineClear(a,b,g,c){const guard=Math.abs(b.y-a.y)>Math.abs(b.x-a.x)*2?g.guard:g.wideGuard;const count=Math.ceil(distance(a,b)/12);for(let i=1;i<count;i++){const p={x:a.x+(b.x-a.x)*i/count,y:a.y+(b.y-a.y)*i/count},r=shifted(p,guard);if(!inView(r,c.width,c.height)||g.hit(r))return false;}return true;}
+function* searchSteps(a,b,g,c,rng){
+ const nearest=p=>g.nodes.map((v,i)=>({i,d:distance(v,p)})).sort((x,y)=>x.d-y.d).slice(0,3).map(x=>x.i),starts=nearest(a),ends=new Set(nearest(b));if(!starts.length||!ends.size)return null;
+ const seen=new Set(starts),parent=new Map(),queue=starts.slice();let goal=null;
+ for(let n=0;n<queue.length;n++){if(n%8===0)yield;const i=queue[n];if(ends.has(i)){goal=i;break;}const neighbors=[];for(const dx of [-g.step,0,g.step])for(const dy of [-g.step,0,g.step]){if(!dx&&!dy)continue;const j=g.lookup.get((g.nodes[i].x+dx)+','+(g.nodes[i].y+dy));if(j!==undefined&&!seen.has(j))neighbors.push(j);}neighbors.sort((i,j)=>distance(g.nodes[i],b)-distance(g.nodes[j],b)+(rng()-.5)*25);for(const j of neighbors)if(lineClear(g.nodes[i],g.nodes[j],g,c)){seen.add(j);parent.set(j,i);queue.push(j);}}
+ if(goal===null)return null;const points=[];for(let i=goal;i!==undefined;i=parent.get(i))points.unshift(g.nodes[i]);points.unshift(a);points.push(b);
+ // Remove straight grid runs, retaining turns. The renderer eases the final curve.
+ const reduced=[points[0]];for(let i=1;i<points.length-1;i++){const u=points[i-1],v=points[i],w=points[i+1];if(Math.abs((v.x-u.x)*(w.y-v.y)-(v.y-u.y)*(w.x-v.x))>1)reduced.push(v);}reduced.push(points.at(-1));return reduced;
+}
+function leg(points,start,label,destination){const length=points.slice(1).reduce((n,p,i)=>n+distance(points[i],p),0),duration=clamp(length/135+2,3.5,11);return{points,start,duration,end:start+duration,label,destination};}
+function depths(points,a,b){return points.map((p,i)=>{const t=i/(points.length-1);return{x:p.x,y:p.y,z:i===0?a.z:i===points.length-1?b.z:(a.z+(b.z-a.z)*t)/1.22};});}
+function unchangedHome(p,home){return p.phase==='rest'&&p.x===home.x&&p.y===home.y&&Math.abs(p.scale-.72/home.z)<1e-9&&(p.facing===undefined||p.facing===1)&&!p.pitch;}
+function* safePlanSteps(legs,c,api,hit){let previous=null,previousUnchanged=false,samples=0,envelope=null,fullyVisible=0;const edge=legs[0]?.edgeVisit;delete legs.envelope;const end=edge?.end||legs.at(-1).end;for(let t=0;t<=end+.011;t+=.01){if(++samples%8===0)yield;const p=api.pose(t,'bridge',0,legs);if(edge&&(p.maskedPerch||p.visible===false)){if(p.maskedPerch&&(p.x!==c.home.x||p.y!==c.home.y||p.scale!==.72/c.home.z))return false;previous=null;previousUnchanged=false;const next=legs.find(leg=>leg.start>t+.000001);t=(next?next.start:edge.end)-.01;continue;}const b=api.bounds(p),unchanged=unchangedHome(p,c.home);if(edge&&unchanged){previous=null;previousUnchanged=true;continue;}if(edge&&p.phase!=='rest'&&inView(b,c.width,c.height))fullyVisible++;if(!edge&&!inView(b,c.width,c.height)||!unchanged&&hit(b))return false;const e={x:b.x-2,y:b.y-2,w:b.w+4,h:b.h+4};if(!envelope)envelope=e;else{const x=Math.min(envelope.x,e.x),y=Math.min(envelope.y,e.y);envelope={x,y,w:Math.max(envelope.x+envelope.w,e.x+e.w)-x,h:Math.max(envelope.y+envelope.h,e.y+e.h)-y};}
+ if(previous&&!(unchanged&&previousUnchanged)){const sweep={x:Math.min(previous.x,b.x)-2,y:Math.min(previous.y,b.y)-2,w:Math.max(previous.x+previous.w,b.x+b.w)-Math.min(previous.x,b.x)+4,h:Math.max(previous.y+previous.h,b.y+b.h)-Math.min(previous.y,b.y)+4};if(hit(sweep))return false;}previous=b;previousUnchanged=unchanged;}if(edge&&fullyVisible<35)return false;legs.envelope=envelope;return true;}
+function* foregroundSteps(c,api,recent,rng){
+ // The dock can separate a valid home perch from the interior air grid.
+ // Stay in its actual clear foreground band rather than jumping through controls.
+ const home=c.home,direction=home.x>c.width/2?-1:1,hit=index(c.obstacles),unit=Math.min(1000,c.width),reaches=[.18,.26,.34,.44].map(v=>unit*(v+(rng()-.5)*.025));
+ for(const factor of [1.22,1.15,1.1])for(const lift of [8,16,24,4])for(const reach of reaches){
+  const z=home.z/factor,points=[home,{x:home.x+direction*reach*.25,y:home.y-lift*.7,z},{x:home.x+direction*reach*.8,y:home.y-lift,z},{x:home.x+direction*reach,y:home.y-lift*.85,z},{x:home.x+direction*reach*.8,y:home.y-lift*.7,z},{x:home.x+direction*reach*.25,y:home.y-lift*.4,z},home];
+  const key=c.screen+':foreground:'+factor+':'+lift+':'+Math.round(reach/16),legs=[leg(points,.25,'A quiet flight through the clear foreground','the original perch')];if(recent.some(v=>v.key===key))continue;
+  if(yield* safePlanSteps(legs,c,api,hit))return{plan:legs,key,kind:'foreground-flight',scaleFactor:factor,reason:null};
+ }
+ // A short lift before turning keeps the wings clear of the lower edge and dock.
+ for(const factor of [1.15,1.1,1.22])for(const lift of [20,24,40,16,64])for(const reach of [35,50,80,120]){
+  const z=home.z/factor,p=(x,y)=>({x:home.x+direction*x,y:home.y-y,z}),points=[home,p(reach*.15,lift),p(reach,lift),p(reach*.5,lift),p(0,lift),home],key=c.screen+':lift:'+factor+':'+lift+':'+reach,legs=[leg(points,.25,'Lifting into clear room air','the original perch')];if(recent.some(v=>v.key===key))continue;if(yield*safePlanSteps(legs,c,api,hit))return{plan:legs,key,kind:'lifted-foreground-flight',scaleFactor:factor,reason:null};
+ }
+ // Compact foreground excursions retain a recognizably larger bird (5-8%).
+ // These exact trajectories are checked with the same full wing/sweep guards.
+ for(const reach of [...new Set([Math.min(300,c.width*.3),Math.min(200,c.width*.2),80,40])])for(const factor of [1.08,1.05])for(const lift of [6,10,14,18,24])for(const shape of [0,1]){
+  const z=home.z/factor,p=(x,y)=>({x:home.x+direction*x,y:home.y-y,z}),points=shape?[home,p(reach*.15,lift),p(reach,lift),p(reach*.5,lift),p(0,lift),home]:[home,p(reach*.25,lift*.7),p(reach*.8,lift),p(reach,lift*.85),p(reach*.8,lift*.7),p(reach*.25,lift*.4),home],key=c.screen+':compact:'+factor+':'+lift+':'+Math.round(reach)+':'+shape,legs=[{points,start:.25,duration:3.5,end:3.75,label:'A brief flight through the clear foreground',destination:'the original perch'}];if(recent.some(v=>v.key===key))continue;if(yield*safePlanSteps(legs,c,api,hit))return{plan:legs,key,kind:'compact-foreground-flight',scaleFactor:factor,reason:null};
+ }return null;
+}
+function* edgeSteps(c,api,recent,rng){
+ if(c.obstacles.some(o=>o.x<=0&&o.y<=0&&o.x+o.w>=c.width&&o.y+o.h>=c.height))return{plan:null,reason:'fully-obstructed'};const rows=Array.from({length:Math.max(0,Math.ceil((c.height-35)/5))},(_,i)=>35+i*5);for(let i=rows.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[rows[i],rows[j]]=[rows[j],rows[i]];}const hit=index(c.obstacles),home=c.home,scales=[...new Set([clamp(.72/home.z*1.1,.18,.45),.28,.22,.18])],make=(points,duration,style,key)=>{const start=.65+clamp(distance(home,points[0])/180,1.2,6),leg={points,start,duration,end:start+duration,label:'A flight through clear room air',destination:'the room edge',flightStyle:style},revealStart=leg.end+clamp(distance(points.at(-1),home)/180,1.2,6),meta={home,tuckStart:.1,tuckEnd:.65,revealStart,end:revealStart+.6};leg.edgeVisit=meta;return{legs:[leg],key};};
+ for(const scale of scales)for(const direction of rng()<.5?[1,-1]:[-1,1])for(const y of rows){yield;const z=.72/scale,xs=direction>0?[-120,c.width*.3,c.width*.7,c.width+120]:[c.width+120,c.width*.7,c.width*.3,-120],key=c.screen+':edge-glide:'+scale+':'+direction+':'+Math.round(y/24);if(recent.some(v=>v.key===key))continue;const a=make(xs.map(x=>({x,y,z})),clamp((c.width+240)/180,3.5,8),'glide',key);if(yield*safePlanSteps(a.legs,c,api,hit))return{plan:a.legs,key,kind:'edge-glide',reason:null};}
+ for(const glide of [false,true])for(const scale of scales)for(const side of [1,-1])for(let y=80;y<c.height-30;y+=15)for(const reach of [60,80,110,150])for(const dy of [-30,30,-60,60]){yield;const z=.72/scale,x=side>0?c.width+120:-120,inside=side>0?c.width-25:25,turn=side>0?c.width-reach:reach,points=[{x,y,z},{x:inside,y,z},{x:turn,y:y+dy,z},{x:inside,y:y+2*dy,z},{x,y:y+2*dy,z}],key=c.screen+':edge-arc:'+scale+':'+side+':'+y+':'+reach+':'+dy+':'+glide;if(recent.some(v=>v.key===key))continue;const a=make(points,4,glide?'glide':'flap',key);if(yield*safePlanSteps(a.legs,c,api,hit))return{plan:a.legs,key,kind:'edge-arc',reason:null};}
+ return{plan:null,reason:'no-verified-edge-route'};
+}
+function* chooseSteps(c,api,recent,rng=Math.random){
+ const home=c.home,rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4};if(index(c.obstacles)(near))return yield*edgeSteps(c,api,recent,rng);const homeScale=.72/home.z,scale=clamp(homeScale*1.22,.18,.6),g=yield* gridSteps(c,api,scale);if(!g.nodes.length||Math.min(...g.nodes.map(p=>distance(p,home)))>Math.max(100,homeScale*300)){const clear=yield* foregroundSteps(c,api,recent,rng);if(clear)return clear;}if(!g.nodes.length)return yield*edgeSteps(c,api,recent,rng);
+ const targets=[...c.perches.map(p=>({...p,land:true})),...g.nodes.filter(p=>distance(p,home)>Math.min(c.width,c.height)*.25).sort(()=>rng()-.5).slice(0,12).map(p=>({...p,z:.72/scale,land:false,kind:'air-arc'}))];
+ for(const target of targets){if(!(target.x>0&&target.y>0&&target.x<c.width&&target.y<c.height))continue;const outbound=yield* searchSteps(home,target,g,c,rng),inbound=yield* searchSteps(target,home,g,c,rng);if(!outbound||!inbound)continue;
+ const key=c.screen+':'+target.kind+':'+outbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';')+':'+inbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';');if(recent.some(v=>v.key===key))continue;
+ let legs;if(target.land){const first=leg(depths(outbound,home,target),.25,'Approaching a clear '+target.kind,'a clear '+target.kind),back=leg(depths(inbound,target,home),first.end+2+rng()*2,'Returning to the original perch','the original perch');legs=[first,back];}else{const points=[...outbound,...inbound.slice(1)],all=depths(points,home,home);legs=[leg(all,.25,'A quiet flight through the room','the original perch')];}
+ if(yield* safePlanSteps(legs,c,api,g.hit))return{plan:legs,key,kind:target.kind,reason:null};
+ }return (yield* foregroundSteps(c,api,recent,rng))||(yield*edgeSteps(c,api,recent,rng));
+}
+function drain(iterator){let step;do{step=iterator.next();}while(!step.done);return step.value;}
+function safePlan(...args){return drain(safePlanSteps(...args));}
+function foreground(...args){return drain(foregroundSteps(...args));}
+function choose(...args){return drain(chooseSteps(...args));}
+function createTask(iterator){
+ let done=false,cancelled=false,value=null;
+ return{advance({budgetMs=3,maxSteps=32,clock=()=>performance.now()}={}){const start=clock();let units=0;if(!done&&!cancelled)do{const step=iterator.next();units++;if(step.done){done=true;value=step.value;break;}}while(units<maxSteps&&clock()-start<budgetMs);return{done:done||cancelled,cancelled,value,sliceMs:clock()-start,units};},cancel(){if(!done&&!cancelled){cancelled=true;iterator.return();}}};
+}
+
+function createPlanner(c,api,recent,rng=Math.random){return createTask(chooseSteps(c,api,recent,rng));}
+return{edgeSteps,intersects,index,hull,inView,safePlan,choose,unchangedHome,foreground,createPlanner,createTask};
+});
