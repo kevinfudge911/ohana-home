@@ -1,0 +1,27 @@
+/* Only the added personal trigger and bubble are styled. Existing workstation geometry stays intact. */
+#game #game-controls-dock [data-personal-mango-trigger]{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:max(44px,100%)!important;height:max(44px,100%)!important;min-width:44px!important;min-height:44px!important;display:block!important;box-sizing:border-box!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;cursor:pointer!important;overflow:visible!important;touch-action:manipulation!important}
+#game #game-controls-dock [data-personal-mango-trigger]:focus-visible{outline:3px solid #8ff9ff!important;outline-offset:2px!important}
+#game #game-controls-dock [data-personal-mango-trigger].is-speaking [data-mango-motion]{animation:personalMangoTalk .9s ease-in-out infinite alternate;transform-origin:50% 90%}
+@keyframes personalMangoTalk{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg) translateY(-2px)}}
+#ohana-personal-mango{position:fixed!important;z-index:810!important;box-sizing:border-box!important;margin:0!important;padding:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:drop-shadow(0 4px 3px #001d2530);font:14px/1.4 system-ui,sans-serif!important;color:#173e3b!important;text-align:left!important;isolation:isolate}
+#ohana-personal-mango:after{content:'';position:absolute;left:46%;bottom:-7px;width:14px;height:14px;transform:rotate(45deg);background:#fff9e8;border-bottom:1px solid #d3bf92;border-right:1px solid #d3bf92;pointer-events:none}
+#ohana-personal-mango *{box-sizing:border-box}
+#ohana-personal-mango .mango-bubble{max-height:inherit;overflow:auto;overscroll-behavior:contain;border:1px solid #d3bf92;border-radius:19px;padding:10px;background:#fff9e8!important;color:#173e3b!important}
+#ohana-personal-mango .mango-caption-row{display:flex;align-items:flex-start;gap:5px}
+#ohana-personal-mango [data-caption]{flex:1;min-width:0;overflow-wrap:anywhere;margin:2px 0 7px;color:#173e3b!important;font:15px/1.4 system-ui,sans-serif!important}
+#ohana-personal-mango button{appearance:none!important;min-height:44px!important;min-width:44px!important;padding:6px 7px!important;margin:0!important;box-shadow:none!important;border:1px solid #72938b!important;border-radius:10px!important;background:#fff9e8!important;color:#173e3b!important;font:12px/1.2 system-ui,sans-serif!important;cursor:pointer!important;text-transform:none!important;letter-spacing:normal!important;text-shadow:none!important;white-space:nowrap!important}
+#ohana-personal-mango [data-mango-close]{border:0!important;font-size:24px!important;flex:none}
+#ohana-personal-mango .mango-voice-actions{display:flex;gap:5px}
+#ohana-personal-mango .mango-voice-actions button{flex:1;min-width:0!important}
+#ohana-personal-mango [data-hear]{background:#145951!important;color:white!important;border-color:#145951!important}
+#ohana-personal-mango button:disabled{opacity:.55!important;cursor:default!important}
+#ohana-personal-mango button:focus-visible,#ohana-personal-mango summary:focus-visible,#ohana-personal-mango textarea:focus-visible,#ohana-personal-mango select:focus-visible{outline:3px solid #007c8d!important;outline-offset:2px!important}
+#ohana-personal-mango [data-status]{font:11px/1.35 system-ui,sans-serif!important;overflow-wrap:anywhere;color:#44645b!important;margin:8px 0 0!important}
+#ohana-personal-mango summary{min-height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:underline;font-size:12px;list-style:none}
+#ohana-personal-mango summary::-webkit-details-marker{display:none}
+#ohana-personal-mango label{display:block;font:600 12px/1.4 system-ui,sans-serif!important;margin:8px 0!important}
+#ohana-personal-mango textarea,#ohana-personal-mango select{display:block;width:100%!important;max-width:100%!important;min-height:44px;padding:8px!important;border:1px solid #72938b!important;border-radius:8px!important;background:white!important;color:#173e3b!important;font:14px/1.4 system-ui,sans-serif!important}
+#ohana-personal-mango .mango-privacy{font:11px/1.4 system-ui,sans-serif!important;margin:8px 0 0!important;color:#44645b!important}
+@media(prefers-reduced-motion:reduce){#game #game-controls-dock [data-personal-mango-trigger].is-speaking img{animation:none}}
+
+#game #game-controls-dock [data-personal-mango-trigger] [data-mango-motion]{display:block!important;width:100%!important;height:100%!important}

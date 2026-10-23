@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "base": "7e5f8b28d49296ff6cc5c75145954a8f50a763ab",
+  "reviewedImplementationFilesExact": true,
+  "bindingAuditMetadataPrivate": true,
+  "reviewedHtmlAndGzipExact": true,
+  "wholeBaselineInverseExact": true,
+  "cardinalAssetsPreserved": true,
+  "configuredOwnerMatchesBootstrap": true,
+  "oneBlock": true,
+  "packagingIdempotent": true,
+  "scripts": 33,
+  "modules": 483,
+  "allEmittedBytesExact": true,
+  "rawSha256": "545bc8419b40f3421e19b17616917dd1e0a95dcd0d9f4f10a2f31b1de27ac09c",
+  "gzipSha256": "6810e6b2f4d95bafd1a01b7dc2139baba42f8760e7ee3dee391dbc110582af16",
+  "rawBytes": 6985014,
+  "gzipBytes": 3489517,
+  "familyWrites": 0
+}
