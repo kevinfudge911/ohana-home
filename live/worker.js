@@ -8371,6 +8371,9 @@ function o10AddCards(st, players, p, move) {
   const ids = move.cardIds || [move.cardId];
   if (!ids.length || new Set(ids).size !== ids.length) throw Error("Select the cards you want to add.");
   const cards = o10AssignCards(ids.map((id) => st.hands[p].find((c) => c.id === id)), move.wildAssignments);
+  // Keep physical card ownership separate from the logical group it extends.
+  // Only the trusted acting seat supplies this metadata, never the request.
+  cards.forEach((card) => { if (card) card.playedBy = p; });
   if (cards.some((c) => !c)) throw Error("One of those cards is no longer in your hand.");
   const tables = structuredClone(st.melds), targets = [], allTargets = [];
   for (const owner of players) for (let i = 0; i < (tables[owner] || []).length; i++) {
