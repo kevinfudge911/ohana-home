@@ -1,0 +1,1 @@
+{"passed":true,"samples":1470,"paintedWingAndFootPixels":621003,"pixelsOutsideGuard":0,"reviewerReproduction":{"paintedPixelsInExclusion":603,"oldGuardMisses":true,"newGuardDetects":true},"roomViews":2,"toursPerRoom":3,"scope":"Actual canvas wing/foot pixels with a transparent source image; original body clip is conservatively included analytically."}

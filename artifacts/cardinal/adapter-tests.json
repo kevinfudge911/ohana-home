@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "checks": 3753,
+  "reviewerRegressionCaught": true,
+  "networkRequests": 0,
+  "familyWrites": 0,
+  "scope": "Synthetic adapter and geometry; rendered pixels are checked separately in browser fixture"
+}

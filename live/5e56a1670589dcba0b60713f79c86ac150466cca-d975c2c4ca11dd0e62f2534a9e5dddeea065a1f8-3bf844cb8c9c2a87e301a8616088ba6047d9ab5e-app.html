@@ -16859,7 +16859,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
    if(toggle.dataset.workstationState!==String(collapsed)){toggle.dataset.workstationState=String(collapsed);toggle.innerHTML='<small class="ohana-menu-label">Menu</small><span aria-hidden="true">'+(collapsed?'+':'−')+'</span><small class="ohana-menu-state">'+(collapsed?'Show':'Hide')+'</small>';}
    toggle.setAttribute('aria-label',collapsed?'Show menu':'Hide menu');toggle.setAttribute('aria-expanded',String(!collapsed));toggle.disabled=!dock;
    if(dock)toggle.setAttribute('aria-controls',dock.id);else toggle.removeAttribute('aria-controls');
-   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'var(--landscape-hub-width,184px)',height:'var(--landscape-hub-height,112px)',background:'url(/ohana-cardinal-control-v1.webp) left bottom 4px/var(--landscape-hub-art,120px 80px) no-repeat','z-index':'80',display:'block'});
+   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'var(--landscape-hub-width,184px)',height:'var(--landscape-hub-height,112px)',background:(slot.dataset.cardinalAway==='true'?'none':'url(/ohana-cardinal-control-v1.webp)')+' left bottom 4px/var(--landscape-hub-art,120px 80px) no-repeat','z-index':'80',display:'block'});
    set(head,{position:'absolute',left:'0',right:'auto',top:'auto',bottom:'4px',width:'var(--landscape-hub-head,120px)',height:'var(--landscape-hub-head-height,80px)','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1'});
    set(toggle,{position:'absolute',left:'var(--landscape-toggle-x,124px)',right:'auto',top:'4px',bottom:'auto',width:'56px',height:'104px','min-width':'56px','min-height':'104px','max-width':'56px','max-height':'104px',margin:'0',padding:'0',display:'flex','flex-direction':'column','align-items':'center','justify-content':'center',gap:'0',background:'transparent',border:'0','box-shadow':'none',color:'#9dff42',font:'900 38px/1 Nunito,system-ui','text-shadow':'0 1px 2px #183b17,0 0 3px #183b17',opacity:toggle.disabled?'.6':'1','z-index':'42'});
    set(toggle.querySelector('.ohana-menu-label'),{font:'800 18px/1.2 Nunito,system-ui',color:'#f6ffe8','text-shadow':'0 1px 2px #183b17'});
@@ -17265,7 +17265,7 @@ const settings=document.querySelector('#ohana-settings-dialog');if(settings&&!se
 new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});mount();
 const contextTitle=()=>{const title=document.querySelector('#uc-title');if(title)title.hidden=title.textContent.trim()==='Ohana Bridge'};new MutationObserver(contextTitle).observe(document.body,{childList:true,subtree:true});contextTitle();
 const clearOldPanels=()=>{document.querySelectorAll('#ohana-chat-dialog #uc-thread,#ohana-chat-dialog #uc-messages,#ohana-settings-dialog .settings-tools').forEach(e=>apply(e,{background:'none',border:'0','box-shadow':'none','border-radius':'0'}))};new MutationObserver(clearOldPanels).observe(document.body,{childList:true,subtree:true});clearOldPanels();
-const responsiveScene=()=>{document.querySelectorAll('#ohana-chat-dialog[data-room-scene],#ohana-settings-dialog[data-room-scene]').forEach(d=>apply(d,{'background-image':'url('+(innerWidth<innerHeight?portrait:scene)+')','background-size':innerWidth<innerHeight?'100% 100%':'cover'}))};new MutationObserver(responsiveScene).observe(document.body,{childList:true,subtree:true});addEventListener('resize',responsiveScene);responsiveScene();
+const responsiveScene=()=>{document.querySelectorAll('#ohana-chat-dialog[data-room-scene],#ohana-settings-dialog[data-room-scene]').forEach(d=>apply(d,{'background-image':'url('+(innerWidth<innerHeight?portrait:scene)+')','background-size':innerWidth<innerHeight?'100% 100%':(d.dataset.cardinalMapping==='true'?(d.style.getPropertyValue('background-size')||'cover'):'cover')}))};new MutationObserver(responsiveScene).observe(document.body,{childList:true,subtree:true});addEventListener('resize',responsiveScene);responsiveScene();
 const messageAction=()=>{const d=document.querySelector('#ohana-chat-dialog'),main=d?.querySelector('.uc-main'),button=d?.querySelector('#uc-start');if(main&&button&&button.parentElement!==main){main.prepend(button);apply(button,{'align-self':'flex-end',flex:'none','font-size':'16px'})}};new MutationObserver(messageAction).observe(document.body,{childList:true,subtree:true});messageAction();
 const clearLabels=()=>{document.querySelectorAll('#ohana-chat-dialog .hub-tabs button,#ohana-chat-dialog header button,#ohana-chat-dialog .hub-room-brand,#ohana-settings-dialog .settings-dlg-head button').forEach(e=>apply(e,{'text-shadow':'0 1px 2px #fff7dd,0 0 5px #fff7dd'}))};new MutationObserver(clearLabels).observe(document.body,{childList:true,subtree:true});clearLabels();
 const openSettingsPreview=()=>{document.querySelectorAll('#ohana-settings-dialog .look-preview').forEach(e=>apply(e,{background:'none',border:'0','box-shadow':'none','border-radius':'0',color:'#185568',padding:'6px 0'}));document.querySelectorAll('#ohana-chat-dialog .hub-music [data-music-commands] button,#ohana-chat-dialog .hub-music [data-music-commands] label').forEach(e=>apply(e,{color:'#fff4d6','text-shadow':'0 1px 3px #49290d,0 0 4px #49290d'}))};new MutationObserver(openSettingsPreview).observe(document.body,{childList:true,subtree:true});openSettingsPreview();
@@ -19630,3 +19630,209 @@ window.OhanaPersonalMango={install};
 
 window.ohanaPersonalMangoOwner=OhanaPersonalMango.install({ownerMemberId:5});</script>
 <!-- OHANA PERSONAL MANGO END -->
+
+<!-- OHANA KEVIN CARDINAL VISITS START -->
+<script id="ohana-kevin-cardinal-visits">
+/* Isolated rendering module. No application state, network, sound or profile access. */
+(function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.OhanaMemorialStudy=api;})(typeof window!=='undefined'?window:globalThis,function(){
+'use strict';
+const W=1536,H=1024;
+const maps={
+ bridge:{home:{x:1410,y:930,z:1.55},rail:{x:1144,y:466,z:2.7},flower:{x:135,y:850,z:1.05},high:[{x:1330,y:330,z:2.7},{x:1040,y:250,z:3.45},{x:600,y:260,z:3.15},{x:180,y:360,z:2.35},{x:145,y:630,z:1.5}],exclusions:[{x:365,y:580,w:805,h:360}]},
+ shuffle:{home:{x:1410,y:960,z:1.55},rail:{x:1370,y:527,z:2.65},flower:{x:150,y:890,z:1.05},high:[{x:1455,y:340,z:2.6},{x:1460,y:120,z:3.3},{x:1310,y:45,z:5},{x:900,y:45,z:5},{x:480,y:45,z:5},{x:140,y:110,z:3.5},{x:125,y:430,z:2.3},{x:135,y:670,z:1.45}],exclusions:[{x:355,y:75,w:820,h:155},{x:300,y:230,w:905,h:665}]}
+};
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function distanceScale(z){return .72/z;}
+function catmull(a,b,c,d,t){return .5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);}
+function path(points,t){const u=clamp(t,0,1)*(points.length-1),i=Math.min(points.length-2,Math.floor(u)),f=u-i;return Object.fromEntries(['x','y','z'].map(k=>[k,catmull(points[Math.max(0,i-1)][k],points[i][k],points[i+1][k],points[Math.min(points.length-1,i+2)][k],f)]));}
+function makeLeg(a,b,mid,duration,start,label){
+ // A modest approach toward the viewer makes flight easier to read.
+ // Fixed landing anchors retain their original distance and exact resting size.
+ const flightPoints=mid.map(point=>({...point,z:point.z/1.22}));
+ return {points:[a,...flightPoints,b],duration,start,end:start+duration,label};
+}
+function plan(room='bridge',tour=0){
+ const m={...maps[room]};
+ if(tour===2){m.rail=m.altRail||(room==='bridge'?{x:411,y:466,z:2.7}:{x:1350,y:490,z:2.85});m.flower=m.altFlower||(room==='bridge'?{x:188,y:940,z:1.05}:{x:190,y:950,z:1.05});}
+ const first=m.first||(room==='bridge'?[{x:1400,y:760,z:1.85},{x:1350,y:550,z:2.3},{x:1200,y:400,z:2.85}]:[{x:1445,y:800,z:1.8},{x:1445,y:590,z:2.2},{x:1430,y:460,z:2.75}]);
+ const back=m.back|| (room==='bridge'?[...m.high.slice().reverse(),{x:1380,y:620,z:2.1},{x:1420,y:790,z:1.8}]:[...m.high.slice().reverse(),{x:1445,y:590,z:2.2},{x:1445,y:810,z:1.8}]);
+ const legs=[makeLeg(m.home,m.rail,first,5.5,1,'Toward the distant rail'),makeLeg(m.rail,m.flower,m.high,8.5,9.5,'Approaching the foreground flowers'),makeLeg(m.flower,m.home,back,8.5,21,'Returning to the original resting position')];
+ if(tour===1){let start=1;return legs.slice().reverse().map(leg=>{const points=leg.points.slice().reverse(),end=points.at(-1),destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers',next={points,duration:leg.duration,start,end:start+leg.duration,label:'Visiting '+destination,destination};start=next.end+3;return next;});}
+ legs.forEach(leg=>{const end=leg.points.at(-1);leg.destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers';});return legs;
+}
+function pose(time,room='bridge',tour=0){
+ const legs=plan(room,tour),m=maps[room];let perch=m.home,last=null;
+ for(const leg of legs){if(time<leg.start)return {...perch,scale:distanceScale(perch.z),phase:'rest',label:last?'Settled on '+last.destination:'Resting on the original Ohana perch',facing:last===legs[0]?-1:1};if(time<=leg.end){let u=(time-leg.start)/leg.duration;
+ // Acceleration after push-off, long middle flight, deceleration into contact.
+ let q=u*u*(3-2*u),p=path(leg.points,q),n=path(leg.points,clamp(q+.001,0,1)),prev=path(leg.points,clamp(q-.001,0,1));let dx=n.x-prev.x,dy=n.y-prev.y;
+ const envelope=Math.sin(Math.PI*clamp(u*4,0,1))*.5+.5;
+ const landing=clamp((u-.86)/.14,0,1),launch=clamp(u/.12,0,1);
+ const bound=0.5+0.5*Math.sin((u*leg.duration)*Math.PI*2*1.5);
+ const glideWeight=u>.25&&u<.78?clamp((bound-.6)/.4,0,1):0,glide=glideWeight>.5; const yaw=dx/(Math.abs(dy)*.7+Math.abs(dx)+.000001);const facing=yaw===0?1:Math.sign(yaw)*(.32+.68*Math.abs(yaw));
+ return {...p,scale:distanceScale(p.z),phase:landing>0?'landing':launch<1?'launch':'flight',label:leg.label,u,flightTime:time-leg.start,facing,pitch:clamp(Math.atan2(dy,Math.abs(dx))*.28,-.28,.28)+.16*(1-landing),wing:lerp(Math.sin((time-leg.start)*Math.PI*2*7.2),.12,glideWeight),glide,landing,launch,envelope};}
+ perch=leg.points.at(-1);last=leg;
+ }
+ return {...m.home,scale:distanceScale(m.home.z),phase:'rest',label:'Resting on the original Ohana perch',facing:1,complete:true};
+}
+function bounds(p){
+ // Bezier curves stay inside their control-point hull. Bound both wings and
+ // every primary at this pose, including stroke, body clip, bob and draw transform.
+ const points=[[-151,-170],[64,-170],[-151,-9],[64,-9]];
+ if(p.phase!=='rest'){
+  const w=p.wing||0,land=p.landing||0,amp=(1-land*.68)*(p.launch===undefined?1:Math.max(.3,p.launch)),tx=-92-Math.max(0,-w)*24,ty=-45-w*117*amp;
+  for(const [ox,oy]of [[10,-10],[-3,2]]){
+   const wing=[[-7,-48],[-47,-73],[tx-8,ty-17],[tx,ty],[tx+14,ty+24],[-45,-22],[-23,-20]];
+   for(let i=0;i<8;i++){const f=i/7,x=tx+f*58,y=ty+f*(42+w*43*amp);wing.push([-35+f*12,-46+f*10],[x+11,y-12],[x,y],[x-6,y+4],[-44+f*20,-27+f*4]);}
+   // Default miter limit 10 with a 1.3 stroke can reach 6.5 local units.
+   for(const [x,y]of wing)for(const [dx,dy]of [[-7,-7],[7,-7],[-7,7],[7,7]])points.push([x+ox+dx,y+oy+dy]);
+  }
+ }
+ // Feet use a 2.6 stroke: include its full 13-unit miter envelope.
+ if(p.phase==='rest'||p.landing>.55)points.push([-36,-23],[21,-23],[-36,14],[21,14]);
+ const bob=p.phase==='rest'?0:Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0));
+ const angle=p.pitch||0,cos=Math.cos(angle),sin=Math.sin(angle),facing=p.facing===undefined?1:p.facing;
+ const corners=points.map(([x,y])=>({x:p.x+p.scale*facing*(x*cos-(y+bob)*sin),y:p.y+p.scale*(x*sin+(y+bob)*cos)}));
+ const left=Math.min(...corners.map(q=>q.x))-2,top=Math.min(...corners.map(q=>q.y))-2;
+ return{x:left,y:top,w:Math.max(...corners.map(q=>q.x))+2-left,h:Math.max(...corners.map(q=>q.y))+2-top};
+}
+function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function birdClip(c){c.beginPath();c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
+function drawWing(c,p,far){
+ const w=p.wing||0,land=p.landing||0,amp=(1-land*.68)*(p.launch===undefined?1:Math.max(.3,p.launch));
+ const shoulder={x:-7,y:-48},tip={x:-92-Math.max(0,-w)*24,y:-45-w*117*amp};
+ c.save();c.translate(far?10:-3,far?-10:2);c.globalAlpha=far?.78:1;
+ const grad=c.createLinearGradient(shoulder.x,shoulder.y,tip.x,tip.y);grad.addColorStop(0,far?'#ad2515':'#ee3825');grad.addColorStop(.56,far?'#b32c1e':'#c72c1f');grad.addColorStop(1,'#8c211a');
+ c.fillStyle=grad;c.strokeStyle='#752219';c.lineWidth=1.3;
+ c.beginPath();c.moveTo(shoulder.x,shoulder.y);c.bezierCurveTo(-47,-73,tip.x-8,tip.y-17,tip.x,tip.y);c.quadraticCurveTo(tip.x+14,tip.y+24,-45,-22);c.quadraticCurveTo(-23,-20,shoulder.x,shoulder.y);c.fill();c.stroke();
+ // Eight overlapping primaries, each swept from an elbow to an individual tip.
+ for(let i=0;i<8;i++){const f=i/7,tx=tip.x+f*58,ty=tip.y+f*(42+w*43*amp);c.fillStyle=i%2?'#c53222':'#d13a27';c.beginPath();c.moveTo(-35+f*12,-46+f*10);c.quadraticCurveTo(tx+11,ty-12,tx,ty);c.quadraticCurveTo(tx-6,ty+4,-44+f*20,-27+f*4);c.closePath();c.fill();c.stroke();}
+ c.restore();
+}
+class Study{
+ constructor(canvas,image,{room='bridge',getExclusions=()=>[]}={}){this.canvas=canvas;this.c=canvas.getContext('2d');this.image=image;this.room=room;this.tour=-1;this.getExclusions=getExclusions;this.time=0;this.paused=false;this.reduced=false;this.active=false;this.safe=true;this.draw();}
+ getMouthAnchor(){const p=this.snapshot,a=p.pitch||0;return{x:p.x+p.scale*p.facing*(61*Math.cos(a)+77*Math.sin(a)),y:p.y+p.scale*(61*Math.sin(a)-77*Math.cos(a)),scale:p.scale,visible:this.safe};}
+ setRoom(room){if(!maps[room])throw Error('Unknown room');this.room=room;this.reset();}
+ reset(){this.time=0;this.active=false;this.draw();}
+ preview(){if(this.reduced||this.paused)return false;this.tour=this.tour<0?0:(this.tour+1+Math.floor(Math.random()*2))%3;this.time=0;this.active=true;this.safe=true;this.draw();return true;}
+ setReduced(value){this.reduced=!!value;if(value)this.reset();}
+ setPaused(value){this.paused=!!value;}
+ update(dt){if(!this.paused&&!this.reduced&&this.active){this.time+=Math.min(dt,.05);if(this.time>30.5)this.active=false;}return this.draw();}
+ draw(at=this.time){const c=this.c,m=maps[this.room],p=pose(this.reduced?0:at,this.room,Math.max(0,this.tour));c.clearRect(0,0,this.canvas.width,this.canvas.height);this.snapshot=p;
+ const exclusions=[...m.exclusions,...this.getExclusions()];const unsafe=exclusions.some(b=>intersects(bounds(p),b));this.safe=!unsafe;
+ // Keep the original stationary perch. Only hide its bird pixels during a visit.
+ c.save();c.translate(m.home.x,m.home.y);c.scale(distanceScale(m.home.z),distanceScale(m.home.z));c.translate(-220,-174);
+ if(unsafe||(p.phase==='rest'&&p.x===m.home.x&&p.y===m.home.y)){c.drawImage(this.image,0,0);c.restore();return p;}
+ c.save();c.beginPath();c.moveTo(0,177);c.lineTo(105,177);c.lineTo(108,160);c.lineTo(147,174);c.lineTo(253,174);c.lineTo(264,145);c.lineTo(384,128);c.lineTo(384,256);c.lineTo(0,256);c.closePath();c.clip();c.drawImage(this.image,0,0);c.restore();c.restore();
+ // Fail closed if a newly placed dialog/input intersects a pre-authored route.
+ if(unsafe){return p;}
+ c.save();c.translate(p.x,p.y);c.scale(p.scale*p.facing,p.scale);c.rotate(p.pitch||0);
+ if(p.phase!=='rest'){c.translate(0,Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0)));drawWing(c,p,true);}
+ // Body, crest, scarf and beak are sampled directly from the original asset.
+ c.save();c.translate(-220,-174);birdClip(c);c.drawImage(this.image,0,0);c.restore();
+ if(p.phase!=='rest')drawWing(c,p,false);if(p.phase==='rest'||p.landing>.55){c.strokeStyle='#b76b17';c.lineWidth=2.6;c.beginPath();c.moveTo(-18,-10);c.lineTo(-13,0);c.lineTo(-23,1);c.moveTo(4,-10);c.lineTo(8,0);c.lineTo(-2,1);c.stroke();}
+ c.restore();return p;
+ }
+}
+return {W,H,maps,plan,pose,bounds,intersects,distanceScale,Study};
+});
+
+/* Kevin's optional decorative visits. No account, game, message or audio writes. */
+(function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.OhanaCardinalVisits=api;})(typeof window!=='undefined'?window:globalThis,function(){
+'use strict';
+const W=1536,H=1024,AW=384,AH=256,KEY='ohana_cardinal_visits_v1';
+function axis(value,free){
+ value=value.trim();if(value==='center')return free/2;if(value==='left'||value==='top')return 0;if(value==='right'||value==='bottom')return free;
+ if(/^-?[\d.]+%$/.test(value))return free*parseFloat(value)/100;if(/^-?[\d.]+px$/.test(value))return parseFloat(value);
+ const m=/^calc\(\s*(-?[\d.]+)%\s*([+-])\s*([\d.]+)px\s*\)$/.exec(value);if(m)return free*Number(m[1])/100+(m[2]==='-'?-1:1)*Number(m[3]);return NaN;
+}
+function tokens(value){return value.match(/calc\([^)]*\)|[^\s]+/g)||[];}
+function imageRect(box,size,position,iw,ih){
+ if(!box||!(box.width>0&&box.height>0))return null;let width,height;
+ if(size==='cover'||size==='contain'){const scale=Math[size==='cover'?'max':'min'](box.width/iw,box.height/ih);width=iw*scale;height=ih*scale;}
+ else{const p=tokens(size);if(p.length!==2)return null;const dimension=(v,total)=>v==='auto'?null:axis(v,total);width=dimension(p[0],box.width);height=dimension(p[1],box.height);if(width===null&&Number.isFinite(height))width=height*iw/ih;else if(height===null&&Number.isFinite(width))height=width*ih/iw;else if(width===null&&height===null){width=iw;height=ih;}}
+ if(!(width>0&&height>0)||Math.abs(width/iw-height/ih)>.002)return null;
+ const p=tokens(position);if(p.length!==2)return null;const x=box.left+axis(p[0],box.width-width),y=box.top+axis(p[1],box.height-height);
+ return Number.isFinite(x)&&Number.isFinite(y)?{x,y,width,height,scale:width/iw}:null;
+}
+function toRoom(b,map,pad=0){return{x:(b.left-pad-map.x)/map.scale,y:(b.top-pad-map.y)/map.scale,w:(b.width+2*pad)/map.scale,h:(b.height+2*pad)/map.scale};}
+function homeFromControl(control,map){const scale=control.scale/map.scale;return{x:(control.x+220*control.scale-map.x)/map.scale,y:(control.y+174*control.scale-map.y)/map.scale,z:.72/scale};}
+function geometry(room,control){const home=homeFromControl(control,room);return{home,scale:.72/home.z,asset:{x:room.x+(home.x-220*.72/home.z)*room.scale,y:room.y+(home.y-174*.72/home.z)*room.scale,width:AW*.72/home.z*room.scale,height:AH*.72/home.z*room.scale}};}
+function tourClear(api,tour,map,clip,exclusions){
+ for(let i=0;i<=610;i++){const p=api.pose(i/20,'bridge',tour),b=api.bounds(p);if(exclusions.some(e=>api.intersects(b,e)))return false;
+  const r={x:map.x+b.x*map.scale,y:map.y+b.y*map.scale,w:b.w*map.scale,h:b.h*map.scale};if(r.x<clip.left||r.y<clip.top||r.x+r.w>clip.right||r.y+r.h>clip.bottom)return false;
+ }return true;
+}
+function install({getState=()=>null,ownerMemberId=null,api=typeof OhanaMemorialStudy==='undefined'?null:OhanaMemorialStudy}={}){
+ if(!api||!Number.isSafeInteger(ownerMemberId)||ownerMemberId<=0)return null;
+ let state=null,accountToken=null,host=null,layer=null,canvas=null,study=null,room=null,boundRoomId=null,map=null,key='',last=0,wait=5,raf=0,away=false,stopped=false,enabled=false,lastTour=-1;
+ const reasons=new Set(),media=matchMedia('(prefers-reduced-motion: reduce)'),image=new Image(),originalMap=JSON.parse(JSON.stringify(api.maps.bridge)),handles=new Map();image.src='/ohana-cardinal-control-v1.webp';
+ const account=()=>{try{const s=getState(),storedToken=localStorage.getItem('ohana_token');return typeof s?.token==='string'&&s.token&&storedToken===s.token&&Number(s.me?.id)===ownerMemberId?s:null;}catch{return null;}};
+ const read=()=>{try{return localStorage.getItem(KEY+':'+ownerMemberId)==='1';}catch{return false;}};
+ const reduced=()=>media.matches||document.documentElement.classList.contains('less-motion');
+ const visible=e=>{const b=e.getBoundingClientRect(),s=getComputedStyle(e);return !e.hidden&&!e.closest('[hidden],[inert]')&&s.display!=='none'&&s.visibility!=='hidden'&&b.width>0&&b.height>0;};
+ function restore(){if(host&&away){delete host.dataset.cardinalAway;host.style.setProperty('background-image','url("/ohana-cardinal-control-v1.webp")','important');}if(room)delete room.dataset.cardinalMapping;away=false;layer?.remove();layer=canvas=study=null;api.maps.bridge=JSON.parse(JSON.stringify(originalMap));}
+ function cancel(){restore();key='';boundRoomId=null;room=host=map=null;wait=5;}
+ function invalidateSession(){cancel();enabled=false;accountToken=null;state=null;reasons.clear();last=0;for(const entry of handles.values())entry.remove();handles.clear();}
+ function context(){
+  const s=account();if(!s)return null;const d=document.querySelector('#ohana-chat-dialog[open]'),h=document.getElementById('ohana-persistent-hub');if(!d||!h||!d.contains(h)||!visible(d)||!visible(h)||innerWidth<innerHeight)return null;
+  const ds=getComputedStyle(d),hs=getComputedStyle(h);if(!ds.backgroundImage.includes('/ohana-bridge-setting-v1.webp')||ds.transform!=='none')return null;
+  if([...document.querySelectorAll('dialog[open]')].some(e=>e!==d)||document.querySelector('#ohana-personal-mango'))return null;
+  const b=d.getBoundingClientRect(),rb=imageRect(b,ds.backgroundSize,ds.backgroundPosition,W,H),hc=imageRect(h.getBoundingClientRect(),hs.backgroundSize,hs.backgroundPosition,AW,AH);
+  if(!rb||!hc||(!away&&!hs.backgroundImage.includes('/ohana-cardinal-control-v1.webp')))return null;
+  const clip={left:Math.max(0,b.left),top:Math.max(0,b.top),right:Math.min(innerWidth,b.right),bottom:Math.min(innerHeight,b.bottom)};
+  return{s,d,h,map:rb,control:hc,clip,key:ownerMemberId+':'+s.room+':bridge:'+JSON.stringify([rb,hc,clip])};
+ }
+ function exclusions(c){
+  return [...c.d.querySelectorAll('button,input,select,textarea,a[href],h1,h2,h3,h4,label,[role="grid"],[role="status"],.uc-main,.hub-controls-panel,.hub-record-stage')]
+   .filter(e=>e!==document.getElementById('chat-head')&&!e.closest('#ohana-cardinal-visits-layer')&&visible(e)).map(e=>toRoom(e.getBoundingClientRect(),c.map,5));
+ }
+ function mount(c){
+  room=c.d;host=c.h;map=c.map;key=c.key;boundRoomId=String(c.s.room);room.dataset.cardinalMapping='true';
+  // The live Bridge workstation covers the study's central rails. Map visits
+  // to the visible right rail/post and foreground flower cluster instead.
+  const high=[{x:1350,y:400,z:2.7},{x:1365,y:300,z:3.45},{x:1360,y:220,z:3.15},{x:1325,y:300,z:2.35},{x:1305,y:630,z:1.5}];
+  api.maps.bridge={...JSON.parse(JSON.stringify(originalMap)),home:geometry(c.map,c.control).home,rail:{x:1320,y:527,z:2.7},flower:{x:1345,y:900,z:1.05},altRail:{x:1355,y:470,z:2.85},altFlower:{x:1320,y:930,z:1.05},high,first:[{x:1330,y:790,z:1.85},{x:1325,y:630,z:2.3},{x:1320,y:470,z:2.85}],back:[...high.slice().reverse(),{x:1325,y:700,z:2.1},{x:1330,y:850,z:1.8}]};
+  layer=document.createElement('div');layer.id='ohana-cardinal-visits-layer';layer.hidden=true;layer.setAttribute('aria-hidden','true');layer.inert=true;layer.style.cssText='position:fixed;inset:0;overflow:hidden;pointer-events:none!important;z-index:79;';
+  canvas=document.createElement('canvas');canvas.width=Math.ceil(Math.max(W,(c.control.x+c.control.width-map.x)/map.scale));canvas.height=Math.ceil(Math.max(H,(c.control.y+c.control.height-map.y)/map.scale));canvas.style.cssText='position:absolute;pointer-events:none!important;';Object.assign(canvas.style,{left:map.x+'px',top:map.y+'px',width:canvas.width*map.scale+'px',height:canvas.height*map.scale+'px'});layer.append(canvas);room.append(layer);
+  study=new api.Study(canvas,image,{room:'bridge',getExclusions:()=>{const current=context();return current?exclusions(current):[{x:-1e6,y:-1e6,w:2e6,h:2e6}];}});
+ }
+ function align(c){
+  // Existing scene observers adjust cover sizing after a child is mounted.
+  // Reuse this layer while the layout settles rather than remounting it and
+  // repeatedly retriggering those observers. A real room/account exit still unmounts.
+  const pendingWait=wait,wasAway=away;if(away){delete host.dataset.cardinalAway;host.style.setProperty('background-image','url("/ohana-cardinal-control-v1.webp")','important');away=false;}
+  layer.hidden=true;map=c.map;key=c.key;api.maps.bridge.home=geometry(c.map,c.control).home;
+  canvas.width=Math.ceil(Math.max(W,(c.control.x+c.control.width-map.x)/map.scale));canvas.height=Math.ceil(Math.max(H,(c.control.y+c.control.height-map.y)/map.scale));Object.assign(canvas.style,{left:map.x+'px',top:map.y+'px',width:canvas.width*map.scale+'px',height:canvas.height*map.scale+'px'});study.reset();wait=wasAway?5:pendingWait;
+ }
+ function park(){if(away){delete host.dataset.cardinalAway;host.style.setProperty('background-image','url("/ohana-cardinal-control-v1.webp")','important');away=false;}layer.hidden=true;study.reset();wait=6+Math.random()*6;}
+ function start(c){const ex=[...api.maps.bridge.exclusions,...exclusions(c)],choices=[0,1,2].filter(t=>t!==lastTour&&tourClear(api,t,c.map,c.clip,ex));if(!choices.length)return false;
+  const tour=choices[Math.floor(Math.random()*choices.length)];study.tour=tour;study.time=0;study.active=true;study.safe=true;lastTour=tour;host.dataset.cardinalAway='true';host.style.setProperty('background-image','none','important');layer.hidden=false;away=true;study.draw();return true;
+ }
+ function controls(){
+  const s=account();for(const [container,entry]of handles)if(!container.isConnected||!s){entry.remove();handles.delete(container);}
+  if(!s)return;for(const container of document.querySelectorAll('#access-help,#ohana-settings-dialog .settings-content')){if(handles.has(container))continue;
+   const row=document.createElement('div');row.dataset.cardinalVisitSettings='';const label=document.createElement('label'),input=document.createElement('input');label.style.cssText='display:flex!important;align-items:center;gap:8px;min-height:44px;';input.type='checkbox';input.checked=enabled;label.append(input,document.createTextNode(' Cardinal visits'));const pause=document.createElement('button');pause.type='button';pause.textContent=reasons.has('manual')?'Resume visits':'Pause visits';pause.hidden=!enabled;pause.disabled=!enabled;pause.style.setProperty('display',enabled?'inline-block':'none','important');pause.setAttribute('aria-pressed',String(reasons.has('manual')));row.append(label,pause);
+   input.onchange=()=>{if(!account()){invalidateSession();return;}enabled=input.checked;try{localStorage.setItem(KEY+':'+ownerMemberId,enabled?'1':'0');}catch{}if(!enabled)cancel();for(const e of handles.values()){e.querySelector('input').checked=enabled;const b=e.querySelector('button');b.hidden=b.disabled=!enabled;b.style.setProperty('display',enabled?'inline-block':'none','important');}};
+   pause.onclick=()=>{if(!account()){invalidateSession();return;}const p=!reasons.has('manual');p?reasons.add('manual'):reasons.delete('manual');for(const e of handles.values()){const b=e.querySelector('button');b.textContent=p?'Resume visits':'Pause visits';b.setAttribute('aria-pressed',String(p));}};
+   container.append(row);handles.set(container,row);
+  }
+ }
+ function frame(now){if(stopped)return;const dt=last?Math.min(.05,(now-last)/1000):0;last=now;const s=account();if(!s){if(state||study||layer||enabled||handles.size)invalidateSession();}else if(!state||accountToken!==s.token){invalidateSession();enabled=read();accountToken=s.token;}state=s;
+  controls();const c=enabled&&!reduced()?context():null;
+  if(!c||!image.complete||!image.naturalWidth){if(study)cancel();}else if(!document.hidden){
+   if(key!==c.key){if(study&&room===c.d&&host===c.h&&boundRoomId===String(c.s.room))align(c);else{if(study)cancel();mount(c);}}if(study){study.setPaused(reasons.size>0);if(!reasons.size){if(study.active){const p=study.update(dt);if(!study.safe){cancel();}else if(!study.active||p.complete){park();}}else{wait-=dt;if(wait<=0){if(!start(c))wait=6;}}}}
+  }raf=requestAnimationFrame(frame);
+ }
+ const visibility=()=>{last=0;};
+ const storage=event=>{if(event.key!=='ohana_token'&&event.key!==null)return;try{if(event.storageArea&&event.storageArea!==localStorage)return;}catch{}invalidateSession();};
+ document.addEventListener('visibilitychange',visibility);addEventListener('storage',storage);raf=requestAnimationFrame(frame);
+ return{setPaused(reason,value){if(!reason)return;value?reasons.add(String(reason)):reasons.delete(String(reason));},get snapshot(){return{eligible:!!account(),enabled,bound:!!study,away,room:room?'bridge':null,paused:[...reasons],reduced:reduced(),tour:lastTour,waitSeconds:wait,flightTime:study?.time||0};},stop(){stopped=true;cancelAnimationFrame(raf);document.removeEventListener('visibilitychange',visibility);removeEventListener('storage',storage);cancel();for(const entry of handles.values())entry.remove();handles.clear();}};
+}
+return{axis,imageRect,toRoom,homeFromControl,geometry,tourClear,install};
+});
+
+
+window.ohanaCardinalVisits=OhanaCardinalVisits.install({ownerMemberId:5,getState:()=>typeof S==='undefined'?null:S});
+</script>
+<!-- OHANA KEVIN CARDINAL VISITS END -->
