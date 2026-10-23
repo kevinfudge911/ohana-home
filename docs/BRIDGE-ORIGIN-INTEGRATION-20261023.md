@@ -1,0 +1,7 @@
+# Bridge return, Playlist and Instructions
+
+Forward integration of the independently reviewed Bridge patch onto the published Spades/Mango baseline. Bridge Back, Return and Escape preserve the screen where Bridge opened, including its existing game/puzzle view and scroll. Explicit Ohana navigation still goes Home. Current-game actions use Instructions; the separate Bridge guide remains distinct. Playlist is anchored within the existing record-player back panel. No new room artwork or audio policy.
+
+The exact reviewed patch applies and reverses to the complete current application bytes. Worker/configuration, Spades, Mango/cardinal assets, engines, cameras, media and invitation handlers remain unchanged. Matching gzip is lossless,33 executable scripts parse and483 emitted modules match. Tests passed199 context assertions,71 dispatch/cancellation assertions,33 null-context checks and the existing music queue/transport regression. Independently reviewed phone/tablet repeated and nested return routes are covered by source-owner/reviewer fixtures. No real chat, share or audible delivery is claimed.
+
+Run node tests/bridge-context.cjs, node tests/bridge-actions.cjs, node tests/bridge-null-context.cjs and node tests/bridge-music-playlist.cjs with jsdom available through normal Node resolution or NODE_PATH. All mutations in these tests use fictional fixtures. No family moves, invitations, messages, uploads, profiles, credentials or bindings changed.
