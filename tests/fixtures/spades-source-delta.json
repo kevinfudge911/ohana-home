@@ -1,0 +1,146 @@
+{
+  "base": "01c8f790ea078a024d9c2bc23d3ad8b3ed9d26c7",
+  "app": "live/5e56a1670589dcba0b60713f79c86ac150466cca-d975c2c4ca11dd0e62f2534a9e5dddeea065a1f8-3bf844cb8c9c2a87e301a8616088ba6047d9ab5e-app.html",
+  "changes": [
+    {
+      "file": "worker",
+      "before": "var BOT_ID = -1;",
+      "after": "var BOT_ID = -1;\n// Reserved robot seats for four-person Spades; all other games retain their existing pair.\nfunction gameBotPlayer(type,id){return id===BOT_ID||(type==='spades'&&(id===-2||id===-3));}\nfunction gameBotSeats(type,member){return type==='spades'?[member,BOT_ID,-2,-3]:[member,BOT_ID];}\nfunction gameBotNames(type,players,names){for(const id of players)if(gameBotPlayer(type,id))names[id]={id,name:id===BOT_ID?'Ohana Robot':'Ohana Robot '+Math.abs(id),avatar:'@hon',...(type==='spades'?{is_bot:true}:{})};}"
+    },
+    {
+      "file": "worker",
+      "before": "function spInit(players, seed) {",
+      "after": "function spInit(players, seed) {\n  if(players.length!==4||new Set(players).size!==4||players.some(p=>!Number.isSafeInteger(p)||(p<=0&&!gameBotPlayer('spades',p))))throw Error('Spades needs four distinct players.');"
+    },
+    {
+      "file": "worker",
+      "before": "if (players[g.turn] !== BOT_ID) return;",
+      "after": "if (!gameBotPlayer(g.type,players[g.turn])) return;\n    if(g.type==='spades'&&(players.length!==4||new Set(players).size!==4))return; // Do not mutate an old malformed table."
+    },
+    {
+      "file": "worker",
+      "before": "const move = await chooseBotMove(g.type, st, players, g.turn, db);",
+      "after": "const move = await chooseBotMove(g.type, g.type==='spades'?spView(st,players[g.turn]):st, players, g.turn, db);"
+    },
+    {
+      "file": "worker",
+      "before": "if (res.over || players[res.next] !== BOT_ID) return;",
+      "after": "if (res.over || !gameBotPlayer(g.type,players[res.next])) return;"
+    },
+    {
+      "file": "worker",
+      "before": "players[g.turn] === BOT_ID) env222222.ctx",
+      "after": "gameBotPlayer(g.type,players[g.turn])) env222222.ctx"
+    },
+    {
+      "file": "worker",
+      "before": "players[res.next] === BOT_ID) env222222.ctx",
+      "after": "gameBotPlayer(g.type,players[res.next])) env222222.ctx"
+    },
+    {
+      "file": "worker",
+      "before": "if (pid3 === BOT_ID) continue;",
+      "after": "if (gameBotPlayer(g.type,pid3)) continue;"
+    },
+    {
+      "file": "worker",
+      "before": "if (g.players.includes(BOT_ID)) g.names[BOT_ID] = { id: BOT_ID, name: \"Ohana Robot\", avatar: \"@hon\" };",
+      "after": "gameBotNames(g.type,g.players,g.names);"
+    },
+    {
+      "file": "worker",
+      "before": "if (players.includes(BOT_ID)) names[BOT_ID] = { id: BOT_ID, name: \"Ohana Robot\", avatar: \"@hon\" };",
+      "after": "gameBotNames(g.type,players,names);"
+    },
+    {
+      "file": "worker",
+      "before": "const withBot = body.opponent === \"bot\";",
+      "after": "const withBot = body.opponent === \"bot\";\n    if(type==='spades'&&withBot&&body.max_players!==undefined&&body.max_players!==4)throw Error('Spades needs four seats: you and three robots.');"
+    },
+    {
+      "file": "worker",
+      "before": ": withBot ? 2 : Math.min(gt.max,",
+      "after": ": withBot ? (type==='spades'?4:2) : Math.min(gt.max,"
+    },
+    {
+      "file": "worker",
+      "before": "const players = withBot ? [me.id, BOT_ID] : [me.id];",
+      "after": "const players = withBot ? gameBotSeats(type,me.id) : [me.id];"
+    },
+    {
+      "file": "worker",
+      "before": "const humanPlayers = players.filter((p2) => p2 !== BOT_ID);",
+      "after": "const humanPlayers = players.filter((p2) => !gameBotPlayer(g.type,p2));"
+    },
+    {
+      "file": "worker",
+      "before": "const seats = [me.id, BOT_ID];",
+      "after": "const seats = gameBotSeats(g.type,me.id);"
+    },
+    {
+      "file": "worker",
+      "before": "UPDATE games SET players=?,max_players=2,state=?,status='playing',turn=?,updated_at=? WHERE id=? AND status='waiting' AND players=?\").bind(JSON.stringify(seats), JSON.stringify(st),",
+      "after": "UPDATE games SET players=?,max_players=?,state=?,status='playing',turn=?,updated_at=? WHERE id=? AND status='waiting' AND players=?\").bind(JSON.stringify(seats), seats.length, JSON.stringify(st),"
+    },
+    {
+      "file": "worker",
+      "before": "const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>id!==BOT_ID),withBot=seats.includes(BOT_ID);",
+      "after": "const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>!gameBotPlayer(g.type,id)),withBot=seats.some(id=>gameBotPlayer(g.type,id));\n const spadesBotReplay=g.type==='spades'&&withBot&&human.length===1&&seats.includes(BOT_ID)&&((seats.length===2)||(seats.length===4&&seats.includes(-2)&&seats.includes(-3)));"
+    },
+    {
+      "file": "worker",
+      "before": "seats.length<type.min||seats.length>type.max",
+      "after": "(!spadesBotReplay&&seats.length<type.min)||seats.length>type.max"
+    },
+    {
+      "file": "worker",
+      "before": "if(withBot&&(human.length!==1||seats.length!==2||!",
+      "after": "if(withBot&&!spadesBotReplay&&(human.length!==1||seats.length!==2||!"
+    },
+    {
+      "file": "worker",
+      "before": "inviteCode=rid(6),max=seats.length,started=withBot||max===1;",
+      "after": "inviteCode=rid(6),max=spadesBotReplay?4:seats.length,started=withBot||max===1;"
+    },
+    {
+      "file": "worker",
+      "before": "const nextSeats=started?(withBot?[me.id,BOT_ID]:[me.id]):[me.id];",
+      "after": "const nextSeats=started?(withBot?gameBotSeats(g.type,me.id):[me.id]):[me.id];"
+    },
+    {
+      "file": "app",
+      "before": "'handfoot','ohana10','mahjong']);",
+      "after": "'handfoot','ohana10','mahjong','spades']);"
+    },
+    {
+      "file": "app",
+      "before": "robot:OHANA_ROBOT_GAMES.has(id)&&min<=2&&max>=2",
+      "after": "robot:OHANA_ROBOT_GAMES.has(id)&&((min<=2&&max>=2)||id==='spades')"
+    },
+    {
+      "file": "app",
+      "before": "throw new Error('This game needs family players.');players=2;",
+      "after": "throw new Error('This game needs family players.');players=state.game==='spades'?4:2;"
+    },
+    {
+      "file": "app",
+      "before": "state.opponent==='bot'?'Ohana Robot is the computer player. We will start on Easy.'",
+      "after": "state.opponent==='bot'?(state.game==='spades'?'You and three robots. Partners sit opposite.':'Ohana Robot is the computer player. We will start on Easy.')"
+    },
+    {
+      "file": "app",
+      "before": "state.opponent==='bot'?'Ohana Robot':state.opponent==='solo'",
+      "after": "state.opponent==='bot'?(state.game==='spades'?'Three Ohana Robots':'Ohana Robot'):state.opponent==='solo'"
+    },
+    {
+      "file": "app",
+      "before": "const gt=sy.types[id];",
+      "after": "const gt=sy.types[id];\n if(id==='spades')cfg.players=4;"
+    },
+    {
+      "file": "app",
+      "before": "Array.from({length:gt.max-1},(_,i)=>[i+2,String(i+2)])",
+      "after": "Array.from({length:gt.max-Math.max(2,gt.min)+1},(_,i)=>[i+Math.max(2,gt.min),String(i+Math.max(2,gt.min))])"
+    }
+  ]
+}

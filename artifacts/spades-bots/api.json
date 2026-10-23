@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": 13274,
+  "simulatedGames": 12,
+  "simulatedMoves": 13160,
+  "scoredRounds": 235,
+  "syntheticOnly": true,
+  "realRequests": 0,
+  "realGameWrites": 0,
+  "coverage": [
+    "create four seats/52 cards",
+    "three robot identities and partner seats",
+    "hidden hands",
+    "interrupted bot seats and concurrent CAS",
+    "human stale writes",
+    "creator-only guarded conversion",
+    "de-duplicated replay including legacy finished pairs",
+    "unchanged human multiplayer and unrelated save",
+    "multi-round legal play and scoring"
+  ]
+}

@@ -7654,6 +7654,10 @@ __name2222(chkMove, "chkMove");
 __name22222(chkMove, "chkMove");
 __name222222(chkMove, "chkMove");
 var BOT_ID = -1;
+// Reserved robot seats for four-person Spades; all other games retain their existing pair.
+function gameBotPlayer(type,id){return id===BOT_ID||(type==='spades'&&(id===-2||id===-3));}
+function gameBotSeats(type,member){return type==='spades'?[member,BOT_ID,-2,-3]:[member,BOT_ID];}
+function gameBotNames(type,players,names){for(const id of players)if(gameBotPlayer(type,id))names[id]={id,name:id===BOT_ID?'Ohana Robot':'Ohana Robot '+Math.abs(id),avatar:'@hon',...(type==='spades'?{is_bot:true}:{})};}
 function rememberBotCards(st) {
   if (!st.bot || !st.cards) return;
   const seen = [.../* @__PURE__ */ new Set([...st.open || [], ...st.pending || []])];
@@ -7999,11 +8003,12 @@ async function advanceBotSteps(env222222, id) {
     const g = await db.prepare("SELECT * FROM games WHERE id=?").bind(id).first();
     if (!g || g.status !== "playing") return;
     const players = JSON.parse(g.players);
-    if (players[g.turn] !== BOT_ID) return;
+    if (!gameBotPlayer(g.type,players[g.turn])) return;
+    if(g.type==='spades'&&(players.length!==4||new Set(players).size!==4))return; // Do not mutate an old malformed table.
     const st = JSON.parse(g.state);
     if (!st.bot || (g.type === "mahjong" && st.mode === "family" && st.pending)) return;
     if(g.type==="memory"&&Number(st.revealUntil)>Date.now()){await new Promise(resolve=>setTimeout(resolve,Math.min(2000,st.revealUntil-Date.now())));continue;}
-    const move = await chooseBotMove(g.type, st, players, g.turn, db);
+    const move = await chooseBotMove(g.type, g.type==='spades'?spView(st,players[g.turn]):st, players, g.turn, db);
     if (!move) throw new Error("Computer player has no legal move.");
     let res = await applyMove(g.type, st, players, g.turn, move, db);
     let actions = 1;
@@ -8022,7 +8027,7 @@ async function advanceBotSteps(env222222, id) {
     st.bot.moves = (st.bot.moves || 0) + actions;
     const saved = await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=? AND turn=? AND status='playing'").bind(JSON.stringify(st), res.next, res.over ? "finished" : "playing", res.over ? String(res.winner) : null, now(), id, g.state, g.turn).run();
     if (!saved.meta.changes) continue;
-    if (res.over || players[res.next] !== BOT_ID) return;
+    if (res.over || !gameBotPlayer(g.type,players[res.next])) return;
   }
 }
 __name(advanceBot, "advanceBot");
@@ -9113,6 +9118,7 @@ __name2222(spTeam, "spTeam");
 __name22222(spTeam, "spTeam");
 __name222222(spTeam, "spTeam");
 function spInit(players, seed) {
+  if(players.length!==4||new Set(players).size!==4||players.some(p=>!Number.isSafeInteger(p)||(p<=0&&!gameBotPlayer('spades',p))))throw Error('Spades needs four distinct players.');
   const r = rng(seed);
   const deck = shuffle(spMakeDeck(), r);
   deck.forEach((c, i) => c.id = i);
@@ -11527,12 +11533,13 @@ async function ohanaCreateReplay(db,env,me,g,players,names){
  const existing=await db.prepare('SELECT new_game_id FROM game_replays WHERE original_game_id=?').bind(g.id).first();
  if(existing?.new_game_id>0)return {id:existing.new_game_id,existing:true};
  if(existing?.new_game_id<0)throw Error('This replay is still being prepared. Check My games before trying again.');
- const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>id!==BOT_ID),withBot=seats.includes(BOT_ID);
- if(!type||seats.length!==players.length||!human.every(id=>Number.isInteger(id)&&id>0&&names[id])||seats.length<type.min||seats.length>type.max)throw Error('The original players are no longer all available for this game. Your finished game is unchanged.');
- if(withBot&&(human.length!==1||seats.length!==2||!['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong','shuffle'].includes(g.type)))throw Error('This replay needs the original family players. Your finished game is unchanged.');
+ const type=GAME_TYPES[g.type],seats=[...new Set(players)],human=seats.filter(id=>!gameBotPlayer(g.type,id)),withBot=seats.some(id=>gameBotPlayer(g.type,id));
+ const spadesBotReplay=g.type==='spades'&&withBot&&human.length===1&&seats.includes(BOT_ID)&&((seats.length===2)||(seats.length===4&&seats.includes(-2)&&seats.includes(-3)));
+ if(!type||seats.length!==players.length||!human.every(id=>Number.isInteger(id)&&id>0&&names[id])||(!spadesBotReplay&&seats.length<type.min)||seats.length>type.max)throw Error('The original players are no longer all available for this game. Your finished game is unchanged.');
+ if(withBot&&!spadesBotReplay&&(human.length!==1||seats.length!==2||!['words','domino','tictac','memory','checkers','chess','handfoot','ohana10','mahjong','shuffle'].includes(g.type)))throw Error('This replay needs the original family players. Your finished game is unchanged.');
  for(const member of human)await allowGame(db,member,g.type);
- const recipients=human.filter(id=>id!==me.id),ts=now(),inviteCode=rid(6),max=seats.length,started=withBot||max===1;
- const nextSeats=started?(withBot?[me.id,BOT_ID]:[me.id]):[me.id];let state=null;
+ const recipients=human.filter(id=>id!==me.id),ts=now(),inviteCode=rid(6),max=spadesBotReplay?4:seats.length,started=withBot||max===1;
+ const nextSeats=started?(withBot?gameBotSeats(g.type,me.id):[me.id]):[me.id];let state=null;
  if(started){state=initState(g.type,nextSeats,g.id*7919+ts%100000,g.mode||'classic');if(withBot)state.bot={id:BOT_ID,name:'Ohana Robot',avatar:'@hon',difficulty:JSON.parse(g.state||'{}').bot?.difficulty||'easy',memory:{},moves:0};}
  await db.prepare('INSERT OR IGNORE INTO game_replays(original_game_id,new_game_id) VALUES(?,0)').bind(g.id).run();
  const batch=[
@@ -12032,7 +12039,7 @@ async function api2(req, env222222, url) {
       const scores = state.scores || null;
       const winnerStr = g.winner != null ? String(g.winner) : "";
       for (const pid3 of players) {
-        if (pid3 === BOT_ID) continue;
+        if (gameBotPlayer(g.type,pid3)) continue;
         const row = touch(g.type, pid3);
         row.played++;
         if (scores && Number.isFinite(Number(scores[pid3]))) row.points += Number(scores[pid3]);
@@ -12065,7 +12072,7 @@ async function api2(req, env222222, url) {
     const names = Object.fromEntries(people.map((m) => [m.id, m]));
     for (const g of page) {
       g.names = Object.fromEntries(g.players.filter((id) => names[id]).map((id) => [id, names[id]]));
-      if (g.players.includes(BOT_ID)) g.names[BOT_ID] = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon" };
+      gameBotNames(g.type,g.players,g.names);
     }
     return json({ games: page.filter((g) => !managed || managed.games.includes(g.type)), next: history.length > 30 ? page.at(-1)?.id : null });
   }
@@ -12075,17 +12082,18 @@ async function api2(req, env222222, url) {
     const gt = GAME_TYPES[type];
     if (!gt) throw new Error("Unknown game.");
     const withBot = body.opponent === "bot";
+    if(type==='spades'&&withBot&&body.max_players!==undefined&&body.max_players!==4)throw Error('Spades needs four seats: you and three robots.');
     const cardMode = type === "shuffle" ? shuffleMode(body.mode || "rummy") : null;
     if (type === "shuffle" && body.opponent && !["family","bot"].includes(body.opponent)) throw Error("Choose family players or Ohana Robot.");
     if(type==="shuffle" && withBot && body.max_players!==undefined && body.max_players!==2)throw Error("Ohana Robot needs a two-player table.");
     const cardMax = cardMode === "gin" ? 2 : 6;
     if (type === "shuffle" && body.max_players !== undefined && (!Number.isInteger(body.max_players) || body.max_players < 2 || body.max_players > cardMax)) throw Error(cardMode === "gin" ? "Gin Rummy needs exactly two players." : "Regular Rummy needs two to six players.");
-    const max = type === "shuffle" ? (withBot?2:body.max_players || 2) : withBot ? 2 : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
+    const max = type === "shuffle" ? (withBot?2:body.max_players || 2) : withBot ? (type==='spades'?4:2) : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
     const mode = type === "shuffle" ? cardMode : type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode, roomId).run();
     if (max === 1 || withBot) {
-      const players = withBot ? [me.id, BOT_ID] : [me.id];
+      const players = withBot ? gameBotSeats(type,me.id) : [me.id];
       const st = initState(type, players, now(), mode);
       if (withBot) st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
       if (withBot) await db.prepare("UPDATE games SET players=? WHERE id=?").bind(JSON.stringify(players), r.meta.last_row_id).run();
@@ -12105,7 +12113,7 @@ async function api2(req, env222222, url) {
     const players = JSON.parse(g.players);
     const names = {};
     for (const m of (await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=?").bind(g.room_id).all()).results) names[m.id] = m;
-    if (players.includes(BOT_ID)) names[BOT_ID] = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon" };
+    gameBotNames(g.type,players,names);
     if (!action) {
       if(g.type==='mahjong'&&g.state&&g.status==='playing'){
         const raw=JSON.parse(g.state);
@@ -12118,7 +12126,7 @@ async function api2(req, env222222, url) {
           }
         }
       }
-      if (players.includes(me.id) && g.status === "playing" && players[g.turn] === BOT_ID) env222222.ctx?.waitUntil?.(advanceBot(env222222, id).catch((e) => console.error("Computer move failed", e.message)));
+      if (players.includes(me.id) && g.status === "playing" && gameBotPlayer(g.type,players[g.turn])) env222222.ctx?.waitUntil?.(advanceBot(env222222, id).catch((e) => console.error("Computer move failed", e.message)));
       const st = g.state ? viewState(g.type, JSON.parse(g.state), me.id) : null;
       const chatKey = chatPeopleKey(players);
       if (st && chatKey) {
@@ -12143,13 +12151,13 @@ async function api2(req, env222222, url) {
       if (g.created_by !== me.id && !(me.is_admin && g.room_id === 1)) throw new Error("Only the person who made the game can add Honu.");
       if (players.includes(BOT_ID)) throw new Error("Honu is already at this table.");
       if (!players.includes(me.id)) throw new Error("Join the table before adding Honu.");
-      const humanPlayers = players.filter((p2) => p2 !== BOT_ID);
+      const humanPlayers = players.filter((p2) => !gameBotPlayer(g.type,p2));
       if (humanPlayers.length !== 1) throw new Error("Honu can only join a one-person waiting table.");
-      const seats = [me.id, BOT_ID];
+      const seats = gameBotSeats(g.type,me.id);
       const st = initState(g.type, seats, id * 7919 + now() % 1e5, g.mode || "classic");
       st.bot = { id: BOT_ID, name: "Ohana Robot", avatar: "@hon", difficulty: ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy", memory: {}, moves: 0 };
       const turn = Number.isInteger(st.nextTurn) ? st.nextTurn : 0;
-      const started = await db.prepare("UPDATE games SET players=?,max_players=2,state=?,status='playing',turn=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(seats), JSON.stringify(st), turn, now(), id, g.players).run();
+      const started = await db.prepare("UPDATE games SET players=?,max_players=?,state=?,status='playing',turn=?,updated_at=? WHERE id=? AND status='waiting' AND players=?").bind(JSON.stringify(seats), seats.length, JSON.stringify(st), turn, now(), id, g.players).run();
       if (!started.meta.changes) throw new Error("This table just changed. Please open it again.");
       await db.prepare("UPDATE game_invitations SET status='declined' WHERE game_id=? AND status='pending'").bind(id).run();
       return json({ ok: true });
@@ -12255,7 +12263,7 @@ async function api2(req, env222222, url) {
       const saved = await db.prepare("UPDATE games SET state=?,turn=?,status=?,winner=?,updated_at=? WHERE id=? AND state=? AND turn=? AND status='playing'").bind(JSON.stringify(st), res.next, status, res.over ? String(res.winner) : null, now(), id, g.state, g.turn).run();
       if (!saved.meta.changes) throw new Error("The table changed. Please refresh and try again.");
       await recordOhanaGameActivity(db,me.id,st.lastPlay.at).catch(error=>console.warn("Game activity tracking failed",error.message));
-      if (!res.over && players[res.next] === BOT_ID) env222222.ctx?.waitUntil?.(advanceBot(env222222, id).catch((e) => console.error("Computer move failed", e.message)));
+      if (!res.over && gameBotPlayer(g.type,players[res.next])) env222222.ctx?.waitUntil?.(advanceBot(env222222, id).catch((e) => console.error("Computer move failed", e.message)));
       if (!res.over && players[res.next] > 0 && players[res.next] !== me.id) {
         const nextPlayerId = players[res.next];
         const gameName = GAME_TYPES[g.type]?.name || g.type;

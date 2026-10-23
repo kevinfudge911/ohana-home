@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "modules": 483,
+  "allEmittedBytesExact": true,
+  "totalUploadKiB": 62696.39,
+  "uploadLimitKiB": 65536,
+  "headroomKiB": 2839.6100000000006,
+  "dryRunOnly": true,
+  "bindingsAndConfigUnchanged": true
+}

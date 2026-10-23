@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "base": "01c8f790ea078a024d9c2bc23d3ad8b3ed9d26c7",
+  "baselineDefect": {
+    "baselineDefectReproduced": true,
+    "seats": 2,
+    "cardsDealt": 26,
+    "replayRejected": true,
+    "checks": 5
+  },
+  "wholeWorkerInverseExact": true,
+  "wholeAppInverseExact": true,
+  "configUnchanged": true,
+  "cardinalMangoAssetsAndAllUnrelatedSourcePreserved": true,
+  "scripts": 33,
+  "rawBytes": 6985268,
+  "rawSha256": "284a34cbbd6c3e481474f3b7c74c9fc632b13d47680c2d5b2d9b503b7255dca1",
+  "gzipBytes": 3489569,
+  "gzipSha256": "d0dec665287bce6273cacb81c72f8af23ee470ee0e2f3c45a34f7dff98723e2a",
+  "workerSha256": "e01313298748389bdb2e1f2cd12e865f25b696c341e378d1225f76bb263a5561",
+  "realFamilyMutations": 0
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": 26,
+  "actualHomeAndRoomSetupHandlers": true,
+  "syntheticOnly": true,
+  "realRequests": 0,
+  "realInvitations": 0,
+  "visualLayoutVerified": false
+}
