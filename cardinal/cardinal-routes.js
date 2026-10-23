@@ -48,12 +48,31 @@ function* edgeSteps(c,api,recent,rng){
  for(const glide of [false,true])for(const scale of scales)for(const side of [1,-1])for(let y=80;y<c.height-30;y+=15)for(const reach of [60,80,110,150])for(const dy of [-30,30,-60,60]){yield;const z=.72/scale,x=side>0?c.width+120:-120,inside=side>0?c.width-25:25,turn=side>0?c.width-reach:reach,points=[{x,y,z},{x:inside,y,z},{x:turn,y:y+dy,z},{x:inside,y:y+2*dy,z},{x,y:y+2*dy,z}],key=c.screen+':edge-arc:'+scale+':'+side+':'+y+':'+reach+':'+dy+':'+glide;if(recent.some(v=>v.key===key))continue;const a=make(points,4,glide?'glide':'flap',key);if(yield*safePlanSteps(a.legs,c,api,hit))return{plan:a.legs,key,kind:'edge-arc',reason:null};}
  return{plan:null,reason:'no-verified-edge-route'};
 }
+function* closePassSteps(c,api,recent,rng){
+ // Approach and recede along a 3-D path: scale follows depth, not a pulse.
+ // Try only a bounded set of clear corridors; essential content stays guarded.
+ const home=c.home,hit=index(c.obstacles),nearScale=clamp(c.width/590,.9,1.5),farZ=.72/.28;
+ for(const direction of rng()<.5?[1,-1]:[-1,1])for(const row of [.32,.48,.65,.22]){
+  yield;const y=c.height*row,xs=direction>0?[-200,c.width*.25,c.width*.5,c.width*.75,c.width+200]:[c.width+200,c.width*.75,c.width*.5,c.width*.25,-200],zs=[farZ,1.2,.72/nearScale,1.2,farZ],points=xs.map((x,i)=>({x,y:y+(i===2?30:0),z:zs[i]})),start=.65+clamp(distance(home,points[0])/180,1.2,6),duration=7.5,leg={points,start,duration,end:start+duration,label:'Approaching the window, then receding into the room',destination:'the room edge'},revealStart=leg.end+clamp(distance(points.at(-1),home)/180,1.2,6),legs=[leg],key=c.screen+':close-pass:'+direction+':'+row;
+  leg.edgeVisit={home,tuckStart:.1,tuckEnd:.65,revealStart,end:revealStart+.6};
+  if(!recent.some(p=>p.key===key)&&(yield*safePlanSteps(legs,c,api,hit)))return{plan:legs,key,kind:'perspective-close-pass',reason:null};
+ }return null;
+}
 function* chooseSteps(c,api,recent,rng=Math.random){
+ if(rng()<.24){const near=yield*closePassSteps(c,api,recent,rng);if(near)return near;}
  const home=c.home,rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4};if(index(c.obstacles)(near))return yield*edgeSteps(c,api,recent,rng);const homeScale=.72/home.z,scale=clamp(homeScale*1.22,.18,.6),g=yield* gridSteps(c,api,scale);if(!g.nodes.length||Math.min(...g.nodes.map(p=>distance(p,home)))>Math.max(100,homeScale*300)){const clear=yield* foregroundSteps(c,api,recent,rng);if(clear)return clear;}if(!g.nodes.length)return yield*edgeSteps(c,api,recent,rng);
  const targets=[...c.perches.map(p=>({...p,land:true})),...g.nodes.filter(p=>distance(p,home)>Math.min(c.width,c.height)*.25).sort(()=>rng()-.5).slice(0,12).map(p=>({...p,z:.72/scale,land:false,kind:'air-arc'}))];
  for(const target of targets){if(!(target.x>0&&target.y>0&&target.x<c.width&&target.y<c.height))continue;const outbound=yield* searchSteps(home,target,g,c,rng),inbound=yield* searchSteps(target,home,g,c,rng);if(!outbound||!inbound)continue;
  const key=c.screen+':'+target.kind+':'+outbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';')+':'+inbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';');if(recent.some(v=>v.key===key))continue;
- let legs;if(target.land){const first=leg(depths(outbound,home,target),.25,'Approaching a clear '+target.kind,'a clear '+target.kind),back=leg(depths(inbound,target,home),first.end+2+rng()*2,'Returning to the original perch','the original perch');legs=[first,back];}else{const points=[...outbound,...inbound.slice(1)],all=depths(points,home,home);legs=[leg(all,.25,'A quiet flight through the room','the original perch')];}
+ let legs;if(target.land){
+  // A journey may visit two distinct verified room perches before its flag home.
+  // Keep it inside the renderer's existing duration and full swept-wing guards.
+  for(const second of c.perches.filter(p=>distance(p,target)>80&&distance(p,home)>40).sort(()=>rng()-.5).slice(0,4)){
+   const across=yield*searchSteps(target,second,g,c,rng),returning=yield*searchSteps(second,home,g,c,rng);if(!across||!returning)continue;
+   const a=leg(depths(outbound,home,target),.25,'Approaching a clear '+target.kind,'a clear '+target.kind),b=leg(depths(across,target,second),a.end+1+rng()*1.8,'Visiting another clear perch','another clear '+second.kind),back=leg(depths(returning,second,home),b.end+1+rng()*1.8,'Returning to the original perch','the original perch'),multi=[a,b,back],multiKey=key+':via:'+Math.round(second.x/24)+','+Math.round(second.y/24);
+   if(back.end<=29.75&&!recent.some(v=>v.key===multiKey)&&(yield*safePlanSteps(multi,c,api,g.hit)))return{plan:multi,key:multiKey,kind:'multi-perch',reason:null};
+  }
+  const first=leg(depths(outbound,home,target),.25,'Approaching a clear '+target.kind,'a clear '+target.kind),back=leg(depths(inbound,target,home),first.end+2+rng()*2,'Returning to the original perch','the original perch');legs=[first,back];}else{const points=[...outbound,...inbound.slice(1)],all=depths(points,home,home);legs=[leg(all,.25,'A quiet flight through the room','the original perch')];}
  if(yield* safePlanSteps(legs,c,api,g.hit))return{plan:legs,key,kind:target.kind,reason:null};
  }return (yield* foregroundSteps(c,api,recent,rng))||(yield*edgeSteps(c,api,recent,rng));
 }
@@ -67,5 +86,5 @@ function createTask(iterator){
 }
 
 function createPlanner(c,api,recent,rng=Math.random){return createTask(chooseSteps(c,api,recent,rng));}
-return{edgeSteps,intersects,index,hull,inView,safePlan,choose,unchangedHome,foreground,createPlanner,createTask};
+return{closePassSteps,safePlanSteps,edgeSteps,intersects,index,hull,inView,safePlan,choose,unchangedHome,foreground,createPlanner,createTask};
 });

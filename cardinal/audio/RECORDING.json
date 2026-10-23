@@ -1,0 +1,34 @@
+{
+  "status": "REAL_RECORDING_DERIVATIVE_AUDITORY_QUALITY_UNVERIFIED",
+  "title": "Northern Cardinal",
+  "creator": "Jonathon Jongsma",
+  "recordingId": "XC75501",
+  "sourceRecording": "https://xeno-canto.org/75501",
+  "officialHost": "https://seasonwatch.umn.edu/listen",
+  "license": "CC BY-SA 3.0 Unported",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+  "sourceSha256": "3fda8bc458a734466cf7fa682bda887ad7518816faea4ef2df05f1feef59580b",
+  "derivativeFile": "northern-cardinal-XC75501-ohana-excerpt.wav",
+  "derivativeSha256": "67d8ccf4748800f5d78c44663d9b7ebe01e00e6272100145723933d7ee1cf0e6",
+  "derivativeBytes": 352844,
+  "mediaType": "audio/wav",
+  "selection": {
+    "startSeconds": 0,
+    "durationSeconds": 2,
+    "auditionVerified": false,
+    "selectionBasis": "First2seconds of verified source; auditory quality unverified."
+  },
+  "sourceVerified": true,
+  "auditionVerified": false,
+  "processing": {
+    "method": "Decode actual MP3, select unchanged-timing PCM samples,10ms linear fades at each boundary,16bit little-endian PCM WAV; no pitch, synthesis or generated signal",
+    "browser": "155.0.8059.85",
+    "sampleRate": 44100,
+    "channels": 2,
+    "frames": 88200,
+    "duration": 2,
+    "peak": 0.41981378197669983
+  },
+  "changesNotice": "Excerpt 0–2s;10ms boundary fades; transcoded to16bit PCM WAV for Ohana. Adapted audio remains CC BY-SA3.0.",
+  "recordedDate": "2011-04-09"
+}
