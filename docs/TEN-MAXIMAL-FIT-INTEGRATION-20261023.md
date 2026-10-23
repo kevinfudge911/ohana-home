@@ -1,0 +1,7 @@
+# TEN maximal occupied-content fit
+
+The initial TEN overview now scales its actual cards, complete meld guide and Draw/Pile content to the usable play viewport rather than fitting unused felt. Top and bottom cards remain visible above the unchanged workstation. The standard ten-card hand stays in one readable overlapping row. Manual pinch, pan and focus reveal remain available and preserve user camera choices. Approved card art, opponent count, game rules and all saved state are unchanged.
+
+The exact reviewed three-file patch applies/reverses to the complete live baseline. Raw HTML and matching lossless gzip are byte-identical to independently reviewed 93ed8ad3. Both inline and source camera copies match. Worker/configuration/assets, Bridge, Spades, Mango, Puzzle, media and navigation are preserved. 33 scripts and 483 emitted modules are verified. Fresh regressions passed 199 Bridge context, 71 dispatch, 33 null-context and 18 navigation checks. Independent review passed 686 layout, 27 touch, 40 meld-stage and 38 extra eleven-card/resize assertions plus six Rummy/Gin cases. Parent comparison against the original image passed. No physical-device acceptance is claimed. At the reference ratio, the complete guide width limits fit to 100% usable width and about 94.3% height; further uniform enlargement would risk horizontal clipping.
+
+No real game moves, invitations, uploads, messages, acknowledgments or announcements were used in testing. Separate cardinal and Mango announcement work is excluded.

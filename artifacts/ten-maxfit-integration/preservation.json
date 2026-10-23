@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "base": "156357165962be9f40fd3258f2c63fda0372aa88",
+  "reviewedCandidate": "93ed8ad3c6efd69d028eaca135b8165c3920f099",
+  "reviewedPatchSha256": "98cbfd7d0519848a1ca42f32949e78136be99c6622323a843933053dda82fdce",
+  "reviewedRawAndGzipByteExact": true,
+  "wholeSourceInverseExact": true,
+  "patchReappliedByteExact": true,
+  "allUnrelatedHtmlAndWorkerAssetsPreserved": true,
+  "spadesWorkerSha256": "e01313298748389bdb2e1f2cd12e865f25b696c341e378d1225f76bb263a5561",
+  "cardinalAndMangoAnnouncementNotIncluded": true,
+  "inlineAndSourceCameraCopiesExact": true,
+  "scripts": 33,
+  "modules": 483,
+  "emittedBytesExact": true,
+  "uploadKiB": 62690.79,
+  "rawBytes": 6992724,
+  "rawSha256": "ad7cbe9ef592fb2a95b31e103a84ff95b36e973e4fae970f97a1e9633d9b73c9",
+  "gzipBytes": 3491107,
+  "gzipSha256": "f1befc5da807eede73753e8c5e4f0e083c484bb2078b9ab2f9b3d55ff8ea16e4",
+  "freshBridgeChecks": 199,
+  "freshDispatchChecks": 71,
+  "freshNullContextChecks": 33,
+  "freshNavigationChecks": 18,
+  "independentLayoutAssertions": 686,
+  "independentTouchAssertions": 27,
+  "independentMeldStageAssertions": 40,
+  "independentRummyGinCases": 6,
+  "independentElevenCardResizeAssertions": 38,
+  "originalImageGate": "Parent original-pixel comparison PASS: full top cards/count, guide/text, Draw/Pile/counts and bottom hand visible; no visible regression",
+  "referenceFit": {
+    "width": 1,
+    "height": 0.9429568221335312,
+    "limiter": "complete guide width"
+  },
+  "realFamilyMutations": 0,
+  "limits": [
+    "Synthetic/emulated viewports and source comparison; no physical-device acceptance claim",
+    "Manual zoom and pan remain available",
+    "Reference fit is constrained by full guide width rather than height alone"
+  ]
+}
