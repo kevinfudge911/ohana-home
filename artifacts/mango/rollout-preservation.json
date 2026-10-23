@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "base": "b5ea2817eed02446ce561a74a7cd9774becb01d1",
+  "reviewedPatchSha256": "338b85ed0bc1c8e8558fff603ab606ec78a6950029eeb35bc98f0dae94355b4b",
+  "reviewedPresentationSourceExact": true,
+  "wholeLiveCardinalTenInverseExact": true,
+  "allBaselineWorkerAssetsConfigAndPackagerUnchanged": true,
+  "gzipExact": true,
+  "scripts": 35,
+  "modules": 483,
+  "uploadKiB": 62702.08,
+  "rawBytes": 7029114,
+  "rawSha256": "ef8e5d9ecbc73ca9266163a0f5636561ef121060a265d4e706c6b18f1ae59e04",
+  "gzipBytes": 3502662,
+  "gzipSha256": "8fffe3e19aab429a1710eafab1cd0d209a23886103f6d7b00f004449b98cbb5e",
+  "suites": [
+    {
+      "test": "mango-announcement-rollout",
+      "passed": true
+    },
+    {
+      "test": "mango-announcement-sprite",
+      "passed": true
+    },
+    {
+      "test": "mango-announcement-package",
+      "passed": true
+    },
+    {
+      "test": "megaphone-media",
+      "passed": true
+    },
+    {
+      "test": "megaphone-legacy-compat",
+      "passed": true
+    },
+    {
+      "test": "session-preservation",
+      "passed": true
+    },
+    {
+      "test": "home-room-order",
+      "passed": true
+    },
+    {
+      "test": "cardinal-adapter",
+      "passed": true
+    },
+    {
+      "test": "bridge-context",
+      "passed": true
+    },
+    {
+      "test": "bridge-actions",
+      "passed": true
+    },
+    {
+      "test": "bridge-null-context",
+      "passed": true
+    },
+    {
+      "test": "next-game",
+      "passed": true
+    }
+  ],
+  "presenterChecks": 48,
+  "independentBrowserChecks": 47,
+  "freshMergedPhoneDesktopChecks": true,
+  "cardinalChecks": 3753,
+  "realNoticeSends": 0,
+  "realAcknowledgments": 0,
+  "microphones": 0,
+  "nativeAudibilityVerified": false,
+  "screenshot": "CDP screenshot timeout; no new screenshot claimed"
+}
