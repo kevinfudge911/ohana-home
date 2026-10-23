@@ -16505,7 +16505,9 @@ function updateNextGameAlert(){
  const current=typeof S.game==='object'?S.game?.id:S.game;
  const count=ohanaWaitingGames(S.sync,S.me?.id).filter(g=>String(g.id)!==String(current)).length;
  button.classList.toggle('next-ready',count>0);
- button.innerHTML=gameControlIcon('next',count);
+ if(button.dataset.waitingCount!==String(count)||!button.querySelector('svg.game-nav-arrow')){
+  button.dataset.waitingCount=String(count);button.innerHTML=gameControlIcon('next',count);
+ }
  button.setAttribute('aria-label',count+' other games waiting for your move. Go to the next game.');
  button.title=count?'Another table is ready for you':'No other turns waiting';
 }
