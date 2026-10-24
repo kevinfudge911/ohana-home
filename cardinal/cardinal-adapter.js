@@ -120,6 +120,43 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
   if(v.height<480){const table=document.getElementById('gb');if(visible(table)){const r=paintRect(table);for(const y of [r.y-5,r.y+r.h-7])for(const x of [r.x+75,r.x+r.w-70])if(x>v.x+55&&x<v.x+v.width-25&&y>v.y+65&&y<v.y+v.height-20)result.push({x,y,z:.72/.30,kind:'visible-table-rim'});}}
   return result;
  }
+ const cardRoomArt=new Map();
+ function cardRoomPaint(c,table,shuffle){
+  const owner=shuffle?table:document.querySelector('#game[data-game-type="spades"]'),style=owner&&getComputedStyle(owner);if(!style)return null;
+  const file=shuffle?'ohana-world-scene.webp':'ohana-mikes-room.webp',url=[...style.backgroundImage.matchAll(/url\(["']?([^"')]+)["']?\)/g)].map(m=>m[1]).find(u=>{try{return new URL(u,document.baseURI).pathname==='/'+file;}catch{return false;}});if(!url)return null;
+  let im=cardRoomArt.get(url);if(!im){im=new Image();im.src=url;cardRoomArt.set(url,im);}const iw=shuffle?1536:1672,ih=shuffle?1024:940;
+  if(!im.complete||im.naturalWidth!==iw||im.naturalHeight!==ih)return null;
+  const fixed=style.backgroundAttachment.split(',').at(-1).trim()==='fixed',box=fixed?{left:0,top:0,width:innerWidth,height:innerHeight}:owner.getBoundingClientRect();
+  return imageRect(box,style.backgroundSize.split(',').at(-1).trim(),style.backgroundPosition.split(',').at(-1).trim(),iw,ih);
+ }
+ // These two adapters measure the actual painted table and non-hand card
+ // borders. Candidate feet never infer private cards or affect their state.
+ function cardRoomPerches(c){
+  const shuffle=c.screen==='game:shuffle',spades=c.screen==='game:spades';if(!shuffle&&!spades)return[];
+  const table=document.querySelector(shuffle?'#game.rd-game #gb.shuffle-table':'#game[data-game-type="spades"] #board');if(!visible(table))return[];
+  const b=paintRect(table),v=c.viewport,dock=document.getElementById('game-controls-dock'),d=visible(dock)?paintRect(dock):null;
+  const left=Math.max(b.x,v.x),right=Math.min(b.x+b.w,v.x+v.width),top=Math.max(b.y,v.y+65),bottom=Math.min(b.y+b.h,v.y+v.height-32,d?.y>top?d.y-10:Infinity),out=[];
+  const scaleAt=y=>.28+.10*Math.max(0,Math.min(1,(y-top)/Math.max(1,bottom-top)));
+  const add=(x,y,kind)=>{if(x>left+32&&x<right-25&&y>top+45&&y<bottom)out.push({x,y,z:.72/scaleAt(y),kind});};
+  const cards=shuffle?'#game .rd-opponent .rd-card,#game .shuffle-meld-cards .shuffle-card':'#game .sp-trick .sp-card';
+  for(const card of document.querySelectorAll(cards)){if(!visible(card))continue;const r=paintRect(card);if(r.w<20||r.h<20)continue;for(const x of [r.x+r.w*.30,r.x+r.w*.78])add(x,r.y-8,'card-border');}
+  // Pixel-inspected deck planks and felt replace a generic DOM rectangle that
+  // also contains sky/ocean. Use the actual decoded active CSS image transform.
+  const map=cardRoomPaint(c,table,shuffle);
+  if(map){
+   if(!shuffle)for(const [u,v]of [[.36,493/940],[.5,493/940],[.64,499/940]])add(map.x+u*map.width,map.y+v*map.height,'visible-table-rim');
+   const sourceTop=shuffle?500:550;
+   for(let y=Math.max(top+65,map.y+sourceTop*map.scale);y<bottom-5;y+=42)for(let x=left+42;x<right-30;x+=56){const sx=(x-map.x)/map.scale,sy=(y-map.y)/map.scale;
+    const painted=shuffle?sx>=420&&sx<=1140&&sy>=500&&sy<=860:sy>=550&&sy<=760&&((sx-837)/700)**2+((sy-650)/135)**2<1;
+    if(painted)add(x,y,shuffle?'painted-deck-planks':'painted-table-felt');
+   }
+  }
+  // A native private-card selection rebuilds the Rummy camera. The diagnosed
+  // stock-pile position differs by 20.03125px before its final layout commit.
+  // Resting anchors reserve 32px vertically (and 4px laterally) around current
+  // protected footprints, for both settled facings; live controls stay intact.
+  return shuffle?out.filter(p=>[-1,1].every(facing=>{const body=api.bounds({...p,scale:.72/p.z,phase:'rest',facing});return!cache.some(o=>api.intersects(body,{x:o.x-4,y:o.y-32,w:o.w+8,h:o.h+64}));})):out;
+ }
  function tablePerches(c){
   const selector=c.screen==='game:handfoot'?'#board .hf-felt':c.screen==='game:words'?'#board':c.screen==='puzzle'?'#pz-canvas':null;
   if(!selector)return[];const table=document.querySelector(selector);if(!visible(table))return[];
@@ -131,7 +168,7 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
   for(let y=top+65;y<bottom-5;y+=56)for(let x=left+42;x<right-30;x+=56){const scale=.28+.10*Math.max(0,Math.min(1,(y-top)/Math.max(1,bottom-top)));out.push({x,y,z:.72/scale,kind:'painted-table-patch'});}
   return out;
  }
- function obstacles(c,dt=0,holdStatic=false){cacheAge+=dt;if(dirty&&!holdStatic){const scene=sceneData(c);cache=[...staticObstacles(c),...scene.obstacles];sceneCache=scene;dirty=false;cacheAge=0;}c.painted=sceneCache.painted;const puzzle=puzzleGeometry();c.perches=[...sceneCache.perches,...puzzle.perches,...tenPerches(c),...tablePerches(c)];return[...cache,...puzzle.boxes].map(clipped).filter(b=>b.w>0&&b.h>0);}
+ function obstacles(c,dt=0,holdStatic=false){cacheAge+=dt;if(dirty&&!holdStatic){const scene=sceneData(c);cache=[...staticObstacles(c),...scene.obstacles];sceneCache=scene;dirty=false;cacheAge=0;}c.painted=sceneCache.painted;const puzzle=puzzleGeometry();c.perches=(c.screen==='game:shuffle'||c.screen==='game:spades')?cardRoomPerches(c):[...sceneCache.perches,...puzzle.perches,...tenPerches(c),...tablePerches(c)];return[...cache,...puzzle.boxes].map(clipped).filter(b=>b.w>0&&b.h>0);}
  function liveGeometryChanged(dt=0){
   if(!plan?.envelope)return false;if(!plan.visibleTour&&occlusionStamp!==workstationStamp())return true;
   const at=away?study.time:0,poses=[api.pose(at,'bridge',0,plan),api.pose(at+dt,'bridge',0,plan)].filter(p=>p.visible!==false&&!p.maskedPerch&&!p.foregroundPass&&!p.foregroundTransit&&!routes.unchangedHome(p,study.home));if(!poses.length)return false;const a=api.bounds(poses[0]),b=api.bounds(poses.at(-1)),sweep={x:Math.min(a.x,b.x)-2,y:Math.min(a.y,b.y)-2,w:Math.max(a.x+a.w,b.x+b.w)-Math.min(a.x,b.x)+4,h:Math.max(a.y+a.h,b.y+b.h)-Math.min(a.y,b.y)+4},contains=v=>cache.some(o=>v.x>=o.x&&v.y>=o.y&&v.x+v.w<=o.x+o.w&&v.y+v.h<=o.y+o.h);
@@ -141,6 +178,14 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
    for(const box of boxes){if(!box.w||!box.h)continue;const covered=contains(box);cache.push({...box,owner:e,source:'live-control'});if(!covered&&away&&api.intersects(box,sweep))return true;}
    if(away&&changed&&old.w>0&&old.h>0&&now.w>0&&now.h>0&&fullControl(e)&&physical(e)){const motion={x:Math.min(old.x,now.x)-6,y:Math.min(old.y,now.y)-6,w:Math.max(old.x+old.w,now.x+now.w)-Math.min(old.x,now.x)+12,h:Math.max(old.y+old.h,now.y+now.h)-Math.min(old.y,now.y)+12};if(!contains(motion)&&api.intersects(motion,sweep))return true;}
   }return false;}finally{visibilityMemo=null;occluderMemo=null;}
+ }
+ const cardRoomScreen=screen=>screen==='game:shuffle'||screen==='game:spades';
+ function reuseCardRoom(c){
+  // Rummy's private selection replaces #game while preserving the same logical
+  // table, viewport, original hub and painted perch coordinates. Keep its tour
+  // and deadline; the existing current-control guards still check new nodes.
+  if(!cardRoomScreen(c.screen)||key!==c.key||host!==c.h||!room||room.isConnected||room===c.d)return false;
+  resizeObserver?.unobserve(room);delete room.dataset.cardinalMapping;room=c.d;room.dataset.cardinalMapping='true';resizeObserver?.observe(room);dirty=true;return true;
  }
  function mount(c){host=c.h;room=c.d;key=c.key;room.dataset.cardinalMapping='true';original={value:host.style.getPropertyValue('background-image'),priority:host.style.getPropertyPriority('background-image'),background:host.style.getPropertyValue('background'),backgroundPriority:host.style.getPropertyPriority('background')};
   layer=document.createElement('div');layer.id='ohana-cardinal-visits-layer';layer.setAttribute('aria-hidden','true');layer.inert=true;layer.hidden=true;layer.style.cssText='position:fixed;inset:0;overflow:hidden;pointer-events:none!important;z-index:79;';canvas=document.createElement('canvas');canvas.width=c.width;canvas.height=c.height;canvas.style.cssText='width:100%;height:100%;pointer-events:none!important;';if(c.screen==='game:ohana10')layer.style.zIndex='1000000';layer.append(canvas);(c.d.tagName==='DIALOG'?c.d:document.body).append(layer);
@@ -173,7 +218,7 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
   // Scheduling uses foreground wall time, independently of ordinary play/motion.
   if(s&&!document.hidden&&!reduced()&&!reasons.size)wait-=elapsed;
   controls();if(s&&!document.hidden){const c=context();blockedScreen=c?.blocked?c.screen||null:null;if(!c||c.blocked){if(study)cancel();fallback=c?.blocked||'no-original-perch';}else if(reduced()){if(study)cancel();fallback='reduced-motion';}else if(image.complete&&image.naturalWidth){
-   if(key!==c.key||room!==c.d||host!==c.h){if(study)cancel();mount(c);}lastContext=c;
+   if(key!==c.key||room!==c.d||host!==c.h){if(!reuseCardRoom(c)){if(study)cancel();mount(c);}}lastContext=c;
    if(reasons.size){if(away)park('paused');cancelPlanning();fallback='paused';}else if(study){
     // Only actual route-relative geometry can stop a decorative flight. A
     // pulsing pile, active game input or unrelated animation cannot stop its clock.
@@ -183,7 +228,7 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
  }
  const storage=event=>{if(event.key==='ohana_token'||event.key===null){try{if(event.storageArea&&event.storageArea!==localStorage)return;}catch{}invalidate();}else if(state&&event.key===PAUSE+Number(state.me.id)){readPause()?reasons.add('manual'):reasons.delete('manual');park();refreshControls();}};
  const visibility=()=>{last=0;pointers.clear();reasons.delete('interaction');if(document.hidden){cancelFrame(raf);park();}else if(!stopped)raf=requestFrame(frame);};
- const layout=event=>{geometryVersion++;dirty=true;cancelPlanning();if(away)park(typeof event==='string'?event:event?.type||'layout');};
+ const layout=event=>{const resize=event==='resize'||event?.type==='resize'||typeof event==='string'&&event.startsWith('resize:');if(resize&&cardRoomScreen(lastContext?.screen)){const current=context();if(current&&!current.blocked&&current.key===key){dirty=true;return;}}geometryVersion++;dirty=true;cancelPlanning();if(away)park(typeof event==='string'?event:event?.type||'layout');};
  const resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(entries=>{const outside=entries.filter(entry=>!entry.target.closest?.('#ohana-cardinal-visits-layer'));if(outside.length)layout('resize:'+outside.map(e=>e.target.id||e.target.tagName).join(','));}):null;
  const mutationTag=r=>{const e=r?.target,parent=e?.parentElement;let props='';if(r?.attributeName==='style'&&e?.style){const old=document.createElement('div').style;old.cssText=r.oldValue||'';props=[...new Set([...Array.from(old),...Array.from(e.style)])].filter(p=>old.getPropertyValue(p)!==e.style.getPropertyValue(p)||old.getPropertyPriority(p)!==e.style.getPropertyPriority(p)).join(',');}return [r?.type,e?.id||e?.nodeName,e?.className,parent?.id||parent?.className,r?.attributeName,props].join(':');};
  const containedTransport=r=>{const e=r.target,row=e.closest?.('[data-hub-transport]');if(r.type!=='attributes'||r.attributeName!=='style'||!row||getComputedStyle(row).position!=='absolute')return false;const stage=row.closest('.hub-record-stage');if(!stage||!visible(stage))return false;const a=rect(stage,5),range=document.createRange();range.selectNodeContents(e);const boxes=[rect(e,8),...[...range.getClientRects()].map(v=>paintRect(e,v,4))];return boxes.every(b=>b.x>=a.x&&b.y>=a.y&&b.x+b.w<=a.x+a.w&&b.y+b.h<=a.y+a.h);};
