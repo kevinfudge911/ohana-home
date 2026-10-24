@@ -63,19 +63,28 @@ function* visibleSafetySteps(legs,c,api){
   for(let i=0;i<c.obstacles.length;i++){const hit=intersects(b,c.obstacles[i]);if(!hit){runs.delete(i);continue;}if(p.phase==='rest'&&!unchangedHome(p,c.home))return false;if(unchangedHome(p,c.home))continue;const old=runs.get(i)||{time:0,close:false};old.time+=.01;old.close=old.close||p.foregroundPass;runs.set(i,old);if(old.close)maxCloseOverlap=Math.max(maxCloseOverlap,old.time);else maxNormalOverlap=Math.max(maxNormalOverlap,old.time);if(old.time>(old.close?3.2:.95))return false;}
  }legs.envelope={x:v.x,y:v.y,w:v.width,h:v.height};legs.visibilityProof={samples,maxNormalOverlap,maxCloseOverlap,hiddenSeconds:0};return true;
 }
+function* visibleAirSteps(c,api,recent,rng){
+ const v=c.viewport||{x:0,y:0,width:c.width,height:c.height},home=c.home,near=clamp(Math.min(v.width/590,v.height/500),.55,1.1),zNear=.72/near,point=(x,y,z)=>({x:v.x+x*v.width,y:v.y+y*v.height,z});
+ for(const shape of [0,1,2,3].sort(()=>rng()-.5))for(const mirror of rng()<.5?[false,true]:[true,false])for(const duration of [12,14,16]){
+  yield;const key=c.screen+':visible-air:'+shape+':'+Number(mirror);if(recent.some(p=>p.key===key))continue;
+  const x=t=>mirror?1-t:t,A=point(x(.18),.30,2.6),B=point(x(.80),.31,2.6),N=point(x(.54),.56,zNear),C=point(x(.23),.67,2.2),D=point(x(.78),.64,2.2),lift={x:home.x,y:Math.max(v.y+90,home.y-Math.min(75,v.height*.2)),z:home.z/1.05};
+  const banks=[[A,B,N,C],[B,C,N,A,D],[A,N,B,C,D],[B,A,C,N]][shape],legs=[{points:[home,lift,...banks,lift,home],start:.15,duration,end:.15+duration,label:'Banking through the room, approaching and receding',destination:'the original perch',foregroundPass:true}];legs.visibleTour=true;
+  if(yield*visibleSafetySteps(legs,c,api))return{plan:legs,key,kind:'visible-air-tour',reason:null};
+ }return{plan:null,reason:'no-visible-tour-within-protected-content-limits'};
+}
 function* visibleTourSteps(c,api,recent,rng){
- const home=c.home,v=c.viewport||{x:0,y:0,width:c.width,height:c.height},hit=index(c.obstacles),clear=(p,facing)=>!hit(api.bounds({...p,scale:.72/p.z,phase:'rest',facing})),supports=c.perches.filter(p=>c.width>=600||p.y<v.y+v.height*.62),firsts=supports.filter(p=>p.y<v.y+v.height*.66&&clear(p,-1)).sort(()=>rng()-.5),seconds=supports.filter(p=>clear(p,1)).sort((a,b)=>(b.kind==='visible-table-rim')-(a.kind==='visible-table-rim')+(rng()-.5));
- for(const first of firsts.slice(0,8))for(const second of seconds.filter(p=>distance(p,first)>Math.min(c.width,c.height)*.3&&Math.abs(p.y-first.y)>v.height*.18).slice(0,6))for(const candidateVariant of c.width<600?[0,1,2,3].sort(()=>rng()-.5):[null]){
+ const home=c.home,v=c.viewport||{x:0,y:0,width:c.width,height:c.height},hit=index(c.obstacles),clear=(p,facing)=>!hit(api.bounds({...p,scale:.72/p.z,phase:'rest',facing})),supports=c.perches.filter(p=>c.width>=600||p.y<v.y+v.height*(c.screen==='game:ohana10'?.62:.86)),firsts=supports.filter(p=>p.y<v.y+v.height*(c.screen==='game:ohana10'?.66:.86)&&clear(p,-1)).sort((a,b)=>(['card-border','piece-border'].includes(b.kind)?1:0)-(['card-border','piece-border'].includes(a.kind)?1:0)+(rng()-.5)),seconds=supports.filter(p=>clear(p,1)).sort((a,b)=>(b.kind==='visible-table-rim')-(a.kind==='visible-table-rim')+(['card-border','piece-border'].includes(b.kind)?1:0)-(['card-border','piece-border'].includes(a.kind)?1:0)+(rng()-.5));
+ for(const first of firsts.slice(0,8))for(const second of seconds.filter(p=>distance(p,first)>Math.min(c.width,c.height)*.3&&(c.screen!=='game:ohana10'||Math.abs(p.y-first.y)>v.height*.18)).slice(0,6))for(const candidateVariant of c.width<600?[0,1,2,3].sort(()=>rng()-.5):[null]){
   yield;const variant=candidateVariant===null?Math.floor(rng()*4):candidateVariant,key=c.screen+':visible:'+Math.round(first.x/20)+','+Math.round(first.y/20)+':'+Math.round(second.x/20)+','+Math.round(second.y/20)+':'+variant;if(recent.some(p=>p.key===key))continue;
-  const high={x:v.x+v.width*(variant%2?.84:.18),y:v.y+v.height*(.25+variant*.025),z:2.6},lift={x:home.x,y:home.y-75,z:home.z/1.05},out=[home,lift,high,first],a=leg(out,.15,'Taking visible flight from the original perch','a clear card border');a.duration=clamp(out.slice(1).reduce((n,p,i)=>n+distance(p,out[i]),0)/190+1,3.5,8);a.end=a.start+a.duration;
-  const dwellA=1.4+rng()*.8,dwellB=1.4+rng()*.8,start=a.end+dwellA,close=rng()<.5,near=clamp(c.width/590,.9,1.4),center={x:v.x+v.width*.57,y:!close&&c.width<600?Math.max(v.y+95,Math.min(first.y,second.y)-65):v.y+v.height*.51,z:close?.72/near:2.3},middle=[first,{x:v.x+v.width*.20,y:v.y+v.height*.32,z:2.5},center,second],b={points:middle,start,duration:close?3.4:5,end:start+(close?3.4:5),label:close?'Approaching the window, then landing on a second border':'Flying around the room to a second border',destination:'a second clear border',foregroundPass:close};
+  const high={x:v.x+v.width*(variant%2?.84:.18),y:v.y+v.height*(.25+variant*.025),z:2.6},lift={x:home.x,y:home.y-75,z:home.z/1.05},out=[home,lift,high,first],a=leg(out,.15,'Taking visible flight from the original perch','a clear card border');a.duration=clamp(out.slice(1).reduce((n,p,i)=>n+distance(p,out[i]),0)/(c.screen==='game:ohana10'?190:230)+(c.screen==='game:ohana10'?1:.1),3.5,8);a.end=a.start+a.duration;
+  const dwellA=(c.screen==='game:ohana10'?1.4:2)+rng()*.8,dwellB=(c.screen==='game:ohana10'?1.4:2)+rng()*.8,start=a.end+dwellA,close=rng()<.5,near=clamp(c.width/590,.9,1.4),center={x:v.x+v.width*.57,y:!close&&c.width<600?Math.max(v.y+95,Math.min(first.y,second.y)-65):v.y+v.height*.51,z:close?.72/near:2.3},middle=[first,{x:v.x+v.width*.20,y:v.y+v.height*.32,z:2.5},center,second],b={points:middle,start,duration:close?(c.screen==='game:ohana10'?3.4:5.5):5,end:start+(close?(c.screen==='game:ohana10'?3.4:5.5):5),label:close?'Approaching the window, then landing on a second border':'Flying around the room to a second border',destination:'a second clear border',foregroundPass:close};
   const back=[second,{x:home.x,y:home.y-90,z:home.z/1.06},home],last=leg(back,b.end+dwellB,'Returning visibly to the original perch','the original perch');last.duration=clamp(back.slice(1).reduce((n,p,i)=>n+distance(p,back[i]),0)/230+.35,1.35,6);last.end=last.start+last.duration;const legs=[a,b,last];legs.visibleTour=true;
   if(last.end<=29.75&&(yield*visibleSafetySteps(legs,c,api)))return{plan:legs,key,kind:close?'visible-multi-stop-close-pass':'visible-multi-stop',reason:null};
  }
- return{plan:null,reason:'no-two-visible-safe-perches'};
+ return yield*visibleAirSteps(c,api,recent,rng);
 }
 function* chooseSteps(c,api,recent,rng=Math.random){
- if(c.screen==='game:ohana10')return yield*visibleTourSteps(c,api,recent,rng);
+ if(['game:ohana10','game:handfoot','game:words','puzzle'].includes(c.screen))return yield*visibleTourSteps(c,api,recent,rng);
  if(rng()<.24){const near=yield*closePassSteps(c,api,recent,rng);if(near)return near;}
  const home=c.home,rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4};if(index(c.obstacles)(near))return yield*edgeSteps(c,api,recent,rng);const homeScale=.72/home.z,scale=clamp(homeScale*1.22,.18,.6),g=yield* gridSteps(c,api,scale);if(!g.nodes.length||Math.min(...g.nodes.map(p=>distance(p,home)))>Math.max(100,homeScale*300)){const clear=yield* foregroundSteps(c,api,recent,rng);if(clear)return clear;}if(!g.nodes.length)return yield*edgeSteps(c,api,recent,rng);
  const targets=[...c.perches.map(p=>({...p,land:true})),...g.nodes.filter(p=>distance(p,home)>Math.min(c.width,c.height)*.25).sort(()=>rng()-.5).slice(0,12).map(p=>({...p,z:.72/scale,land:false,kind:'air-arc'}))];
@@ -103,5 +112,5 @@ function createTask(iterator){
 }
 
 function createPlanner(c,api,recent,rng=Math.random){return createTask(chooseSteps(c,api,recent,rng));}
-return{visibleSafetySteps,visibleTourSteps,closePassSteps,safePlanSteps,edgeSteps,intersects,index,hull,inView,safePlan,choose,unchangedHome,foreground,createPlanner,createTask};
+return{visibleSafetySteps,visibleTourSteps,visibleAirSteps,closePassSteps,safePlanSteps,edgeSteps,intersects,index,hull,inView,safePlan,choose,unchangedHome,foreground,createPlanner,createTask};
 });
