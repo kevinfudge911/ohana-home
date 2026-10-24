@@ -26,17 +26,23 @@ function plan(room='bridge',tour=0){
  if(tour===1){let start=1;return legs.slice().reverse().map(leg=>{const points=leg.points.slice().reverse(),end=points.at(-1),destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers',next={points,duration:leg.duration,start,end:start+leg.duration,label:'Visiting '+destination,destination};start=next.end+3;return next;});}
  legs.forEach(leg=>{const end=leg.points.at(-1);leg.destination=end===m.home?'the original resting position':end===m.rail?'the distant rail':'the foreground flowers';});return legs;
 }
+// Arc-distance parameterization and monotone cubic components prevent the
+// first short lift from dipping below its starting perch or overshooting depth.
+const visiblePaths=new WeakMap();
+function visiblePath(points,t){let data=visiblePaths.get(points);if(!data){let total=0;const lengths=[],ends=[];for(let i=1;i<points.length;i++){const n=Math.max(1,Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y));lengths.push(n);total+=n;ends.push(total);}data={total,lengths,ends};visiblePaths.set(points,data);}const at=clamp(t,0,1)*data.total;let i=data.ends.findIndex(n=>n>=at);if(i<0)i=points.length-2;const length=data.lengths[i],u=(at-(i?data.ends[i-1]:0))/length;
+ const harmonic=(a,b)=>a*b<=0?0:2*a*b/(a+b),result={};for(const key of ['x','y','z']){const a=points[i][key],b=points[i+1][key],s=(b-a)/length,left=i?(a-points[i-1][key])/data.lengths[i-1]:s,right=i+2<points.length?(points[i+2][key]-b)/data.lengths[i+1]:s,m0=harmonic(left,s)*length,m1=harmonic(s,right)*length;result[key]=(2*u*u*u-3*u*u+1)*a+(u*u*u-2*u*u+u)*m0+(-2*u*u*u+3*u*u)*b+(u*u*u-u*u)*m1;}return result;
+}
 function pose(time,room='bridge',tour=0,customPlan=null){
  const edge=customPlan?.[0]?.edgeVisit;if(edge){const h=edge.home,rest={...h,scale:distanceScale(h.z),phase:'rest',facing:1};if(time<edge.tuckStart)return rest;if(time<edge.tuckEnd)return{...rest,phase:'perch-tuck',maskedPerch:true,tuck:(time-edge.tuckStart)/(edge.tuckEnd-edge.tuckStart)};if(time<customPlan[0].start)return{...rest,phase:'hidden',visible:false};const last=customPlan.at(-1);if(time>=last.end){if(time<edge.revealStart)return{...rest,phase:'hidden',visible:false};if(time<edge.end)return{...rest,phase:'landing',maskedPerch:true,tuck:1-(time-edge.revealStart)/(edge.end-edge.revealStart)};return{...rest,complete:true};}}
  const legs=customPlan||plan(room,tour),m=maps[room];let perch=legs[0]?.points[0]||m.home,last=null;
  for(const leg of legs){if(time<leg.start)return {...perch,scale:distanceScale(perch.z),phase:'rest',label:last?'Settled on '+last.destination:'Resting on the original Ohana perch',facing:last===legs[0]?-1:1};if(time<=leg.end){let u=(time-leg.start)/leg.duration;
  // Acceleration after push-off, long middle flight, deceleration into contact.
- let q=customPlan?(u<.04?u*u/.08/.96:u>.96?1-(1-u)*(1-u)/.08/.96:(u-.02)/.96):u*u*(3-2*u),p=path(leg.points,q),n=path(leg.points,clamp(q+.001,0,1)),prev=path(leg.points,clamp(q-.001,0,1));let dx=n.x-prev.x,dy=n.y-prev.y;
+ let q=customPlan?(u<.04?u*u/.08/.96:u>.96?1-(1-u)*(1-u)/.08/.96:(u-.02)/.96):u*u*(3-2*u),p=(customPlan?.visibleTour?visiblePath:path)(leg.points,q),n=(customPlan?.visibleTour?visiblePath:path)(leg.points,clamp(q+.001,0,1)),prev=(customPlan?.visibleTour?visiblePath:path)(leg.points,clamp(q-.001,0,1));let dx=n.x-prev.x,dy=n.y-prev.y;
  const envelope=Math.sin(Math.PI*clamp(u*4,0,1))*.5+.5;
  const landing=clamp((u-.86)/.14,0,1),launch=clamp(u/.12,0,1);
  const bound=0.5+0.5*Math.sin((u*leg.duration)*Math.PI*2*1.5);
  const glideWeight=leg.flightStyle==='glide'?1:u>.25&&u<.78?clamp((bound-.6)/.4,0,1):0,glide=glideWeight>.5; const yaw=dx/(Math.abs(dy)*.7+Math.abs(dx)+.000001);const facing=yaw===0?1:Math.sign(yaw)*(.32+.68*Math.abs(yaw));
- return {...p,scale:distanceScale(p.z),phase:landing>0?'landing':launch<1?'launch':'flight',label:leg.label,u,flightTime:time-leg.start,facing,pitch:clamp(Math.atan2(dy,Math.abs(dx))*.28,-.28,.28)+.16*(1-landing),wing:lerp(Math.sin((time-leg.start)*Math.PI*2*7.2),.12,glideWeight),glide,landing,launch,envelope};}
+ return {...p,foregroundTransit:!!customPlan?.visibleTour,foregroundPass:!!leg.foregroundPass&&u>.04&&u<.96,scale:distanceScale(p.z),phase:landing>0?'landing':launch<1?'launch':'flight',label:leg.label,u,flightTime:time-leg.start,facing,pitch:clamp(Math.atan2(dy,Math.abs(dx))*.28,-.28,.28)+.16*(1-landing),wing:lerp(Math.sin((time-leg.start)*Math.PI*2*7.2),.12,glideWeight),glide,landing,launch,envelope};}
  perch=leg.points.at(-1);last=leg;
  }
  const home=legs.at(-1)?.points.at(-1)||m.home;return {...home,scale:distanceScale(home.z),phase:'rest',label:'Resting on the original Ohana perch',facing:1,complete:true};
@@ -95,7 +101,7 @@ class Study{
  update(dt){if(!this.paused&&!this.reduced&&this.active){this.time+=Math.min(dt,.05);if(this.time>30.5)this.active=false;}return this.draw();}
  draw(at=this.time){const c=this.c,m={...maps[this.room],home:this.home||maps[this.room].home},customPlan=this.getPlan(),p=pose(this.reduced?0:at,this.room,Math.max(0,this.tour),customPlan);c.clearRect(0,0,this.canvas.width,this.canvas.height);this.snapshot=p;if(customPlan?.[0]?.edgeVisit&&(p.visible===false||p.maskedPerch)){this.safe=true;this.drawPerchTuck(p.visible===false?1:p.tuck);return p;}
  const exclusions=[...(customPlan?[]:m.exclusions),...this.getExclusions()],unchangedHome=p.phase==='rest'&&p.x===m.home.x&&p.y===m.home.y&&Math.abs(p.scale-distanceScale(m.home.z))<1e-9&&(p.facing===undefined||p.facing===1)&&!p.pitch;
- const unsafe=!unchangedHome&&exclusions.some(b=>intersects(bounds(p),b));this.safe=!unsafe;
+ const unsafe=!unchangedHome&&!p.foregroundPass&&!p.foregroundTransit&&exclusions.some(b=>intersects(bounds(p),b));this.safe=!unsafe;
  // Keep the original stationary perch. Only hide its bird pixels during a visit.
  c.save();c.translate(m.home.x,m.home.y);c.scale(distanceScale(m.home.z),distanceScale(m.home.z));c.translate(-220,-174);
  if(unsafe||(p.phase==='rest'&&p.x===m.home.x&&p.y===m.home.y)){c.drawImage(this.image,0,0);c.restore();return p;}
