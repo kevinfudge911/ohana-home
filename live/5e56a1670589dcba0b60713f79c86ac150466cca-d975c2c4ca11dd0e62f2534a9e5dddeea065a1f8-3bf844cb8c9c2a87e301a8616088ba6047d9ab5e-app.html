@@ -6970,6 +6970,8 @@ function queueOwnTurnWatch(watch){
 async function api(path, body, method, room=S.room) {
   const requestToken=S.token;
   const requestMethod=method||(body?'POST':'GET'),turnWatch=typeof beginOwnTurnWatch==='function'?beginOwnTurnWatch(path,requestMethod):null;let r;
+  if(requestMethod!=='GET')sync.invalidate?.();
+  try{
   for(let attempt=0;attempt<(requestMethod==='GET'?2:1);attempt++){
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
    try{r=await fetch(path,{method:requestMethod,signal:controller.signal,headers:{'content-type':'application/json','x-ohana-room':String(room||0),...(requestToken?{authorization:'Bearer '+requestToken}:{})},body:body?JSON.stringify(body):undefined});break;}
@@ -6982,6 +6984,7 @@ async function api(path, body, method, room=S.room) {
   if(requestToken&&requestToken===S.token)document.querySelector('#session-reconnect')?.remove();
   if(turnWatch&&typeof queueOwnTurnWatch==='function')queueOwnTurnWatch(turnWatch);
   return d;
+  }finally{if(requestMethod!=='GET')sync.invalidate?.();}
 }
 function showSessionReconnect(){
  if(document.querySelector('#session-reconnect'))return;
@@ -15671,12 +15674,32 @@ async function clearStaleDeviceNotifications(data,startedAt){
 }
 
 // ---------- SYNC LOOP ----------
-async function sync() {
-  if (!S.token) return;
+// Share only pending reads with the same identity, message cursor and game-read
+// boundary. A post-game refresh must not inherit a pre-game server snapshot.
+const OhanaSyncRequests=(()=>{
+ const pending=new Map();let serial=0,applied=0,mutation=0;
+ const current=r=>S.token===r.token&&(S.me?.id??null)===r.member&&S.room===r.room&&S.roomEpoch===r.epoch&&r.mutation===mutation;
+ function run(options,read){
+  if(!S.token)return Promise.resolve();
+  for(const[key,r]of pending)if(!current(r))pending.delete(key);
+  const r={token:S.token,member:S.me?.id??null,room:S.room,epoch:S.roomEpoch,cursor:S.lastMsg,gameRead:S.gameReadEpoch||0,mutation};
+  const key=JSON.stringify([r.token,r.member,r.room,r.epoch,r.cursor,r.gameRead,r.mutation]),prior=pending.get(key);
+  if(options?.fresh!==true&&prior)return prior.promise;
+  r.serial=++serial;
+  r.promise=(async()=>{try{await read(r);}finally{if(pending.get(key)===r)pending.delete(key);}})();
+  pending.set(key,r);return r.promise;
+ }
+ function accept(r){if(!current(r)||r.serial<applied)return false;applied=r.serial;return true;}
+ function invalidate(){mutation++;pending.clear();}
+ return{run,accept,invalidate};
+})();
+
+function sync(options) {
+ return OhanaSyncRequests.run(options,async request=>{
   try {
-    const epoch=S.roomEpoch,notificationSyncStarted=Date.now();
-    const d = await api('/api/sync?announcementMedia=1&msgSince=' + S.lastMsg);
-    if(epoch!==S.roomEpoch)return;
+    const notificationSyncStarted=Date.now();
+    const d = await api('/api/sync?announcementMedia=1&msgSince=' + request.cursor);
+    if(!OhanaSyncRequests.accept(request))return;
     if (d.version) {
       S.syncVersion = d.version;
     }
@@ -15703,7 +15726,9 @@ async function sync() {
     if (!S.game && !PZ.id && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms' && S.tab!=='settings') render();
     S.sig = sig;
   } catch (e) { /* quiet */ }
+ });
 }
+sync.invalidate=OhanaSyncRequests.invalidate;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installPrompt = e; });
 if ('serviceWorker' in navigator) {
   try{localStorage.setItem('ohana_loaded_build',OHANA_BUILD);}catch{}
@@ -15727,7 +15752,7 @@ function schedulePoll() {
       // Each of these runs independently — a game-load hiccup must never freeze the chat badge.
       // Slow inbox requests must not delay seeing the next game move.
       if(S.game){try{await loadGame();}catch(e){}}
-      if(!S.socialPollPending){S.socialPollPending=true;Promise.allSettled([sync(),refreshChatInbox()]).finally(()=>{S.socialPollPending=false;});}
+      if(!S.socialPollPending){S.socialPollPending=true;Promise.allSettled([sync({fresh:true}),refreshChatInbox()]).finally(()=>{S.socialPollPending=false;});}
     }
     schedulePoll();
   }, getPollInterval());
