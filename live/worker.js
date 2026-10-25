@@ -9397,6 +9397,26 @@ function dominoRoundScores(st, players) {
 function dominoRoundWinner(st, players) {
   return [...players].sort((a, b) => dominoHandPips(st, a) - dominoHandPips(st, b))[0];
 }
+function dominoCreationMode(mode) {
+  const key = dominoMode(mode);
+  return key === "draw" ? "draw-tile-pips-v1" : key;
+}
+function dominoPlayedPips(st) {
+  return st.mode === "draw" && !st.trains && st.scoringVersion === "draw-tile-pips-v1";
+}
+function dominoSettlePlayedPips(st, players, reason, wentOut = null) {
+  if (st.scoreSettlement) {
+    const winner = st.scoreSettlement.winner;
+    return { over: true, winner, next: winner === "tie" ? 0 : players.indexOf(winner) };
+  }
+  const remaining = Object.fromEntries(players.map(p => [p, dominoHandPips(st, p)]));
+  for (const p of players) st.scores[p] = Number(st.scores[p] || 0) - remaining[p];
+  const highest = Math.max(...players.map(p => st.scores[p]));
+  const leaders = players.filter(p => st.scores[p] === highest), winner = leaders.length === 1 ? leaders[0] : "tie";
+  st.roundWinner = winner;
+  st.scoreSettlement = { reason, wentOut, remaining, winner };
+  return { over: true, winner, next: winner === "tie" ? 0 : players.indexOf(winner) };
+}
 function dominoInit(players, seed, mode) {
   if(mode==='mexican')return dominoTrainInit(players,seed,mode);
   const key = dominoMode(mode);
@@ -9422,7 +9442,7 @@ function dominoInit(players, seed, mode) {
   hands[starterPlayer].splice(starterIndex, 1);
   const starterTurn = players.indexOf(starterPlayer);
   const nextTurn = (starterTurn + 1) % players.length;
-  return {
+  const state = {
     mode: key,
     modeLabel: cfg.label,
     maxPip: cfg.maxPip,
@@ -9438,9 +9458,19 @@ function dominoInit(players, seed, mode) {
     lastPlay: { p: starterPlayer, tile: starter, note: "started the table" },
     history: [{ p: starterPlayer, tile: starter, note: `started with ${dominoTileName(starter)}` }]
   };
+  if (mode === "draw-tile-pips-v1") {
+    state.scoringVersion = "draw-tile-pips-v1";
+    state.scoreSettlement = null;
+    const gained = dominoPips(starter);
+    state.scores[starterPlayer] = gained;
+    state.lastPlay.score = gained;
+    state.history[0].score = gained;
+  }
+  return state;
 }
 function dominoMove(st, players, turnIdx, move) {
   if(st.trains)return dominoTrainMove(st,players,turnIdx,move);
+  if (dominoPlayedPips(st) && st.scoreSettlement) throw new Error("This board is already settled.");
   const player = players[turnIdx];
   const hand = st.hands[player] || [];
   const playable = dominoPlayable(st, player);
@@ -9462,6 +9492,7 @@ function dominoMove(st, players, turnIdx, move) {
     st.history.push({ p: player, note: "passed" });
     const blocked = !players.some(p => dominoPlayable(st, p).length) && (!st.boneyard.length || st.mode === "block");
     if (blocked) {
+      if (dominoPlayedPips(st)) return dominoSettlePlayedPips(st, players, "blocked");
       const winner = dominoRoundWinner(st, players);
       dominoRoundScores(st, players);
       st.roundWinner = winner;
@@ -9488,13 +9519,17 @@ function dominoMove(st, players, turnIdx, move) {
     st.board.push({ p: player, tile, side });
   }
   let gained = 0;
-  if (st.mode === "allfives") {
+  if (dominoPlayedPips(st)) {
+    gained = dominoPips(tile);
+    st.scores[player] = Number(st.scores[player] || 0) + gained;
+  } else if (st.mode === "allfives") {
     gained = dominoOpenScore(st);
     if (gained) st.scores[player] = Number(st.scores[player] || 0) + gained;
   }
   st.lastPlay = { p: player, tile, side, score: gained };
   st.history.push({ p: player, tile, side, score: gained, note: `played ${dominoTileName(tile)} ${side}` });
   if (!hand.length) {
+    if (dominoPlayedPips(st)) return dominoSettlePlayedPips(st, players, "empty", player);
     dominoRoundScores(st, players);
     st.roundWinner = player;
     return { over: true, winner: player, next: turnIdx };
@@ -11549,10 +11584,11 @@ async function ohanaCreateReplay(db,env,me,g,players,names){
  for(const member of human)await allowGame(db,member,g.type);
  const recipients=human.filter(id=>id!==me.id),ts=now(),inviteCode=rid(6),max=spadesBotReplay?4:seats.length,started=withBot||max===1;
  const nextSeats=started?(withBot?gameBotSeats(g.type,me.id):[me.id]):[me.id];let state=null;
- if(started){state=initState(g.type,nextSeats,g.id*7919+ts%100000,g.mode||'classic');if(withBot)state.bot={id:BOT_ID,name:'Ohana Robot',avatar:'@hon',difficulty:JSON.parse(g.state||'{}').bot?.difficulty||'easy',memory:{},moves:0};}
+ const replayMode=g.type==='domino'?dominoCreationMode(g.mode):(g.mode||'classic');
+ if(started){state=initState(g.type,nextSeats,g.id*7919+ts%100000,replayMode);if(withBot)state.bot={id:BOT_ID,name:'Ohana Robot',avatar:'@hon',difficulty:JSON.parse(g.state||'{}').bot?.difficulty||'easy',memory:{},moves:0};}
  await db.prepare('INSERT OR IGNORE INTO game_replays(original_game_id,new_game_id) VALUES(?,0)').bind(g.id).run();
  const batch=[
-  db.prepare('INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id,state) SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM game_replays WHERE original_game_id=? AND new_game_id=0)').bind(g.type,JSON.stringify(nextSeats),max,started?'playing':'waiting',state&&Number.isInteger(state.nextTurn)?state.nextTurn:0,me.id,ts,ts,g.mode||'classic',inviteCode,g.room_id,state?JSON.stringify(state):null,g.id),
+  db.prepare('INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id,state) SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM game_replays WHERE original_game_id=? AND new_game_id=0)').bind(g.type,JSON.stringify(nextSeats),max,started?'playing':'waiting',state&&Number.isInteger(state.nextTurn)?state.nextTurn:0,me.id,ts,ts,replayMode,inviteCode,g.room_id,state?JSON.stringify(state):null,g.id),
   db.prepare('UPDATE game_replays SET new_game_id=(SELECT id FROM games WHERE invite_code=? AND created_by=? AND created_at=? AND room_id=? ORDER BY id DESC LIMIT 1) WHERE original_game_id=? AND new_game_id=0').bind(inviteCode,me.id,ts,g.room_id,g.id)
  ];
  if(!started)for(const member of recipients)batch.push(db.prepare("INSERT OR IGNORE INTO game_invitations(game_id,member_id,sender_id,status,created_at) SELECT r.new_game_id,?,?,'pending',? FROM game_replays r JOIN games child ON child.id=r.new_game_id WHERE r.original_game_id=? AND r.new_game_id>0 AND child.invite_code=? AND child.created_by=? AND child.created_at=?").bind(member,me.id,ts,g.id,inviteCode,me.id,ts));
@@ -12026,6 +12062,8 @@ async function api2(req, env222222, url) {
     return json({ ok: true });
   }
   if (p === "/api/leaderboard" && req.method === "GET") {
+    const scoringView = url.searchParams.get("scoring") || "original";
+    if (!["original", "draw-pips-v1"].includes(scoringView)) throw new Error("Choose a valid scoring view.");
     const finished = (await db.prepare("SELECT id,type,players,winner,state FROM games WHERE room_id=? AND status='finished'").bind(roomId).all()).results;
     const stats = {};
     const touch = /* @__PURE__ */ __name((type, pid3) => {
@@ -12045,6 +12083,8 @@ async function api2(req, env222222, url) {
       } catch {
         state = {};
       }
+      const earnedDraw = g.type === "domino" && dominoPlayedPips(state);
+      if ((scoringView === "draw-pips-v1") !== earnedDraw) continue;
       const scores = state.scores || null;
       const winnerStr = g.winner != null ? String(g.winner) : "";
       for (const pid3 of players) {
@@ -12070,7 +12110,16 @@ async function api2(req, env222222, url) {
       }
     }
     const overallList = Object.values(overall).sort((a, b) => b.wins - a.wins || b.points - a.points);
-    return json({ byType, overall: overallList, types: GAME_TYPES });
+    const net = scoringView === "draw-pips-v1";
+    const scoring = {
+      view: scoringView,
+      overallLabel: net ? "New Draw standings" : "Other games · original totals",
+      pointsLabel: net ? "net points" : "recorded points",
+      note: net ? "Only new Draw Dominoes tile-point games. Each stored total is earned tile points minus leftover pips. Other saved rules are excluded."
+        : "Original Draw scores count leftover pips as penalties; these historical counters keep their original ranking. New Draw net points have separate standings and are excluded here."
+    };
+    const types = { ...GAME_TYPES, domino: { ...GAME_TYPES.domino, name: net ? "Draw Dominoes · tile points" : "Dominoes · original rules" } };
+    return json({ byType, overall: overallList, types, scoring });
   }
   if (p === "/api/game/history" && req.method === "GET") {
     const before = Math.max(0, Number.parseInt(url.searchParams.get("before") || "0", 10) || 0);
@@ -12098,7 +12147,7 @@ async function api2(req, env222222, url) {
     const cardMax = cardMode === "gin" ? 2 : 6;
     if (type === "shuffle" && body.max_players !== undefined && (!Number.isInteger(body.max_players) || body.max_players < 2 || body.max_players > cardMax)) throw Error(cardMode === "gin" ? "Gin Rummy needs exactly two players." : "Regular Rummy needs two to six players.");
     const max = type === "shuffle" ? (withBot?2:body.max_players || 2) : withBot ? (type==='spades'?4:2) : Math.min(gt.max, Math.max(gt.min, +body.max_players || gt.min));
-    const mode = type === "shuffle" ? cardMode : type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
+    const mode = type === "shuffle" ? cardMode : type === "words" && body.mode === "random" ? "random" : type === "domino" ? dominoCreationMode(body.mode) : type === "mahjong" && body.mode === "rounds8" ? "rounds8" : "classic";
     const inviteCode = rid(6);
     const r = await db.prepare("INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(type, JSON.stringify([me.id]), max, "waiting", 0, me.id, now(), now(), mode, inviteCode, roomId).run();
     if (max === 1 || withBot) {
