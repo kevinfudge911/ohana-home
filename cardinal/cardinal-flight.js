@@ -2,6 +2,10 @@
 (function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.OhanaMemorialStudy=api;})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';
 const W=1536,H=1024;
+// Appearance only. Reversed-source lettering cancels the physical body mirror.
+const reverseAppearance=typeof Image==='function'?new Image():null;
+if(reverseAppearance)reverseAppearance.src='/ohana-cardinal-daddy-cap-reverse-v1.png';
+const appearanceReady=()=>!reverseAppearance||reverseAppearance.complete&&reverseAppearance.naturalWidth===384&&reverseAppearance.naturalHeight===256;
 const maps={
  bridge:{home:{x:1410,y:930,z:1.55},rail:{x:1144,y:466,z:2.7},flower:{x:135,y:850,z:1.05},high:[{x:1330,y:330,z:2.7},{x:1040,y:250,z:3.45},{x:600,y:260,z:3.15},{x:180,y:360,z:2.35},{x:145,y:630,z:1.5}],exclusions:[{x:365,y:580,w:805,h:360}]},
  shuffle:{home:{x:1410,y:960,z:1.55},rail:{x:1370,y:527,z:2.65},flower:{x:150,y:890,z:1.05},high:[{x:1455,y:340,z:2.6},{x:1460,y:120,z:3.3},{x:1310,y:45,z:5},{x:900,y:45,z:5},{x:480,y:45,z:5},{x:140,y:110,z:3.5},{x:125,y:430,z:2.3},{x:135,y:670,z:1.45}],exclusions:[{x:355,y:75,w:820,h:155},{x:300,y:230,w:905,h:665}]}
@@ -67,7 +71,7 @@ function bounds(p){if(p.visible===false)return{x:p.x,y:p.y,w:0,h:0};if(p.maskedP
 }
 
 function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
-function birdClip(c){c.beginPath();c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
+function birdClip(c){c.beginPath();c.rect(171,20,114,54);c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
 function drawWing(c,p,far){
  const w=p.wing||0,land=p.landing||0,amp=(1-land*.68)*(p.launch===undefined?1:Math.max(.3,p.launch));
  const shoulder={x:-7,y:-48},tip={x:-92-Math.max(0,-w)*24,y:-45-w*117*amp};
@@ -110,11 +114,15 @@ class Study{
  if(unsafe){return p;}
  c.save();c.translate(p.x,p.y);c.scale(p.scale*p.facing,p.scale);c.rotate(p.pitch||0);
  if(p.phase!=='rest'){c.translate(0,Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0)));drawWing(c,p,true);}
- // Body, crest, scarf and beak are sampled directly from the original asset.
- c.save();c.translate(-220,-174);birdClip(c);c.drawImage(this.image,0,0);c.restore();
- if(p.phase!=='rest')drawWing(c,p,false);if(p.phase==='rest'||p.landing>.55){c.strokeStyle='#b76b17';c.lineWidth=2.6;c.beginPath();c.moveTo(-18,-10);c.lineTo(-13,0);c.lineTo(-23,1);c.moveTo(4,-10);c.lineTo(8,0);c.lineTo(-2,1);c.stroke();}
+ // Original body/perch pixels plus imagegen cap/cloth and native Daddy/STL.
+ const bodyImage=p.facing<0&&appearanceReady()&&reverseAppearance?reverseAppearance:this.image;
+ c.save();c.translate(-220,-174);birdClip(c);c.drawImage(bodyImage,0,0);c.restore();
+ if(p.phase!=='rest'){drawWing(c,p,false);
+ // The neck cloth lies in front of the wing root; lettering remains visible.
+ c.save();c.translate(-220,-174);birdClip(c);c.beginPath();c.rect(163,106,84,30);c.clip();c.drawImage(bodyImage,0,0);c.restore();}
+ if(p.phase==='rest'||p.landing>.55){c.strokeStyle='#b76b17';c.lineWidth=2.6;c.beginPath();c.moveTo(-18,-10);c.lineTo(-13,0);c.lineTo(-23,1);c.moveTo(4,-10);c.lineTo(8,0);c.lineTo(-2,1);c.stroke();}
  c.restore();return p;
  }
 }
-return {W,H,maps,plan,pose,bounds,intersects,distanceScale,createPerchTuck,Study};
+return {W,H,maps,plan,pose,bounds,intersects,distanceScale,createPerchTuck,Study,appearanceReady};
 });
