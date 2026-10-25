@@ -22,6 +22,8 @@ import OHANA_BLESSINGS_SIGN from "./ohana-blessings-prayer-sign-v1.webp";
 import OHANA_UNITED_SIGN from "./ohana-united-puzzle-sign-v1.webp";
 import ACTION_BOWLS from "./ohana-action-bowls-v1.webp";
 import CARDINAL_CONTROL from "./ohana-cardinal-control-v1.webp";
+import CARDINAL_DADDY_CAP from "./ohana-cardinal-daddy-cap-v1.png";
+import CARDINAL_DADDY_CAP_REVERSE from "./ohana-cardinal-daddy-cap-reverse-v1.png";
 import { seniorRoute } from "./senior-access.js";
 import SENIOR_SETUP_HTML from "./senior-setup.html";
 import OHANA_GRANNY_FINAL_0 from "./ohana-granny-crossword-cherish-20261013.webp";
@@ -10974,6 +10976,8 @@ if(req.method==='GET'&&p==='/ohana-bridge-setting-v1.webp')return new Response(O
     if(req.method==='GET'&&p==='/ohana-bridge-setting-portrait-v1.webp')return new Response(OHANA_BRIDGE_PORTRAIT,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-hub-record-player-v1.webp')return new Response(OHANA_BRIDGE_RECORD,{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});
     if(req.method==='GET'&&p==='/ohana-announcement-menu-hide-v1.jpg')return new Response(OHANA_MENU_HIDE_NOTICE,{headers:{'content-type':'image/jpeg','cache-control':'public,max-age=31536000,immutable'}});
+    if(p === "/ohana-cardinal-daddy-cap-v1.png")return new Response(CARDINAL_DADDY_CAP,{headers:{"content-type":"image/png","cache-control":"public,max-age=86400"}});
+    if(p === "/ohana-cardinal-daddy-cap-reverse-v1.png")return new Response(CARDINAL_DADDY_CAP_REVERSE,{headers:{"content-type":"image/png","cache-control":"public,max-age=86400"}});
     if(p === "/ohana-cardinal-control-v1.webp")return new Response(CARDINAL_CONTROL,{headers:{"content-type":"image/webp","cache-control":"public,max-age=86400"}});
     if(url.pathname==='/ohana-wood.webp'&&req.method==='GET'){const art=APP_HTML.match(/--ohana-wood:url\("data:image\/webp;base64,([^"\)]+)"\)/);if(art)return new Response(Uint8Array.from(atob(art[1]),c=>c.charCodeAt(0)),{headers:{'content-type':'image/webp','cache-control':'public,max-age=86400'}});}
     try{const senior=await seniorRoute(req,env222222,url,{auth,childPolicy,grannyApi,unifiedChat,page:APP_HTML,setup:SENIOR_SETUP_HTML,api:api2,grannyWordCheck,wardrobeApi,memoriesApi,memoriesPage:MEMORIES_HTML,puzzleWs,puzzlePoll,ctx});if(senior)return senior;}catch(e){return Response.json({error:'Could not open this invitation. Please try again.'},{status:500,headers:{'cache-control':'no-store'}});}

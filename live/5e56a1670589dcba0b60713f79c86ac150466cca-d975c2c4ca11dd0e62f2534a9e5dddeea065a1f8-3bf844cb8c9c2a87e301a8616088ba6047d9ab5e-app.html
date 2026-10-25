@@ -17336,7 +17336,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
    if(toggle.dataset.workstationState!==String(collapsed)){toggle.dataset.workstationState=String(collapsed);toggle.innerHTML='<small class="ohana-menu-label">Menu</small><span aria-hidden="true">'+(collapsed?'+':'−')+'</span><small class="ohana-menu-state">'+(collapsed?'Show':'Hide')+'</small>';}
    toggle.setAttribute('aria-label',collapsed?'Show menu':'Hide menu');toggle.setAttribute('aria-expanded',String(!collapsed));toggle.disabled=!dock;
    if(dock)toggle.setAttribute('aria-controls',dock.id);else toggle.removeAttribute('aria-controls');
-   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'var(--landscape-hub-width,184px)',height:'var(--landscape-hub-height,112px)',background:(slot.dataset.cardinalAway==='true'?'none':'url(/ohana-cardinal-control-v1.webp)')+' left bottom 4px/var(--landscape-hub-art,120px 80px) no-repeat','z-index':'80',display:'block'});
+   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'var(--landscape-hub-width,184px)',height:'var(--landscape-hub-height,112px)',background:(slot.dataset.cardinalAway==='true'?'none':'url(/ohana-cardinal-daddy-cap-v1.png)')+' left bottom 4px/var(--landscape-hub-art,120px 80px) no-repeat','z-index':'80',display:'block'});
    set(head,{position:'absolute',left:'0',right:'auto',top:'auto',bottom:'4px',width:'var(--landscape-hub-head,120px)',height:'var(--landscape-hub-head-height,80px)','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1'});
    set(toggle,{position:'absolute',left:'var(--landscape-toggle-x,124px)',right:'auto',top:'4px',bottom:'auto',width:'56px',height:'104px','min-width':'56px','min-height':'104px','max-width':'56px','max-height':'104px',margin:'0',padding:'0',display:'flex','flex-direction':'column','align-items':'center','justify-content':'center',gap:'0',background:'transparent',border:'0','box-shadow':'none',color:'#9dff42',font:'900 38px/1 Nunito,system-ui','text-shadow':'0 1px 2px #183b17,0 0 3px #183b17',opacity:toggle.disabled?'.6':'1','z-index':'42'});
    set(toggle.querySelector('.ohana-menu-label'),{font:'800 18px/1.2 Nunito,system-ui',color:'#f6ffe8','text-shadow':'0 1px 2px #183b17'});
@@ -17741,7 +17741,7 @@ const style=document.createElement('style');style.id='ohana-hub-private-style';s
 style.textContent=style.textContent.replaceAll('#ohana-chat-dialog','#ohana-chat-dialog'.repeat(18));document.head.append(style);
 function upgrade(){const d=document.getElementById('ohana-chat-dialog');if(!d||d.dataset.hubUpgrade)return;d.dataset.hubUpgrade='preview';
 const header=d.querySelector('header'),home=document.createElement('button');home.className='hub-home';home.setAttribute('aria-label','Back to previous screen');home.innerHTML='←<span aria-hidden="true"></span>';home.onclick=()=>d.close();header.prepend(home);
-const tabs=document.createElement('nav');tabs.className='hub-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Ohana chat hub');tabs.innerHTML='<img src="/ohana-cardinal-control-v1.webp" alt="Ohana cardinal"><button role="tab" data-hub-tab="chat" aria-controls="hub-chat-view">Chat</button><button role="tab" data-hub-tab="commands" aria-controls="uc-tools">Commands</button><button role="tab" data-hub-tab="music" aria-controls="hub-music-view">Music</button>';header.after(tabs);
+const tabs=document.createElement('nav');tabs.className='hub-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Ohana chat hub');tabs.innerHTML='<img src="/ohana-cardinal-daddy-cap-v1.png" alt="Ohana cardinal"><button role="tab" data-hub-tab="chat" aria-controls="hub-chat-view">Chat</button><button role="tab" data-hub-tab="commands" aria-controls="uc-tools">Commands</button><button role="tab" data-hub-tab="music" aria-controls="hub-music-view">Music</button>';header.after(tabs);
 const main=d.querySelector('.uc-main');main.id='hub-chat-view';main.setAttribute('role','region');main.setAttribute('aria-label','Ohana Chat');const tools=d.querySelector('#uc-tools');tools.setAttribute('role','region');const music=document.createElement('section');music.className='hub-music';music.id='hub-music-view';music.setAttribute('role','region');music.setAttribute('aria-label','Bridge record player');music.hidden=true;music.innerHTML='<div class="hub-record-stage"><img class="hub-record-player" src="/ohana-hub-record-player-v1.webp" alt="Ohana wooden record player"><div data-hub-transport></div></div><div data-hub-music-slot></div><p data-hub-music-wait>Music is loading…</p>';d.querySelector('.uc-shell').append(music);
 const legacy=d.querySelector('#uc-context');let mode='chat';const setMode=next=>{mode=next;const chat=next==='chat';if(tools.hidden)legacy.click();main.hidden=!chat;tools.hidden=false;music.hidden=false;d.classList.add('hub-command-player');d.classList.toggle('tools-open',!chat);const chatButton=tabs.querySelector('[data-hub-tab=chat]');chatButton.setAttribute('aria-expanded',String(chat));d.classList.toggle('ohana-chat-bubble',chat);chatButton.setAttribute('aria-label',chat?'Close chat bubble':'Open chat bubble');if(chat)requestAnimationFrame(()=>main.querySelector('#uc-start')?.focus({preventScroll:true}));else{saveChatDraft();chatButton.focus({preventScroll:true});}};
 tabs.querySelectorAll('[role=tab]').forEach((b,i,all)=>{b.onclick=()=>setMode(b.dataset.hubTab==='chat'&&!main.hidden?'commands':b.dataset.hubTab);b.onkeydown=e=>{let n=e.key==='ArrowRight'?(i+1)%all.length:e.key==='ArrowLeft'?(i+all.length-1)%all.length:e.key==='Home'?0:e.key==='End'?all.length-1:null;if(n!==null){e.preventDefault();all[n].focus();setMode(all[n].dataset.hubTab)}}});
@@ -18582,7 +18582,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-mai
  body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main .gr-question-drawer .gr-word-list{display:flex!important;flex-wrap:wrap!important;gap:12px!important}
  body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main#gr-main .gr-question-drawer .gr-word-list span{font-size:var(--gr-clue-size,32px)!important;background:none!important;border:0!important;box-shadow:none!important}
  </style>
-<style id="ohana-chat-lifecycle-repair">#chat-head .ch-emblem{display:none!important}#chat-head:not(.ohana-docked-chat){position:fixed!important;inset:auto 4px 4px auto!important;width:108px!important;height:72px!important;min-width:44px!important;min-height:44px!important;border:0!important;box-shadow:none!important;background:url(/ohana-cardinal-control-v1.webp) center/contain no-repeat!important;border-radius:0!important}.ohana-workstation-chat:focus-within{outline-offset:2px}#chat-head:focus-visible,.ohana-workstation-toggle:focus-visible{outline:3px solid #b8ffff!important}</style>
+<style id="ohana-chat-lifecycle-repair">#chat-head .ch-emblem{display:none!important}#chat-head:not(.ohana-docked-chat){position:fixed!important;inset:auto 4px 4px auto!important;width:108px!important;height:72px!important;min-width:44px!important;min-height:44px!important;border:0!important;box-shadow:none!important;background:url(/ohana-cardinal-daddy-cap-v1.png) center/contain no-repeat!important;border-radius:0!important}.ohana-workstation-chat:focus-within{outline-offset:2px}#chat-head:focus-visible,.ohana-workstation-toggle:focus-visible{outline:3px solid #b8ffff!important}</style>
 
 <style id="ohana-nonblocking-unread">.toast{pointer-events:none!important}#chat-heads{display:none!important}#chat-head.has-unread::after{content:attr(data-unread);position:absolute;right:0;top:0;min-width:22px;height:22px;padding:2px;border-radius:50%;background:#a41612;color:#fff;font:700 14px/22px system-ui;text-align:center;pointer-events:none}</style>
 
@@ -20445,6 +20445,10 @@ window.ohanaPersonalMangoOwner=OhanaPersonalMango.install({ownerMemberId:5});</s
 (function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.OhanaMemorialStudy=api;})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';
 const W=1536,H=1024;
+// Appearance only. Reversed-source lettering cancels the physical body mirror.
+const reverseAppearance=typeof Image==='function'?new Image():null;
+if(reverseAppearance)reverseAppearance.src='/ohana-cardinal-daddy-cap-reverse-v1.png';
+const appearanceReady=()=>!reverseAppearance||reverseAppearance.complete&&reverseAppearance.naturalWidth===384&&reverseAppearance.naturalHeight===256;
 const maps={
  bridge:{home:{x:1410,y:930,z:1.55},rail:{x:1144,y:466,z:2.7},flower:{x:135,y:850,z:1.05},high:[{x:1330,y:330,z:2.7},{x:1040,y:250,z:3.45},{x:600,y:260,z:3.15},{x:180,y:360,z:2.35},{x:145,y:630,z:1.5}],exclusions:[{x:365,y:580,w:805,h:360}]},
  shuffle:{home:{x:1410,y:960,z:1.55},rail:{x:1370,y:527,z:2.65},flower:{x:150,y:890,z:1.05},high:[{x:1455,y:340,z:2.6},{x:1460,y:120,z:3.3},{x:1310,y:45,z:5},{x:900,y:45,z:5},{x:480,y:45,z:5},{x:140,y:110,z:3.5},{x:125,y:430,z:2.3},{x:135,y:670,z:1.45}],exclusions:[{x:355,y:75,w:820,h:155},{x:300,y:230,w:905,h:665}]}
@@ -20510,7 +20514,7 @@ function bounds(p){if(p.visible===false)return{x:p.x,y:p.y,w:0,h:0};if(p.maskedP
 }
 
 function intersects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
-function birdClip(c){c.beginPath();c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
+function birdClip(c){c.beginPath();c.rect(171,20,114,54);c.moveTo(184,5);for(const a of [[206,24],[229,37],[246,59],[250,79],[267,87],[283,96],[279,108],[251,112],[247,143],[233,158],[237,161],[228,164],[203,164],[195,163],[167,163],[144,156],[115,142],[82,145],[89,126],[70,111],[88,103],[120,105],[144,114],[152,93],[176,84],[169,64],[179,46]])c.lineTo(...a);c.closePath();c.clip();}
 function drawWing(c,p,far){
  const w=p.wing||0,land=p.landing||0,amp=(1-land*.68)*(p.launch===undefined?1:Math.max(.3,p.launch));
  const shoulder={x:-7,y:-48},tip={x:-92-Math.max(0,-w)*24,y:-45-w*117*amp};
@@ -20553,13 +20557,17 @@ class Study{
  if(unsafe){return p;}
  c.save();c.translate(p.x,p.y);c.scale(p.scale*p.facing,p.scale);c.rotate(p.pitch||0);
  if(p.phase!=='rest'){c.translate(0,Math.sin((p.flightTime||0)*Math.PI*2*7.2)*1.4*(1-(p.landing||0)));drawWing(c,p,true);}
- // Body, crest, scarf and beak are sampled directly from the original asset.
- c.save();c.translate(-220,-174);birdClip(c);c.drawImage(this.image,0,0);c.restore();
- if(p.phase!=='rest')drawWing(c,p,false);if(p.phase==='rest'||p.landing>.55){c.strokeStyle='#b76b17';c.lineWidth=2.6;c.beginPath();c.moveTo(-18,-10);c.lineTo(-13,0);c.lineTo(-23,1);c.moveTo(4,-10);c.lineTo(8,0);c.lineTo(-2,1);c.stroke();}
+ // Original body/perch pixels plus imagegen cap/cloth and native Daddy/STL.
+ const bodyImage=p.facing<0&&appearanceReady()&&reverseAppearance?reverseAppearance:this.image;
+ c.save();c.translate(-220,-174);birdClip(c);c.drawImage(bodyImage,0,0);c.restore();
+ if(p.phase!=='rest'){drawWing(c,p,false);
+ // The neck cloth lies in front of the wing root; lettering remains visible.
+ c.save();c.translate(-220,-174);birdClip(c);c.beginPath();c.rect(163,106,84,30);c.clip();c.drawImage(bodyImage,0,0);c.restore();}
+ if(p.phase==='rest'||p.landing>.55){c.strokeStyle='#b76b17';c.lineWidth=2.6;c.beginPath();c.moveTo(-18,-10);c.lineTo(-13,0);c.lineTo(-23,1);c.moveTo(4,-10);c.lineTo(8,0);c.lineTo(-2,1);c.stroke();}
  c.restore();return p;
  }
 }
-return {W,H,maps,plan,pose,bounds,intersects,distanceScale,createPerchTuck,Study};
+return {W,H,maps,plan,pose,bounds,intersects,distanceScale,createPerchTuck,Study,appearanceReady};
 });
 
 
@@ -20720,7 +20728,7 @@ const SCENES=[
 ];
 function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemorialStudy==='undefined'?null:OhanaMemorialStudy,routes=typeof OhanaCardinalRoutes==='undefined'?null:OhanaCardinalRoutes,random=Math.random,requestFrame=cb=>requestAnimationFrame(cb),cancelFrame=id=>cancelAnimationFrame(id)}={}){
  if(!api||!routes)return null;
- const PAUSE='ohana_cardinal_pause_v1:',image=new Image(),wood=new Image(),media=matchMedia('(prefers-reduced-motion: reduce)'),reasons=new Set(),handles=new Map(),recent=[],pointers=new Set();image.src='/ohana-cardinal-control-v1.webp';wood.src='/ohana-workstation-v103.webp';
+ const PAUSE='ohana_cardinal_pause_v1:',image=new Image(),wood=new Image(),media=matchMedia('(prefers-reduced-motion: reduce)'),reasons=new Set(),handles=new Map(),recent=[],pointers=new Set();image.src='/ohana-cardinal-daddy-cap-v1.png';wood.src='/ohana-workstation-v103.webp';
  let stopped=false,raf=0,last=0,wait=8+random()*8,cooldown=0,state=null,token=null,memberId=null,host=null,room=null,layer=null,canvas=null,study=null,away=false,plan=null,key='',fallback='waiting-for-account',lastPattern=null,lastKind=null,original=null,cache=[],sceneCache={perches:[],painted:[]},dirty=true,cacheAge=0,lastContext=null,planning=null,geometryVersion=0,planningSlices=0,maxPlanningSliceMs=0,planningCancellations=0,lastParkReason=null,frameExclusions=null,structuralVersion=0,trackedGeometry=[],trackedIndex=new WeakMap(),blockedScreen=null,occlusionStamp=null;
  const account=()=>{try{const s=getState(),id=Number(s?.me?.id);return typeof s?.token==='string'&&s.token&&localStorage.getItem('ohana_token')===s.token&&Number.isSafeInteger(id)&&id>0?s:null;}catch{return null;}};
  const readPause=()=>{try{return state&&localStorage.getItem(PAUSE+Number(state.me.id))==='1';}catch{return false;}};
@@ -20757,7 +20765,7 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
  function park(reason='park'){frameExclusions=null;lastParkReason=reason;cancelPlanning();restore();if(layer)layer.hidden=true;plan=null;study?.reset();}
  function cancel(){resizeObserver?.disconnect();park();if(room)delete room.dataset.cardinalMapping;layer?.remove();layer=canvas=study=null;host=room=original=null;key='';lastContext=null;dirty=true;}
  function invalidate(){cancel();wait=8+random()*8;state=token=memberId=null;reasons.clear();pointers.clear();last=0;for(const row of handles.values())row.remove();handles.clear();}
- function sourceControl(){for(const e of [document.getElementById('ohana-persistent-hub'),document.getElementById('chat-head')])if(visible(e)){const s=getComputedStyle(e);if((e===host&&away)||s.backgroundImage.includes('ohana-cardinal-control-v1.webp')){const r=imageRect(e.getBoundingClientRect(),s.backgroundSize,s.backgroundPosition,AW,AH);if(r)return{e,paint:r};}}return null;}
+ function sourceControl(){for(const e of [document.getElementById('ohana-persistent-hub'),document.getElementById('chat-head')])if(visible(e)){const s=getComputedStyle(e);if((e===host&&away)||s.backgroundImage.includes('ohana-cardinal-daddy-cap-v1.png')){const r=imageRect(e.getBoundingClientRect(),s.backgroundSize,s.backgroundPosition,AW,AH);if(r)return{e,paint:r};}}return null;}
  function context(){const s=account();if(!s)return null;const settings=document.getElementById('ohana-settings-dialog');if(settings?.open&&visible(settings))return{blocked:'settings-dialog',screen:'settings'};let surface=SURFACES.find(([,sel])=>visible(document.querySelector(sel)));if(!surface)return null;const d=document.querySelector(surface[1]),control=sourceControl();if(!control)return null;
   const modal=[...document.querySelectorAll('dialog[open],[aria-modal="true"]')].some(e=>visible(e)&&e!==d);if(modal)return{blocked:'modal-open'};
   const id=surface[0]==='game'?'game:'+String(s.gstate?.type||d.dataset.gameType||'unknown'):surface[0],vv=window.visualViewport,viewport={x:vv?.offsetLeft||0,y:vv?.offsetTop||0,width:Math.min(innerWidth,vv?.width||innerWidth),height:Math.min(innerHeight,vv?.height||innerHeight)};
@@ -20899,7 +20907,7 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
  function frame(now){if(stopped)return;const elapsed=last?Math.max(0,(now-last)/1000):0,dt=Math.min(.05,elapsed);last=now;const s=account();if(!s){if(state||study||handles.size)invalidate();fallback='signed-out';}else if(!state||token!==s.token||memberId!==Number(s.me.id)){invalidate();state=s;token=s.token;memberId=Number(s.me.id);if(readPause())reasons.add('manual');}else state=s;
   // Scheduling uses foreground wall time, independently of ordinary play/motion.
   if(s&&!document.hidden&&!reduced()&&!reasons.size)wait-=elapsed;
-  controls();if(s&&!document.hidden){const c=context();blockedScreen=c?.blocked?c.screen||null:null;if(!c||c.blocked){if(study)cancel();fallback=c?.blocked||'no-original-perch';}else if(reduced()){if(study)cancel();fallback='reduced-motion';}else if(image.complete&&image.naturalWidth){
+  controls();if(s&&!document.hidden){const c=context();blockedScreen=c?.blocked?c.screen||null:null;if(!c||c.blocked){if(study)cancel();fallback=c?.blocked||'no-original-perch';}else if(reduced()){if(study)cancel();fallback='reduced-motion';}else if(image.complete&&image.naturalWidth&&api.appearanceReady()){
    if(key!==c.key||room!==c.d||host!==c.h){if(!reuseCardRoom(c)){if(study)cancel();mount(c);}}lastContext=c;
    if(reasons.size){if(away)park('paused');cancelPlanning();fallback='paused';}else if(study){
     // Only actual route-relative geometry can stop a decorative flight. A
