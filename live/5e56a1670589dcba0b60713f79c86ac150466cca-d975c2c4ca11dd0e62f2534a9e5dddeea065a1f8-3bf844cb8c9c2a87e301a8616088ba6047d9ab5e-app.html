@@ -6209,6 +6209,16 @@ dialog.oi-help .oi-ttt-win{box-shadow:inset 0 0 0 3px #297452;background:#e2f1d3
 
 @layer ohanaApproved{.game-setup-room:has([data-setup-game=shuffle])>header{display:grid!important;grid-template-columns:1fr auto!important;grid-template-rows:44px 32px!important;gap:0!important;min-height:84px!important}.game-setup-room:has([data-setup-game=shuffle])>header .room-home-control{grid-column:1!important;grid-row:1!important}.game-setup-room:has([data-setup-game=shuffle])>header h2{grid-column:1!important;grid-row:2!important;margin:0!important;padding-left:34px!important;font:700 25px/30px Fredoka,Nunito!important}}
 </style>
+<style id="ohana-rummy-hand-presentation-v2">
+@layer ohanaApproved{
+#game.rd-game .rd-own-area{display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;flex:0 0 auto!important;margin-top:auto!important;width:100%!important;box-sizing:border-box!important}
+#game.rd-game .rd-first-meld{max-width:42ch!important;margin:0!important;padding:0 8px!important;color:#fff7dc!important;text-shadow:0 1px 2px #082e2a;font:700 15px/1.3 Nunito,sans-serif!important;text-align:center!important}
+:root.ohana-world body #app #game.rd-game .rd-card:not(.rd-back){background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+:root.ohana-world body #app #game.rd-game .rd-card:not(.rd-back) :is(.rd-index,.rd-corner){text-shadow:1px 0 #fff7df,-1px 0 #fff7df,0 1px #fff7df,0 -1px #fff7df}
+#game.rd-game .shuffle-rack [data-card].rd-fresh:not([aria-pressed=true]){outline:2px solid #ff4545!important;outline-offset:1px!important;animation:none!important}
+#game.rd-game .rd-fresh-label{position:absolute!important;left:2px!important;bottom:2px!important;z-index:3!important;padding:1px 2px!important;border:0!important;border-radius:2px!important;background:#fff7df!important;color:#9d1825!important;font:800 10px/1.1 Nunito,sans-serif!important;pointer-events:none!important}
+}
+</style>
 <script id="ohana-shared-card-rules">const OhanaCardRules=(()=>{// Ohana's shared standard-card table. Only registered rules can create a game.
 // Card identities are stable across drawing, arranging and reconnects.
 const SHUFFLE_RULES = Object.freeze({
@@ -6731,32 +6741,60 @@ function showShuffleCatalog() {
 function shuffleCardLabel(card) {const ranks={1:'Ace',11:'Jack',12:'Queen',13:'King'},suits={C:'clubs',D:'diamonds',H:'hearts',S:'spades'};return (ranks[Number(card.slice(1))]||card.slice(1))+' of '+suits[card[0]];}
 function shuffleCardFace(card) {const rank={1:'A',11:'J',12:'Q',13:'K'}[Number(card.slice(1))]||card.slice(1),suit={C:'♣',D:'♦',H:'♥',S:'♠'}[card[0]],outfit={C:'honu-sunday-best',D:'kiko-sunday-best',H:'sunny-sunday-best',S:'eddie-explorer'}[card[0]];return `<b class="rd-index">${rank}<small>${suit}</small></b><img class="rd-family-face" src="/wardrobe-${outfit}-v92.webp" alt=""><b class="rd-corner" aria-hidden="true">${rank}<small>${suit}</small></b>`;}
 function shuffleOrderContext(g,st) {return [S.me.id,g.room_id||S.room,g.id,st.round].join(':');}
+function shuffleDisplayOrder(hand,previous,manual){
+ const suits=['C','D','H','S'],sorted=[...hand].sort((a,b)=>suits.indexOf(a[0])-suits.indexOf(b[0])||Number(a.slice(1))-Number(b.slice(1)));
+ if(!manual)return sorted;
+ const ordered=[...new Set(previous)].filter(c=>hand.includes(c));
+ for(const c of sorted)if(!ordered.includes(c))ordered.push(c);
+ return ordered;
+}
+function shuffleHandAnchor(prior,sameTable){
+ if(!sameTable||!prior||prior.ohanaRummyViewContext!==[S.me?.id,S.room,S.gameEntryVisit||0].join(':'))return null;
+ const owner=window.ohanaRummyCameraOwner?.entries().find(e=>e.gb===prior.querySelector('#gb')),camera=owner?.camera,rack=prior.querySelector('.shuffle-rack');
+ if(!camera||camera.pointerActive||!rack)return null;
+ const a=rack.getBoundingClientRect(),b=camera.wrapper.getBoundingClientRect();
+ return a.height>0&&a.top>=b.top&&a.bottom<=b.bottom?{bottom:a.bottom,cancelled:false}:null;
+}
+function restoreShuffleHandAnchor(anchor,camera,rack,valid,epoch){
+ if(!anchor||anchor.cancelled||!camera||!rack?.isConnected||!valid()||camera.pointerActive||camera.interaction!==epoch)return false;
+ const a=rack.getBoundingClientRect(),b=camera.wrapper.getBoundingClientRect();
+ if(a.height>b.height||(a.top>=b.top&&a.bottom<=b.bottom))return false;
+ const bottom=Math.max(b.top+a.height,Math.min(anchor.bottom,b.bottom));
+ camera.restore({...camera.view,y:camera.view.y+bottom-a.bottom},epoch);return true;
+}
 function shufflePrivateDraft(g,st) {
  const context=shuffleOrderContext(g,st),hand=Array.isArray(st.hands[S.me.id])?st.hands[S.me.id]:[];
- if(S.shuffleDraft?.context!==context){let order=[];try{order=JSON.parse(localStorage.getItem('ohana-card-order:'+context)||'[]');}catch{}S.shuffleDraft={context,order:Array.isArray(order)?order.filter(c=>typeof c==='string'):[],selected:[],groups:[]};}
- const draft=S.shuffleDraft;draft.order=[...new Set([...draft.order.filter(c=>hand.includes(c)),...hand])];draft.selected=draft.selected.filter(c=>hand.includes(c));draft.groups=draft.groups.filter(m=>m.every(c=>hand.includes(c)));return draft;
+ if(S.shuffleDraft?.context!==context){let order=[];try{order=JSON.parse(localStorage.getItem('ohana-card-order:'+context)||'[]');}catch{}S.shuffleDraft={context,order:Array.isArray(order)?order.filter(c=>typeof c==='string'):[],manual:Array.isArray(order)&&order.some(c=>hand.includes(c)),selected:[],groups:[],fresh:[],seenHand:null};}
+ const draft=S.shuffleDraft,visit=S.gameEntryVisit||0;
+ if(draft.seenVisit!==visit){draft.seenVisit=visit;draft.seenHand=null;draft.fresh=[];}
+ const added=draft.seenHand?hand.filter(c=>!draft.seenHand.includes(c)):[];
+ if(!g.in_game||g.status!=='playing'||g.players[g.turn]!==S.me.id||st.phase!=='play')draft.fresh=[];
+ else if(added.length)draft.fresh=added;
+ else draft.fresh=(draft.fresh||[]).filter(c=>hand.includes(c));
+ draft.seenHand=[...hand];draft.order=shuffleDisplayOrder(hand,draft.order,draft.manual);draft.selected=draft.selected.filter(c=>hand.includes(c));draft.groups=draft.groups.filter(m=>m.every(c=>hand.includes(c)));return draft;
 }
-function saveShuffleOrder(draft) {try{localStorage.setItem('ohana-card-order:'+draft.context,JSON.stringify(draft.order));}catch{}}
-function shuffleMoveCard(draft,card,direction) {const i=draft.order.indexOf(card),j=i+direction;if(i<0||j<0||j>=draft.order.length)return;[draft.order[i],draft.order[j]]=[draft.order[j],draft.order[i]];saveShuffleOrder(draft);renderGame();}
+function saveShuffleOrder(draft) {draft.manual=true;draft.fresh=[];try{localStorage.setItem('ohana-card-order:'+draft.context,JSON.stringify(draft.order));}catch{}}
+function shuffleMoveCard(draft,card,direction) {draft.fresh=[];const i=draft.order.indexOf(card),j=i+direction;if(i<0||j<0||j>=draft.order.length)return;[draft.order[i],draft.order[j]]=[draft.order[j],draft.order[i]];saveShuffleOrder(draft);renderGame();}
 function showShuffleHelp(mode) { ohanaDeckInstructions(mode); }
 
 function renderShuffleScreen(g) {
  ensureWorldScene(g);document.body.classList.add('in-game');
  const prior=document.querySelector('#game[data-game-type=shuffle]'),sameTable=prior?.dataset.tableId===String(g.id)&&prior?.dataset.round===String(g.state.round),scrollTop=sameTable?(prior.querySelector('#gb')?.scrollTop||0):0;
  const rackScroll=sameTable?(prior.querySelector('.shuffle-rack')?.scrollLeft||0):0,focused=prior?.querySelector('[data-card]:focus')?.dataset.card;
+ const handAnchor=shuffleHandAnchor(prior,sameTable);
  const st=g.state,own=g.in_game&&Array.isArray(st.hands[S.me.id]),active=g.status==='playing'&&g.players[g.turn]===S.me.id,draft=shufflePrivateDraft(g,st),live=active&&st.phase==='play'&&!S.movePending;
  const who=id=>g.names?.[id]?.name||nameOf(id),title=st.mode==='gin'?'Gin Rummy':'Regular Rummy',selected=draft.selected;
- const card=(c,button=false)=>button?`<button type="button" id="shuffle-card-${c}" class="shuffle-card rd-card ${/[DH]/.test(c[0])?'red rd-red':''}" data-card="${c}" aria-label="${shuffleCardLabel(c)}" aria-pressed="${selected.includes(c)}">${shuffleCardFace(c)}</button>`:`<span class="shuffle-card rd-card ${/[DH]/.test(c[0])?'red rd-red':''}" role="img" aria-label="${shuffleCardLabel(c)}">${shuffleCardFace(c)}</span>`;
+ const card=(c,button=false)=>button?`<button type="button" id="shuffle-card-${c}" class="shuffle-card rd-card ${/[DH]/.test(c[0])?'red rd-red':''} ${draft.fresh.includes(c)?'rd-fresh':''}" data-card="${c}" aria-label="${shuffleCardLabel(c)}${draft.fresh.includes(c)?', newly drawn':''}" aria-pressed="${selected.includes(c)}">${shuffleCardFace(c)}${draft.fresh.includes(c)?'<small class="rd-fresh-label" aria-hidden="true">New</small>':''}</button>`:`<span class="shuffle-card rd-card ${/[DH]/.test(c[0])?'red rd-red':''}" role="img" aria-label="${shuffleCardLabel(c)}">${shuffleCardFace(c)}</span>`;
  const result=st.result;
  const status=g.status==='finished'?'Match finished':st.phase==='round-end'?'Round complete':active?(st.phase==='opening'?'Take the upcard or pass.':st.phase==='draw'?'Draw one card.':st.mode==='gin'?'Choose your discard. Knock if you are ready.':'Meld, lay off, or choose your discard.'):who(g.players[g.turn])+"’s turn";
  const take=active&&!S.movePending&&['draw','opening'].includes(st.phase);
  const report=result?`<section class="shuffle-round" aria-labelledby="shuffle-round-title"><h2 id="shuffle-round-title">${result.winner===null?'No score this hand':esc(who(result.winner))+' +'+result.score}</h2><p>${esc(({gin:'Gin! No layoffs.',undercut:'Undercut.',knock:'Knock.',rummy:'Rummy! Double points.',out:'All cards played.',stock:'Two stock cards remain. Same dealer; no points.'})[result.kind]||'')}</p>${result.knockerHand?`<p>${esc(who(result.knocker))}: ${result.knockerHand.points} deadwood. ${esc(who(result.defender))}: ${result.defense.points} after ${result.defense.laid.length} layoffs.</p>`:''}${result.remaining?`<p>${g.players.map(p=>esc(who(p))+': '+result.remaining[p]+' left').join(' · ')}</p>`:''}${g.status==='playing'?`<button type="button" data-action="next" ${active?'':'disabled'}>Next hand</button><p>${active?'You can deal when everyone is ready.':esc(who(g.players[g.turn]))+' deals the next hand.'}</p>`:`<button type="button" data-replay>Play again</button>`}</section>`:'';
  const shownGroups=st.mode==='gin'&&own?(draft.groups.length?draft.groups:OhanaCardRules.bestCardHand(draft.order).melds):[];
  app.innerHTML=`<div id="game" class="rd-game" data-game-type="shuffle" data-table-id="${g.id}" data-round="${st.round}"><header id="game-head" class="shuffle-sky">${roomHomeControl('data-shuffle-home')}<h2>${title}</h2></header><main class="shuffle-table" id="gb"><p id="shuffle-status" class="sr-only" role="status" aria-live="polite">${esc(status)}</p>${S.gameConnectionLost?'<p role="alert">Connection lost. Reopen or refresh before playing.</p>':''}${report}<section class="shuffle-piles" aria-label="Draw piles"><button type="button" class="shuffle-stock" aria-label="Draw from stock" data-draw="stock" ${take&&st.phase!=='opening'?'':'disabled'}>${shuffleCardBack()}<strong>Draw</strong><small>${st.stock} cards${!st.stock&&st.mode==='rummy'?' · turn discards over':''}</small></button><button type="button" class="shuffle-discard" aria-label="Take the top discard" data-draw="discard" ${take&&st.discard&&!st.forceStock?'':'disabled'}>${st.discard?card(st.discard):'<span class="shuffle-empty">Empty</span>'}<strong>Take</strong></button>${st.phase==='opening'?`<button type="button" data-action="pass" ${take?'':'disabled'}>Pass</button>`:''}</section>${st.mode==='rummy'?`<section class="shuffle-melds" aria-label="Public melds">${st.melds.length?st.melds.map((m,i)=>`<div><small>${esc(who(m.owner))}’s meld</small><div class="shuffle-meld-cards ${Number(m.owner)!==Number(S.me.id)?'rd-far-meld':''}">${m.cards.map(c=>card(c)).join('')}</div><button type="button" data-layoff="${i}" ${live&&selected.length?'':'disabled'}>Add</button></div>`).join(''):''}</section>`:''}${own?`<section class="shuffle-hand" aria-label="Your hand"><div class="shuffle-rack">${draft.order.map(c=>card(c,true)).join('')}</div><p class="shuffle-selection sr-only" aria-live="polite">${selected.length} selected${selected.length===1?' · '+shuffleCardLabel(selected[0]):''}</p>${st.mode==='gin'?`<details class="shuffle-private-groups"><summary>Private melds · ${draft.groups.length?'your groups':'automatic best grouping'}</summary>${shownGroups.map(m=>`<p>${m.map(c=>esc(shuffleCardLabel(c))).join(' · ')}</p>`).join('')||'<p>No melds yet.</p>'}<button type="button" data-group ${selected.length>=3?'':'disabled'}>Save selected as private meld</button><button type="button" data-clear-groups>Use automatic grouping</button><p>Groups stay private. For knocking, select one different card to discard.</p></details>`:''}<nav class="shuffle-actions" aria-label="Play cards">${st.mode==='rummy'?`<button type="button" data-action="meld" ${live&&selected.length>=3?'':'disabled'}>Meld</button>`:`<button type="button" data-action="knock" ${live&&selected.length===1?'':'disabled'}>Knock</button>`}<button type="button" data-action="discard" ${live&&selected.length===1?'':'disabled'}>Discard</button></nav></section>`:'<p>Watching this table. Other players’ cards stay private during the hand.</p>'}${st.phase==='round-end'?`<details class="shuffle-reveal"><summary>Review revealed hands</summary>${g.players.map(p=>`<div><h3>${esc(who(p))}</h3><div class="shuffle-rack">${st.hands[p].map(c=>card(c)).join('')}</div></div>`).join('')}</details>`:''}</main></div>`;
- const root=document.getElementById('game');root.querySelector('#gb').scrollTop=scrollTop;
+ const root=document.getElementById('game');root.ohanaRummyViewContext=[S.me?.id,S.room,S.gameEntryVisit||0].join(':');if(handAnchor){root.ohanaRummyHandAnchor=handAnchor;for(const event of ['pointerdown','touchstart','wheel','keydown'])root.addEventListener(event,()=>{handAnchor.cancelled=true;},{capture:true,once:true,passive:true});}root.querySelector('#gb').scrollTop=scrollTop;
  root.querySelector('[data-shuffle-home]').onclick=()=>{closeGame();goHomePorch();};
  mountShuffleWorkstation(g,draft);
- root.querySelectorAll('[data-card]').forEach(b=>{b.onclick=()=>{const c=b.dataset.card;draft.selected=selected.includes(c)?selected.filter(x=>x!==c):[...selected,c];renderGame();};b.onkeydown=e=>{if(e.altKey&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();shuffleMoveCard(draft,b.dataset.card,e.key==='ArrowLeft'?-1:1);}};});
+ root.querySelectorAll('[data-card]').forEach(b=>{b.onclick=()=>{const c=b.dataset.card;draft.fresh=[];draft.selected=selected.includes(c)?selected.filter(x=>x!==c):[...selected,c];renderGame();};b.onkeydown=e=>{if(e.altKey&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();shuffleMoveCard(draft,b.dataset.card,e.key==='ArrowLeft'?-1:1);}};});
   root.querySelector('[data-group]')?.addEventListener('click',()=>{if(!OhanaCardRules.isCardMeld(selected))return toast('Choose a valid set or run.');if(draft.groups.some(m=>m.some(c=>selected.includes(c))))return toast('A card can belong to only one private meld.');draft.groups.push([...selected]);draft.selected=[];renderGame();});root.querySelector('[data-clear-groups]')?.addEventListener('click',()=>{draft.groups=[];renderGame();});
  const send=async m=>{if(!active||S.movePending)return;root.querySelectorAll('[data-action],[data-draw],[data-layoff]').forEach(b=>b.disabled=true);try{await move({...m,revision:st.revision},()=>{draft.selected=[];draft.groups=[];});}finally{if(S.game===g.id)renderGame();}};
  root.querySelectorAll('[data-draw]').forEach(b=>b.onclick=()=>send({action:'draw',source:b.dataset.draw}));root.querySelectorAll('[data-layoff]').forEach(b=>b.onclick=()=>send({action:'layoff',cards:[...selected],target:Number(b.dataset.layoff)}));root.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>send({action:b.dataset.action,cards:[...selected],card:selected[0],...(b.dataset.action==='knock'&&draft.groups.length?{groups:draft.groups}:{} )}));root.querySelector('[data-replay]')?.addEventListener('click',()=>requestRematch(g));
@@ -6796,6 +6834,19 @@ function mountShuffleWorkstation(g,draft){
  opponent.innerHTML=counts.map(({n})=>'<span class="rd-opponent-hand">'+Array.from({length:Math.min(n,5)},()=>shuffleCardBack()).join('')+'<small>'+n+'</small></span>').join('');
  if(g.state.phase!=='round-end')play.prepend(opponent);
  if(g.state.mode==='gin'){const host=document.createElement('img');host.className='rd-gin-host';host.src='/wardrobe-eddie-explorer-v92.webp';host.alt='';play.append(host);}
+ // Keep the local working area immediately above the existing hand. Only public meld nodes move.
+ if(g.in_game&&Array.isArray(g.state.hands[S.me.id])){
+ const ownArea=document.createElement('div');ownArea.className='rd-own-area';ownArea.setAttribute('role','group');ownArea.setAttribute('aria-label','Your melds and draw piles');
+ const publicMelds=play.querySelector('.shuffle-melds');
+ if(publicMelds){const ownMelds=document.createElement('section');ownMelds.className='shuffle-melds rd-own-melds';ownMelds.setAttribute('aria-label','Your public melds');
+  [...publicMelds.children].forEach((node,i)=>{if(Number(g.state.melds[i]?.owner)===Number(S.me.id))ownMelds.append(node);});
+  if(ownMelds.children.length)ownArea.append(ownMelds);if(!publicMelds.children.length)publicMelds.remove();
+ }
+ if(g.state.mode==='rummy'&&g.in_game&&g.status==='playing'&&g.state.phase!=='round-end'&&!g.state.melds.some(m=>Number(m.owner)===Number(S.me.id))){
+  const guide=document.createElement('p');guide.className='rd-first-meld';guide.setAttribute('role','note');guide.textContent='First meld: 3–4 equal ranks, or a same-suit run of 3+. Aces low.';ownArea.append(guide);
+ }
+ const piles=play.querySelector('.shuffle-piles');if(piles)ownArea.append(piles);play.append(ownArea);
+ }
  gb.prepend(play);
  mountGameControlDock();
  const dock=document.getElementById('game-controls-dock'),actions=dock.querySelector('.dock-actions');
@@ -20185,7 +20236,7 @@ window.ohanaBoardViewportInstaller=OhanaBoardViewport.install({getId:()=>String(
  function attach(gb){const game=gb.closest('#game.rd-game'),header=game?.querySelector('#game-head'),dock=game?.querySelector('#game-controls-dock'),play=gb.querySelector('.rd-play');if(!header||!dock||!play||gb.contains(dock)||gb.contains(header))return null;
   const plane=document.createElement('div');plane.dataset.rummyCameraPlane='';const css=getComputedStyle(gb),playStyle=saveStyle(play),minPlay=parseFloat(getComputedStyle(play).minHeight)||0;
   put(plane,{display:'flex','flex-direction':'column','flex-wrap':'nowrap','min-width':'0','box-sizing':'border-box',gap:css.gap,'align-items':css.alignItems,'justify-content':css.justifyContent});
-  for(const node of [...gb.childNodes])plane.append(node);gb.append(plane);let last='',api=null,stopped=false,frame=0,focusFrame=0;
+  for(const node of [...gb.childNodes])plane.append(node);gb.append(plane);let last='',api=null,stopped=false,frame=0,focusFrame=0,anchorFrame=0;
   const ensureRack=card=>{const rack=card?.closest?.('.shuffle-rack');if(!rack)return;const a=card.getBoundingClientRect(),r=rack.getBoundingClientRect();if(a.left<r.left)rack.scrollLeft-=(r.left-a.left)/(api?.view.scale||1);else if(a.right>r.right)rack.scrollLeft+=(a.right-r.right)/(api?.view.scale||1);};
   const revealFocused=()=>{if(focusFrame||stopped)return;focusFrame=requestAnimationFrame(()=>{focusFrame=0;if(stopped||!api||api.pointerActive)return;api.wrapper.scrollLeft=0;api.wrapper.scrollTop=0;const focused=document.activeElement;if(plane.contains(focused)){ensureRack(focused);api.reveal(focused);}});};
   const layout=()=>{frame=0;if(stopped||!gb.contains(plane))return;const c=getComputedStyle(gb),height=Math.max(1,gb.clientHeight-(parseFloat(c.paddingTop)||0)-(parseFloat(c.paddingBottom)||0)),key=[gb.clientWidth,gb.clientHeight,header.getBoundingClientRect().height,dock.getBoundingClientRect().height].join(':');if(key===last)return;last=key;
@@ -20194,12 +20245,13 @@ window.ohanaBoardViewportInstaller=OhanaBoardViewport.install({getId:()=>String(
    put(plane,{'min-height':naturalPlane+'px',height:height+'px'});put(play,{flex:'1 1 auto',height:'auto'});api?.refresh();revealFocused();
   };
   layout();api=OhanaBoardViewport.mount({content:plane,header,dock,id:'rummy:'+game.dataset.tableId,verticalCardPan:true,initialReveal:'.shuffle-rack'});if(!api){for(const node of [...plane.childNodes])gb.insertBefore(node,plane);plane.remove();restoreStyle(play,playStyle);return null;}
+  const handAnchor=game.ohanaRummyHandAnchor;if(handAnchor){const epoch=api.interaction;anchorFrame=requestAnimationFrame(()=>{anchorFrame=0;if(!stopped)restoreShuffleHandAnchor(handAnchor,api,plane.querySelector('.shuffle-rack'),()=>game.isConnected&&gb.contains(plane)&&game.ohanaRummyHandAnchor===handAnchor,epoch);});}
   api.wrapper.dataset.rummyBoardViewport='';api.wrapper.setAttribute('aria-description','Swipe your hand or empty table space vertically to scroll. Drag hand cards sideways to arrange them. Drag empty space sideways to see a long hand. Pinch to zoom; zero fits your hand.');api.wrapper.setAttribute('aria-label','Playing board, '+(header.querySelector('h2')?.getAttribute('aria-label')||'Rummy'));
   const queue=()=>{if(!frame&&!stopped)frame=requestAnimationFrame(layout);},observer=new ResizeObserver(queue);for(const e of[gb,header,dock])observer.observe(e);
   const wheel=e=>{const rack=e.target.closest('.shuffle-rack');if(!rack||!gb.contains(rack)||e.ctrlKey||e.metaKey)return;const delta=e.deltaX||(e.shiftKey?e.deltaY:0);if(!delta||rack.scrollWidth<=rack.clientWidth)return;rack.scrollLeft+=delta/api.view.scale;if(e.cancelable)e.preventDefault();e.stopPropagation();};
   const focus=e=>{const card=e.target.closest('[data-card]');if(!card||api?.pointerActive)return;ensureRack(card);revealFocused();},scroll=()=>{if(api.wrapper.scrollLeft||api.wrapper.scrollTop)revealFocused();};
   gb.addEventListener('wheel',wheel,{capture:true,passive:false});gb.addEventListener('focusin',focus,true);api.wrapper.addEventListener('scroll',scroll,{passive:true});
-  return{gb,plane,camera:api,refresh:queue,destroy(){stopped=true;cancelAnimationFrame(frame);cancelAnimationFrame(focusFrame);observer.disconnect();gb.removeEventListener('wheel',wheel,true);gb.removeEventListener('focusin',focus,true);api.wrapper.removeEventListener('scroll',scroll);const attached=gb.contains(plane);api.destroy();if(attached){for(const node of [...plane.childNodes])gb.insertBefore(node,plane);plane.remove();}restoreStyle(play,playStyle);}};
+  return{gb,plane,camera:api,refresh:queue,destroy(){stopped=true;cancelAnimationFrame(frame);cancelAnimationFrame(focusFrame);cancelAnimationFrame(anchorFrame);observer.disconnect();gb.removeEventListener('wheel',wheel,true);gb.removeEventListener('focusin',focus,true);api.wrapper.removeEventListener('scroll',scroll);const attached=gb.contains(plane);api.destroy();if(attached){for(const node of [...plane.childNodes])gb.insertBefore(node,plane);plane.remove();}restoreStyle(play,playStyle);}};
  }
  function install(){if(installed){installed.scan();return installed;}const active=new Map();let frame=0,stopped=false;
   const scan=()=>{frame=0;if(stopped)return;for(const[gb,c]of active)if(!gb.isConnected||!gb.contains(c.plane)){c.destroy();active.delete(gb);}for(const gb of document.querySelectorAll('#game.rd-game[data-game-type=shuffle] #gb.shuffle-table'))if(!active.has(gb)){const c=attach(gb);if(c)active.set(gb,c);}};
