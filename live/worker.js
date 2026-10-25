@@ -8541,7 +8541,6 @@ function o10Move(st, players, turn, move) {
   if (move.action === "draw") {
     if (st.hasDrawn) throw Error("You already drew. Build your journey or discard.");
     if (o10Stalled(st, players)) return o10FinishVoyage(st, players, turn, "stalled");
-    let card;
     if (move.from === "discard") {
       if (!st.discard.length) throw Error("The beach pile is empty.");
       if (!o10CanTakePile(hand, st.discard)) throw Error("You need two cards in your hand matching the top discard number to take the whole pile. Wild cards do not count.");
@@ -8552,19 +8551,22 @@ function o10Move(st, players, turn, move) {
       st.history.push({ p, note: "Picked up " + picked.length + " cards from the beach pile" });
       return { over: false, next: turn };
     } else {
-      if (!st.deck.length) {
-        if (st.discard.length < 2) {
-          if (!players.some((q) => o10HasTablePlay(st, players, q))) return o10FinishVoyage(st, players, turn, "stalled");
-          st.hasDrawn = true;
-          return { over: false, next: turn };
+      // One draw action takes up to two available cards, including across a recycle.
+      const drawn = [];
+      for (let i = 0; i < 2; i++) {
+        if (!st.deck.length) {
+          if (st.discard.length < 2) {
+            if (!drawn.length && !players.some((q) => o10HasTablePlay(st, players, q))) return o10FinishVoyage(st, players, turn, "stalled");
+            break;
+          }
+          const top = st.discard.pop();
+          st.deck = shuffle(st.discard.splice(0), Math.random);
+          st.discard = [top];
         }
-        const top = st.discard.pop();
-        st.deck = shuffle(st.discard.splice(0), Math.random);
-        st.discard = [top];
+        drawn.push(st.deck.shift());
       }
-      card = st.deck.shift();
+      hand.push(...drawn);
     }
-    hand.push(card);
     st.turnMadeProgress = false;
     st.hasDrawn = true;
     return { over: false, next: turn };
