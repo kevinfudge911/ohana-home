@@ -1,0 +1,47 @@
+{
+  "generatorReviewArtifact": "tests/build-sprites.cjs",
+  "generatorSha256": "d614fcebe2837cc43214a3fefa96d56612ac5574d3b9d7e5fdbb634c3252fbe1",
+  "originalSource": "live/ohana-cardinal-control-v1.webp",
+  "originalSha256": "26aff059051f7d3b8a6eee3bd51d884f69a39eb8d8032378b7b8f2c44762a1ab",
+  "imagegenSource": "cardinal/art/daddy-cap-imagegen-source.png",
+  "imagegenSha256": "a5bf790aa26d442e261748b137ec18c250dffb8c79d7b56d76d93c74a9248a2c",
+  "logoSource": {
+    "url": "https://www.mlbstatic.com/team-logos/138.svg",
+    "bytes": 2481,
+    "sha256": "c1f1aa692b825d69521a724ca0848b337bd4fe57120daf3760a4e2eb12e3653d"
+  },
+  "capSourceRect": [
+    710,
+    94,
+    480,
+    218
+  ],
+  "capDestinationRect": [
+    172,
+    22,
+    111,
+    50
+  ],
+  "crestClearRect": [
+    164,
+    0,
+    130,
+    64
+  ],
+  "labelSourceRect": [
+    832,
+    438,
+    160,
+    100
+  ],
+  "labelDestinationRect": [
+    163,
+    106,
+    84,
+    30
+  ],
+  "labelText": "Daddy",
+  "labelFont": "900 25px Arial",
+  "oppositeDirection": "Only glyph groups are pre-reflected; runtime mirrors physical bird body",
+  "originalPerchAndFlowersPixelChanges": 0
+}
