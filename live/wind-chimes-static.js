@@ -29,10 +29,10 @@ import assetV6_16 from "./wind-chimes/scene-contract-v6.js.txt";
 import assetV6_17 from "./wind-chimes/styles-v6.js.txt";
 export const CHIME_ASSETS=new Map([
  ["/wind-chimes/core-layered.js",{body:asset0,type:"text/javascript; charset=utf-8",bytes:8437,etag:"\"8186391d59d72de3ac6fba5a9a3d8e4cfb42d9c768714001c7774dfbd594702a\"",cache:"no-cache"}],
- ["/wind-chimes/recorded-audio-layered.js",{body:asset1,type:"text/javascript; charset=utf-8",bytes:9197,etag:"\"1832c94d86b2f5de315c04498bd4f05513ce7182a9f204b65b34484a339e14ff\"",cache:"no-cache"}],
+ ["/wind-chimes/recorded-audio-layered.js",{body:asset1,type:"text/javascript; charset=utf-8",bytes:9217,etag:"\"953fa22928a58d1368526c6f6ed04cccc1aaecd699177fda92722eef585f4df5\"",cache:"no-cache"}],
  ["/wind-chimes/host-audio-contract.js",{body:asset2,type:"text/javascript; charset=utf-8",bytes:1930,etag:"\"5702b5bd63d69adbd816dc935e3fc1a506f0bc065eccd919fb605f2046e7391b\"",cache:"no-cache"}],
- ["/wind-chimes/chime-sound-controls.js",{body:asset3,type:"text/javascript; charset=utf-8",bytes:7231,etag:"\"203afeeeffa0ba54c504306f85db7b6db511473213f84e1160f89be429e0030b\"",cache:"no-cache"}],
- ["/wind-chimes/host-preparation.js",{body:asset4,type:"text/javascript; charset=utf-8",bytes:13141,etag:"\"8fd2a0ce9f0ac0588c373d5f055d21aa1b623ff9195c77a6b30c699f1aba7452\"",cache:"no-cache"}],
+ ["/wind-chimes/chime-sound-controls.js",{body:asset3,type:"text/javascript; charset=utf-8",bytes:10646,etag:"\"18a6da8f22bd07d3a9ff9e39ab1a8e87e9c1d743a87c61c03a7c7134e36e8dd6\"",cache:"no-cache"}],
+ ["/wind-chimes/host-preparation.js",{body:asset4,type:"text/javascript; charset=utf-8",bytes:15137,etag:"\"c87e5e0e8045cac6f000b863be6e42f07ee683a8c245d23fcf45953cea2f3662\"",cache:"no-cache"}],
  ["/wind-chimes/host-bootstrap.js",{body:asset5,type:"text/javascript; charset=utf-8",bytes:4630,etag:"\"1dfa7b1b63b039897cfe64ffbb8fc6fda04e037555c6f03c1841d1fec3e6dc87\"",cache:"no-cache"}],
  ["/wind-chimes/audio/catalog.js",{body:asset6,type:"text/javascript; charset=utf-8",bytes:518,etag:"\"689107a304f7a6cedab0781e949e260ce67bcf9c5788ced694920b76d9385eb8\"",cache:"no-cache"}],
  ["/wind-chimes/audio/SOURCES.md",{body:asset7,type:"text/plain; charset=utf-8",bytes:1432,etag:"\"7451930cb4acb1c067f091a945827e88d5fe557676edea00af78da17541cd6e8\"",cache:"no-cache"}],
