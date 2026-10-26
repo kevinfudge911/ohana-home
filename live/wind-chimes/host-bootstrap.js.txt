@@ -1,0 +1,38 @@
+/* Lazy V6 host coordinator. The app supplies an eligible scene and renderer. */
+(function(root,factory){const api=factory(root);if(typeof module==='object')module.exports=api;else root.OhanaChimeHostPreparation=api;})(typeof window!=='undefined'?window:globalThis,function(root){
+ 'use strict';
+ const scalar=v=>typeof v==='string'||typeof v==='number'&&Number.isFinite(v)?v:null;
+ function sanitized(input){const value=input&&typeof input==='object'?input:{},out={};for(const k of ['memberId','sessionRevision','roomId','roomEpoch','gameId','gameType','gameEntryVisit','puzzleId','tab','activity','recordId','pageId'])out[k]=scalar(value[k]);for(const k of ['authenticated','visible','eligible','appInert','paused','reducedMotion','rendererEligible'])out[k]=value[k]===true;return out;}
+ function install({readState,readScene=()=>null,getContext,getGlobalMuted=()=>true,getBusy=()=>false,document:doc=root.document,events=root,storage=root.localStorage,
+  loadHost=()=>import('/wind-chimes/host-preparation.js'),loadRenderer=null,getRenderTarget=()=>null}={}){
+  if(typeof readState!=='function')throw Error('Host reader required');
+  let destroyed=false,parked=false,queued=false,generation=0,instance=null,promise=null,status='waiting-for-eligible-host';const listeners=[];
+  const read=()=>{try{return sanitized(readState());}catch{return sanitized(null);}};
+  const eligible=s=>s.authenticated&&Number.isSafeInteger(s.memberId)&&s.memberId>0&&Number.isSafeInteger(s.sessionRevision)&&s.sessionRevision>=0&&s.visible&&!s.appInert&&s.eligible&&s.activity!=='music';
+  const key=s=>JSON.stringify(s);
+  function refresh(){
+   queued=false;if(destroyed)return;const s=read(),stamp=++generation,route=key(s);
+   if(parked||!eligible(s)){instance?.suspend('host-ineligible');status='parked';return;}
+   if(instance){instance.resume();status='prepared-host-active';return;}
+   if(!promise){status='loading-prepared-host';promise=Promise.resolve().then(loadHost);promise.catch(()=>{});}
+   promise.then(module=>{if(destroyed||parked||stamp!==generation||key(read())!==route||!eligible(read()))return;
+    if(!instance){instance=module.createPreparedChimeHost({readState:read,readScene,getContext,getGlobalMuted,getBusy,document:doc,events,storage,loadRenderer,getRenderTarget});}
+    instance.resume();status='prepared-host-active';
+   }).catch(()=>{if(!destroyed&&stamp===generation)status='prepared-host-unavailable';});
+  }
+  function schedule(){if(destroyed||queued)return;queued=true;root.queueMicrotask(refresh);}
+  const owned=node=>node?.nodeType===1&&node.closest?.('[data-chime-preparation],[data-chime-protect],.ohana-chime-sound-controls,[data-daddy-audio-controls],#ohana-cardinal-visits-layer');
+  const observer=new root.MutationObserver(records=>{if(records.some(r=>{if(owned(r.target))return false;if(r.type==='attributes')return r.target===doc.documentElement||r.target===doc.body||r.target.id==='app'||r.target.matches?.('dialog');return[...r.addedNodes,...r.removedNodes].some(n=>!owned(n));}))schedule();});
+  observer.observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open','inert','style','data-ohana-room','data-ohana-scene','data-ohana-game']});
+  function on(target,type,fn){target.addEventListener(type,fn);listeners.push(()=>target.removeEventListener(type,fn));}
+  on(doc,'visibilitychange',()=>{if(doc.hidden){generation++;instance?.suspend('hidden');}schedule();});
+  on(events,'pagehide',e=>{generation++;parked=true;instance?.suspend('pagehide');if(!e.persisted)destroy();});
+  on(events,'pageshow',()=>{parked=false;schedule();});
+  for(const name of ['popstate','hashchange','ohana-motion-change'])on(events,name,schedule);
+  on(events,'storage',e=>{if(e.key===null||['ohana_token','ohana_muted','ohana_less_motion','ohana_chimes_device_v1','ohana_chime_sounds_v1'].includes(e.key))schedule();});
+  on(doc,'click',schedule);on(doc,'keydown',schedule);
+  function destroy(){if(destroyed)return;destroyed=true;generation++;observer.disconnect();listeners.splice(0).forEach(fn=>fn());instance?.destroy();instance=null;status='destroyed';}
+  schedule();return{refresh,schedule,destroy,get snapshot(){return{status,moduleRequested:!!promise,instanceCreated:!!instance,generation,destroyed,host:instance?.snapshot||null};}};
+ }
+ return{install,sanitized};
+});

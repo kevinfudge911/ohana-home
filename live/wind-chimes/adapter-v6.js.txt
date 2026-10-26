@@ -1,0 +1,64 @@
+// Visual-only production adapter. No audio, timers, storage, account APIs or network requests.
+import {mountRig} from './renderer-v6.js';
+import {readScene,chooseAnchor,specsFor,rect} from './scene-contract-v6.js';
+export {specsFor};
+export function mount({layer,context,mode}={}){
+ const doc=layer?.ownerDocument;
+ let disposed=false,active=false,view=null,host=null,bracket=null,anchor=null,initial=null,lastLayout='',lastPose=null;
+ let selected=Object.freeze([]);
+ const api={get specs(){return selected;},get active(){return active&&!disposed;},paint,updateGeometry,destroy};
+ if(mode!=='simulated'||!doc||doc!==globalThis.document||typeof layer.append!=='function')return api;
+ layer.setAttribute('aria-hidden','true');layer.setAttribute('inert','');layer.inert=true;
+ Object.assign(layer.style,{position:'absolute',inset:'0',pointerEvents:'none',overflow:'hidden'});
+ initial=readScene(context,doc);anchor=chooseAnchor(initial);if(!initial||!anchor)return api;
+ host=doc.createElement('div');host.setAttribute('aria-hidden','true');host.setAttribute('inert','');host.inert=true;
+ Object.assign(host.style,{position:'absolute',pointerEvents:'none',userSelect:'none'});
+ layer.append(host);view=mountRig(host,anchor.style);
+ selected=Object.freeze([Object.freeze({id:anchor.id,style:anchor.style,count:anchor.count})]);active=true;
+ doc.addEventListener('visibilitychange',visibility);
+ if(!updateGeometry())destroy();
+ return api;
+ function current(){
+  if(disposed||!active)return null;
+  const s=readScene(context,doc);
+  if(!s||s.key!==initial.key||s.target!==initial.target||s.sourceElement!==initial.sourceElement)return null;
+  if(layer.isConnected&&layer.parentNode!==initial.target)return null;
+  return s;
+ }
+ function visibility(){if(doc.hidden||doc.visibilityState==='hidden')destroy();}
+ function updateGeometry(){
+  const s=current(),next=chooseAnchor(s);if(!s||!next||next.id!==anchor.id){destroy();return false;}
+  // Host appends its layer only after mount resolves. Use target until that point.
+  const origin=layer.isConnected?rect(layer.getBoundingClientRect()):s.targetRect;
+  if(!origin){destroy();return false;}
+  const b=next.box,values=[b.x-origin.x,b.y-origin.y,b.width,b.height],key=values.join('|');
+  if(key!==lastLayout){Object.assign(host.style,{left:values[0]+'px',top:values[1]+'px',width:values[2]+'px',height:values[3]+'px'});lastLayout=key;}
+  if(next.support){
+   if(!bracket){
+    bracket=doc.createElement('div');bracket.dataset.chimeBracket='wood';bracket.setAttribute('aria-hidden','true');bracket.inert=true;
+    Object.assign(bracket.style,{position:'absolute',pointerEvents:'none',userSelect:'none',boxSizing:'border-box',borderTop:'1px solid #f7cc80',borderBottom:'2px solid #513016',borderRadius:'0 4px 4px 0',background:'linear-gradient(180deg,#db9f55,#965521 65%,#75401b)',boxShadow:'0 2px 3px #24150a88'});
+    layer.prepend(bracket);
+   }
+   Object.assign(bracket.style,{left:next.support.x-origin.x+'px',top:next.support.y-origin.y+'px',width:next.support.width+'px',height:next.support.height+'px'});
+  }else if(bracket){bracket.remove();bracket=null;}
+  anchor=next;return true;
+ }
+ function paint(snapshot){
+  if(!updateGeometry())return false;
+  if(layer.isConnected!==true||snapshot?.visible!==true||snapshot?.mode!=='simulated'){destroy();return false;}
+  const poses=Array.isArray(snapshot.rigs)?snapshot.rigs.filter(r=>r?.id===anchor.id):[];
+  if(poses.length!==1){destroy();return false;}
+  const pose=poses[0];
+  if(pose.style!==anchor.style||!Array.isArray(pose.tubes)||pose.tubes.length!==anchor.count||![pose.angle,pose.striker,pose.sail,...pose.tubes].every(Number.isFinite)){destroy();return false;}
+  // No mutable game/controller objects are handed to the low-level renderer.
+  const safe={angle:pose.angle,tubes:pose.tubes.slice(),striker:pose.striker,sail:pose.sail};
+  if(snapshot.reduced===true){safe.angle=0;safe.tubes.fill(0);safe.striker=0;safe.sail=0;}
+  else if(snapshot.paused===true&&lastPose){return true;}
+  view.paint(safe);lastPose=safe;return true;
+ }
+ function destroy(){
+  if(disposed)return;disposed=true;active=false;selected=Object.freeze([]);
+  doc?.removeEventListener?.('visibilitychange',visibility);
+  try{view?.destroy();}finally{host?.remove();bracket?.remove();view=null;host=null;bracket=null;lastPose=null;}
+ }
+}

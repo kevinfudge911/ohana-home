@@ -1,0 +1,107 @@
+// Local port proposal: explicit retained-style catalog; subset approval is required before integration.
+const definitions={
+  "porch-primary": {
+    "family": "primary",
+    "count": 5,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "label": "Cardinal-floral reference · burgundy sail",
+    "referencePrinted": true
+  },
+  "memorial-study": {
+    "family": "primary",
+    "count": 5,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "label": "In Memory of Daddy · memorial study",
+    "memorial": true,
+    "referencePrinted": true
+  },
+  "garden-bells": {
+    "family": "umbrella",
+    "count": 5,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "label": "Cardinals and five garden bells"
+  },
+  "floral-trio": {
+    "family": "umbrella",
+    "count": 3,
+    "order": [
+      0,
+      2,
+      4
+    ],
+    "label": "Floral bell trio"
+  },
+  "bell-quartet": {
+    "family": "umbrella",
+    "count": 4,
+    "order": [
+      0,
+      1,
+      3,
+      4
+    ],
+    "label": "Garden bell quartet"
+  },
+  "crystal-cascade": {
+    "family": "crystal",
+    "count": 5,
+    "order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "label": "Cardinal crystal cascade"
+  },
+  "crystal-arc": {
+    "family": "crystal",
+    "count": 4,
+    "order": [
+      0,
+      1,
+      3,
+      4
+    ],
+    "label": "Leaf and crystal arc"
+  },
+  "crystal-trio": {
+    "family": "crystal",
+    "count": 3,
+    "order": [
+      0,
+      2,
+      4
+    ],
+    "label": "Cardinal crystal trio"
+  },
+  "crystal-duet": {
+    "family": "crystal",
+    "count": 2,
+    "order": [
+      1,
+      4
+    ],
+    "label": "Cardinal crystal duet"
+  }
+};
+for(const def of Object.values(definitions)){Object.freeze(def.order);Object.freeze(def);}
+export const STYLES=Object.freeze(definitions);

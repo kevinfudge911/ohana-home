@@ -1,0 +1,134 @@
+// Production scene contract. Only these inspected public illustrations have anchors.
+// The app supplies current DOM elements and eligibility, never arbitrary coordinates or identities.
+import {STYLES} from './styles-v6.js';
+const freezeScene=s=>Object.freeze({...s,anchors:Object.freeze(s.anchors.map(p=>Object.freeze(p)))});
+export const SCENES=Object.freeze({
+ 'home-porch':freezeScene({routeId:'home',asset:'ohana-family-home-v2.webp',width:1536,height:1024,style:'memorial-study',anchors:[[1050,118,285],[560,118,230],[790,118,240]]}),
+ // Portrait cover crops both pavilion posts. A visible wood bracket extending
+ // from the cropped left edge supports the compact center rig. Shallow landscape
+ // can instead use an actual carved post. Wide roof points stay first.
+ 'garden-pavilion':freezeScene({routeId:'garden',asset:'ohana-garden-v1.webp',width:1536,height:1024,style:'garden-bells',anchors:[[155,18,260],[1470,18,250],[155,340,100],[480,130,100,'left-wood-bracket'],[580,130,100,'left-wood-bracket']]}),
+ 'cove-pavilion':freezeScene({routeId:'cove',asset:'ohana-cove-v1.webp',width:1536,height:1024,style:'crystal-cascade',anchors:[[135,20,250],[1310,18,240],[205,340,100],[480,130,110,'left-wood-bracket'],[580,130,100,'left-wood-bracket']]})
+});
+const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const finite=Number.isFinite;
+export function rect(value){
+ if(!value)return null;
+ const x=value.x??value.left,y=value.y??value.top,width=value.width,height=value.height;
+ return [x,y,width,height].every(finite)&&width>0&&height>0?{x,y,width,height}:null;
+}
+export function intersects(a,b){return a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;}
+export function contains(a,b){return b.x>=a.x&&b.y>=a.y&&b.x+b.width<=a.x+a.width&&b.y+b.height<=a.y+a.height;}
+export function intersection(a,b){return rect({x:Math.max(a.x,b.x),y:Math.max(a.y,b.y),width:Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x),height:Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y)});}
+function position(value){
+ const p=String(value).trim().split(/\s+/);if(p.length!==2)return null;
+ const out=p.map((s,i)=>s==='center'?.5:s===(i?'top':'left')?0:s===(i?'bottom':'right')?1:/^-?\d+(?:\.\d+)?%$/.test(s)?Number.parseFloat(s)/100:NaN);
+ return out.every(finite)?{x:out[0],y:out[1]}:null;
+}
+function visible(element,doc){
+ if(!element||element.ownerDocument!==doc||element.isConnected!==true||typeof element.getBoundingClientRect!=='function')return false;
+ const visited=new Set();
+ for(let current=element;current;){
+  if(visited.has(current)||visited.size>=128)return false;visited.add(current);
+  const css=doc.defaultView?.getComputedStyle(current);
+  if(!css||current.hidden===true||css.display==='none'||css.visibility==='hidden'||css.visibility==='collapse'||css.contentVisibility==='hidden'||Number(css.opacity)===0)return false;
+  current=current.parentElement||current.getRootNode?.().host||null;
+ }
+ return true;
+}
+function untransformed(element,doc){
+ const visited=new Set();
+ for(let current=element;current;){
+  if(visited.has(current)||visited.size>=128)return false;visited.add(current);
+  const css=doc.defaultView.getComputedStyle(current);
+  if(!css)return false;
+  // Home's existing full-width foyer is centered with a pure translation.
+  // Its measured DOM rect already includes that translation; all scaling and rotation fail closed.
+  const homeTranslation=current.classList?.contains('world-home-foyer')&&
+   /^matrix\(1, 0, 0, 1, -?\d+(?:\.\d+)?, 0\)$/.test(css.transform||'');
+  if(css.transform&&css.transform!=='none'&&!homeTranslation)return false;
+  if(['scale','rotate','translate'].some(k=>css[k]&&css[k]!=='none'))return false;
+  if(css.zoom&&css.zoom!=='normal'&&Number(css.zoom)!==1)return false;
+  current=current.parentElement||current.getRootNode?.().host||null;
+ }
+ return true;
+}
+function viewport(doc){
+ const w=doc.defaultView,v=w?.visualViewport;
+ return rect({x:v?.offsetLeft??0,y:v?.offsetTop??0,width:v?.width??doc.documentElement?.clientWidth??w?.innerWidth,height:v?.height??doc.documentElement?.clientHeight??w?.innerHeight});
+}
+function sourceGeometry(element,scene,doc,view){
+ const css=doc.defaultView.getComputedStyle(element),box=rect(element.getBoundingClientRect());if(!box)return null;
+ let url,fit,pos,sourceBox=box;
+ const tag=String(element.tagName).toLowerCase();
+ if(tag==='img'){
+  if(!element.complete||element.naturalWidth!==scene.width||element.naturalHeight!==scene.height)return null;
+  url=element.currentSrc||element.src;fit=css.objectFit;pos=position(css.objectPosition);
+ }else if(tag==='canvas'){
+  // The existing Ohana scene paints its 1536x1024 illustration into a 960x640 canvas.
+  // Both ratios are 3:2; object-fit maps the same source coordinates to the displayed rect.
+  const host=element.getRootNode()?.host;
+  const art=host?.images?.island;
+  if(host?.id!=='world-backdrop'||host.getAttribute('world-theme')!==scene.routeId||
+   host.artUrl!=='/'+scene.asset||art?.naturalWidth!==scene.width||art?.naturalHeight!==scene.height||
+   element.width!==960||element.height!==640)return null;
+  url=host.artUrl;fit=css.objectFit;pos=position(css.objectPosition);
+ }else{
+  const match=/^url\(["']?([^"')]+)["']?\)$/.exec(String(css.backgroundImage));if(!match)return null;
+  url=match[1];fit=css.backgroundSize;pos=position(css.backgroundPosition);
+  if(css.backgroundAttachment==='fixed')sourceBox=view;
+  else if(css.backgroundAttachment!=='scroll'&&css.backgroundAttachment!=='local')return null;
+ }
+ try{const parsed=new URL(url,doc.location.href),origin=new URL(doc.location.href);if(parsed.origin!==origin.origin||parsed.pathname!=='/'+scene.asset||parsed.hash||
+  parsed.search&&parsed.search!=='?asset=ohana-v105-binary-repair-20261011')return null;}catch{return null;}
+ if(!pos||!['cover','contain','100% 100%','fill'].includes(fit))return null;
+ const sx=sourceBox.width/scene.width,sy=sourceBox.height/scene.height;
+ const scaleX=fit==='cover'?Math.max(sx,sy):fit==='contain'?Math.min(sx,sy):sx,scaleY=fit==='cover'||fit==='contain'?scaleX:sy;
+ const x=sourceBox.x+(sourceBox.width-scene.width*scaleX)*pos.x,y=sourceBox.y+(sourceBox.height-scene.height*scaleY)*pos.y;
+ const imageClip=intersection(sourceBox,{x,y,width:scene.width*scaleX,height:scene.height*scaleY});
+ const painted=imageClip&&intersection(imageClip,box);
+ return painted?{x,y,scaleX,scaleY,painted}:null;
+}
+// readScene must return a fresh, sanitized projection of CURRENT app state.
+export function readScene(context,doc){
+ try{
+  if(typeof context?.readScene!=='function'||doc.hidden||doc.visibilityState==='hidden')return null;
+  const s=context.readScene();if(!s||typeof s.sceneId!=='string'||!own(SCENES,s.sceneId))return null;
+  const scene=SCENES[s.sceneId];
+  if(s.routeId!==scene.routeId||s.authenticated!==true||s.visible!==true||s.modalOpen!==false||s.musicActive!==false)return null;
+  if(!['accountEpoch','routeEpoch','sceneEpoch'].every(k=>Number.isSafeInteger(s[k])&&s[k]>=0))return null;
+  if(!visible(s.target,doc)||!visible(s.sourceElement,doc)||!untransformed(s.target,doc)||!untransformed(s.sourceElement,doc))return null;
+  if(!['relative','absolute','fixed','sticky'].includes(doc.defaultView.getComputedStyle(s.target).position))return null;
+  const style=s.styleId??scene.style;if(typeof style!=='string'||!own(STYLES,style))return null;
+  if(!Array.isArray(s.obstacles)||s.obstacles.length>128)return null;
+  const obstacles=[];for(const element of s.obstacles){
+   // A stale/missing declared obstacle is not silently discarded.
+   if(!element||element.ownerDocument!==doc||element.isConnected!==true)return null;
+   if(visible(element,doc)){const box=rect(element.getBoundingClientRect());if(box)obstacles.push(box);}
+  }
+  const view=viewport(doc),targetRect=rect(s.target.getBoundingClientRect());if(!view||!targetRect)return null;
+  const targetClip=intersection(view,targetRect),transform=sourceGeometry(s.sourceElement,scene,doc,view);if(!targetClip||!transform)return null;
+  const clip=intersection(targetClip,transform.painted);if(!clip)return null;
+  const key=[s.sceneId,s.routeId,s.accountEpoch,s.routeEpoch,s.sceneEpoch,style].join('|');
+  return {key,sceneId:s.sceneId,routeId:s.routeId,target:s.target,sourceElement:s.sourceElement,scene,style,clip,targetRect,transform,obstacles};
+ }catch{return null;}
+}
+export function chooseAnchor(s){
+ if(!s)return null;
+ const def=STYLES[s.style],aspect=def.family==='primary'?250/1000:def.family==='umbrella'?400/950:500/1100;
+ for(let i=0;i<s.scene.anchors.length;i++){
+  const [x,y,height,supportKind]=s.scene.anchors[i],h=height*s.transform.scaleY,w=h*aspect;
+  const box=rect({x:s.transform.x+x*s.transform.scaleX-w/2,y:s.transform.y+y*s.transform.scaleY,width:w,height:h});if(!box)continue;
+  // Conservative V6 motion envelope: assembly + tube/pendulum rotations, not just still pixels.
+  const dx=h*.12+2,dy=h*.045+2,swept={x:box.x-dx,y:box.y-dy,width:box.width+2*dx,height:box.height+2*dy};
+  if(!contains(s.clip,swept)||s.obstacles.some(o=>intersects(swept,o)))continue;
+  let support=null;
+  if(supportKind==='left-wood-bracket'){
+   support=rect({x:s.clip.x,y:box.y-9,width:box.x+box.width/2-s.clip.x,height:9});
+   if(!support||!contains(s.clip,support)||s.obstacles.some(o=>intersects(support,o)))continue;
+  }
+  return {index:i,box,swept,support,id:'v6-'+s.sceneId+'-'+s.style,style:s.style,count:def.count};
+ }
+ return null;
+}
+export function specsFor(context,doc=globalThis.document){const s=readScene(context,doc),a=chooseAnchor(s);return a?[{id:a.id,style:a.style,count:a.count}]:[];}
