@@ -14923,6 +14923,7 @@ function renderChatHeads(){
  main.setAttribute('aria-label','Open Ohana tools'+(unread?' — '+unread+' unread messages':''));
 }
 async function openOhanaTools(){await openChatInbox(null,true);}
+window.ohanaOpenBridge=openOhanaTools;
 function chatHeadDrag(h){h.setAttribute('aria-label','Open Ohana tools');h.onclick=openOhanaTools;}
 
 function toggleChatPop(){const d=document.getElementById('ohana-chat-dialog');if(d&&d.open){saveChatDraft();d.close();}else openChatInbox();}
@@ -17608,24 +17609,24 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
    if(toggle.dataset.workstationState!==String(collapsed)){toggle.dataset.workstationState=String(collapsed);toggle.innerHTML='<small class="ohana-menu-label">Menu</small><span aria-hidden="true">'+(collapsed?'+':'−')+'</span><small class="ohana-menu-state">'+(collapsed?'Show':'Hide')+'</small>';}
    toggle.setAttribute('aria-label',collapsed?'Show menu':'Hide menu');toggle.setAttribute('aria-expanded',String(!collapsed));toggle.disabled=!dock;
    if(dock)toggle.setAttribute('aria-controls',dock.id);else toggle.removeAttribute('aria-controls');
-   set(slot,{position:'fixed',right:'0',bottom:'env(safe-area-inset-bottom,0px)',top:'auto',left:'auto',width:'var(--landscape-hub-width,184px)',height:'var(--landscape-hub-height,112px)',background:(slot.dataset.cardinalAway==='true'?'none':'url(/ohana-cardinal-daddy-cap-v1.png)')+' left bottom 4px/var(--landscape-hub-art,120px 80px) no-repeat','z-index':'80',display:'block'});
-   set(head,{position:'absolute',left:'0',right:'auto',top:'auto',bottom:'4px',width:'var(--landscape-hub-head,120px)',height:'var(--landscape-hub-head-height,80px)','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1'});
-   set(toggle,{position:'absolute',left:'var(--landscape-toggle-x,124px)',right:'auto',top:'4px',bottom:'auto',width:'56px',height:'104px','min-width':'56px','min-height':'104px','max-width':'56px','max-height':'104px',margin:'0',padding:'0',display:'flex','flex-direction':'column','align-items':'center','justify-content':'center',gap:'0',background:'transparent',border:'0','box-shadow':'none',color:'#9dff42',font:'900 38px/1 Nunito,system-ui','text-shadow':'0 1px 2px #183b17,0 0 3px #183b17',opacity:toggle.disabled?'.6':'1','z-index':'42'});
+   set(slot,{position:'fixed',left:'var(--ohana-arched-perch-left,calc(50vw - 52px))',top:'var(--ohana-arched-perch-top,4px)',right:'auto',bottom:'auto',width:'var(--ohana-arched-perch-width,104px)',height:'var(--ohana-arched-perch-height,82px)',background:(slot.dataset.cardinalAway==='true'?'none':'url(/ohana-cardinal-daddy-cap-v1.png)')+' center bottom/contain no-repeat','z-index':'80',display:'block','pointer-events':'none'});
+   set(head,{position:'absolute',left:'0',right:'auto',top:'0',bottom:'auto',width:'100%',height:'100%','min-width':'44px','min-height':'44px',margin:'0',background:'transparent',border:'0','box-shadow':'none','z-index':'1','pointer-events':'none'});
+   set(toggle,{position:'fixed',left:'auto',right:'0',top:'auto',bottom:'env(safe-area-inset-bottom,0px)',width:'56px',height:'104px','min-width':'56px','min-height':'104px','max-width':'56px','max-height':'104px',margin:'0',padding:'0',display:'flex','flex-direction':'column','align-items':'center','justify-content':'center',gap:'0',background:'transparent',border:'0','box-shadow':'none',color:'#9dff42',font:'900 38px/1 Nunito,system-ui','text-shadow':'0 1px 2px #183b17,0 0 3px #183b17',opacity:toggle.disabled?'.6':'1','z-index':'42'});
    set(toggle.querySelector('.ohana-menu-label'),{font:'800 18px/1.2 Nunito,system-ui',color:'#f6ffe8','text-shadow':'0 1px 2px #183b17'});
    set(toggle.querySelector('.ohana-menu-state'),{font:'800 16px/1.25 Nunito,system-ui',color:'#f6ffe8','text-shadow':'0 1px 2px #183b17'});
-   head.hidden=false;head.dataset.side='right';renderChatHeads();if(!dock)return;
+   head.hidden=false;head.dataset.side='right';renderChatHeads();head.tabIndex=-1;head.setAttribute('aria-hidden','true');set(head,{'pointer-events':'none'});set(toggle,{'pointer-events':'auto'});if(!dock)return;
    if(!originals.has(dock))originals.set(dock,dock.getAttribute('style')||'');
-   if(!collapsed){dock.setAttribute('style',originals.get(dock));set(dock,{height:'auto','min-height':'112px','max-height':'none',padding:['home-controls-dock','pz-workstation','game-controls-dock'].includes(dock.id)?'4px 4px 4px 4px':'4px 184px 4px 4px',display:'flex','flex-direction':'column','box-sizing':'border-box',gap:'4px'});}
+   if(!collapsed){dock.setAttribute('style',originals.get(dock));set(dock,{height:'auto','min-height':'112px','max-height':'none',padding:['home-controls-dock','pz-workstation','game-controls-dock'].includes(dock.id)?'4px 4px 4px 4px':'4px 56px 4px 4px',display:'flex','flex-direction':'column','box-sizing':'border-box',gap:'4px'});}
    for(const child of dock.children){if(child===slot)continue;
     if(collapsed){if(!children.has(child))children.set(child,{style:child.getAttribute('style')||'',hidden:child.hidden,inert:child.inert});child.hidden=true;child.inert=true;set(child,{display:'none'});}
     else if(children.has(child)){const prior=children.get(child);child.setAttribute('style',prior.style);child.hidden=prior.hidden;child.inert=prior.inert;children.delete(child);}
    }
-   if(collapsed)set(dock,{position:dock.id==='gr-workstation'?'absolute':'fixed',left:'auto',right:'0',bottom:'0',width:'var(--landscape-hub-width,184px)','min-width':'var(--landscape-hub-width,184px)','max-width':'var(--landscape-hub-width,184px)',height:'112px','min-height':'112px','max-height':'112px',padding:'0',display:'block',background:'transparent',border:'0','box-shadow':'none'});
+   if(collapsed)set(dock,{position:dock.id==='gr-workstation'?'absolute':'fixed',left:'auto',right:'0',bottom:'0',width:'56px','min-width':'56px','max-width':'56px',height:'112px','min-height':'112px','max-height':'112px',padding:'0',display:'block',background:'transparent',border:'0','box-shadow':'none'});
    else{
     for(const row of dock.querySelectorAll(':scope > .game-shelf-tabs'))set(row,{display:'flex','flex-wrap':'nowrap','overflow-x':'auto',height:'44px','min-height':'44px',width:'100%'});
     for(const button of dock.querySelectorAll(':scope > .game-shelf-tabs > button'))set(button,{'flex':'1 0 auto','min-width':'44px','max-width':'none','white-space':'nowrap','overflow-wrap':'normal'});
     for(const row of dock.querySelectorAll(':scope > .dock-player,:scope > .gr-save-row,:scope > .pz-active'))set(row,{width:'100%','max-width':'100%','min-height':'72px',height:'auto','max-height':'none','flex-wrap':'wrap','overflow-x':'visible','overflow-y':'visible'});
-    if(dock.id==='home-controls-dock'){const player=dock.querySelector(':scope > .dock-player');if(player)set(player,{'padding-right':'188px','box-sizing':'border-box'});}
+    if(dock.id==='home-controls-dock'){const player=dock.querySelector(':scope > .dock-player');if(player)set(player,{'padding-right':'56px','box-sizing':'border-box'});}
     if(dock.id==='pz-workstation'){
      const tight=typeof matchMedia==='function'&&matchMedia('(orientation:landscape) and (max-height:500px)').matches;
      const actions=dock.querySelector(':scope > .pz-bottom-actions');if(actions){
@@ -17638,7 +17639,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
       const preview=actions.querySelector('#pz-peek-btn');if(preview)set(preview,{'grid-column':'3','grid-row':'1','justify-self':'end',color:'#85ef38',width:'auto','min-width':'44px','min-height':'44px'});
      }
      const tabs=dock.querySelector('#pz-tray-dock');if(tabs)set(tabs,{display:'flex','flex-wrap':'nowrap',flex:'1 1 0','min-width':'0','overflow-x':'auto','overflow-y':'hidden',height:'44px'});
-     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{width:tight?'calc(100% - 188px)':'100%','max-width':tight?'calc(100% - 188px)':'100%','padding-right':tight?'0':'188px','box-sizing':'border-box','min-height':'var(--landscape-hub-height,112px)','flex-wrap':tight?'nowrap':'wrap','overflow-x':tight?'auto':'visible','overflow-y':tight?'hidden':'visible','justify-content':tight?'flex-start':'center','align-items':'flex-end','align-content':'flex-end'});
+     const people=dock.querySelector(':scope > .pz-active');if(people)set(people,{width:tight?'calc(100% - 56px)':'100%','max-width':tight?'calc(100% - 56px)':'100%','padding-right':tight?'0':'56px','box-sizing':'border-box','min-height':'var(--landscape-hub-height,112px)','flex-wrap':tight?'nowrap':'wrap','overflow-x':tight?'auto':'visible','overflow-y':tight?'hidden':'visible','justify-content':tight?'flex-start':'center','align-items':'flex-end','align-content':'flex-end'});
     }
     if(dock.id==='gr-workstation')for(const row of dock.querySelectorAll(':scope > .gr-tools,:scope > .gr-answer-actions,:scope > .gr-find-actions'))set(row,{width:'100%',display:'flex','flex-wrap':'wrap','min-height':'44px',gap:'4px'});
     window.ohanaPaintCardinalBowls?.(dock);
@@ -17669,7 +17670,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
     // The cardinal shares the action area; player rows use the full phone width.
     // All sizing lives in the existing controller so collapse and rerender agree.
     if(dock.id==='game-controls-dock'){
-     set(dock,{display:'grid','grid-template-columns':'minmax(0,1fr)','grid-template-rows':document.getElementById('chs-beach-root')?'44px 70px':'44px var(--landscape-player-row,112px)','align-items':'center',padding:'2px',gap:'0'});
+     set(dock,{display:'grid','grid-template-columns':'minmax(0,1fr)','grid-template-rows':document.getElementById('chs-beach-root')?'44px 70px':'44px var(--landscape-player-row,112px)','align-items':'center',padding:'2px',gap:'0','--landscape-hub-reserve':'56px'});
      for(const row of dock.querySelectorAll(':scope > .dock-command-row'))set(row,{'grid-column':'1','grid-row':'1','min-width':'0',width:document.getElementById('chs-beach-root')?'calc(100% - var(--landscape-hub-reserve,188px))':'var(--landscape-command-width,100%)','column-gap':'2px'});
      for(const row of dock.querySelectorAll(':scope > .dock-player')){
       set(row,{display:'flex','flex-wrap':'nowrap','grid-column':'1 / -1','grid-row':'2',width:'calc(100% - var(--landscape-hub-reserve,188px))','max-width':'calc(100% - var(--landscape-hub-reserve,188px))','min-width':'0',height:document.getElementById('chs-beach-root')?'70px':'var(--landscape-player-row,112px)','min-height':document.getElementById('chs-beach-root')?'70px':'var(--landscape-player-row,112px)','max-height':document.getElementById('chs-beach-root')?'70px':'var(--landscape-player-row,112px)',gap:'4px 14px','overflow-x':'auto','overflow-y':'hidden','touch-action':'pan-x','pointer-events':'auto','padding-right':'0','box-sizing':'border-box','align-items':'center','justify-content':'flex-start'});
@@ -17734,7 +17735,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
       set(dock,{padding:'4px','flex-direction':'column','flex-wrap':'nowrap','align-items':'stretch','max-height':'60dvh','overflow-y':'auto'});
       for(const row of dock.querySelectorAll(':scope > .gr-answer-actions,:scope > .gr-find-actions,:scope > .gr-tools'))set(row,{width:'100%','min-width':'0',flex:'0 0 auto','flex-wrap':'wrap','justify-content':'flex-start','box-sizing':'border-box'});
       for(const button of dock.querySelectorAll(':scope > .gr-answer-actions button,:scope > .gr-find-actions button,:scope > .gr-tools button'))set(button,{width:'auto','min-width':'44px','max-width':'none',flex:'0 0 auto','white-space':'normal'});
-      const saved=dock.querySelector(':scope > .gr-save-row');if(saved)set(saved,{width:'100%','min-width':'0','min-height':'112px',height:'auto',flex:'0 0 auto','padding-right':'188px','box-sizing':'border-box'});
+      const saved=dock.querySelector(':scope > .gr-save-row');if(saved)set(saved,{width:'100%','min-width':'0','min-height':'112px',height:'auto',flex:'0 0 auto','padding-right':'56px','box-sizing':'border-box'});
      }else{
       set(dock,{'flex-direction':'row','flex-wrap':'wrap','align-items':'center'});
       for(const row of dock.querySelectorAll(':scope > .gr-answer-actions,:scope > .gr-find-actions'))set(row,{width:'calc(100% - 100px)',flex:'1 1 auto','flex-wrap':'nowrap','justify-content':'center'});
@@ -17745,7 +17746,7 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
 
    }
    if(collapsed&&dock.id==='pz-workstation')set(dock,{'z-index':'5'});
-   head.hidden=false;head.dataset.side='right';renderChatHeads();
+   head.hidden=false;head.dataset.side='right';renderChatHeads();head.tabIndex=-1;head.setAttribute('aria-hidden','true');set(head,{'pointer-events':'none'});set(toggle,{'pointer-events':'auto'});
    if(dock.id==='game-controls-dock')document.documentElement.style.setProperty('--game-rail-space',Math.ceil(dock.getBoundingClientRect().height+28)+'px');
   }finally{observer.observe(document.body,{childList:true,subtree:true});}
  }
@@ -18073,7 +18074,7 @@ new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true
  let dock=null,marker=null,dialog=null;
  function restore(){if(dock&&marker?.parentNode){marker.replaceWith(dock);marker=null;}document.querySelector('#chat-head')?.setAttribute('aria-expanded','false');}
  function refresh(){const d=document.getElementById('ohana-chat-dialog'),slot=document.getElementById('ohana-persistent-hub');if(!d)return;const shell=d.querySelector('.uc-shell'),space='12px';if(shell&&shell.style.paddingBottom!==space)shell.style.setProperty('padding-bottom',space,'important');if(shell&&d.classList.contains('hub-command-player')){const needed=[...shell.children].reduce((n,e)=>n+e.getBoundingClientRect().height,0)+parseFloat(getComputedStyle(shell).paddingBottom);const align='flex-start';if(shell.style.justifyContent!==align)shell.style.setProperty('justify-content',align,'important');}if(dialog!==d){dialog=d;d.addEventListener('close',restore);}if(d.open&&slot){dock=slot;if(slot.parentNode!==d){if(!marker){marker=document.createComment('Ohana Bridge dock return');slot.before(marker);}d.append(slot);}document.querySelector('#chat-head')?.setAttribute('aria-expanded','true');}else restore();}
- document.addEventListener('click',e=>{const head=e.target.closest?.('#chat-head');const d=document.getElementById('ohana-chat-dialog');if(head&&d?.open){e.preventDefault();e.stopImmediatePropagation();if(typeof saveChatDraft==='function')saveChatDraft();d.close();restore();head.focus({preventScroll:true});}},true);
+ document.addEventListener('click',e=>{const head=e.target.closest?.('#chat-head');const d=document.getElementById('ohana-chat-dialog');if(head&&d?.open){e.preventDefault();e.stopImmediatePropagation();if(typeof saveChatDraft==='function')saveChatDraft();d.close();restore();(document.querySelector('.ohana-arched-bridge-entry')||head).focus({preventScroll:true});}},true);
  new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open','style']});refresh();
 })();</script><script id="ohana-bridge-responsive-physical-v1">/* Keep original chat/game/music nodes and their handlers. */
 (()=>{'use strict';
@@ -18474,7 +18475,7 @@ new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true
   }
   // All rendered navigation in the scene's own app state participates in the
   // swept-rig AND support checks; hidden controls are ignored by readScene.
-  const navigation='#app>header button,#app>header [role="button"],#app>header a,#app>header .header-buddy,#app>header .room-current-heading,#app nav.tabs .in button,#ohana-persistent-hub,#chat-head,#home-controls-dock,#ohana-personal-mango,[data-personal-mango-trigger]';
+  const navigation='#app>header button,#app>header [role="button"],#app>header a,#app>header .header-buddy,#app>header .room-current-heading,.ohana-arched-bridge-header .ohana-arched-bridge-entry,.ohana-arched-bridge-header .ohana-arched-native-arrow,#app nav.tabs .in button,#ohana-persistent-hub,#chat-head,#home-controls-dock,#ohana-personal-mango,[data-personal-mango-trigger]';
   const gameSurface=routeId==='home'?'':',#app #main button,#app #main a,#app #main [role="button"]';
   for(const element of new Set(document.querySelectorAll(navigation+gameSurface)))if(element.isConnected)obstacles.push(element);
   if(!target?.isConnected||!sourceElement?.isConnected)return null;
@@ -20123,7 +20124,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-open-entry-bibl
 :root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active) button:focus-visible{outline:3px solid #fff1a5!important;outline-offset:3px!important}
 :root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active) button:disabled{opacity:.45!important}
 @media(max-width:500px){:root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active){padding:10px!important}:root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active)>header{gap:6px!important;flex-wrap:wrap!important}:root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active)>header h2{font-size:21px!important}}
-:root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active) .setup-choice .room-name{color:inherit!important;text-shadow:inherit!important}</style><style id="ohana-short-landscape-workstation">@media(min-width:600px) and (max-height:500px) and (orientation:landscape){:root:has(#game-controls-dock){--landscape-player-row:64px;--landscape-hub-reserve:164px;--landscape-command-width:calc(100% - 164px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock .world-seat{position:relative!important}#game-controls-dock .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style><style id="ohana-category-scene-sizing-repair">
+:root.ohana-world body dialog.game-setup-room[data-game-setup-view]:not(#ohana-category-room-active) .setup-choice .room-name{color:inherit!important;text-shadow:inherit!important}</style><style id="ohana-short-landscape-workstation">@media(min-width:600px) and (max-height:500px) and (orientation:landscape){:root:has(#game-controls-dock){--landscape-player-row:64px;--landscape-hub-reserve:56px;--landscape-command-width:calc(100% - 56px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock .world-seat{position:relative!important}#game-controls-dock .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style><style id="ohana-category-scene-sizing-repair">
 #ohana-category-room-active .category-active-games .sp-square-scene{position:relative!important;flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;line-height:0!important}
 #ohana-category-room-active .category-active-games .sp-square-scene>.sp-porch-image{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;object-fit:contain!important;transform:none!important}
 #ohana-category-room-active .category-active-games .sp-square-scene>.scene-game-buddy{position:absolute!important;left:53%;bottom:8%;width:16%!important;height:auto!important;object-fit:contain!important}
@@ -20366,7 +20367,7 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
 }
 </style>
 
-<style id="ohana-hf-short-landscape-v1">@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root:has(#game-controls-dock[data-game-type="handfoot"]){--landscape-player-row:64px;--landscape-hub-reserve:164px;--landscape-command-width:calc(100% - 164px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock[data-game-type="handfoot"] .world-seat{position:relative!important}#game-controls-dock[data-game-type="handfoot"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style>
+<style id="ohana-hf-short-landscape-v1">@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root:has(#game-controls-dock[data-game-type="handfoot"]){--landscape-player-row:64px;--landscape-hub-reserve:56px;--landscape-command-width:calc(100% - 56px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock[data-game-type="handfoot"] .world-seat{position:relative!important}#game-controls-dock[data-game-type="handfoot"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style>
 <style id="ohana-hf-instructions-v1">
 .hf-instructions{box-sizing:border-box!important;width:min(800px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px)!important;max-height:calc(100vh - 20px)!important;max-height:calc(100dvh - 20px)!important;padding:0!important;overflow:auto!important;overscroll-behavior:contain;color:#173b38!important;background:#fff5df!important;font:400 17px/1.5 Nunito,system-ui,sans-serif!important;text-align:left!important}
 .hf-instructions-heading{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff5df;border-bottom:2px solid #b38743}
@@ -20396,7 +20397,7 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
 </style>
 <style id="ohana-ten-short-landscape-v2">
 @media(max-width:600px) and (max-height:360px) and (orientation:landscape){
- :root:has(#game-controls-dock[data-game-type="ohana10"]){--ten-header-height:56px;--ten-title-height:44px;--ten-title-width:220px;--landscape-player-row:64px;--landscape-hub-reserve:164px;--landscape-command-width:calc(100% - 164px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}
+ :root:has(#game-controls-dock[data-game-type="ohana10"]){--ten-header-height:56px;--ten-title-height:44px;--ten-title-width:220px;--landscape-player-row:64px;--landscape-hub-reserve:56px;--landscape-command-width:calc(100% - 56px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}
  #game-controls-dock[data-game-type="ohana10"] .world-seat{position:relative!important}
  #game-controls-dock[data-game-type="ohana10"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}
 }
@@ -20503,7 +20504,7 @@ window.ohanaBoardViewportInstaller=OhanaBoardViewport.install({getId:()=>String(
 </script>
 
 <!-- OHANA RUMMY BOARD CAMERA START -->
-<style id="ohana-rummy-short-landscape-v1">@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root:has(#game-controls-dock[data-game-type="shuffle"]){--landscape-player-row:64px;--landscape-hub-reserve:164px;--landscape-command-width:calc(100% - 164px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock[data-game-type="shuffle"] .world-seat{position:relative!important}#game-controls-dock[data-game-type="shuffle"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style>
+<style id="ohana-rummy-short-landscape-v1">@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root:has(#game-controls-dock[data-game-type="shuffle"]){--landscape-player-row:64px;--landscape-hub-reserve:56px;--landscape-command-width:calc(100% - 56px);--landscape-avatar:24px;--landscape-avatar-height:24px;--landscape-player-font:16px;--landscape-player-line:18px;--landscape-hub-width:160px;--landscape-hub-height:112px;--landscape-hub-art:96px 64px;--landscape-hub-head:96px;--landscape-hub-head-height:64px;--landscape-toggle-x:100px;--landscape-toggle-y:20px;--landscape-turn-position:absolute;--landscape-turn-top:0;--landscape-turn-right:0}#game-controls-dock[data-game-type="shuffle"] .world-seat{position:relative!important}#game-controls-dock[data-game-type="shuffle"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}}</style>
 <script>if(!window.OhanaBoardViewport){/* Presentation-only camera. Existing board nodes/handlers remain intact. */
 (()=>{'use strict';
  const controllers=new WeakMap(),views=new Map(),interactive='button,a,input,textarea,select,[role=button],[role=checkbox],[draggable=true],[data-o10-card],[data-hf-card],[data-cb],[data-i],[data-square],.cp,.chess-piece,.hf-card,.sp-card,.shuffle-card,canvas';
@@ -21463,26 +21464,91 @@ window.ohanaCardinalAudio=OhanaCardinalAudio.install({recording:{"cleared":true,
 </script>
 <!-- OHANA REAL CARDINAL AUDIO END -->
 
+<style id="ohana-arched-bridge-header-style-v1">
+/* Chosen deep arch: native arrows retain their own handlers; one center opens Bridge. */
+.ohana-arched-bridge-header{display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px!important;grid-template-rows:minmax(82px,auto) auto!important;align-items:center!important;gap:2px!important;min-height:92px!important;padding:2px 4px 5px!important;box-sizing:border-box!important;overflow:visible!important}
+.ohana-arched-bridge-header>.ohana-arched-bridge-entry{grid-column:2!important;grid-row:1!important;width:100%!important;min-width:0!important;max-width:none!important;height:86px!important;min-height:86px!important;margin:0!important;padding:5px 4px!important;display:grid!important;grid-template-columns:minmax(0,1fr) 104px minmax(0,1fr)!important;align-items:center!important;position:relative!important;border:3px solid #eec47d!important;border-radius:26px 26px 42% 42%/18px 18px 22px 22px!important;background:radial-gradient(ellipse at 50% 0,#f6cb7a 0 9%,transparent 10%),linear-gradient(#8b511f 0 15%,#4e2d1b 16% 30%,#9a602c 31% 71%,#482819 100%)!important;box-shadow:inset 0 0 0 2px #e5aa57,0 4px 2px #152326!important;color:#fff4c8!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important}
+.ohana-arched-bridge-entry:before{content:"";position:absolute;z-index:0;left:0;right:0;top:0;bottom:-10px;border:4px ridge #eec078;border-radius:24px 24px 0 0;background:linear-gradient(#b87938 0 13%,#684021 16% 58%,#a66a32 65%,#482819 100%);clip-path:polygon(0 0,100% 0,100% 100%,84% 88%,70% 74%,50% 69%,30% 74%,16% 88%,0 100%);pointer-events:none}
+.ohana-arched-bridge-entry:after{content:"";position:absolute;left:9%;right:9%;top:7px;height:16px;border:3px dashed #f6d99b;border-bottom:0;border-radius:50% 50% 0 0;pointer-events:none}
+.ohana-arched-bridge-entry .ohana-arched-label{position:relative!important;z-index:2!important;min-width:0;text-align:center;font:900 clamp(11px,2.8vw,20px)/1.08 Fredoka,Nunito,system-ui;color:#fff4c8;text-shadow:0 2px 2px #2d170b,0 0 5px #2d170b;overflow-wrap:anywhere;text-wrap:balance}
+.ohana-arched-bridge-entry .ohana-arched-daddy-space{width:104px;height:72px;pointer-events:none}
+.ohana-arched-bridge-header>.ohana-arched-native-arrow,.ohana-arched-bridge-header>.ohana-arched-faux-arrow{grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;width:44px!important;min-width:44px!important;max-width:44px!important;height:50px!important;min-height:44px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:3px ridge #f1c375!important;border-radius:50% 16px 16px 50%!important;background:radial-gradient(circle at 50% 30%,#bf7b3b,#57301c 76%)!important;box-shadow:inset 0 2px #fff2b766,0 2px 3px #26140877!important;color:transparent!important;font-size:0!important;cursor:pointer!important}
+.ohana-arched-bridge-header>.ohana-arched-native-arrow:before,.ohana-arched-bridge-header>.ohana-arched-faux-arrow:before{content:"";position:absolute;width:31px;height:31px;top:-10px;right:-6px;background:url('/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011') center/contain no-repeat;pointer-events:none}
+.ohana-arched-bridge-header>.ohana-arched-native-arrow:after,.ohana-arched-bridge-header>.ohana-arched-faux-arrow:after{content:'‹';position:absolute;inset:0;display:grid;place-items:center;color:#fff6d9;font:900 30px/1 system-ui;text-shadow:0 2px #4d260e;pointer-events:none}
+:root.ohana-world body #app #pz-board .pz-head.ohana-arched-bridge-header .ohana-arched-bridge-entry::before,:root.ohana-world body #app #pz-board .pz-head.ohana-arched-bridge-header .ohana-arched-bridge-entry::after{content:""!important;display:block!important}
+:root.ohana-world body #app #pz-board .pz-head.ohana-arched-bridge-header .ohana-arched-native-arrow::after,:root.ohana-world body #app #pz-board .pz-head.ohana-arched-bridge-header .ohana-arched-faux-arrow::after{content:'\2190'!important;display:grid!important}
+:root.ohana-world body .ohana-arched-bridge-header>.ohana-arched-native-arrow::after,:root.ohana-world body .ohana-arched-bridge-header>.ohana-arched-faux-arrow::after{display:grid!important;content:'←'!important;visibility:visible!important;font:900 29px/1 system-ui!important}
+:root.ohana-world body .ohana-arched-bridge-header>.ohana-arched-next::after{content:'→'!important}
+.ohana-arched-bridge-header>.ohana-arched-next{grid-column:3!important;border-radius:16px 50% 50% 16%!important}
+.ohana-arched-bridge-header>.ohana-arched-next:before{left:-6px;right:auto}
+.ohana-arched-bridge-header>.ohana-arched-next:after{content:'›'}
+.ohana-arched-bridge-header>.ohana-arched-back{grid-column:1!important}
+.ohana-arched-bridge-header>.ohana-arched-faux-arrow{opacity:.45!important;cursor:default!important;pointer-events:none!important}
+.ohana-arched-bridge-header>.ohana-arched-native-arrow>*{visibility:hidden!important}
+.ohana-arched-bridge-header>.ohana-arched-native-arrow>.ohana-arched-arrow-glyph{visibility:visible!important}
+.ohana-arched-arrow-glyph{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#fff6d9!important;font:900 30px/1 system-ui!important;text-shadow:0 2px #4d260e}
+.ohana-arched-bridge-header>[data-unified-tools]{grid-column:1/-1!important;grid-row:2!important}
+.ohana-arched-bridge-header :is(.ohana-arched-bridge-entry,.ohana-arched-native-arrow):focus-visible{outline:3px solid #23ffee!important;outline-offset:2px!important}
+@media(max-width:370px){.ohana-arched-bridge-header{min-height:86px!important;grid-template-rows:minmax(76px,auto) auto!important}.ohana-arched-bridge-header>.ohana-arched-bridge-entry{height:78px!important;min-height:78px!important;grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr)!important}.ohana-arched-bridge-entry .ohana-arched-daddy-space{width:78px;height:64px}.ohana-arched-bridge-entry .ohana-arched-label{font-size:11px}}
+@media(max-height:500px) and (orientation:landscape){.ohana-arched-bridge-header{min-height:80px!important;grid-template-rows:minmax(70px,auto) auto!important}.ohana-arched-bridge-header>.ohana-arched-bridge-entry{height:70px!important;min-height:70px!important;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr)!important}.ohana-arched-bridge-entry .ohana-arched-daddy-space{width:82px;height:62px}.ohana-arched-bridge-entry .ohana-arched-label{font-size:clamp(12px,2.2vw,17px)}}
+</style>
+<script id="ohana-arched-bridge-header-v1">
+(()=>{'use strict';let frame=0;const headers=new WeakMap();
+ const set=(e,p)=>{for(const[k,v]of Object.entries(p))if(e.style.getPropertyValue(k)!==v||e.style.getPropertyPriority(k)!=='important')e.style.setProperty(k,v,'important');};
+ function titleFor(h){return h.querySelector('.room-current-heading h1')||h.querySelector(':scope>h1,:scope>h2')||h.querySelector('.chs-head-center h2')||h.querySelector('.home-mark');}
+ function textFor(h,title){const text=h.dataset.unifiedTitle||title?.getAttribute('aria-label')||title?.querySelector('[data-unified-title-source]')?.textContent||title?.textContent||'';return String(text).trim().replace(/\s+/g,' ');}
+ function scan(){frame=0;
+  // Home's illustrated porch has its chime supports in the top painted beam.
+  // Keep the approved Bridge above that illustration, rather than overlaying
+  // every authentic support. The same native header and handlers are moved;
+  // no duplicate entry, bird or chime is created.
+  const foyer=document.querySelector('#app #main .world-home-foyer');
+  const homeHeader=foyer?.querySelector(':scope>.ohana-entrance-heading');
+  if(homeHeader)foyer.before(homeHeader);
+  const choices=['#game-head','#pz-board>.pz-head','#gr-main>.gr-header','#ohana-journey-room>.journey-room-heading','#app>header','.ohana-entrance-heading'];let active=null;
+  for(const h of document.querySelectorAll(choices.join(','))){if(!h.isConnected||!h.getClientRects().length||h.closest('dialog'))continue;const title=titleFor(h);if(!title)continue;const label=textFor(h,title);if(!label)continue;const back=h.querySelector('#pz-leave,.room-home-control,#gb-back,#wback,[data-gr-exit]');const next=h.matches('#pz-board>.pz-head')?null:h.querySelector('[data-room-next],#next-game,#pz-next-game');let entry=headers.get(h);
+   if(!entry||!h.contains(entry)){entry=document.createElement('div');entry.className='ohana-arched-bridge-entry';entry.setAttribute('role','button');entry.tabIndex=0;entry.setAttribute('aria-haspopup','dialog');entry.innerHTML='<span class="ohana-arched-label" data-bridge-home>Ohana Home</span><span class="ohana-arched-daddy-space" aria-hidden="true"></span><span class="ohana-arched-label" data-bridge-game></span>';entry.addEventListener('click',()=>{if(typeof window.ohanaOpenBridge==='function')window.ohanaOpenBridge();else document.getElementById('chat-head')?.click()});entry.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();entry.click()}});h.append(entry);headers.set(h,entry);}
+   // The shared sign mounts later on some routes and collects unknown children into row-two tools.
+   // Reclaim the stable center node after that one-time mount; do not duplicate it or its listener.
+   if(entry.parentElement!==h)h.insertBefore(entry,h.querySelector(':scope>[data-unified-tools]'));
+   const name=label==='Ohana Home'?'Games':label;const accessible='Open Ohana Bridge from '+name;if(entry.getAttribute('aria-label')!==accessible)entry.setAttribute('aria-label',accessible);const game=entry.querySelector('[data-bridge-game]');if(game.textContent!==name)game.textContent=name;
+   const compact=innerWidth<=370,short=innerHeight<=500&&innerWidth>innerHeight,bridgeHeight=compact?78:short?70:86,rowHeight=compact?76:short?70:82,perchWidth=compact?78:short?82:104;
+   h.classList.add('ohana-arched-bridge-header');set(h,{display:'grid','grid-template-columns':'44px minmax(0,1fr) 44px','grid-template-rows':'minmax('+rowHeight+'px,auto) auto','min-height':(rowHeight+10)+'px',padding:'2px 4px 5px'});const anchor=title.parentElement===h?title:[...h.children].find(e=>e.contains(title));if(anchor)set(anchor,{display:'none'});if(h.matches('#app>header,.ohana-entrance-heading'))for(const ornament of h.querySelectorAll(':scope>.header-buddy,:scope>.home-mark'))set(ornament,{display:'none'});
+   set(entry,{'grid-column':'2','grid-row':'1',display:'grid','grid-template-columns':'minmax(0,1fr) '+perchWidth+'px minmax(0,1fr)',width:'100%','min-width':'0','max-width':'none',height:bridgeHeight+'px','min-height':bridgeHeight+'px',margin:'0',padding:'5px 4px',border:'0',background:'transparent',color:'#fff4c8','box-shadow':'none','pointer-events':'auto'});
+   if(back){back.classList.add('ohana-arched-native-arrow','ohana-arched-back');if(!back.getAttribute('aria-label'))back.setAttribute('aria-label',back.textContent.trim()||'Back');if(!back.querySelector(':scope>.ohana-arched-arrow-glyph')){const glyph=document.createElement('span');glyph.className='ohana-arched-arrow-glyph';glyph.setAttribute('aria-hidden','true');glyph.textContent='←';back.append(glyph)}set(back,{'grid-column':'1','grid-row':'1',position:'relative',width:'44px','min-width':'44px',height:'50px','min-height':'44px',border:'3px ridge #f1c375','border-radius':'50% 16px 16px 50%',background:'radial-gradient(circle at 50% 30%,#bf7b3b,#57301c 76%)',color:'transparent','font-size':'0'});}else if(!h.querySelector('.ohana-arched-back')){const end=document.createElement('span');end.className='ohana-arched-faux-arrow ohana-arched-back';end.setAttribute('aria-hidden','true');end.innerHTML='<span class="ohana-arched-arrow-glyph">←</span>';h.append(end);}
+   if(next){next.classList.add('ohana-arched-native-arrow','ohana-arched-next');if(!next.getAttribute('aria-label'))next.setAttribute('aria-label',next.textContent.trim()||'Next game');if(!next.querySelector(':scope>.ohana-arched-arrow-glyph')){const glyph=document.createElement('span');glyph.className='ohana-arched-arrow-glyph';glyph.setAttribute('aria-hidden','true');glyph.textContent='→';next.append(glyph)}set(next,{'grid-column':'3','grid-row':'1',position:'relative',width:'44px','min-width':'44px',height:'50px','min-height':'44px',border:'3px ridge #f1c375','border-radius':'16px 50% 50% 16%',background:'radial-gradient(circle at 50% 30%,#bf7b3b,#57301c 76%)',color:'transparent','font-size':'0'});}else if(!h.querySelector('.ohana-arched-next')){const end=document.createElement('span');end.className='ohana-arched-faux-arrow ohana-arched-next';end.setAttribute('aria-hidden','true');end.innerHTML='<span class="ohana-arched-arrow-glyph">→</span>';h.append(end);}
+   for(const [side,column] of [['back','1'],['next','3']]){const end=h.querySelector('.ohana-arched-faux-arrow.ohana-arched-'+side);if(!end)continue;if(end.parentElement!==h)h.insertBefore(end,h.querySelector(':scope>[data-unified-tools]'));set(end,{'grid-column':column,'grid-row':'1',position:'relative',width:'44px','min-width':'44px',height:'50px','min-height':'44px',display:'grid',background:'radial-gradient(circle at 50% 30%,#bf7b3b,#57301c 76%)',border:'3px ridge #f1c375','pointer-events':'none'});}
+   for(const arrow of [back,next])if(arrow){const glyph=arrow.querySelector(':scope>.ohana-arched-arrow-glyph');if(glyph)set(glyph,{visibility:'visible',display:'grid',color:'#fff6d9'});}
+   if(!active||h.closest('#game,#gr-main,#pz-board,#ohana-journey-room'))active=entry;
+  }
+  if(active){const r=active.getBoundingClientRect(),n=innerWidth<=370?78:innerHeight<=500&&innerWidth>innerHeight?82:104,hh=innerWidth<=370?64:innerHeight<=500&&innerWidth>innerHeight?62:82,root=document.documentElement;root.style.setProperty('--ohana-arched-perch-left',Math.round(r.left+r.width/2-n/2)+'px');root.style.setProperty('--ohana-arched-perch-top',Math.round(r.top+Math.max(0,(r.height-hh)/2))+'px');root.style.setProperty('--ohana-arched-perch-width',n+'px');root.style.setProperty('--ohana-arched-perch-height',hh+'px');document.body.classList.add('ohana-arched-bridge-active');}
+  else{const root=document.documentElement;for(const key of ['--ohana-arched-perch-left','--ohana-arched-perch-top','--ohana-arched-perch-width','--ohana-arched-perch-height'])root.style.removeProperty(key);document.body.classList.remove('ohana-arched-bridge-active');}
+ }
+ const queue=()=>{if(!frame)frame=requestAnimationFrame(scan)};new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});addEventListener('resize',queue);window.visualViewport?.addEventListener('resize',queue);window.visualViewport?.addEventListener('scroll',queue);document.addEventListener('ohana-shared-header-ready',queue);queue();
+})();
+</script>
+
+
 <style id="ohana-spades-short-landscape-tools-clearance">
 /* Leave the fourth Spades score/profile target reachable beside the persistent tools. */
 @media (max-width:820px) and (max-height:500px) and (orientation:landscape){
  :root.ohana-world body:has(#game[data-game-type=spades]) #ohana-persistent-hub{
-  --landscape-hub-width:112px;
-  --landscape-hub-art:56px 40px;
-  --landscape-hub-head:56px;
-  --landscape-hub-head-height:64px;
-  --landscape-toggle-x:56px;
+  --landscape-hub-width:56px;
+  --landscape-hub-art:0px 0px;
+  --landscape-hub-head:0px;
+  --landscape-hub-head-height:0px;
+  --landscape-toggle-x:0px;
   pointer-events:none;
  }
- :root.ohana-world body:has(#game[data-game-type=spades]) #ohana-persistent-hub :is(#chat-head,.ohana-workstation-toggle){pointer-events:auto;}
+ :root.ohana-world body:has(#game[data-game-type=spades]) #ohana-persistent-hub .ohana-workstation-toggle{pointer-events:auto;}
 }
 </style>
 
 <style id="ohana-spades-short-landscape-player-reserve-v5">
-/* The score rail ends where the 112px Daddy/Menu hub starts, rather than at its old 188px position. */
+/* The score rail ends at the 56px Menu toggle; Daddy now perches in the shared top bridge. */
 @media (max-width:820px) and (max-height:500px) and (orientation:landscape){
  :root.ohana-world body #app #game[data-game-type=spades] #game-controls-dock[data-game-type=spades]{
-  --landscape-hub-reserve:112px!important;
+  --landscape-hub-reserve:56px!important;
  }
 }
 </style>
