@@ -1,0 +1,79 @@
+// Real local recordings only. Availability still requires the unchanged listening gate.
+export const AUDIO_LIMITS=Object.freeze({targetPeak:.5,maxNormalizationGain:12,maxVolume:.5,maxVoices:2,maxBytes:524288,maxSeconds:12});
+
+// Analyse every channel independently. Never sum stereo channels (which can cancel),
+// alter recording bytes, resample, or change pitch. A gain node applies this bounded level.
+function* analyseSteps(buffer){
+ if(!buffer||!Number.isFinite(buffer.duration)||buffer.duration<=0||buffer.duration>AUDIO_LIMITS.maxSeconds||![1,2].includes(buffer.numberOfChannels)||!Number.isSafeInteger(buffer.length)||buffer.length<1||!Number.isFinite(buffer.sampleRate)||buffer.sampleRate<8000||buffer.sampleRate>192000)throw Error('Recording format outside reviewed budget');
+ let peak=0,energy=0;const channels=[];
+ for(let c=0;c<buffer.numberOfChannels;c++){const data=buffer.getChannelData(c);if(data.length!==buffer.length)throw Error('Incomplete channel');let p=0,sum=0;for(let i=0;i<data.length;i++){const v=data[i];if(!Number.isFinite(v))throw Error('Nonfinite recording sample');p=Math.max(p,Math.abs(v));sum+=v*v;if((i&2047)===2047)yield;}peak=Math.max(peak,p);energy+=sum;channels.push({peak:p,rms:Math.sqrt(sum/data.length)});}
+ if(peak<.000001)throw Error('Silent recording');
+ const gain=Math.min(AUDIO_LIMITS.maxNormalizationGain,AUDIO_LIMITS.targetPeak/peak);
+ return Object.freeze({channels:buffer.numberOfChannels,frames:buffer.length,sampleRate:buffer.sampleRate,duration:buffer.duration,peak,rms:Math.sqrt(energy/(buffer.length*buffer.numberOfChannels)),gain,normalizedPeak:peak*gain,channelStats:channels});
+}
+export function analyseRecording(buffer){const steps=analyseSteps(buffer);let next;do{next=steps.next();}while(!next.done);return next.value;}
+export async function analyseRecordingAsync(buffer,{isCurrent=()=>true,yieldTask=()=>new Promise(resolve=>globalThis.setTimeout(resolve,0)),onSlice=()=>{}}={}){
+ const clock=()=>globalThis.performance?.now?.()??Date.now(),steps=analyseSteps(buffer);let start=clock(),next;
+ do{if(!isCurrent())return null;next=steps.next();const elapsed=clock()-start;if(next.done||elapsed>=3){onSlice(elapsed);if(!next.done){await yieldTask();start=clock();}}}while(!next.done);
+ return isCurrent()?next.value:null;
+}
+
+export function createRecordingMaster(ctx,output,volume){
+ const master=ctx.createGain();master.channelCount=2;master.channelCountMode='explicit';master.channelInterpretation='speakers';master.gain.value=boundedVolume(volume);master.connect(output);return master;
+}
+function boundedVolume(value){return typeof value==='number'&&Number.isFinite(value)?Math.min(AUDIO_LIMITS.maxVolume,Math.max(0,value)):0;}
+
+// Shared by playback and the silent graph verification fixture. This helper creates
+// no context, fetches nothing and never selects an output destination itself.
+export function createRecordedVoice(ctx,buffer,analysis,output,onEnded=()=>{}){
+ if(!Number.isFinite(analysis?.gain)||analysis.gain<=0||analysis.gain>AUDIO_LIMITS.maxNormalizationGain||analysis.normalizedPeak>AUDIO_LIMITS.targetPeak+.000001)throw Error('Unbounded recording gain');
+ const source=ctx.createBufferSource(),gain=ctx.createGain(),t=ctx.currentTime,duration=buffer.duration;
+ source.buffer=buffer;source.playbackRate.value=1;source.loop=false;
+ const attack=Math.min(.018,duration/4),tail=Math.min(.13,duration/4);
+ gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(analysis.gain,t+attack);gain.gain.setValueAtTime(analysis.gain,t+duration-tail);gain.gain.linearRampToValueAtTime(0,t+duration);
+ source.connect(gain);gain.connect(output);const voice={source,gain,ended:false};source.onended=()=>onEnded(voice);
+ try{source.start(t);source.stop(t+duration);}catch(error){try{source.stop();}catch{}source.disconnect();gain.disconnect();throw error;}return voice;
+}
+
+export class RecordedChimes{
+ constructor({clips=[],qualityReviewed=false,ownerLiveTestAllowed=false,getContext,getOutput=ctx=>ctx.destination,isMuted=()=>false,isBusy=()=>false,isActive=()=>true,fetcher=globalThis.fetch,maxVoices=2,setTimer=(callback,delay)=>globalThis.setTimeout(callback,delay),clearTimer=id=>globalThis.clearTimeout(id),document:doc=globalThis.document,events=globalThis}={}){
+  Object.assign(this,{getContext,getOutput,isMuted,isBusy,isActive,fetcher,setTimer,clearTimer});this.clips=clips.map(c=>typeof c==='string'?{url:c}:{...c});
+  // Owner-authorized live listening is distinct from a completed listening review.
+  // Playback still requires an intentional trusted tap, independent unmute and master unmute.
+  this.available=(qualityReviewed===true||ownerLiveTestAllowed===true)&&this.clips.length>0&&this.clips.every(c=>/^\.\/audio\/[a-z0-9_-]+\.(?:wav|mp3|ogg)$/i.test(c.url));
+  const cap=Number(maxVoices);this.maxVoices=Number.isFinite(cap)?Math.min(2,Math.max(1,Math.floor(cap))):2;this.voices=new Set();this.buffers=[];this.analysis=[];this.ctx=null;this.master=null;this.abort=null;this.pending=null;this.generation=0;this.volume=.18;this.destroyed=false;this.watch=null;this.reason='sound-off';this.listeners=[];
+  const on=(target,type,fn)=>{if(!target?.addEventListener)return;target.addEventListener(type,fn);this.listeners.push(()=>target.removeEventListener(type,fn));};
+  on(doc,'visibilitychange',()=>{if(doc.hidden)this.stop('hidden');});on(events,'pagehide',()=>this.stop('pagehide'));on(events,'storage',e=>{if((e.key===null||e.key==='ohana_muted'||e.key==='ohana_token')&&!this.allowed())this.stop('host-state');});
+ }
+ allowed(){try{return!this.destroyed&&!this.isMuted()&&!this.isBusy()&&this.isActive();}catch{return false;}}
+ async unlock(event,volume){
+  if(!event?.isTrusted||!this.available||!this.allowed())return false;this.volume=boundedVolume(volume);const ctx=this.getContext?.();if(!ctx)return false;
+  if(this.ctx&&this.ctx!==ctx){this.stop('context-change');try{this.master?.disconnect();}catch{}this.master=null;this.buffers=[];this.analysis=[];}this.ctx=ctx;const generation=this.generation;
+  await ctx.resume();if(generation!==this.generation||!this.allowed()||ctx!==this.ctx)return false;
+  if(!this.master)this.master=createRecordingMaster(ctx,this.getOutput(ctx),this.volume);
+  if(this.buffers.length)return true;if(this.pending)return this.pending;
+  const abort=new AbortController();this.abort=abort;
+  const current=()=>generation===this.generation&&ctx===this.ctx&&!abort.signal.aborted&&this.allowed();
+  const pending=Promise.resolve().then(async()=>{try{const decoded=await Promise.all(this.clips.map(async c=>{
+   if(!current())return null;
+   const r=await this.fetcher(new URL(c.url,import.meta.url),{signal:abort.signal,credentials:'omit',cache:'force-cache'});
+   if(!current())return null;
+   if(!r.ok)throw Error('Recording unavailable');const bytes=await r.arrayBuffer();
+   if(!current())return null;
+   if(bytes.byteLength>AUDIO_LIMITS.maxBytes)throw Error('Recording exceeds reviewed budget');const buffer=await ctx.decodeAudioData(bytes);
+   if(!current())return null;
+   return{buffer,analysis:await analyseRecordingAsync(buffer,{isCurrent:current})};
+  }));if(!current()||decoded.some(x=>!x?.analysis))return false;this.buffers=decoded.map(x=>x.buffer);this.analysis=decoded.map(x=>x.analysis);this.reason='ready';return true;}catch(error){abort.abort();this.reason='decode-failed';throw error;}finally{if(this.pending===pending){this.pending=null;this.abort=null;}}});
+  this.pending=pending;return pending;
+ }
+ play({volume=this.volume,index=0}={}){
+  if(!this.allowed()||!this.available||!this.ctx||this.ctx.state!=='running'||!this.master||!this.buffers.length||boundedVolume(volume)<=0||!Number.isFinite(index)||this.voices.size>=this.maxVoices)return false;
+  const i=((Math.trunc(index)%this.buffers.length)+this.buffers.length)%this.buffers.length;this.setVolume(volume);let voice;
+  try{voice=createRecordedVoice(this.ctx,this.buffers[i],this.analysis[i],this.master,v=>this.retire(v));this.voices.add(voice);this.reason='playing';this.ensureWatch();return true;}catch{this.stop('graph-failed');return false;}
+ }
+ retire(v){if(v.ended)return;v.ended=true;this.voices.delete(v);v.source.onended=null;try{v.source.disconnect();v.gain.disconnect();}catch{}if(!this.voices.size&&this.watch!==null){this.clearTimer(this.watch);this.watch=null;}}
+ ensureWatch(){if(this.watch!==null||!this.voices.size)return;this.watch=this.setTimer(()=>{this.watch=null;if(!this.allowed())this.stop('mute-or-session');else this.ensureWatch();},100);}
+ setVolume(v){this.volume=boundedVolume(v);if(this.master&&this.ctx)this.master.gain.setTargetAtTime(this.volume,this.ctx.currentTime,.03);if(!this.volume)this.stop('zero-volume');}
+ stop(reason='stopped'){this.reason=reason;this.generation++;this.abort?.abort();this.abort=null;this.pending=null;if(this.watch!==null)this.clearTimer(this.watch);this.watch=null;for(const v of [...this.voices]){try{v.source.stop();}catch{}this.retire(v);}}
+ destroy(){if(this.destroyed)return;this.stop('destroyed');this.destroyed=true;this.listeners.splice(0).forEach(f=>f());this.buffers=[];this.analysis=[];try{this.master?.disconnect();}catch{}this.master=null;this.ctx=null;/* Shared host context remains owned by the app. */}
+}
