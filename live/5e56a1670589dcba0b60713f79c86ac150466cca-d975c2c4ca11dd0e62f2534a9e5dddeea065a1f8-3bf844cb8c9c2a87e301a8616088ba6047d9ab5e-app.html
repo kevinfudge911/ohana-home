@@ -8933,7 +8933,7 @@ function pzPaintHeldOverlay(){
 function pzDraw(){const cv=$('#pz-canvas');const d=PZ.data;if(!cv||!d||!PZ.sprites)return;const x=cv.getContext('2d');const {s,x:vx,y:vy}=PZ.view;const {pw,ph,off}=PZ.geo;const {w,h}=d.meta;
  // One flat color, whatever each player picked — no wood texture, no frame, no border. It just lays flat like a real table.
  x.setTransform(1,0,0,1,0,0);x.fillStyle=pzBoardHex();x.fillRect(0,0,cv.width,cv.height);x.setTransform(s,0,0,s,vx,vy);
- if(PZ.preview){x.globalAlpha=0.28;x.drawImage(PZ.base,0,0,w,h);x.globalAlpha=1;}
+ if(PZ.preview){x.globalAlpha=0.50;x.drawImage(PZ.base,0,0,w,h);x.globalAlpha=1;}
  // done layer (locked pieces)
  pzRefreshDone();x.drawImage(PZ.doneLayer,0,0);
  // viewport in board coords
