@@ -23,7 +23,7 @@ import assetV6_10 from "./wind-chimes/art/umbrella-strand2.webp";
 import assetV6_11 from "./wind-chimes/art/umbrella-strand3.webp";
 import assetV6_12 from "./wind-chimes/art/umbrella-strand4.webp";
 import assetV6_13 from "./wind-chimes/art/umbrella-strand5.webp";
-import assetV6_14 from "./wind-chimes/art/v6-atlas.png";
+import assetV6_14 from "./wind-chimes/art/v6-atlas.webp";
 import assetV6_15 from "./wind-chimes/renderer-v6.js.txt";
 import assetV6_16 from "./wind-chimes/scene-contract-v6.js.txt";
 import assetV6_17 from "./wind-chimes/styles-v6.js.txt";
@@ -53,7 +53,7 @@ export const CHIME_ASSETS=new Map([
  ["/wind-chimes/art/umbrella-strand3.webp",{body:assetV6_11,type:"image/webp",bytes:35154,etag:"\"5ebc9bfc0da18ac13d965cafedb55575f9728ed058e46dc42b04946aa37432bb\"",cache:"public,max-age=3600" }],
  ["/wind-chimes/art/umbrella-strand4.webp",{body:assetV6_12,type:"image/webp",bytes:50054,etag:"\"a868296f3b7be3eaf0762ca5019b6886816ebf863c3a1f9ec3716109fc0289cc\"",cache:"public,max-age=3600" }],
  ["/wind-chimes/art/umbrella-strand5.webp",{body:assetV6_13,type:"image/webp",bytes:29822,etag:"\"c8e8fb2212abeb8f689719edd6ca58eccb99ed14832dd72675bd0bbb6487228e\"",cache:"public,max-age=3600" }],
- ["/wind-chimes/art/v6-atlas.png",{body:assetV6_14,type:"image/png",bytes:1487638,etag:"\"8b503c7df31713c3aadfc6f38f9753a4fd09fc9194e30b0e9a505e5a5dcd4cef\"",cache:"public,max-age=3600" }],
+ ["/wind-chimes/art/v6-atlas.webp",{body:assetV6_14,type:"image/webp",bytes:1037418,etag:"\"34fe8ae5cc41e06653a7a1045c4b9512f1258f01dda2d8f193dae82ea218aab\"",cache:"public,max-age=3600" }],
  ["/wind-chimes/renderer-v6.js",{body:assetV6_15,type:"text/javascript; charset=utf-8",bytes:9232,etag:"\"357b0b2761d8b38707152f926c578f63b55ecaa056d91a3be85ff954fd1152ca\"",cache:"no-cache" }],
  ["/wind-chimes/scene-contract-v6.js",{body:assetV6_16,type:"text/javascript; charset=utf-8",bytes:9571,etag:"\"24774bf5cfe094413cc6b23cf7944e310e673a23060eac080093bf632a9fcad7\"",cache:"no-cache" }],
  ["/wind-chimes/styles-v6.js",{body:assetV6_17,type:"text/javascript; charset=utf-8",bytes:1836,etag:"\"452f42f1e679623007609baf5838fbfa3a8509efa803bb1f199e2d920fbdc8ae\"",cache:"no-cache" }],
