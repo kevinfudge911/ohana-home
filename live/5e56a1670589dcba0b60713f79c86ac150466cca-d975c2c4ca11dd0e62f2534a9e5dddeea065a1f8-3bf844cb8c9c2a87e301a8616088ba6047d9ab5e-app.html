@@ -303,7 +303,7 @@ nav.tabs{z-index:10;background:#0d2d31f5;backdrop-filter:blur(16px);border-top:1
 .wb-plane>.c>.bl{visibility:hidden}
 .wb-plane>.c.drop-target{background:#b3efd866!important}
 .wb-plane>.c .t{inset:2px}
-.fam{flex-wrap:wrap}.fam .ohana-invite{margin-left:auto;font-size:13px;padding:9px 12px}.ohana-invite-dialog{background:#123c40;color:var(--sand);border:1px solid #b6a776;border-radius:24px;padding:24px;width:min(440px,calc(100vw - 32px));box-sizing:border-box;box-shadow:0 24px 90px #0009}.ohana-invite-dialog::backdrop{background:#001d29bb}.ohana-invite-dialog h2{font:26px Georgia;margin:0 0 10px}.ohana-invite-dialog p{color:#c1d5ce}.ohana-invite-dialog select{display:block;width:100%;margin-top:10px;padding:12px;background:#092e34;color:#ffe8b5;border:1px solid #688d86;border-radius:12px;font:inherit}.ohana-invite-dialog button{font-size:14px;padding:11px 14px}.ohana-invitation{flex-wrap:wrap}.ohana-invitation button{font-size:14px;padding:10px 14px}
+.fam{flex-wrap:wrap}.fam .ohana-invite{margin-left:auto;font-size:13px;padding:9px 12px}.ohana-invite-dialog{background:#123c40;color:var(--sand);border:1px solid #b6a776;border-radius:24px;padding:24px;width:min(440px,calc(100vw - 32px));box-sizing:border-box;box-shadow:0 24px 90px #0009}.ohana-invite-dialog::backdrop{background:#001d29bb}.ohana-invite-dialog h2{font:26px Georgia;margin:0 0 10px}.ohana-invite-dialog p{color:#c1d5ce}.ohana-invite-dialog{max-height:calc(100dvh - 32px);overflow:auto}.ohana-invite-dialog fieldset{border:0;padding:0;margin:0;min-width:0}.ohana-invite-dialog legend,.ohana-invite-dialog h3{font-size:18px;font-weight:700;margin:12px 0 6px}.invite-choices{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.invite-choices [aria-pressed="true"]{text-decoration:underline;text-underline-offset:5px}.invite-people{display:grid;gap:4px;margin:10px 0}.invite-people label{display:flex;gap:12px;align-items:center;min-height:48px;margin:0;padding:6px 10px;box-sizing:border-box}.invite-people input{width:24px;height:24px;flex:0 0 24px;margin:0;accent-color:var(--leaf)}.invite-people small{display:block;font-size:13px;font-weight:400}.invite-eligibility-note{font-size:14px}.ohana-invite-dialog button{min-height:44px;font-size:14px;padding:11px 14px}.ohana-invitation{flex-wrap:wrap}.ohana-invitation button{font-size:14px;padding:10px 14px}
 
 /* Compact personal tables: enough information to choose, a small action to open. */
 .nook-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
@@ -6980,7 +6980,7 @@ async function api(path, body, method, room=S.room) {
   }
   const d = await r.json().catch(() => ({ error: 'Connection hiccup' }));
   if (r.status === 401) { if(requestToken&&requestToken===S.token)showSessionReconnect(); throw new Error('We couldn’t verify your connection. Your sign-in is still saved. Tap Retry.'); }
-  if (!r.ok) throw new Error(d.error || 'Something went wrong');
+  if (!r.ok) throw Object.assign(new Error(d.error || 'Something went wrong'),{status:r.status});
   if(requestToken&&requestToken===S.token)document.querySelector('#session-reconnect')?.remove();
   if(turnWatch&&typeof queueOwnTurnWatch==='function')queueOwnTurnWatch(turnWatch);
   return d;
@@ -7549,12 +7549,14 @@ async function ohanaStartSubmit(state,sy,request=api){
  if(state.opponent==='family')for(const id of state.people)if(!state.sent.includes(id)){await request('/api/game/'+state.table+'/invite',{member_id:id},'POST',state.room);state.sent.push(id);}
  return state.table;
 }
-function showOhanaStartGame(initialGame=null){
+function showOhanaStartGame(initialGame=null){return openOhanaInvite(undefined,typeof initialGame==='string'?initialGame:undefined);}
+function showOhanaPracticeGame(initialGame=null){
  const open=document.getElementById('ohana-start-game');if(open){open.focus();return;}if(!S.sync||!S.me)return;
- const sy=S.sync,initial=typeof initialGame==='string'&&sy.types?.[initialGame]?initialGame:null,state={stage:initial?'people':'game',game:initial,mode:'classic',opponent:'family',people:[],room:sy.roomId||S.room||1,busy:false};
+ const sy=S.sync,initial=typeof initialGame==='string'&&sy.types?.[initialGame]?initialGame:null,state={stage:initial?'people':'game',game:initial,mode:'classic',opponent:ohanaStartRules(initial,sy)?.robot?'bot':'solo',people:[],room:sy.roomId||S.room||1,busy:false};
  const dialog=document.createElement('dialog');dialog.id='ohana-start-game';dialog.setAttribute('aria-labelledby','ohana-start-title');dialog.tabIndex=-1;
  const draw=()=>{
   const rules=ohanaStartRules(state.game,sy),type=sy.types?.[state.game],people=ohanaStartPeople(sy),family=state.opponent==='family';
+  if(state.game&&family){window.ohanaCloseOverlayForNext(dialog).then(()=>openOhanaInvite(undefined,state.game)).catch(e=>toast(e.message));return;}
   const back=state.stage==='game'?'':`<button type="button" data-start-back>‹ Back</button>`;
   let content;
   if(state.stage==='game'){
@@ -7574,7 +7576,7 @@ function showOhanaStartGame(initialGame=null){
   dialog.innerHTML='<header>'+back+'<h2 id="ohana-start-title">Start a game</h2><button type="button" data-start-close>Close</button></header><div class="ohana-start-content">'+content+'<p class="ohana-start-error" role="status" aria-live="polite"></p></div>';
   dialog.querySelector('[data-start-close]').onclick=()=>dialog.close();
   const backButton=dialog.querySelector('[data-start-back]');if(backButton)backButton.onclick=()=>{state.stage=state.stage==='review'?'people':'game';draw();};
-  dialog.querySelectorAll('[data-start-game]').forEach(b=>b.onclick=()=>{state.game=b.dataset.startGame;state.opponent='family';state.people=[];state.stage='people';draw();});
+  dialog.querySelectorAll('[data-start-game]').forEach(b=>b.onclick=()=>{state.game=b.dataset.startGame;state.opponent=ohanaStartRules(state.game,sy)?.robot?'bot':ohanaStartRules(state.game,sy)?.solo?'solo':'family';state.people=[];state.stage='people';draw();});
   dialog.querySelectorAll('[data-start-opponent]').forEach(b=>b.onclick=()=>{state.opponent=b.dataset.startOpponent;draw();});
   dialog.querySelectorAll('[data-start-word-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.startWordMode;draw();});
   const update=()=>{const count=dialog.querySelector('[data-start-count]'),next=dialog.querySelector('[data-start-review]');if(!next)return;try{ohanaStartPlan(state,sy);next.disabled=false;count.textContent=family?state.people.length+' selected':'';}catch(error){next.disabled=true;count.textContent=family?state.people.length+' selected':'';}};
@@ -7701,6 +7703,7 @@ function showOhanaInvitedGames(automatic=false){
  for(const i of ohanaUniqueInvites(S.sync?.invitations))arrivalInviteSeen.add(Number(i.game_id));
 }
 function showOhanaFreshInvites(invitations){
+ if(ohanaInvite?.current())return;
  const owner=String(S.me?.id||'')+':'+String(S.token||'');if(!S.me||!S.token){document.getElementById('ohana-invited-games')?.close();return;}
  if(owner!==arrivalInviteSession){arrivalInviteSession=owner;arrivalInviteSeen=new Set();}
  const pending=ohanaUniqueInvites(invitations),dialog=document.getElementById('ohana-invited-games');
@@ -12706,6 +12709,7 @@ window.addEventListener('online',()=>{if(GR.book)grLoad();});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&GR.book)grFlush();});
 
 function render() {
+  if(ohanaInvite&&!ohanaInvite.current())ohanaInvite.close();
   ensureWorldScene();
   if (!S.token) { document.getElementById('chat-head')?.remove(); document.getElementById('ohana-chat-dialog')?.remove(); return renderJoin(); }
   if (S.me) mountChatHead();
@@ -12742,6 +12746,7 @@ function render() {
 
 
 async function enterRoom(id,tab='games'){
+  ohanaInvite?.close();
   S.roomEpoch++;S.room=Number(id);localStorage.setItem('ohana_room',S.room);
   S.game=null;S.gstate=null;S.msgs=[];S.lastMsg=0;S.unread=0;S.sig=null;S.sync=null;S.tab=tab;
   app.innerHTML='<div class="join"><h2>Opening your room…</h2></div>';
@@ -15360,35 +15365,110 @@ function bindWaitingOhanaInvites(root,g) {
   });
 }
 
-function openOhanaInvite(memberId) {
-  const sy=S.sync,roomId=sy.roomId,member=sy.members.find(x=>x.id===memberId);if(!member||!ohanaDiscoverablePerson(member))return;
-  const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog';
-  const tables=sy.games.filter(g=>g.in_game&&g.status==='waiting'&&g.players.length<g.max_players&&!g.players.includes(memberId));
-  dialog.innerHTML=`<h2>Save ${esc(member.name)} a seat</h2><p>Just our Ohana in ${esc(sy.familyName)}.</p><label>Choose a table<select id="invite-table">${tables.length?`<optgroup label="Your open tables">${tables.map(g=>`<option value="${g.id}">${esc(g.name)} · Table ${g.id}</option>`).join('')}</optgroup>`:''}<optgroup label="New game">${Object.entries(sy.types).map(([id,g])=>`<option value="new:${id}">${esc(g.name)}</option>`).join('')}</optgroup></select></label><p class="invite-error" role="status"></p><div><button id="send-ohana-invite">Send invitation</button> <button class="ghost" id="cancel-ohana-invite">Cancel</button></div>`;
-  document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
-  dialog.querySelector('#cancel-ohana-invite').onclick=()=>dialog.close();
-  dialog.querySelector('#send-ohana-invite').onclick=async()=>{const b=dialog.querySelector('#send-ohana-invite');b.disabled=true;try{
-    if(S.room!==roomId)throw new Error('Your room changed. Open Ohana and try again.');
-    const choice=dialog.querySelector('select').value;
-    const id=choice.startsWith('new:')?(await api('/api/game/create',{type:choice.slice(4),max_players:2})).id:Number(choice);
-    await api(`/api/game/${id}/invite`,{member_id:memberId});dialog.close();toast('A seat is saved! Invitation sent to '+member.name+'.');await sync();
-  }catch(e){dialog.querySelector('.invite-error').textContent=e.message;b.disabled=false;}};
+let ohanaInvite=null;
+const invitationSends=new Map();
+function invitationReason(games,me,member,type) {
+  for(const g of games.filter(g=>g.type===type)) {
+    if(g.players.includes(me)&&g.players.includes(member))return 'Already playing';
+    if(g.status==='waiting'&&((g.players.includes(me)&&g.pending_members.includes(member))||(g.pending_members.includes(me)&&g.players.includes(member))))return 'Invitation pending';
+  }
+  return '';
 }
-function openTableInvite(g){
- const members=(S.sync.members||[]).filter(m=>ohanaDiscoverablePerson(m)&&m.id>0&&m.id!==S.me.id&&!g.players.includes(m.id));
- const dialog=document.createElement('dialog');dialog.className='ohana-invite-dialog';
- const roomIsWaiting=g.status==='waiting'&&g.players.length<g.max_players;
- dialog.innerHTML=`<h2>Invite</h2><p>${roomIsWaiting?'Save a seat at this table.':'Start another '+esc(g.name)+' table with someone from this room.'}</p><label>Ohana<select id="table-invite-person">${members.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></label><p class="invite-error" role="status"></p><div><button id="table-invite-send">Invite</button><button class="ghost" id="table-invite-cancel">Cancel</button></div>`;
- document.body.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();
- dialog.querySelector('#table-invite-cancel').onclick=()=>dialog.close();
- if(!members.length){dialog.querySelector('#table-invite-send').disabled=true;dialog.querySelector('.invite-error').textContent='Everyone in this room is already at this table.';return;}
- dialog.querySelector('#table-invite-send').onclick=async()=>{const send=dialog.querySelector('#table-invite-send');send.disabled=true;try{
-  const memberId=Number(dialog.querySelector('#table-invite-person').value);
-  const tableId=roomIsWaiting?g.id:(await api('/api/game/create',{type:g.type,max_players:2,mode:g.mode},'POST',g.room_id)).id;
-  await api(`/api/game/${tableId}/invite`,{member_id:memberId},'POST',g.room_id);
-  dialog.close();toast('Invitation sent.');await sync();
- }catch(e){send.disabled=false;dialog.querySelector('.invite-error').textContent=e.message;}};
+async function openOhanaInvite(memberId,initialType) {
+  if(!S.sync)return;
+  const before={room:S.room,token:S.token,member:S.me?.id};
+  if(ohanaInvite){const prior=ohanaInvite.dialog;try{if(window.ohanaCloseOverlayForNext)await window.ohanaCloseOverlayForNext(prior);else ohanaInvite.close();}catch(e){toast(e.message);return;}}
+  if(S.room!==before.room||S.token!==before.token||S.me?.id!==before.member)return;
+  const roomId=S.room,epoch=S.roomEpoch,tab=S.tab,game=S.game,me=S.me.id,token=S.token,previous=document.activeElement;
+  const saved=S.inviteDraft?.roomId===roomId?S.inviteDraft:{};
+  const attempt=[...invitationSends.values()].find(op=>op.me===me&&op.roomId===roomId&&['sending','uncertain'].includes(op.status));
+  const state={type:attempt?.type||initialType||saved.type||'words',gameMode:attempt?.gameMode||'classic',mode:attempt?.mode||saved.mode||'individual',selected:new Set(attempt?.ids||(memberId?[memberId]:[])),attempt,options:attempt?.options||null,loading:false,message:attempt?'Checking your earlier send. Retry uses the same request.':'',load:0};
+  const dialog=document.createElement('dialog');dialog.id='ohana-start-game';dialog.className='ohana-invite-dialog';dialog.setAttribute('aria-labelledby','ohana-invite-title');
+  let closed=false;const cleanup=()=>{if(closed)return;closed=true;if(ohanaInvite===owner)ohanaInvite=null;state.load++;dialog.remove();if(previous?.isConnected)previous.focus();};
+  const owner={dialog,current:()=>!closed&&ohanaInvite===owner&&S.token===token&&S.room===roomId&&S.roomEpoch===epoch&&S.tab===tab&&S.game===game&&S.me?.id===me,close:()=>{if(dialog.open)dialog.close();cleanup();}};
+  ohanaInvite=owner;dialog.onclose=cleanup;dialog.oncancel=e=>{e.preventDefault();owner.close();};
+  const key=ids=>JSON.stringify([me,roomId,state.type,state.mode,state.gameMode,[...ids].sort((a,b)=>a-b)]);
+  function reason(id) {
+    if(state.options?.members.find(m=>m.id===id)?.blocked_types?.includes(state.type))return 'Game not enabled';
+    const server=invitationReason(state.options?.games||[],me,id,state.type);if(server)return server;
+    for(const op of invitationSends.values())if(op.me===me&&op.roomId===roomId&&op.type===state.type&&op.ids.includes(id)) {
+      if(op.status==='sending')return 'Sending invitation';
+      if(op.status==='sent')return 'Invitation sent';
+      if(op.status==='uncertain')return 'Check earlier send before sending again';
+    }
+    return '';
+  }
+  function draw() {
+    if(!owner.current())return;
+    const focused=dialog.contains(document.activeElement)?document.activeElement:null;
+    const focusKey=focused?.id?'#'+focused.id:['data-invite-mode','data-invite-type','data-invite-person'].find(key=>focused?.hasAttribute(key));
+    const focusSelector=focusKey?.startsWith('#')?focusKey:focusKey?`[${focusKey}="${focused.getAttribute(focusKey)}"]`:null;
+    if(state.attempt?.status==='sent'){state.message=`Sent ${state.attempt.ids.length} invitation${state.attempt.ids.length===1?'':'s'}. You can keep inviting.`;state.selected.clear();state.attempt=null;}
+    if(state.attempt?.status==='rejected'){state.message=state.attempt.error;state.attempt=null;}
+    const busy=state.attempt?.status==='sending',uncertain=state.attempt?.status==='uncertain';
+    const options=state.options,base=options?.types[state.type],gt=base?{...base,...(state.type==='shuffle'&&state.gameMode==='gin'?{max:2}:{})}:null,supported=gt&&gt.max>=2&&(state.mode==='group'||gt.min<=2);
+    const members=(options?.members||[]).filter(m=>m.id>0&&m.id!==me&&ohanaDiscoverablePerson(m));
+    if(options&&!state.attempt)for(const id of state.selected)if(!members.some(m=>m.id===id)||reason(id))state.selected.delete(id);
+    const selected=members.filter(m=>state.selected.has(m.id)),count=selected.length,seats=state.mode==='individual'?2:count+1;
+    const valid=supported&&count>0&&count<=100&&seats>=gt.min&&seats<=gt.max;
+    S.inviteDraft={roomId,type:state.type,mode:state.mode};
+    dialog.innerHTML=`<h2 id="ohana-invite-title">Invite your Ohana</h2><p>${esc(S.sync?.familyName||'Your room')}</p><fieldset ${busy||uncertain?'disabled':''}><legend>Invitation mode</legend><div class="invite-choices">${[['individual','Individual invitations'],['group','Group invitation']].map(([id,label])=>`<button type="button" class="soft" data-invite-mode="${id}" aria-pressed="${state.mode===id}">${label}</button>`).join('')}</div><p>${state.mode==='individual'?'Each selected person gets a separate two-person game with you.':'Everyone selected joins one game with you.'}</p><h3>Choose a game</h3><div class="invite-choices">${Object.entries(options?.types||{}).map(([id,g])=>`<button type="button" class="soft" data-invite-type="${id}" aria-pressed="${state.type===id}" ${g.max<2||(state.mode==='individual'&&g.min>2)?'disabled':''}>${esc(g.name)}${g.max<2?' (solo only)':state.mode==='individual'&&g.min>2?' (group only)':''}</button>`).join('')}</div>${['words','shuffle'].includes(state.type)?`<div class="invite-choices" role="group" aria-label="Game rules">${(state.type==='words'?[['classic','Classic'],['random','Random Random']]:[['rummy','Regular Rummy'],['gin','Gin Rummy']]).map(([id,label])=>`<button type="button" class="soft" data-invite-game-mode="${id}" aria-pressed="${state.gameMode===id||(state.type==='shuffle'&&state.gameMode==='classic'&&id==='rummy')}">${label}</button>`).join('')}</div>`:''}<p>${gt?(state.mode==='individual'?'Two people per game. Send to up to 100 people at a time.':`Choose ${Math.max(1,gt.min-1)} to ${gt.max-1} people; you also have a seat.`):'Loading games…'}</p><p class="invite-eligibility-note">People already sharing a waiting or active game of this type in this room, or with an invitation pending between you, are unavailable.</p><div class="invite-choices"><button type="button" class="soft" id="invite-select-all" ${!supported||state.mode!=='individual'||state.loading?'disabled':''}>Select all not in play</button><button type="button" class="ghost" id="invite-clear">Clear selection</button></div>${state.mode==='group'?'<p>Choose your group below. Bulk selection is available for individual games.</p>':''}<div class="invite-people">${members.map(m=>{const why=reason(m.id);return `<label><input type="checkbox" data-invite-person="${m.id}" ${state.selected.has(m.id)?'checked':''} ${why||!supported?'disabled':''}><span>${esc(m.name)}${why?`<small>${esc(why)}</small>`:''}</span></label>`;}).join('')||'<p>No other people available in this room.</p>'}</div></fieldset><p id="invite-summary" aria-live="polite">${count?`${state.mode==='individual'?count+' separate game'+(count===1?'':'s'):'1 group game'} · ${esc(gt?.name||state.type)}${state.type==='words'?' · '+(state.gameMode==='random'?'Random Random':'Classic'):state.type==='shuffle'?' · '+(state.gameMode==='gin'?'Gin Rummy':'Regular Rummy'):''} · ${selected.map(m=>esc(m.name)).join(', ')}`:'Choose the people you want to invite.'}</p><p class="invite-error" role="status" aria-live="polite">${esc(state.message||(state.loading?'Refreshing people…':''))}</p><div class="invite-choices"><button type="button" id="send-ohana-invite" ${(!valid&&!uncertain)||state.loading||busy?'disabled':''}>${busy?'Sending…':uncertain?'Retry same send':'Send invitations'}</button><button type="button" class="ghost" id="invite-refresh" ${state.loading||busy?'disabled':''}>Refresh people</button><button type="button" class="ghost" id="cancel-ohana-invite">${busy?'Close':'Cancel'}</button></div>${busy?'<p>You may close this screen; your chosen send will finish.</p>':''}<button type="button" class="ghost" id="invite-practice" ${busy||uncertain||!state.options||!(ohanaStartRules(state.type,state.options)?.robot||ohanaStartRules(state.type,state.options)?.solo)?'disabled':''}>Play solo or with Ohana Robot</button>`;
+    dialog.querySelectorAll('[data-invite-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.inviteMode;state.selected.clear();state.message='';draw();});
+    dialog.querySelectorAll('[data-invite-type]').forEach(b=>b.onclick=()=>{state.type=b.dataset.inviteType;state.gameMode='classic';state.selected.clear();state.message='';draw();});
+    dialog.querySelectorAll('[data-invite-person]').forEach(b=>b.onchange=()=>{b.checked?state.selected.add(+b.dataset.invitePerson):state.selected.delete(+b.dataset.invitePerson);draw();});
+    dialog.querySelector('#invite-select-all').onclick=()=>{state.selected=new Set(members.filter(m=>!reason(m.id)).map(m=>m.id));draw();};
+    dialog.querySelector('#invite-clear').onclick=()=>{state.selected.clear();draw();};
+    dialog.querySelector('#invite-refresh').onclick=refresh;
+    dialog.querySelector('#cancel-ohana-invite').onclick=owner.close;
+    dialog.querySelectorAll('[data-invite-game-mode]').forEach(b=>b.onclick=()=>{state.gameMode=b.dataset.inviteGameMode;draw();});
+    dialog.querySelector('#invite-practice').onclick=async()=>{const type=state.type;try{if(window.ohanaCloseOverlayForNext)await window.ohanaCloseOverlayForNext(dialog);else owner.close();if(S.room===roomId&&S.me?.id===me)showOhanaPracticeGame(type);}catch(e){if(owner.current()){state.message=e.message;draw();}}};
+    dialog.querySelector('#send-ohana-invite').onclick=send;
+    if(focusSelector){const next=dialog.querySelector(focusSelector);if(next&&!next.matches(':disabled'))next.focus({preventScroll:true});}
+  }
+  async function refresh() {
+    if(!owner.current()||state.attempt?.status==='sending')return;
+    const load=++state.load;state.loading=true;draw();
+    try {
+      const options=await api('/api/game/invitations',undefined,'GET',roomId);
+      if(!owner.current()||load!==state.load)return;
+      state.options=options;
+      if(!options.types[state.type])state.type=Object.keys(options.types).find(id=>options.types[id].max>=2)||'';
+      // A server snapshot replaces optimistic sent state. A declined invitation
+      // can then be deliberately sent again using a fresh request.
+      for(const [k,op] of invitationSends)if(op.roomId===roomId&&op.me===me&&op.status==='sent')invitationSends.delete(k);
+    }catch(e){if(owner.current()&&load===state.load)state.message+=' Could not refresh people: '+e.message;}
+    finally{if(owner.current()&&load===state.load){state.loading=false;draw();}}
+  }
+  async function send() {
+    if(!owner.current()||state.attempt?.status==='sending'||state.loading||dialog.querySelector('#send-ohana-invite').disabled)return;
+    const ids=state.attempt?.ids||[...state.selected].sort((a,b)=>a-b),k=key(ids);
+    let op=state.attempt||invitationSends.get(k);
+    if(op?.status==='sending'||op?.status==='sent')return;
+    if(!op){op={key:k,me,roomId,type:state.type,mode:state.mode,gameMode:state.gameMode,ids,options:state.options,requestId:crypto.randomUUID(),status:'ready'};invitationSends.set(k,op);}
+    state.attempt=op;state.message='Sending your chosen invitations…';op.status='sending';draw();
+    try {
+      const result=await api('/api/game/invitations',{type:op.type,mode:op.mode,game_mode:op.gameMode==='classic'&&op.type==='shuffle'?'rummy':op.gameMode,member_ids:op.ids,request_id:op.requestId},'POST',roomId);
+      if(!result?.ok)throw new Error('Could not confirm this send. Retry the same send safely.');
+      op.status='sent';
+    }catch(e){
+      op.status=e.status>=400&&e.status<500?'rejected':'uncertain';op.error=e.message;
+      if(op.status==='rejected')invitationSends.delete(k);
+      if(owner.current())state.message=e.message+(op.status==='uncertain'?' Use Retry same send to check or finish this send safely.':'');
+    }finally{
+      // Update only a current owner. Completion never opens a screen or restores
+      // a closed dialog, even after Cancel, navigation, or a later reopen.
+      if(owner.current()){draw();await refresh();}
+      else if(ohanaInvite?.current())ohanaInvite.settle();
+    }
+  }
+  owner.settle=()=>{draw();refresh();};
+  document.body.append(dialog);draw();dialog.showModal();refresh();
 }
+// Global overlay navigation owns Back/Forward and retires closed dialog tokens.
+// Success never closes/reopens the composer or pushes another overlay entry.
+
+
+function openTableInvite(g){return openOhanaInvite(undefined,g.type);}
 function inviteHub(){return '<section class="invite-hub"><h2>Invited games</h2>'+ohanaInvitedHtml(S.sync)+'<button type="button" data-invite-start>Start a game</button></section>';}
 function openInviteNewGame(typeId){showOhanaStartGame(typeId);}
 function openInviteHubDialog(){showOhanaInvitedGames(false);}
@@ -15582,9 +15662,10 @@ async function renderAdminSettings(container,sy){
 async function renderFamily() {
   const m = $('#main'); const sy = S.sync;
   if(!S.avatarEditing)S.av=S.me.avatar;
-  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.filter(ohanaDiscoverablePerson).map(x => `<div class="fam"><div class="av"${dmAttr(x.id)}>${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b${dmAttr(x.id)}>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small>${x.about?`<p class="member-about">${esc(x.about)}</p>`:''}</div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
+  m.innerHTML = `<h2 class="shelf">Our Ohana<small>A place for every one of us.</small></h2><div class="room-conversation"><div><b>New to this room?</b><span>Share a room invitation to join ${esc(sy.familyName)}.</span></div><button type="button" class="soft" id="invite-many-games">Invite to games</button><button class="soft" id="invite-to-room">${sy.roomId===1?'Invite new Ohana':'Invite new friends'}</button></div>${sy.members.filter(ohanaDiscoverablePerson).map(x => `<div class="fam"><div class="av"${dmAttr(x.id)}>${avatarMarkup(x.avatar)}<i class="${x.online ? 'on' : ''}"></i></div><div><b${dmAttr(x.id)}>${esc(x.name)}${x.id === S.me.id ? ' (you)' : ''}</b><small>${x.online ? 'here now' : x.last_seen ? 'last here ' + fmtTime(x.last_seen) : 'never signed in'}</small>${x.about?`<p class="member-about">${esc(x.about)}</p>`:''}</div>${x.id!==S.me.id?`<button class="soft ohana-invite" data-invite-member="${x.id}">Invite to game</button>`:''}</div>`).join('')}
     `;
   m.querySelectorAll('[data-invite-member]').forEach(b=>b.onclick=()=>openOhanaInvite(+b.dataset.inviteMember));
+  $('#invite-many-games').onclick=()=>openOhanaInvite();
   $('#invite-to-room').onclick=()=>shareRoom(sy.rooms?.find(r=>r.id===sy.roomId));
 
 }

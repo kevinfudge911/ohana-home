@@ -7077,6 +7077,87 @@ __name2(chBotMove, "chBotMove");
 __name22(chBotMove, "chBotMove");
 __name222(chBotMove, "chBotMove");
 __name2222(chBotMove, "chBotMove");
+// Invitations only inspect the selected room. Unlike the game shelf, this
+// snapshot is not capped: an older active table must still prevent duplicates.
+async function invitationOptions(db,memberId,roomId) {
+  const policy=await childPolicy(db,memberId),types=Object.fromEntries(Object.entries(GAME_TYPES).filter(([id])=>!policy||policy.games.includes(id)));
+  const policies=(await db.prepare("SELECT key,value FROM settings WHERE key LIKE 'child_%'").all()).results;
+  const members=(await db.prepare("SELECT m.id,m.name,m.avatar FROM members m JOIN room_members rm ON rm.member_id=m.id WHERE rm.room_id=? AND m.id>0").bind(roomId).all()).results.filter(m=>String(m.name||'').normalize('NFKC').trim().toLowerCase()!=='codextest').map(m=>{const row=policies.find(p=>p.key==='child_'+m.id),child=row?JSON.parse(row.value):null;return {...m,blocked_types:Object.keys(types).filter(id=>child&&!child.games.includes(id))};});
+  const rows=(await db.prepare("SELECT g.id,g.type,g.players,g.status,g.max_players FROM games g WHERE g.room_id=? AND g.status IN ('waiting','playing') AND (EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=?) OR EXISTS (SELECT 1 FROM game_invitations i WHERE i.game_id=g.id AND i.member_id=? AND i.status='pending' AND g.status='waiting'))").bind(roomId,memberId,memberId).all()).results;
+  const pending=(await db.prepare("SELECT i.game_id,i.member_id FROM game_invitations i JOIN games g ON g.id=i.game_id WHERE g.room_id=? AND g.status='waiting' AND i.status='pending' AND i.created_at>=? AND (i.member_id=? OR EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=?))").bind(roomId,now()-2*864e5,memberId,memberId).all()).results;
+  return {roomId,members,types,games:rows.filter(g=>Object.hasOwn(types,g.type)).map(g=>({...g,players:JSON.parse(g.players),pending_members:pending.filter(i=>i.game_id===g.id).map(i=>i.member_id)}))};
+}
+function invitationReason(games,me,member,type) {
+  for(const g of games.filter(g=>g.type===type)) {
+    if(g.players.includes(me)&&g.players.includes(member))return 'Already playing';
+    if(g.status==='waiting'&&((g.players.includes(me)&&g.pending_members.includes(member))||(g.pending_members.includes(me)&&g.players.includes(member))))return 'Invitation pending';
+  }
+  return '';
+}
+async function sendInvitationBatch(db,me,roomId,body,ctx) {
+  const type=body.type,mode=body.mode,requestId=body.request_id;
+  const gameMode=type==='shuffle'?shuffleMode(body.game_mode||'rummy'):type==='domino'?dominoCreationMode(body.game_mode||'draw'):type==='words'&&body.game_mode==='random'?'random':'classic';
+  const gt=Object.hasOwn(GAME_TYPES,type)?{...GAME_TYPES[type],...(type==='shuffle'&&gameMode==='gin'?{max:2}:{})}:null;
+  if(!Object.hasOwn(GAME_TYPES,type)||!gt||gt.max<2||!['individual','group'].includes(mode))throw new Error('Choose a supported multiplayer game and invitation mode.');
+  if(typeof requestId!=='string'||!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId))throw new Error('Reopen invitations to prepare a send.');
+  const ids=body.member_ids;
+  if(!Array.isArray(ids)||!ids.length||ids.length>100||ids.some(id=>!Number.isSafeInteger(id)||id<=0||id===me.id)||new Set(ids).size!==ids.length)throw new Error('Choose up to 100 different people in this room.');
+  const recipients=[...ids].sort((a,b)=>a-b),seats=mode==='individual'?2:recipients.length+1;
+  if(seats<gt.min||seats>gt.max)throw new Error(mode==='individual'?'This game needs a group. Choose Group invitations.':`Choose ${Math.max(1,gt.min-1)} to ${gt.max-1} people for this game.`);
+  const plan=JSON.stringify({type,mode,game_mode:gameMode,member_ids:recipients});
+  const receipt=async()=>{try{return await db.prepare('SELECT plan,codes FROM invitation_batches WHERE sender_id=? AND room_id=? AND request_id=?').bind(me.id,roomId,requestId).first();}catch(e){throw invitationSendUncertain(e);}};
+  const previous=await receipt();
+  if(previous&&previous.plan!==plan)throw new Error('This send was already used for a different selection. Reopen invitations.');
+  let result=previous,createdGameIds=null;
+  if(!previous) {
+    // A receipt replay must remain confirmable even if a parent has since
+    // changed access. New sends read policies together, then compare those
+    // exact values again inside the transaction.
+    const policyIds=[me.id,...recipients];
+    const policyRows=(await db.prepare("SELECT key,value FROM settings WHERE key IN (SELECT 'child_'||value FROM json_each(?))").bind(JSON.stringify(policyIds)).all()).results;
+    const policies=new Map(policyRows.map(row=>[row.key,row.value]));
+    for(const id of policyIds){const raw=policies.get('child_'+id);if(raw&&!JSON.parse(raw).games.includes(type))throw new Error('Your parent has not enabled this game. Ask them to update your games in Settings.');}
+    const policySnapshot=JSON.stringify(Object.fromEntries(policyIds.map(id=>[id,policies.get('child_'+id)??null])));
+    const options=await invitationOptions(db,me.id,roomId);
+    if(recipients.some(id=>!options.members.some(m=>m.id===id)||invitationReason(options.games,me.id,id,type)))throw new Error('Someone is already playing or has a pending invitation. Refresh the people and choose again.');
+    const count=mode==='individual'?recipients.length:1,codes=[];
+    for(let i=0;i<count;i++) {
+      const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(`${me.id}:${roomId}:${requestId}:${i}`));
+      codes.push([...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32));
+    }
+    // The receipt is also the atomic eligibility guard. D1 batch executes in
+    // one transaction, so a competing send cannot slip between check and write.
+    const guard=`INSERT OR IGNORE INTO invitation_batches(sender_id,room_id,request_id,plan,codes,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM room_members WHERE room_id=? AND member_id=?) AND NOT EXISTS (SELECT 1 FROM json_each(?) snapshot WHERE (SELECT value FROM settings WHERE key='child_'||snapshot.key) IS NOT snapshot.value) AND NOT EXISTS (SELECT 1 FROM json_each(?) target WHERE NOT EXISTS (SELECT 1 FROM room_members WHERE room_id=? AND member_id=target.value) OR EXISTS (SELECT 1 FROM games g WHERE g.room_id=? AND g.type=? AND g.status IN ('waiting','playing') AND ((EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=?) AND (EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=target.value) OR (g.status='waiting' AND EXISTS (SELECT 1 FROM game_invitations i WHERE i.game_id=g.id AND i.member_id=target.value AND i.status='pending' AND i.created_at>=?)))) OR (g.status='waiting' AND EXISTS (SELECT 1 FROM json_each(g.players) WHERE value=target.value) AND EXISTS (SELECT 1 FROM game_invitations i WHERE i.game_id=g.id AND i.member_id=? AND i.status='pending' AND i.created_at>=?)))))`;
+    const stamps=now(),statements=[db.prepare(guard).bind(me.id,roomId,requestId,plan,JSON.stringify(codes),stamps,roomId,me.id,policySnapshot,JSON.stringify(recipients),roomId,roomId,type,me.id,now()-2*864e5,me.id,now()-2*864e5)];
+    const permitted="EXISTS (SELECT 1 FROM invitation_batches WHERE sender_id=? AND room_id=? AND request_id=? AND plan=?)";
+    for(const code of codes)statements.push(db.prepare(`INSERT INTO games(type,players,max_players,status,turn,created_by,created_at,updated_at,mode,invite_code,room_id) SELECT ?,?,?,'waiting',0,?,?,?,?,?,? WHERE ${permitted} AND NOT EXISTS (SELECT 1 FROM games WHERE invite_code=?)`).bind(type,JSON.stringify([me.id]),seats,me.id,stamps,stamps,gameMode,code,roomId,me.id,roomId,requestId,plan,code));
+    for(let i=0;i<recipients.length;i++)statements.push(db.prepare(`INSERT OR IGNORE INTO game_invitations(game_id,member_id,sender_id,status,created_at) SELECT id,?,?,'pending',? FROM games WHERE invite_code=? AND ${permitted}`).bind(recipients[i],me.id,stamps,codes[mode==='individual'?i:0],me.id,roomId,requestId,plan));
+    let writes;
+    try{writes=await db.batch(statements);}catch(e){throw invitationSendUncertain(e);}
+    if(!writes[0].meta.changes){
+      result=await receipt();
+      if(!result||result.plan!==plan)throw new Error('The people or tables changed. Refresh the people and choose again.');
+    }else{
+      result={plan,codes:JSON.stringify(codes)};
+      createdGameIds=writes.slice(1,1+codes.length).map(write=>write.meta.last_row_id);
+      if(createdGameIds.some(id=>!id))throw invitationSendUncertain();
+    }
+    const notified=recipients.filter((_,i)=>writes[1+codes.length+i].meta.changes);
+    if(notified.length)ctx?.waitUntil?.(notifyMembers(db,notified,{type:'invite',title:me.name+' saved you a seat',body:'Join '+gt.name+' — open your Game Nook to accept.',tag:'ohana-invite-'+requestId}).catch(()=>{}));
+  }
+  let storedCodes;
+  try{storedCodes=JSON.parse(result.codes);}catch(e){throw invitationSendUncertain(e);}
+  let games=createdGameIds;
+  if(!games){
+    let gameRows;
+    try{gameRows=(await db.prepare(`SELECT id,invite_code FROM games WHERE invite_code IN (${storedCodes.map(()=>'?').join(',')})`).bind(...storedCodes).all()).results;}catch(e){throw invitationSendUncertain(e);}
+    const gameByCode=new Map(gameRows.map(row=>[row.invite_code,row.id]));
+    games=storedCodes.map(code=>gameByCode.get(code));
+  }
+  if(games.some(id=>!id))throw invitationSendUncertain();
+  return {ok:true,mode,type,member_ids:recipients,game_ids:games};
+}
+function invitationSendUncertain(cause){const error=new Error('Could not confirm this send. Retry the same send safely.');error.invitationUncertain=true;error.cause=cause;return error;}
 var GAME_TYPES = {
   shuffle: { name: "Ohana Shuffle · Card table", min: 2, max: 6, tag: "Everybody", desc: "One standard-card table. Choose Regular Rummy or Gin Rummy; browse future card-game rules." },
   mahjong: { name: "Ohana Mahjong", min: 1, max: 4, tag: "Everybody", desc: "Solo tile matching, or real family draw-and-discard Mahjong for two to four players." },
@@ -11826,6 +11907,11 @@ async function api2(req, env222222, url) {
   if (!activeRoom && requestedRoom > 0 && !await db.prepare("SELECT id FROM rooms WHERE id=?").bind(requestedRoom).first()) activeRoom = roomList[0];
   if (!activeRoom) return err("You do not belong to this room. Open Rooms or use a room invitation.", 403);
   const roomId = activeRoom.id;
+  if(p==='/api/game/invitations'&&req.method==='GET')return json(await invitationOptions(db,me.id,roomId));
+  if(p==='/api/game/invitations'&&req.method==='POST'){
+    try{return json(await sendInvitationBatch(db,me,roomId,body,env222222.ctx));}
+    catch(e){if(e.invitationUncertain)return err(e.message,503);throw e;}
+  }
   const canManageRoom = /* @__PURE__ */ __name22222(() => roomId === 1 ? !!me.is_admin : activeRoom.owner_id === me.id, "canManageRoom");
   if(p.startsWith('/api/announce-media/'))return handleAnnouncementMedia(req,{db,me,room:roomId,roomAccess:ohanaAnnouncementRoomAccess,normalize:ohanaAnnouncementImages,ensureSchema:ensureOhanaAnnouncementSchema});
   if(p==='/api/music/upload')return handleMusicUpload(req,{db,me,room:roomId,bucket:env222222.MUSIC_FILES,ensureMusicSchema:ensureOhanaMusicSchema,audience:ohanaMusicAudience,track:ohanaMusicTrack,text:ohanaMusicText,requestId:ohanaMusicRequestId});
