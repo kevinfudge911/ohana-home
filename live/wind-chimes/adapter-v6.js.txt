@@ -4,13 +4,13 @@ import {readScene,chooseAnchor,specsFor,rect} from './scene-contract-v6.js';
 export {specsFor};
 export function mount({layer,context,mode}={}){
  const doc=layer?.ownerDocument;
- let disposed=false,active=false,view=null,host=null,bracket=null,anchor=null,initial=null,lastLayout='',lastPose=null;
+ let disposed=false,active=false,view=null,host=null,bracket=null,anchor=null,initial=null,lastLayout='',lastPose=null,failureKind=null;
  let selected=Object.freeze([]);
- const api={get specs(){return selected;},get active(){return active&&!disposed;},paint,updateGeometry,destroy};
- if(mode!=='simulated'||!doc||doc!==globalThis.document||typeof layer.append!=='function')return api;
+ const api={get specs(){return selected;},get active(){return active&&!disposed;},get failureKind(){return failureKind;},paint,updateGeometry,destroy};
+ if(mode!=='simulated'||!doc||doc!==globalThis.document||typeof layer.append!=='function'){failureKind='contract';return api;}
  layer.setAttribute('aria-hidden','true');layer.setAttribute('inert','');layer.inert=true;
  Object.assign(layer.style,{position:'absolute',inset:'0',pointerEvents:'none',overflow:'hidden'});
- initial=readScene(context,doc);anchor=chooseAnchor(initial);if(!initial||!anchor)return api;
+ initial=readScene(context,doc);anchor=chooseAnchor(initial);if(!initial||!anchor){failureKind='geometry';return api;}
  host=doc.createElement('div');host.setAttribute('aria-hidden','true');host.setAttribute('inert','');host.inert=true;
  Object.assign(host.style,{position:'absolute',pointerEvents:'none',userSelect:'none'});
  layer.append(host);view=mountRig(host,anchor.style);
@@ -27,10 +27,10 @@ export function mount({layer,context,mode}={}){
  }
  function visibility(){if(doc.hidden||doc.visibilityState==='hidden')destroy();}
  function updateGeometry(){
-  const s=current(),next=chooseAnchor(s);if(!s||!next||next.id!==anchor.id){destroy();return false;}
+  const s=current(),next=chooseAnchor(s);if(!s||!next||next.id!==anchor.id){failureKind='geometry';destroy();return false;}
   // Host appends its layer only after mount resolves. Use target until that point.
   const origin=layer.isConnected?rect(layer.getBoundingClientRect()):s.targetRect;
-  if(!origin){destroy();return false;}
+  if(!origin){failureKind='geometry';destroy();return false;}
   const b=next.box,values=[b.x-origin.x,b.y-origin.y,b.width,b.height],key=values.join('|');
   if(key!==lastLayout){Object.assign(host.style,{left:values[0]+'px',top:values[1]+'px',width:values[2]+'px',height:values[3]+'px'});lastLayout=key;}
   if(next.support){
@@ -45,11 +45,11 @@ export function mount({layer,context,mode}={}){
  }
  function paint(snapshot){
   if(!updateGeometry())return false;
-  if(layer.isConnected!==true||snapshot?.visible!==true||snapshot?.mode!=='simulated'){destroy();return false;}
+  if(layer.isConnected!==true||snapshot?.visible!==true||snapshot?.mode!=='simulated'){failureKind='contract';destroy();return false;}
   const poses=Array.isArray(snapshot.rigs)?snapshot.rigs.filter(r=>r?.id===anchor.id):[];
-  if(poses.length!==1){destroy();return false;}
+  if(poses.length!==1){failureKind='contract';destroy();return false;}
   const pose=poses[0];
-  if(pose.style!==anchor.style||!Array.isArray(pose.tubes)||pose.tubes.length!==anchor.count||![pose.angle,pose.striker,pose.sail,...pose.tubes].every(Number.isFinite)){destroy();return false;}
+  if(pose.style!==anchor.style||!Array.isArray(pose.tubes)||pose.tubes.length!==anchor.count||![pose.angle,pose.striker,pose.sail,...pose.tubes].every(Number.isFinite)){failureKind='contract';destroy();return false;}
   // No mutable game/controller objects are handed to the low-level renderer.
   const safe={angle:pose.angle,tubes:pose.tubes.slice(),striker:pose.striker,sail:pose.sail};
   if(snapshot.reduced===true){safe.angle=0;safe.tubes.fill(0);safe.striker=0;safe.sail=0;}

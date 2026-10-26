@@ -24,8 +24,11 @@
   const owned=node=>node?.nodeType===1&&node.closest?.('[data-chime-preparation],[data-chime-protect],.ohana-chime-sound-controls,[data-daddy-audio-controls],#ohana-cardinal-visits-layer');
   const observer=new root.MutationObserver(records=>{if(records.some(r=>{if(owned(r.target))return false;if(r.type==='attributes')return r.target===doc.documentElement||r.target===doc.body||r.target.id==='app'||r.target.matches?.('dialog');return[...r.addedNodes,...r.removedNodes].some(n=>!owned(n));}))schedule();});
   observer.observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open','inert','style','data-ohana-room','data-ohana-scene','data-ohana-game']});
-  function on(target,type,fn){target.addEventListener(type,fn);listeners.push(()=>target.removeEventListener(type,fn));}
+  function on(target,type,fn,options){target.addEventListener(type,fn,options);listeners.push(()=>target.removeEventListener(type,fn,options));}
   on(doc,'visibilitychange',()=>{if(doc.hidden){generation++;instance?.suspend('hidden');}schedule();});
+  on(events,'resize',schedule);on(events,'orientationchange',schedule);
+  if(events.visualViewport){on(events.visualViewport,'resize',schedule);on(events.visualViewport,'scroll',schedule);}
+  on(doc,'scroll',schedule,true);on(doc,'transitionend',schedule);on(doc,'animationend',schedule);
   on(events,'pagehide',e=>{generation++;parked=true;instance?.suspend('pagehide');if(!e.persisted)destroy();});
   on(events,'pageshow',()=>{parked=false;schedule();});
   for(const name of ['popstate','hashchange','ohana-motion-change'])on(events,name,schedule);

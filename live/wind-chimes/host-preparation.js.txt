@@ -10,8 +10,9 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  requestFrame=callback=>globalThis.requestAnimationFrame(callback),cancelFrame=id=>globalThis.cancelAnimationFrame(id)}={}){
  if(typeof readState!=='function')throw Error('Sanitized host reader required');
  let destroyed=false,suspended=false,generation=0,frame=null,mounted=null,pendingMount=null,audio=null,controls=null;
- let audioModules=null,audioPromise=null,rendererPromise=null,previousRoute=null,previousSession=null,failedRoute=null;
- const stats={audioImports:0,rendererImports:0,mounts:0,staleMounts:0,paints:0,geometryUpdates:0};
+ let audioModules=null,audioPromise=null,rendererPromise=null,previousRoute=null,previousSession=null,failedRoute=null,geometryFailure=null,geometryRetries=0;
+ const MAX_GEOMETRY_RETRIES=6,nodeIds=new WeakMap();let nextNodeId=0;
+ const stats={audioImports:0,rendererImports:0,mounts:0,staleMounts:0,paints:0,geometryUpdates:0,geometryRetries:0};
  const state=()=>{try{return readState()||{};}catch{return{};}};
  const muted=()=>{try{return!!getGlobalMuted()||!!controls?.isMuted();}catch{return true;}};
  const busy=()=>{try{return!!getBusy();}catch{return true;}};
@@ -39,6 +40,30 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  }
  function resolveTarget(value){try{return getRenderTarget(value)||null;}catch{return null;}}
  function safeScene(){try{return readScene()||null;}catch{return null;}}
+ function nodeId(node){if(!node||typeof node!=='object')return null;if(!nodeIds.has(node))nodeIds.set(node,++nextNodeId);return nodeIds.get(node);}
+ // A failed placement may be retried only after an actual scene/geometry change, never on every poll or frame.
+ function geometryFingerprint(){
+  const s=safeScene(),win=doc?.defaultView;
+  if(!s)return 'scene-unavailable';
+  const element=e=>{if(!e||typeof e.getBoundingClientRect!=='function')return[nodeId(e),false];
+   try{const r=e.getBoundingClientRect(),css=win?.getComputedStyle(e),host=e.getRootNode?.()?.host,art=host?.images?.island;
+    return[nodeId(e),e.isConnected===true,r.x,r.y,r.width,r.height,css?.display,css?.visibility,css?.opacity,css?.transform,css?.backgroundImage,css?.backgroundSize,css?.backgroundPosition,css?.objectFit,css?.objectPosition,e.currentSrc||e.src||null,e.complete??null,e.naturalWidth??null,e.naturalHeight??null,e.width??null,e.height??null,host?.artUrl||null,art?.naturalWidth??null,art?.naturalHeight??null];}
+   catch{return[nodeId(e),'unreadable'];}};
+  return JSON.stringify([s.sceneId,s.routeId,s.styleId,s.accountEpoch,s.routeEpoch,s.sceneEpoch,s.modalOpen,s.musicActive,
+   win?.visualViewport?.offsetLeft,win?.visualViewport?.offsetTop,win?.visualViewport?.width,win?.visualViewport?.height,
+   element(s.target),element(s.sourceElement),Array.isArray(s.obstacles)?s.obstacles.map(element):null]);
+ }
+ function geometryScope(){const s=safeScene();return s?JSON.stringify([s.sceneId,s.sceneEpoch,nodeId(s.target),nodeId(s.sourceElement)]):'scene-unavailable';}
+ function rejectRenderer(instance,key,reason){
+  if(instance?.failureKind==='geometry'){
+   const scope=geometryScope(),accepted=mounted?.instance===instance?mounted.acceptedScope:null;
+   // A source/scene replacement invalidates the old mount but may already be valid for a new one.
+   // Grant exactly one event-driven remount even when the post-rejection geometry is stable.
+   geometryFailure={key,sessionKey:current().context.sessionKey,signature:geometryFingerprint(),scope,retries:geometryRetries,scopeReplacement:accepted!==null&&accepted!==scope};
+  }
+  else{failedRoute=key;geometryFailure=null;}
+  park(reason);
+ }
  function validMountedSpecs(specs){
   if(!Array.isArray(specs)||specs.length===0)return false;
   const ids=new Set();
@@ -56,14 +81,21 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
   frame=null;if(destroyed||suspended||!mounted)return;
   const {context,target}=safeRendererState();
   if(context.routeKey!==mounted.key||target!==mounted.target||!wantsRenderer()){refresh();return;}
-  try{controller.step(time);const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){failedRoute=context.routeKey;park('renderer-inactive');return;}stats.paints++;scheduleFrame();}
-  catch{failedRoute=context.routeKey;park('renderer-paint-failed');}
+  try{controller.step(time);const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){rejectRenderer(mounted.instance,context.routeKey,'renderer-inactive');return;}mounted.acceptedScope=geometryScope();stats.paints++;scheduleFrame();}
+  catch{rejectRenderer(mounted.instance,context.routeKey,'renderer-paint-failed');}
  }
  function ensureRenderer(){
   if(typeof loadRenderer!=='function'||!wantsRenderer())return;
   const {context,target}=safeRendererState(),key=context.routeKey,stamp=generation;
   if(failedRoute===key)return;
-  if(mounted&&mounted.key===key&&mounted.target===target){try{const updated=mounted.instance.updateGeometry?.();if(updated===false||mounted.instance.active===false){failedRoute=key;park('renderer-inactive');return;}stats.geometryUpdates++;if(mounted.reduced!==controller.reduced){mounted.reduced=controller.reduced;const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){failedRoute=key;park('renderer-inactive');return;}stats.paints++;}}catch{failedRoute=key;park('renderer-geometry-failed');return;}if(!controller.needsFrame)cancelOwnedFrame();scheduleFrame();return;}
+  if(geometryFailure?.key===key){
+   if(geometryFailure.sessionKey!==context.sessionKey){geometryFailure=null;geometryRetries=0;}
+   else{const signature=geometryFingerprint(),newScope=geometryScope()!==geometryFailure.scope,acceptedReplacement=geometryFailure.scopeReplacement===true;
+    if((!acceptedReplacement&&signature===geometryFailure.signature)||
+     (geometryFailure.retries>=MAX_GEOMETRY_RETRIES&&!newScope&&!acceptedReplacement))return;
+    geometryRetries=newScope?0:geometryFailure.retries+1;stats.geometryRetries++;geometryFailure=null;}
+  }
+  if(mounted&&mounted.key===key&&mounted.target===target){try{const updated=mounted.instance.updateGeometry?.();if(updated===false||mounted.instance.active===false){rejectRenderer(mounted.instance,key,'renderer-inactive');return;}stats.geometryUpdates++;if(mounted.reduced!==controller.reduced){mounted.reduced=controller.reduced;const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){rejectRenderer(mounted.instance,key,'renderer-inactive');return;}stats.paints++;}mounted.acceptedScope=geometryScope();}catch{rejectRenderer(mounted.instance,key,'renderer-geometry-failed');return;}if(!controller.needsFrame)cancelOwnedFrame();scheduleFrame();return;}
   if(pendingMount?.stamp===stamp&&pendingMount.target===target)return;
   if(!rendererPromise){stats.rendererImports++;rendererPromise=Promise.resolve().then(loadRenderer);rendererPromise.catch(()=>{});}
   const pending={stamp,target};pendingMount=pending;
@@ -78,16 +110,16 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
    if(!valid(stamp,key)||!wantsRenderer()||resolveTarget(state())!==target){stats.staleMounts++;try{instance?.destroy?.();}catch{}layer.remove();return;}
    // Only anchors accepted by this mounted adapter may become controller rigs.
    const specs=instance?.specs;
-   if(instance?.active===false||!validMountedSpecs(specs)){failedRoute=key;try{instance?.destroy?.();}catch{}layer.remove();park('renderer-inactive');return;}
-   releaseMounted();controller.setScene(key,specs);mounted={key,target,layer,instance:instance||{},reduced:controller.reduced};target.append(layer);stats.mounts++;
-   try{const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){failedRoute=key;park('renderer-inactive');return;}stats.paints++;}catch{failedRoute=key;park('renderer-paint-failed');return;}
+   if(instance?.active===false||!validMountedSpecs(specs)){rejectRenderer(instance,key,'renderer-inactive');try{instance?.destroy?.();}catch{}layer.remove();return;}
+   releaseMounted();controller.setScene(key,specs);mounted={key,target,layer,instance:instance||{},reduced:controller.reduced,acceptedScope:geometryScope()};target.append(layer);stats.mounts++;
+   try{const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){rejectRenderer(mounted.instance,key,'renderer-inactive');return;}mounted.acceptedScope=geometryScope();stats.paints++;geometryFailure=null;geometryRetries=0;}catch{rejectRenderer(mounted.instance,key,'renderer-paint-failed');return;}
    scheduleFrame();
-  }).catch(()=>{if(valid(stamp,key)){failedRoute=key;park('renderer-load-failed');}}).finally(()=>{if(pendingMount===pending)pendingMount=null;});
+  }).catch(()=>{if(valid(stamp,key))rejectRenderer(null,key,'renderer-load-failed');}).finally(()=>{if(pendingMount===pending)pendingMount=null;});
  }
  function refresh(){
   if(destroyed)return;
   const {value,context}=current(),routeChanged=previousRoute!==null&&previousRoute!==context.routeKey;
-  if(routeChanged)park('host-route-change');
+  if(routeChanged){park('host-route-change');failedRoute=null;geometryFailure=null;geometryRetries=0;}
   if(previousSession!==null&&previousSession!==context.sessionKey){audio?.destroy();audio=null;controller.audio=null;}
   previousSession=context.sessionKey;previousRoute=context.routeKey;
   guard.refresh();
@@ -102,7 +134,7 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
   ensureRenderer();
  }
  function suspend(reason='host-hidden'){if(destroyed)return;suspended=true;park(reason);guard.stop(reason);controls?.destroy();controls=null;}
- function resume(){if(destroyed)return;suspended=false;refresh();}
+ function resume(){if(destroyed)return;const wasSuspended=suspended;suspended=false;if(wasSuspended){geometryFailure=null;geometryRetries=0;}refresh();}
  function destroy(){if(destroyed)return;suspend('host-destroyed');destroyed=true;controls?.destroy();controls=null;guard.destroy();controller.destroy();audio=null;}
- return{refresh,resume,suspend,destroy,controller,get snapshot(){return{phase:'V6-INTEGRATION-CANDIDATE',rendererInstalled:typeof loadRenderer==='function',rendererStatus:mounted?'v6-mounted':typeof loadRenderer==='function'?'v6-pending':'v6-unavailable',audioLoaded:!!audio,audioAvailable:audio?.available===true,generation,framesPending:frame!==null,mounted:!!mounted,stats:{...stats},destroyed};}};
+ return{refresh,resume,suspend,destroy,controller,get snapshot(){return{phase:'V6-INTEGRATION-CANDIDATE',rendererInstalled:typeof loadRenderer==='function',rendererStatus:mounted?'v6-mounted':typeof loadRenderer==='function'?'v6-pending':'v6-unavailable',audioLoaded:!!audio,audioAvailable:audio?.available===true,generation,framesPending:frame!==null,mounted:!!mounted,recoveryPending:!!geometryFailure,stats:{...stats},destroyed};}};
 }
