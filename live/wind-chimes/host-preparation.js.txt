@@ -10,7 +10,7 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  requestFrame=callback=>globalThis.requestAnimationFrame(callback),cancelFrame=id=>globalThis.cancelAnimationFrame(id)}={}){
  if(typeof readState!=='function')throw Error('Sanitized host reader required');
  let destroyed=false,suspended=false,generation=0,frame=null,mounted=null,pendingMount=null,audio=null,controls=null;
- let audioModules=null,audioPromise=null,rendererPromise=null,previousRoute=null,previousSession=null,failedRoute=null,geometryFailure=null,geometryRetries=0;
+ let audioModules=null,audioPromise=null,rendererPromise=null,previousRoute=null,previousSession=null,previousActivity=null,previousSoundScope=null,bridgeSoundScope=null,bridgeReturnActivity=null,bridgeReturnPending=null,failedRoute=null,geometryFailure=null,geometryRetries=0;
  const MAX_GEOMETRY_RETRIES=6,nodeIds=new WeakMap();let nextNodeId=0;
  const stats={audioImports:0,rendererImports:0,mounts:0,staleMounts:0,paints:0,geometryUpdates:0,geometryRetries:0};
  const state=()=>{try{return readState()||{};}catch{return{};}};
@@ -21,7 +21,9 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  const valid=(stamp,key)=>!destroyed&&!suspended&&generation===stamp&&current().context.routeKey===key&&current().context.visible;
  function cancelOwnedFrame(){if(frame!==null){cancelFrame(frame);frame=null;}}
  function releaseMounted(){cancelOwnedFrame();const old=mounted;mounted=null;if(old){try{old.instance?.destroy?.();}catch{}old.layer.remove();}controller.setScene('',[]);}
- function park(reason){generation++;pendingMount=null;controller.mute();controller.audio?.stop(reason);releaseMounted();}
+ function park(reason,{preserveSound=false}={}){generation++;pendingMount=null;if(!preserveSound){bridgeReturnPending=null;controller.mute();}controller.audio?.stop(reason);releaseMounted();}
+ // Bridge tab changes are controls navigation, not a new room or account.
+ const soundScope=(value,context)=>JSON.stringify([context.sessionKey,...['roomId','roomEpoch','gameId','gameType','gameEntryVisit','puzzleId','recordId','pageId'].map(k=>value[k]??null),value.visible===true,value.eligible===true,value.appInert===true]);
  function audioEligible(){const {value,context}=current();return!destroyed&&!suspended&&context.visible&&context.routeKey===previousRoute&&context.sessionKey===controller.sessionKey&&value.paused!==true&&value.reducedMotion!==true&&controller.active;}
  const guard=createHostAudioGuard({controller,readState:()=>{const value=state();return suspended?{...value,visible:false}:value;}});
  function ensureAudio(){
@@ -112,25 +114,31 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
    const specs=instance?.specs;
    if(instance?.active===false||!validMountedSpecs(specs)){rejectRenderer(instance,key,'renderer-inactive');try{instance?.destroy?.();}catch{}layer.remove();return;}
    releaseMounted();controller.setScene(key,specs);mounted={key,target,layer,instance:instance||{},reduced:controller.reduced,acceptedScope:geometryScope()};target.append(layer);stats.mounts++;
-   try{const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){rejectRenderer(mounted.instance,key,'renderer-inactive');return;}mounted.acceptedScope=geometryScope();stats.paints++;geometryFailure=null;geometryRetries=0;}catch{rejectRenderer(mounted.instance,key,'renderer-paint-failed');return;}
+   try{const painted=mounted.instance.paint?.(controller.snapshot);if(painted===false||mounted.instance.active===false){rejectRenderer(mounted.instance,key,'renderer-inactive');return;}mounted.acceptedScope=geometryScope();stats.paints++;geometryFailure=null;geometryRetries=0;bridgeReturnPending=null;}catch{rejectRenderer(mounted.instance,key,'renderer-paint-failed');return;}
    scheduleFrame();
   }).catch(()=>{if(valid(stamp,key))rejectRenderer(null,key,'renderer-load-failed');}).finally(()=>{if(pendingMount===pending)pendingMount=null;});
  }
  function refresh(){
   if(destroyed)return;
-  const {value,context}=current(),routeChanged=previousRoute!==null&&previousRoute!==context.routeKey;
-  if(routeChanged){park('host-route-change');failedRoute=null;geometryFailure=null;geometryRetries=0;}
+  const {value,context}=current(),routeChanged=previousRoute!==null&&previousRoute!==context.routeKey,scope=soundScope(value,context);
+  if(value.activity==='bridge'&&previousActivity!=='bridge'){bridgeSoundScope=scope;bridgeReturnActivity=previousActivity??'room';}
+  const bridgeTransition=value.activity==='bridge'&&previousActivity!==null&&previousActivity!=='bridge'&&previousSoundScope===scope||
+   previousActivity==='bridge'&&bridgeSoundScope===scope&&(value.activity==='bridge'||value.activity===bridgeReturnActivity);
+  // Only an already completed trusted enable may survive a same-session Bridge round trip.
+  // Voices stop and rigs leave during the modal; Music, hidden, pause, mute and account changes still cancel intent.
+  const preserveSound=bridgeTransition&&controller.sound===true&&previousSession===context.sessionKey&&context.visible&&value.reducedMotion!==true&&!suspended&&!muted();
+  if(routeChanged){park('host-route-change',{preserveSound});bridgeReturnPending=preserveSound&&value.activity!=='bridge'?scope:null;failedRoute=null;geometryFailure=null;geometryRetries=0;}
   if(previousSession!==null&&previousSession!==context.sessionKey){audio?.destroy();audio=null;controller.audio=null;}
-  previousSession=context.sessionKey;previousRoute=context.routeKey;
+  previousSession=context.sessionKey;previousRoute=context.routeKey;previousActivity=value.activity;previousSoundScope=scope;if(value.activity!=='bridge'){bridgeSoundScope=null;bridgeReturnActivity=null;}
   guard.refresh();
   const paused=value.paused===true;if(controller.prefs.paused!==paused){controller.prefs.paused=paused;controller.mute();controller.reset('host-pause');}
   const controlsVisible=context.sessionKey&&value.visible===true&&value.eligible===true&&value.appInert!==true&&value.activity!=='music'&&!suspended;
-  if(controlsVisible&&!controls)controls=installChimeSoundControls({controller,document:doc,events,storage,getGlobalMuted});
+  if(controlsVisible&&!controls)controls=installChimeSoundControls({controller,document:doc,events,storage,getGlobalMuted,onTrustedEnable:()=>{const next=current();if(next.value.activity==='bridge'&&next.context.sessionKey===controller.sessionKey&&next.context.visible&&controller.sound&&!muted())bridgeSoundScope=soundScope(next.value,next.context);}});
   if(!controlsVisible&&controls){controls.destroy();controls=null;}
   controller.globalMuteChanged();controls?.refresh();
   if(!context.visible||suspended){controller.mute();releaseMounted();return;}
   ensureAudio();
-  if(!wantsRenderer()){if(mounted||pendingMount)park('renderer-target-unavailable');else releaseMounted();return;}
+  if(!wantsRenderer()){if(mounted||pendingMount)park('renderer-target-unavailable',{preserveSound:bridgeReturnPending===scope&&controller.sound===true&&previousSession===context.sessionKey&&context.visible&&value.rendererEligible===true&&value.reducedMotion!==true&&!muted()});else releaseMounted();return;}
   ensureRenderer();
  }
  function suspend(reason='host-hidden'){if(destroyed)return;suspended=true;park(reason);guard.stop(reason);controls?.destroy();controls=null;}

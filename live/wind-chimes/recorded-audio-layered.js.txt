@@ -36,7 +36,7 @@ export function createRecordedVoice(ctx,buffer,analysis,output,onEnded=()=>{}){
 }
 
 export class RecordedChimes{
- constructor({clips=[],qualityReviewed=false,ownerLiveTestAllowed=false,getContext,getOutput=ctx=>ctx.destination,isMuted=()=>false,isBusy=()=>false,isActive=()=>true,fetcher=globalThis.fetch,maxVoices=2,setTimer=(callback,delay)=>globalThis.setTimeout(callback,delay),clearTimer=id=>globalThis.clearTimeout(id),document:doc=globalThis.document,events=globalThis}={}){
+ constructor({clips=[],qualityReviewed=false,ownerLiveTestAllowed=false,getContext,getOutput=ctx=>ctx.destination,isMuted=()=>false,isBusy=()=>false,isActive=()=>true,fetcher=(...args)=>globalThis.fetch(...args),maxVoices=2,setTimer=(callback,delay)=>globalThis.setTimeout(callback,delay),clearTimer=id=>globalThis.clearTimeout(id),document:doc=globalThis.document,events=globalThis}={}){
   Object.assign(this,{getContext,getOutput,isMuted,isBusy,isActive,fetcher,setTimer,clearTimer});this.clips=clips.map(c=>typeof c==='string'?{url:c}:{...c});
   // Owner-authorized live listening is distinct from a completed listening review.
   // Playback still requires an intentional trusted tap, independent unmute and master unmute.
