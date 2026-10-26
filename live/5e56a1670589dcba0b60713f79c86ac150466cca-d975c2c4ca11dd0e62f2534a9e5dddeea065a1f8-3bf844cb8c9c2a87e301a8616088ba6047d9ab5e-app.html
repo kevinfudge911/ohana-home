@@ -18321,7 +18321,92 @@ new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true
 <style id="ohana-spades-short-landscape-scroll-v3">@media(max-width:600px) and (max-height:360px) and (orientation:landscape){
 /* The document is viewport-locked on short landscape. Scroll the existing play area between header and workstation. */
 :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{position:fixed!important;inset:var(--ohana-game-header-space,64px) 0 calc(var(--game-rail-space,194px) - 28px)!important;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;scroll-padding-top:8px!important;scroll-padding-bottom:20px!important;padding:0 3% 20px!important;box-sizing:border-box!important}
-}</style><style id="ohana-spades-short-native-scroll-v4">@layer ohanaApproved{@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{padding:0 3% 16px!important;height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important}:root.ohana-world body #app #game #game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock[data-game-type=spades]{grid-template-rows:0px auto 96px 0px!important}:root.ohana-world body #app #game #game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock[data-game-type=spades] .dock-command-row:has(.dock-actions:empty){display:none!important;grid-row:auto!important}}}</style></body>
+}</style><style id="ohana-spades-short-native-scroll-v4">@layer ohanaApproved{@media(max-width:600px) and (max-height:360px) and (orientation:landscape){:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{padding:0 3% 16px!important;height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;touch-action:pan-y!important}:root.ohana-world body #app #game #game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock[data-game-type=spades]{grid-template-rows:0px auto 96px 0px!important}:root.ohana-world body #app #game #game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock#game-controls-dock[data-game-type=spades] .dock-command-row:has(.dock-actions:empty){display:none!important;grid-row:auto!important}}}</style>
+
+<!-- OHANA CHIME HOST PREPARATION START: V6 ABSENT; LISTENING GATE CLOSED -->
+<script>
+/* Preparation coordinator. No V6 renderer or artwork is bundled or selected. */
+(function(root,factory){const api=factory(root);if(typeof module==='object')module.exports=api;else root.OhanaChimeHostPreparation=api;})(typeof window!=='undefined'?window:globalThis,function(root){
+ 'use strict';
+ const scalar=v=>typeof v==='string'||typeof v==='number'&&Number.isFinite(v)?v:null;
+ function sanitized(input){const value=input&&typeof input==='object'?input:{},out={};for(const k of ['memberId','sessionRevision','roomId','roomEpoch','gameId','gameType','gameEntryVisit','puzzleId','tab','activity','recordId','pageId'])out[k]=scalar(value[k]);for(const k of ['authenticated','visible','eligible','appInert','paused','reducedMotion','rendererEligible'])out[k]=value[k]===true;return out;}
+ function install({readState,readScene=()=>null,getContext,getGlobalMuted=()=>true,getBusy=()=>false,document:doc=root.document,events=root,storage=root.localStorage,
+  loadHost=()=>import('/wind-chimes/host-preparation.js'),loadRenderer=null,getRenderTarget=()=>null}={}){
+  if(typeof readState!=='function')throw Error('Host reader required');
+  let destroyed=false,parked=false,queued=false,generation=0,instance=null,promise=null,status='waiting-for-eligible-host';const listeners=[];
+  const read=()=>{try{return sanitized(readState());}catch{return sanitized(null);}};
+  const eligible=s=>s.authenticated&&Number.isSafeInteger(s.memberId)&&s.memberId>0&&Number.isSafeInteger(s.sessionRevision)&&s.sessionRevision>=0&&s.visible&&!s.appInert&&s.eligible&&s.activity!=='music';
+  const key=s=>JSON.stringify(s);
+  function refresh(){
+   queued=false;if(destroyed)return;const s=read(),stamp=++generation,route=key(s);
+   if(parked||!eligible(s)){instance?.suspend('host-ineligible');status='parked';return;}
+   if(instance){instance.resume();status='prepared-host-active';return;}
+   if(!promise){status='loading-prepared-host';promise=Promise.resolve().then(loadHost);promise.catch(()=>{});}
+   promise.then(module=>{if(destroyed||parked||stamp!==generation||key(read())!==route||!eligible(read()))return;
+    if(!instance){instance=module.createPreparedChimeHost({readState:read,readScene,getContext,getGlobalMuted,getBusy,document:doc,events,storage,loadRenderer,getRenderTarget});}
+    instance.resume();status='prepared-host-active';
+   }).catch(()=>{if(!destroyed&&stamp===generation)status='prepared-host-unavailable';});
+  }
+  function schedule(){if(destroyed||queued)return;queued=true;root.queueMicrotask(refresh);}
+  const owned=node=>node?.nodeType===1&&node.closest?.('[data-chime-preparation],[data-chime-protect],.ohana-chime-sound-controls,[data-daddy-audio-controls],#ohana-cardinal-visits-layer');
+  const observer=new root.MutationObserver(records=>{if(records.some(r=>{if(owned(r.target))return false;if(r.type==='attributes')return r.target===doc.documentElement||r.target===doc.body||r.target.id==='app'||r.target.matches?.('dialog');return[...r.addedNodes,...r.removedNodes].some(n=>!owned(n));}))schedule();});
+  observer.observe(doc.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open','inert','style','data-ohana-room','data-ohana-scene','data-ohana-game']});
+  function on(target,type,fn){target.addEventListener(type,fn);listeners.push(()=>target.removeEventListener(type,fn));}
+  on(doc,'visibilitychange',()=>{if(doc.hidden){generation++;instance?.suspend('hidden');}schedule();});
+  on(events,'pagehide',e=>{generation++;parked=true;instance?.suspend('pagehide');if(!e.persisted)destroy();});
+  on(events,'pageshow',()=>{parked=false;schedule();});
+  for(const name of ['popstate','hashchange','ohana-motion-change'])on(events,name,schedule);
+  on(events,'storage',e=>{if(e.key===null||['ohana_token','ohana_muted','ohana_less_motion','ohana_chimes_device_v1','ohana_chime_sounds_v1'].includes(e.key))schedule();});
+  on(doc,'click',schedule);on(doc,'keydown',schedule);
+  function destroy(){if(destroyed)return;destroyed=true;generation++;observer.disconnect();listeners.splice(0).forEach(fn=>fn());instance?.destroy();instance=null;status='destroyed';}
+  schedule();return{refresh,schedule,destroy,get snapshot(){return{status,moduleRequested:!!promise,instanceCreated:!!instance,generation,destroyed,host:instance?.snapshot||null};}};
+ }
+ return{install,sanitized};
+});
+
+(function(){
+ if(window.ohanaPreparedChimeHost)return;let previousToken=null,previousMember=null,revision=0;
+ const readState=()=>{const s=typeof S==='undefined'?null:S,id=Number(s?.me?.id),token=typeof s?.token==='string'?s.token:null;let authenticated=false;try{authenticated=!!token&&Number.isSafeInteger(id)&&id>0&&localStorage.getItem('ohana_token')===token;}catch{}
+  if(token!==previousToken||id!==previousMember){revision++;previousToken=token;previousMember=id;}
+  const app=document.getElementById('app');let appInert=true;try{appInert=!app||app.inert===true||getComputedStyle(app).visibility==='hidden'||getComputedStyle(app).display==='none';}catch{}
+  const bridge=document.getElementById('ohana-chat-dialog')?.open===true,blocked=!!document.querySelector('dialog[open]:not(#ohana-chat-dialog)'),scene=document.documentElement.dataset.ohanaScene,known=['home','cove','garden'].includes(scene);let reducedMotion=true,paused=true;try{reducedMotion=localStorage.getItem('ohana_less_motion')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;paused=JSON.parse(localStorage.getItem('ohana_chimes_device_v1')||'{}').paused===true;}catch{}
+  return{authenticated,memberId:Number.isSafeInteger(id)?id:null,sessionRevision:revision,roomId:s?.room??null,roomEpoch:s?.roomEpoch??0,gameId:s?.game??null,gameType:s?.gstate?.type??null,gameEntryVisit:s?.gameEntryVisit??0,puzzleId:typeof PZ==='undefined'?null:PZ.id,tab:s?.tab??null,activity:appInert?'music':bridge?'bridge':s?.game?'game':typeof PZ!=='undefined'&&PZ.id?'puzzle':'room',visible:!document.hidden,appInert,eligible:authenticated&&known&&!blocked,paused,reducedMotion,rendererEligible:known&&!blocked&&!bridge};
+ };
+ let routeEpoch=0,sceneEpoch=0,lastRoute='',lastTarget=null,lastSource=null;
+ const readScene=()=>{
+  const state=readState(),routeId=document.documentElement.dataset.ohanaScene;
+  if(!state.authenticated||!state.visible||!state.eligible||state.appInert||
+   !['home','garden','cove'].includes(routeId))return null;
+  const modalOpen=!!document.querySelector('dialog[open]');
+  if(modalOpen)return null;
+  let target,sourceElement,obstacles=[];
+  if(routeId==='home'){
+   target=document.querySelector('#app #main .world-home-foyer');sourceElement=target;
+   const tabs=target?.querySelector('.game-shelf-tabs');if(tabs)obstacles.push(tabs);
+  }else{
+   const host=document.getElementById('world-backdrop');
+   if(!host||host.getAttribute('world-theme')!==routeId||getComputedStyle(host).display==='none')return null;
+   target=host.shadowRoot?.querySelector('section');sourceElement=host.shadowRoot?.querySelector('canvas');
+  }
+  // All rendered navigation in the scene's own app state participates in the
+  // swept-rig AND support checks; hidden controls are ignored by readScene.
+  const navigation='#app>header button,#app>header [role="button"],#app>header a,#app>header .header-buddy,#app>header .room-current-heading,#app nav.tabs .in button,#ohana-persistent-hub,#chat-head,#home-controls-dock,#ohana-personal-mango,[data-personal-mango-trigger]';
+  const gameSurface=routeId==='home'?'':',#app #main button,#app #main a,#app #main [role="button"]';
+  for(const element of new Set(document.querySelectorAll(navigation+gameSurface)))if(element.isConnected)obstacles.push(element);
+  if(!target?.isConnected||!sourceElement?.isConnected)return null;
+  const route=JSON.stringify([state.memberId,state.sessionRevision,state.roomId,state.roomEpoch,
+   state.gameId,state.gameType,state.gameEntryVisit,state.puzzleId,state.tab,routeId]);
+  if(route!==lastRoute){routeEpoch++;lastRoute=route;}
+  if(target!==lastTarget||sourceElement!==lastSource){sceneEpoch++;lastTarget=target;lastSource=sourceElement;}
+  return{sceneId:routeId==='home'?'home-porch':routeId==='garden'?'garden-pavilion':'cove-pavilion',
+   routeId,authenticated:true,visible:true,modalOpen:false,musicActive:false,
+   accountEpoch:state.sessionRevision,routeEpoch,sceneEpoch,target,sourceElement,obstacles};
+ };
+ window.ohanaPreparedChimeHost=OhanaChimeHostPreparation.install({readState,readScene,loadRenderer:()=>import('/wind-chimes/adapter-v6.js'),getRenderTarget:()=>readScene()?.target||null,getContext:()=>typeof AudioSys==='undefined'?null:AudioSys.getCtx(),getGlobalMuted:()=>{try{return typeof AudioSys==='undefined'||AudioSys.muted||localStorage.getItem('ohana_muted')==='true';}catch{return true;}},getBusy:()=>{try{return!!window.speechSynthesis?.speaking||[...document.querySelectorAll('audio,video')].some(m=>!m.paused&&!m.ended&&!m.muted&&m.volume>0);}catch{return true;}}});
+})();
+</script>
+<!-- OHANA CHIME HOST PREPARATION END -->
+</body>
 </html>
 
 <style id="ohana-v59-coloring-contrast">
