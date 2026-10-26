@@ -1,3 +1,4 @@
+import {chimeStaticResponse} from "./wind-chimes-static.js";
 import { handleAnnouncementMedia } from "./ohana-announcement-media.js";
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
 import { shuffleMode, shuffleInit, shuffleMove, shuffleView, chooseShuffleBotMove } from "./shuffle-engine.js";
@@ -10997,6 +10998,7 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    const chimeAsset=chimeStaticResponse(req);if(chimeAsset)return chimeAsset;
     if(/^\/api\/music\/audio\/m_[a-f0-9-]+$/.test(p))return handleMusicAudio(req,env222222,ohanaMusicReadable);
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
     if(req.method==='GET'&&p==='/ohana-united-puzzle-sign-v1.webp')return new Response(OHANA_UNITED_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});
