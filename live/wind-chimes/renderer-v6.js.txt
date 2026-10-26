@@ -58,7 +58,7 @@ export function mountRig(host,style='porch-primary'){
    // Generated cardinal/floral atlas is isolated with native SVG viewports; original reference photos are never published.
     const boxes=[[89,24,118,1126],[356,45,117,1081],[620,63,117,1063],[881,89,115,1040],[1151,70,114,1058]],box=boxes[p.part];
     const sprite=node('svg',{x:p.loop[0]-p.width/2,y:p.top,width:p.width,height:p.height,viewBox:box.join(' '),preserveAspectRatio:'none',overflow:'hidden','data-texture':'cardinal-floral-reference'});
-    sprite.append(node('image',{href:'/wind-chimes/art/v6-atlas.png',x:0,y:0,width:1347,height:1168,preserveAspectRatio:'none'}));g.append(sprite);
+sprite.append(node('image',{href:'/wind-chimes/art/v6-atlas.webp',x:0,y:0,width:1347,height:1168,preserveAspectRatio:'none'}));g.append(sprite);
    (p.depth==='back'?rear:front).append(g);moving.push({g,p});
   });
   const c=geo.center;upper=node('g',{'data-part':'center-upper','data-pivot':c.pivot.join(',')});
