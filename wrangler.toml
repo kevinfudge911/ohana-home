@@ -8,6 +8,11 @@ no_bundle = true
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+# Serve only the reviewed Bridge artwork from this same Worker.
+[assets]
+directory = './static-assets'
+
+
 [build]
 command = "node scripts/package-main-html.cjs"
 
