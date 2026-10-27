@@ -5,6 +5,10 @@ name = "ohana-home"
 main = "live/worker.js"
 base_dir = "live"
 no_bundle = true
+
+# Serve only the reviewed Bridge artwork from this same Worker.
+[assets]
+directory = './static-assets'
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
