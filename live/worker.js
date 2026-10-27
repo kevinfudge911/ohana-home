@@ -1250,7 +1250,7 @@ import OUTFIT_HOOT from "./a3932c86afc35840e9aa7ce272e83aa0d1f6317a-buddy-hoot-o
 import OUTFIT_KIKO from "./7bc2ac6011eecdc6b31a03bfa8d50504f223802e-buddy-kiko-outfit.webp";
 import OUTFIT_KOA from "./873dbe46916864d4582d69c86b25df35b3ca91c3-buddy-koa-outfit.webp";
 import OUTFIT_MILO from "./52deaab5594f17b7d455212ba0234ac2ce3ad9ba-buddy-milo-outfit.webp";
-import OUTFIT_OTTO from "./4de8968f9b62604003d6c8e24d0eb0f3ae444047-buddy-otto-outfit.webp";
+const OUTFIT_OTTO = OHANA_EXPANSION_134;
 import OUTFIT_PIPPA from "./fdef3879a69b779b1030399f664b49fcd84056a4-buddy-pippa-outfit.webp";
 import OUTFIT_SPLASH from "./e259425fb55fb345d7b3af61863203ba63a550e4-buddy-splash-outfit.webp";
 import OUTFIT_SUNNY from "./6ea12e168453f3511738dd4120e9b5057710c10c-buddy-sunny-outfit.webp";
