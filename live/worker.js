@@ -11179,6 +11179,7 @@ if(req.method==='GET'&&p==='/ohana-journey-entrance-v1.webp')return new Response
     if (req.method === "GET" && p === "/ohana-mikes-cards-v4.webp") return new Response(OHANA_MIKES_CARDS, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-handfoot-cards-v4.webp") return new Response(OHANA_HANDFOOT_CARDS, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-mikes-room-photo-v2.webp") return new Response(OHANA_MIKES_ROOM_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
+    if (req.method === "GET" && p === "/ohana-mikes-room.webp") return new Response(OHANA_MIKES_ROOM_IMAGE, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-words-sign-v2.webp") return new Response(OHANA_WORDS_PORCH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-handfoot-sign-v2.webp") return new Response(OHANA_HANDFOOT_PORCH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
     if (req.method === "GET" && p === "/ohana-mahjong-sign-v2.webp") return new Response(OHANA_MAHJONG_PORCH, { headers: { "content-type": "image/webp", "cache-control": "public,max-age=3600" } });
