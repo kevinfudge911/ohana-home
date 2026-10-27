@@ -20479,6 +20479,17 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
  #game-controls-dock[data-game-type="ohana10"] .world-portrait{font-size:20px!important;line-height:24px!important;overflow:hidden!important}
 }
 </style>
+<style id="ohana-hf-open-scene-local-v5">
+/* Ohanda & Foot only: expose its existing Ohana scene behind the native cards. */
+:root.ohana-world[data-ohana-scene=home][data-ohana-game=handfoot]{background-image:var(--room-scene)!important;background-size:cover!important;background-position:center top!important}
+:root.ohana-world body #app #game #board[data-type=handfoot] .hf-area::before{display:none!important;background:none!important}
+:root.ohana-world body [data-hf-viewport-felt]{display:none!important;background:none!important}
+:root.ohana-world body #app #game #board[data-type=handfoot] #hf-selection-total{text-shadow:0 2px 3px #092533,0 0 5px #092533!important}
+/* Preserve native face and wrist-rank placement while packing ten cards across. */
+@media(min-width:386px) and (max-width:600px) and (orientation:portrait){:root.ohana-world body #app #game #board#board#board[data-type=handfoot] .world-hand .hf-hand{grid-template-columns:repeat(10,minmax(0,1fr))!important}}
+/* Center only the unfinished final row; complete ten-card rows keep their order. */
+@media(min-width:386px) and (max-width:600px) and (orientation:portrait){:root.ohana-world body #app #game #board#board#board[data-type=handfoot] .world-hand .hf-hand>.hf-card:nth-child(10n+1):is(:nth-last-child(1),:nth-last-child(2)){grid-column:5!important}:root.ohana-world body #app #game #board#board#board[data-type=handfoot] .world-hand .hf-hand>.hf-card:nth-child(10n+1):is(:nth-last-child(3),:nth-last-child(4)){grid-column:4!important}:root.ohana-world body #app #game #board#board#board[data-type=handfoot] .world-hand .hf-hand>.hf-card:nth-child(10n+1):is(:nth-last-child(5),:nth-last-child(6)){grid-column:3!important}:root.ohana-world body #app #game #board#board#board[data-type=handfoot] .world-hand .hf-hand>.hf-card:nth-child(10n+1):is(:nth-last-child(7),:nth-last-child(8)){grid-column:2!important}}
+</style>
 <script id="ohana-board-only-camera-v1">
 /* Presentation-only camera. Existing board nodes/handlers remain intact. */
 (()=>{'use strict';
@@ -20534,7 +20545,7 @@ display:grid!important;grid-template-columns:minmax(0,1fr) repeat(2,48px)!import
   on(wrapper,'focusin',e=>{if(verticalCardPan&&(points.size||touchFocusPending)){pendingReveal=e.target;return;}reveal(e.target);});on(window,'resize',queue);if(window.visualViewport)on(visualViewport,'resize',queue);
   if(ten&&document.fonts){document.fonts.ready.then(queue);on(document.fonts,'loadingdone',queue);}
   const observer=new ResizeObserver(queue);for(const e of[content,header,dock,parent])observer.observe(e);measure();
-  const alignStart=(target,epoch=interaction)=>{if(stopped||!hf||epoch!==interaction||points.size||touchFocusPending||!content.contains(target))return false;const a=rect(target),b=rect(wrapper);if(!a.width||!a.height)return false;const inset=Math.min(8,Math.max(0,(b.height-a.height)/2));v.y+=b.top+inset-a.top;apply();return true;};
+  const alignStart=(target,epoch=interaction)=>{if(stopped||!hf||epoch!==interaction||points.size||touchFocusPending||!content.contains(target))return false;const a=rect(target),b=rect(wrapper);if(!a.width||!a.height)return false;if(innerHeight>innerWidth&&innerWidth>=386&&innerWidth<=600){const own=target.closest('.world-hand'),r=own&&rect(own);if(r?.width&&r?.height){v.y+=b.bottom-8-r.bottom;apply();return true;}}const inset=Math.min(8,Math.max(0,(b.height-a.height)/2));v.y+=b.top+inset-a.top;apply();return true;};
   const api={wrapper,content,alignStart,get view(){return{...v};},get size(){return{...size};},get interaction(){return interaction;},get pointerActive(){return points.size>0||touchFocusPending;},restore(saved,epoch=interaction){if(epoch!==interaction||points.size||!saved||![saved.scale,saved.x,saved.y].every(Number.isFinite))return;Object.assign(v,saved);measure();},zoom,fit,reveal,refresh:measure,destroy(){stopped=true;cancelAnimationFrame(frame);observer.disconnect();listeners.forEach(f=>f());remember();if(original.style==null)content.removeAttribute('style');else content.setAttribute('style',original.style);delete content.dataset.boardCameraPlane;if(wrapper.parentElement)wrapper.replaceWith(content);controllers.delete(content);}};controllers.set(content,api);return api;
  }
  // One viewport anchor per Hand & Foot entry/own-turn transition. Never per render.
