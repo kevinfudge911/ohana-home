@@ -6131,7 +6131,7 @@ dialog.oi-help .oi-ttt-win{box-shadow:inset 0 0 0 3px #297452;background:#e2f1d3
 .oi-help .oi-mj-treasure-guide>div,.oi-help .oi-mj-tile-guide>div{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:16px;line-height:1.4;min-width:0}
 
 </style>
-</head>
+<style id="ohana-hf-action-feedback">#game-controls-dock[data-game-type="handfoot"][data-hf-action-busy="true"]::after{content:"Finishing move…";position:absolute;right:8px;bottom:100%;padding:2px 6px;border-radius:6px;background:#173a35;color:#fff7d5;font:700 13px/1.2 Nunito,system-ui;pointer-events:none;white-space:nowrap}</style></head>
 <body>
 <div id="app"></div>
 <!-- OHANA SHARED CARD TABLE START -->
@@ -7250,7 +7250,7 @@ function renderFaithRoom(){
       <div class="pr-wall" id="pr-wall"></div>
       <p class="pr-foot">Every name here is lifted up. <span>Ohana means family — nobody prays alone.</span></p>
     </section>
-    <dialog id="pr-dialog" class="pr-dialog"></dialog>
+    <dialog id="pr-dialog" class="pr-dialog" aria-labelledby="pr-dialog-title"></dialog>
   </section>`;
   const setView=v=>{PR.view=v;m.querySelector('#faith-today').hidden=v!=='today';m.querySelector('#faith-wall').hidden=v!=='wall';m.querySelectorAll('[data-fview]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fview===v));};
   m.querySelectorAll('[data-fview]').forEach(b=>b.onclick=()=>setView(b.dataset.fview));
@@ -7311,7 +7311,7 @@ function prCompose(kind){
   const praise=kind==='praise';
   const dlg=$('#pr-dialog');
   dlg.innerHTML=`<form class="pr-compose ${praise?'praise':'prayer'}" method="dialog">
-    <h3>${praise?'🙌 Share a praise':'🙏 Ask for prayer'}</h3>
+    <h3 id="pr-dialog-title">${praise?'🙌 Share a praise':'🙏 Ask for prayer'}</h3>
     <p class="pr-compose-sub">${praise?'Tell the Ohana what God has done — big or small.':'What can your Ohana lift up for you? Nothing is too small.'}</p>
     <textarea id="pr-text" maxlength="800" rows="5" placeholder="${praise?'Praise report…':'On my heart today…'}"></textarea>
     <div class="pr-color-row" aria-label="Note color">${PR_COLORS.map((c,i)=>`<button type="button" class="pr-color ${i===0?'on':''}" data-pr-color="${i}" style="background:${c}!important" aria-label="Color ${i+1}"></button>`).join('')}</div>
@@ -7342,7 +7342,7 @@ function prNoteMenu(id){
   const dlg=$('#pr-dialog');
   const answered=p.status==='answered';
   dlg.innerHTML=`<div class="pr-menu-card">
-    <h3>${p.kind==='praise'?'Your praise':'Your prayer'}</h3>
+    <h3 id="pr-dialog-title">${p.kind==='praise'?'Your praise':'Your prayer'}</h3>
     <div class="pr-menu-list">
       <button data-a="edit">✏️ Edit the words</button>
       ${p.kind==='prayer'&&!answered?'<button data-a="answered">🙌 Mark as answered</button>':''}
@@ -7366,7 +7366,7 @@ function prEditNote(id){
   const praise=p.kind==='praise';
   const dlg=$('#pr-dialog');
   dlg.innerHTML=`<form class="pr-compose ${praise?'praise':'prayer'}" method="dialog">
-    <h3>${praise?'🙌 Edit your praise':'🙏 Edit your prayer'}</h3>
+    <h3 id="pr-dialog-title">${praise?'🙌 Edit your praise':'🙏 Edit your prayer'}</h3>
     <textarea id="pr-text" maxlength="800" rows="5">${esc(p.text||'')}</textarea>
     <div class="pr-compose-actions"><button type="button" class="soft" id="pr-cancel">Never mind</button><button type="button" id="pr-post">Save changes</button></div>
   </form>`;
@@ -7387,7 +7387,7 @@ function prEditNote(id){
 function prHelp(){
   const dlg=$('#pr-dialog');
   dlg.innerHTML=`<div class="pr-menu-card pr-about">
-    <h3>✝ The Prayer &amp; Praise Wall</h3>
+    <h3 id="pr-dialog-title">✝ The Prayer &amp; Praise Wall</h3>
     <p>A quiet place for our Ohana. Pin a <b>prayer request</b> when something is on your heart, or a <b>praise</b> when God comes through.</p>
     <p>Tap <b>🙏 I’ll pray</b> on anyone’s note to stand with them — they’ll see how many are praying. When a prayer is answered, mark it and it joins the <b>Answered</b> wall to celebrate.</p>
     <p>Want to keep it private? Check <b>post without my name</b> — only you will ever know it was yours.</p>
@@ -12750,7 +12750,10 @@ async function enterRoom(id,tab='games'){
   S.roomEpoch++;S.room=Number(id);localStorage.setItem('ohana_room',S.room);
   S.game=null;S.gstate=null;S.msgs=[];S.lastMsg=0;S.unread=0;S.sig=null;S.sync=null;S.tab=tab;
   app.innerHTML='<div class="join"><h2>Opening your room…</h2></div>';
-  await sync();render();
+  const entry={room:S.room,epoch:S.roomEpoch,token:S.token,member:S.me?.id,tab:S.tab,shelf:S.gameShelf,game:S.game,puzzle:PZ.id,lobby:PZ.lobby,granny:S.granny,color:S.colorBook,visit:S.gameEntryVisit,nav:window.OhanaScreenHistory?.navigationEpoch?.()??null,bridge:window.OhanaBridgeChildren?.activeRoute?.()??null};
+  await sync();
+  if(S.roomEpoch!==entry.epoch||S.room!==entry.room||S.token!==entry.token||S.me?.id!==entry.member||S.tab!==entry.tab||S.gameShelf!==entry.shelf||S.game!==entry.game||PZ.id!==entry.puzzle||PZ.lobby!==entry.lobby||S.granny!==entry.granny||S.colorBook!==entry.color||S.gameEntryVisit!==entry.visit||entry.nav!==null&&window.OhanaScreenHistory?.navigationEpoch?.()!==entry.nav||(window.OhanaBridgeChildren?.activeRoute?.()??null)!==entry.bridge)return;
+  render();
 }
 function renderRooms(){
   const sy=S.sync;if(!sy){$('#main').innerHTML='<p>Opening your doorways…</p>';return;}
@@ -12761,7 +12764,7 @@ function renderRooms(){
   ${(sy.deletedRooms||[]).length?`<details class="room-deleted"><summary>Deleted rooms</summary>${sy.deletedRooms.map(r=>`<p>${esc(r.name)} <button class="soft" data-room-restore="${r.id}" aria-label="Restore ${esc(r.name)} room">Restore</button></p>`).join('')}</details>`:''}
   <form id="new-room" class="room-create"><h3>Open another doorway</h3><label for="room-name">What shall we call your room?</label><input id="room-name" maxlength="48" placeholder="Pe-paw’s friends, Friday game night…" required><button type="submit">✦ Create my private room</button><small>Your friends can create their own private rooms here too.</small></form>
   <h2 class="shelf">Games across my rooms</h2><div class="room-all-games">${(sy.allGames||[]).filter(g=>g.in_game).map(g=>`<article class="room-game"><div><b>${esc(g.name)}</b><small>${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||'Room')} · ${g.my_turn?'Your turn':g.status==='waiting'?'Waiting for players':'In play'}</small></div><button class="soft" data-room-game="${g.id}" data-game-room="${g.room_id}">${g.in_game?'Open':'View'}</button></article>`).join('')||'<p>Your games will appear here, with the room they belong to.</p>'}</div>`;
-  $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>enterRoom(b.dataset.room));
+  $('#main').querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>{const roomId=Number(b.dataset.room),bridgeRoute=OhanaBridgeChildren.activeRoute();const opening=enterRoom(roomId),roomEpoch=S.roomEpoch;OhanaBridgeChildren.watchRoomsSelection(bridgeRoute,roomId,roomEpoch);return opening;});
   $('#main').querySelectorAll('[data-room-add]').forEach(b=>b.onclick=()=>openRoomMemberPicker(+b.dataset.roomAdd));
   $('#main').querySelectorAll('[data-room-share]').forEach(b=>b.onclick=()=>shareRoom(sy.rooms.find(r=>r.id===+b.dataset.roomShare)));
   $('#main').querySelectorAll('[data-room-game]').forEach(b=>b.onclick=async()=>{await enterRoom(b.dataset.gameRoom);await openGame(+b.dataset.roomGame);});
@@ -13369,6 +13372,45 @@ function spadesWorkstationContext(g,st,viewer){
  const bags=st.bags||{},count=team=>bags[team]??0;
  return 'Round '+(st.round||1)+' · '+(seat<0?'Team A bags':'Our bags')+' '+count(own)+' · '+(seat<0?'Team B bags':'Their bags')+' '+count(other);
 }
+// Keep a pointer press tied to the cards, turn, and legal action it began with.
+function hfActionIntentKey(button){
+ const g=S.gstate,st=g?.state,me=S.me?.id;
+ const hand=st?.inFoot?.[me]?st?.feet?.[me]:st?.hands?.[me];
+ return JSON.stringify([S.game,S.gameEntryVisit,g?.id,g?.type,g?.status,g?.turn,g?.players?.[g?.turn],st?.round,st?.hasDrawn,!!st?.inFoot?.[me],S.movePending,button?.id||button?.dataset?.dockDraw,!!button?.disabled,
+  (hand||[]).map(c=>c.id),st?.discardPile?.length,st?.discardPile?.[0]?.id,st?.lastDiscard?.cardId,(st?.melds?.[me]||[]).map(m=>[m.rank,(m.cards||[]).map(c=>c.id)]),
+  S.hfSel||[],S.hfQueue||[],S.hfMeldTarget||null,!!S.hfChoosingMeld,S.hfWild||{},S.hfWildSkip||{}]);
+}
+function installHfActionIntentGuard(){
+ if(document._ohanaHfActionIntentGuard)return;
+ document._ohanaHfActionIntentGuard=true;
+ let active=null,finished=null;
+ const action=e=>e.target instanceof Element?e.target.closest('#game-controls-dock[data-game-type="handfoot"] .dock-actions > button'):null;
+ const reject=e=>{e.preventDefault();e.stopImmediatePropagation();accessibleAnnounce('Table changed. Tap again.');};
+ document.addEventListener('pointerdown',e=>{
+  const button=action(e);
+  if(active){active.canceled=true;if(button)finished={button,canceled:true};return;}
+  if(!button)return;
+  active={button,pointerId:e.pointerId,key:hfActionIntentKey(button),canceled:false};finished=null;
+ },true);
+ document.addEventListener('pointerup',e=>{
+  if(!active||active.pointerId!==e.pointerId)return;
+  if(action(e)!==active.button)active.canceled=true;
+  finished=active;active=null;
+ },true);
+ document.addEventListener('pointercancel',e=>{
+  if(!active||active.pointerId!==e.pointerId)return;
+  active.canceled=true;finished=active;active=null;
+ },true);
+ document.addEventListener('keydown',e=>{if(action(e)&&(e.key==='Enter'||e.key===' '))finished=null;},true);
+ document.addEventListener('click',e=>{
+  const button=action(e);if(!button)return;
+  // A distinct keyboard/screen-reader click has no pointer type or touch source.
+  // Clear an abandoned canceled press without permitting a stale touch click.
+  if(e.detail===0&&!e.pointerType&&e.sourceCapabilities?.firesTouchEvents!==true){finished=null;return;}
+  const press=finished;finished=null;
+  if(!press||press.canceled||press.button!==button||press.key!==hfActionIntentKey(button))reject(e);
+ },true);
+}
 function mountGameControlDock(){
  installDrawIndicatorDismissal();
  const game=document.getElementById('game'),head=document.getElementById('game-head');if(!game||!head)return;
@@ -13377,17 +13419,27 @@ function mountGameControlDock(){
  const oldGameId=dock.dataset.gameId,oldGameType=dock.dataset.gameType;
  dock.classList.add('ohana-workstation');dock.dataset.gameId=String(g?.id||'');dock.dataset.gameType=g?.type||'';dock.setAttribute('aria-label','Game workstation');
  const keep={};for(const selector of ['#gb-back','.voice-toggle','#game-help','#hf-help','#game-quit-word','#next-game'])keep[selector]=head.querySelector(selector)||dock.querySelector(selector)||document.querySelector('#mahjong-next-holder '+selector)||document.querySelector('#game-context-controls '+selector);
- const oldActions=[...dock.querySelectorAll('.dock-actions > button')];
+  if(g?.type==='handfoot')installHfActionIntentGuard();
+  const oldActions=[...dock.querySelectorAll('.dock-actions > button')];
+  // Keep the exact Hand & Foot action nodes connected across a changed-state refresh.
+  const stableHf=g?.type==='handfoot'&&oldGameId===String(g.id)&&oldGameType==='handfoot'&&dock.parentElement===game&&!!dock.querySelector('.dock-command-row .dock-actions');
  const placePrompt=document.querySelector('#board .domino-place-prompt')||dock.querySelector('.domino-place-prompt');
- const actions=document.createElement('div'),left=document.createElement('div'),center=document.createElement('div'),right=document.createElement('div'),gear=document.createElement('div'),guide=document.createElement('div');
+  const actions=stableHf?dock.querySelector('.dock-actions'):document.createElement('div'),left=document.createElement('div'),center=document.createElement('div'),right=document.createElement('div'),gear=document.createElement('div'),guide=document.createElement('div');
  actions.className='dock-actions';actions.setAttribute('aria-label','Game actions');left.className='dock-side dock-left';center.className='dock-player';right.className='dock-side dock-right';
  gear.className='dock-gear';guide.className='dock-guide';const showMeldGuide=g?.type==='ohana10';dock.classList.remove('has-meld-guide');
- const commands=document.createElement('div');commands.className='dock-command-row';commands.append(left,actions,right);
- dock.replaceChildren(commands,center,gear,guide);
+  const commands=stableHf?dock.querySelector('.dock-command-row'):document.createElement('div');commands.className='dock-command-row';
+  if(stableHf){
+    commands.querySelector('.dock-left')?.replaceWith(left);commands.querySelector('.dock-right')?.replaceWith(right);
+    dock.querySelector(':scope > .dock-player')?.replaceWith(center);dock.querySelector(':scope > .dock-bottom-tools')?.remove();
+  }else{commands.append(left,actions,right);dock.replaceChildren(commands,center,gear,guide);}
  if(g?.type==='domino'&&placePrompt)guide.append(placePrompt);
  const actionSource=({words:'.game-tray .acts',handfoot:'#board .hf-acts',ohana10:'#board .o10-actions',mahjong:'#board .mj-tools',domino:'#board .domino-actions'})[g?.type];
- if(actionSource){const source=document.querySelector(actionSource),buttons=source?[...source.querySelectorAll(':scope > button')]:[];for(const button of buttons.length?buttons:source&&oldGameId===String(g?.id||'')&&oldGameType===g?.type?oldActions:[])actions.append(button);}
- if(['handfoot','ohana10'].includes(g?.type)&&!actions.querySelector('[data-dock-draw]')){const pile=document.getElementById(g.type==='handfoot'?'hf-draw-btn':'o10-deck');if(pile){const draw=document.createElement('button');draw.type='button';draw.dataset.dockDraw='true';draw.textContent=g.type==='handfoot'?'Draw 2':'Draw';draw.disabled=pile.disabled;draw.onclick=()=>pile.click();actions.prepend(draw);}}
+  if(actionSource){const source=document.querySelector(actionSource),buttons=source?[...source.querySelectorAll(':scope > button')]:[];for(const button of buttons.length?buttons:source&&oldGameId===String(g?.id||'')&&oldGameType===g?.type?oldActions:[]){
+    const held=stableHf&&button.id?oldActions.find(old=>old.id===button.id):null;
+    if(held){held.onclick=button.onclick;held.disabled=button.disabled;held.textContent=button.textContent;held.className=button.className;if(held!==button)button.remove();}else actions.append(button);
+  }}
+  if(g?.type==='handfoot'){const pile=document.getElementById('hf-draw-btn');if(pile){let draw=actions.querySelector('[data-dock-draw]');if(!draw){draw=document.createElement('button');draw.type='button';draw.dataset.dockDraw='true';draw.textContent='Draw 2';actions.prepend(draw);}draw.disabled=pile.disabled;draw.onclick=()=>{const current=document.getElementById('hf-draw-btn');if(current&&!current.disabled)current.click();};}}
+  else if(g?.type==='ohana10'&&!actions.querySelector('[data-dock-draw]')){const pile=document.getElementById('o10-deck');if(pile){const draw=document.createElement('button');draw.type='button';draw.dataset.dockDraw='true';draw.textContent='Draw';draw.disabled=pile.disabled;draw.onclick=()=>pile.click();actions.prepend(draw);}}
  const back=keep['#gb-back'];if(back)head.append(back);
 
  center.setAttribute('role','group');center.setAttribute('aria-label','All players and scores');if(g&&st&&S.me)center.innerHTML=gamePlayerOrder(g,S.me.id).map(p=>worldPortrait(p,g,st)).join('');
@@ -13643,7 +13695,13 @@ function renderGame() {
   const hadChatFocus = document.activeElement?.id === 'gchat-in';
   const gameScroll=window.scrollY;const sameWorldGame=S._worldGameId===g.id;S._worldGameId=g.id;
   const meId = S.me.id;
-  app.innerHTML = `<div id="game" data-game-type="${esc(g.type)}"><div class="body" id="gb"></div></div>`;
+  // Do not destroy an in-progress HF action press on an otherwise unrelated state refresh.
+  const heldGame=g.type==='handfoot'&&g.status==='playing'&&sameWorldGame?app.querySelector(':scope > #game[data-game-type="handfoot"]'):null;
+  const heldDock=heldGame?.querySelector(':scope > #game-controls-dock');
+  if(heldDock&&heldDock.dataset.gameId===String(g.id)){
+    for(const child of [...heldGame.children])if(child!==heldDock)child.remove();
+    const freshBody=document.createElement('div');freshBody.className='body';freshBody.id='gb';heldGame.insertBefore(freshBody,heldDock);
+  }else app.innerHTML = `<div id="game" data-game-type="${esc(g.type)}"><div class="body" id="gb"></div></div>`;
   const b = $('#gb');
   if (g.status === 'waiting') {
     if(g.replay_of){renderOhanaReplayWaiting(b,g);return;}
@@ -14424,12 +14482,12 @@ function leaderboardHtml(data){
  const views='<div class="lb-tabs lb-scoring-views" role="group" aria-label="Scoring view"><button type="button" data-lb-scoring="original" aria-pressed="'+!net+'" data-pz-tone="reef">Original scores</button><button type="button" data-lb-scoring="draw-pips-v1" aria-pressed="'+net+'" data-pz-tone="reef">New Draw net points</button></div>';
  const tabs=['<button data-lb-tab="overall" aria-pressed="true" data-pz-tone="mango">'+esc(scoring.overallLabel||(net?'New Draw standings':'Other games · original totals'))+'</button>'].concat(types.map(t=>`<button data-lb-tab="${t}" aria-pressed="false" data-pz-tone="reef">${esc((data.types&&data.types[t]&&data.types[t].name)||t)}</button>`));
  const panels=['<div data-lb-panel="overall">'+leaderboardRows(data.overall||[],rowOptions)+'</div>'].concat(types.map(t=>`<div data-lb-panel="${esc(t)}" hidden>`+leaderboardRows(data.byType[t],rowOptions)+'</div>'));
- return `<h3>🏆 Leaderboard</h3>${views}<p class="lb-scope-note" role="status">${esc(scoring.note||'New Draw Dominoes uses separate net-point standings. These views never combine those points with older counters.')}</p><div class="lb-tabs">${tabs.join('')}</div>${panels.join('')}<div class="pz-dialog-actions"><button data-lb-close data-pz-tone="reef">‹ Close</button></div>`;
+ return `<h3 id="ohana-leaderboard-title">🏆 Leaderboard</h3>${views}<p class="lb-scope-note" role="status">${esc(scoring.note||'New Draw Dominoes uses separate net-point standings. These views never combine those points with older counters.')}</p><div class="lb-tabs">${tabs.join('')}</div>${panels.join('')}<div class="pz-dialog-actions"><button data-lb-close data-pz-tone="reef">‹ Close</button></div>`;
 }
 async function openLeaderboard(){
  const d=document.getElementById('ohana-chat-dialog');if(d&&d.open){saveChatDraft();if(!window.OhanaBridgeChildren?.retain(d))d.close();}
- const dlg=document.createElement('dialog');dlg.id='ohana-leaderboard';dlg.className='pz-dialog';
- dlg.innerHTML='<div class="pz-dialog-card"><h3>🏆 Leaderboard</h3><p>Loading…</p></div>';
+ const dlg=document.createElement('dialog');dlg.id='ohana-leaderboard';dlg.className='pz-dialog';dlg.setAttribute('aria-labelledby','ohana-leaderboard-title');
+ dlg.innerHTML='<div class="pz-dialog-card"><h3 id="ohana-leaderboard-title">🏆 Leaderboard</h3><p>Loading…</p></div>';
  document.body.append(dlg);try{dlg.showModal();}catch{dlg.setAttribute('open','');}
  let epoch=0,closed=false;
  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
@@ -14451,7 +14509,7 @@ async function openLeaderboard(){
   }catch(e){
    if(closed||!dlg.isConnected||request!==epoch)return;
    const restoreFocus=initial||trigger===document.activeElement;
-   card.setAttribute('aria-busy','false');card.innerHTML='<h3>🏆 Leaderboard</h3><p role="alert">'+esc(e.message||'Could not load the leaderboard.')+'</p><div class="pz-dialog-actions"><button data-lb-close data-pz-tone="reef">‹ Close</button></div>';const close=card.querySelector('[data-lb-close]');close.onclick=()=>dlg.close();if(restoreFocus)close.focus({preventScroll:true});
+   card.setAttribute('aria-busy','false');card.innerHTML='<h3 id="ohana-leaderboard-title">🏆 Leaderboard</h3><p role="alert">'+esc(e.message||'Could not load the leaderboard.')+'</p><div class="pz-dialog-actions"><button data-lb-close data-pz-tone="reef">‹ Close</button></div>';const close=card.querySelector('[data-lb-close]');close.onclick=()=>dlg.close();if(restoreFocus)close.focus({preventScroll:true});
   }
  };
  await load('original');
@@ -14488,7 +14546,9 @@ function showPlayError(message) {
   dialog.querySelector('button').onclick=()=>dialog.close();document.body.append(dialog);dialog.showModal();
 }
 async function move(m, after) {
-  if(S.movePending)return;S.movePending=true;S.gameReadEpoch=(S.gameReadEpoch||0)+1;
+  if(S.movePending){if(S.gstate?.type==='handfoot')accessibleAnnounce('Finishing your move.');return;}S.movePending=true;S.gameReadEpoch=(S.gameReadEpoch||0)+1;
+  const hfDock=S.gstate?.type==='handfoot'?document.getElementById('game-controls-dock'):null;
+  if(hfDock){hfDock.dataset.hfActionBusy='true';hfDock.setAttribute('aria-busy','true');accessibleAnnounce('Finishing your move.');}
   if(S.gstate?.type==='ohana10'){
 
 
@@ -14520,7 +14580,7 @@ async function move(m, after) {
     // Celebrate the play in place; scrolling to the replay panel made the board jump after every move.
     if(g?.type==='words' && m.action==='play')runLastReveal(true,false);
   }
-  catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }finally{S.movePending=false;document.querySelector('#board')?.removeAttribute('aria-busy');if(S.game===gameId&&['domino','ohana10'].includes(S.gstate?.type))renderGame();}
+   catch (e) { if(wordPlay&&S.game===gameId)showPlayError(e.message);else toast(e.message,3500); }finally{S.movePending=false;const currentDock=document.getElementById('game-controls-dock');if(currentDock===hfDock){delete currentDock.dataset.hfActionBusy;currentDock.removeAttribute('aria-busy');}document.querySelector('#board')?.removeAttribute('aria-busy');if(S.game===gameId&&['domino','ohana10'].includes(S.gstate?.type))renderGame();}
   if(turnDone&&navigationCurrent()){
     if(turnStart.type==='memory'){
       S.memoryAutoWaiting=gameId;try{const until=Number(S.gstate?.state?.revealUntil)||0;if(until>Date.now())await new Promise(resolve=>setTimeout(resolve,until-Date.now()+30));if(!navigationCurrent())return;await loadGame(true);}finally{if(S.memoryAutoWaiting===gameId)S.memoryAutoWaiting=null;}
@@ -15091,6 +15151,8 @@ const OhanaBridgeChildren=(()=>{
  function restoreLabels(f){for(const[e,label]of f.labels)restoreLabel(e,label);}
  function clear(f){f.workEpoch++;f.observer?.disconnect();f.back?.remove();restoreLabels(f);if(route===f)route=null;}
  function discard(){const f=route;if(!f)return;clear(f);delete f.bridge.dataset.bridgeChildSuspended;if(window.ohanaAbandonBridgeOverlay)window.ohanaAbandonBridgeOverlay(f.bridge);else f.bridge.close();f.bridge.remove();window.OhanaScreenHistory?.endBridgeChild(f.id,f.history.ohanaOverlayNav);}
+ function watchRoomsSelection(id,roomId,roomEpoch){if(id&&route?.id===id&&route.action==='rooms'&&!route.returning&&authenticated(route.token,route.member)&&S.roomEpoch===roomEpoch&&Number(S.room)===roomId)route.pendingRoom={roomId,roomEpoch};}
+ function acceptedRoomsSync(d){const f=route,p=f?.pendingRoom;if(p&&f.action==='rooms'&&!f.returning&&authenticated(f.token,f.member)&&S.roomEpoch===p.roomEpoch&&Number(S.room)===p.roomId&&S.sync===d&&Number(d.roomId)===p.roomId)discard();}
  const isHome=e=>e?.matches?.('button,a')&&(/^(?:←\s*)?(?:(?:back|return)\s+to\s+)?(?:Ohana\s*)?Home$/i.test((e.getAttribute('aria-label')||e.textContent||'').trim())||e.matches('[data-ohana-home],#room-back,#ohana-game-home,.room-home'));
  function refresh(){const f=route;if(!activeRoute()||f!==route)return;
   for(const[e,label]of f.labels)if(!e.isConnected){restoreLabel(e,label);f.labels.delete(e);}
@@ -15136,7 +15198,7 @@ const OhanaBridgeChildren=(()=>{
  window.addEventListener('click',event=>{if(!activeRoute())return;const path=event.composedPath(),target=path.find(e=>e?.matches?.('button,a'));if(path.some(e=>e?.tagName==='DIALOG'))return;if(target&&(target.matches('[data-bridge-route-back],#chat-head')||route.labels.has(target)||isHome(target))){event.preventDefault();event.stopImmediatePropagation();back();}},true);
  window.addEventListener('popstate',event=>{const f=route;if(!f){if(event.state?.ohanaBridgeChild){event.stopImmediatePropagation();history.back();}return;}if(!authenticated(f.token,f.member)){discard();return;}if(f.history.ohanaOverlayNav&&event.state?.ohanaOverlayNav===f.history.ohanaOverlayNav){event.stopImmediatePropagation();resume(f);}else if(event.state?.ohanaBridgeChild!==f.id){discard();}},true);
  window.addEventListener('storage',event=>{if(route&&(event.key===null||event.key==='ohana_token')&&!authenticated(route.token,route.member))discard();});
- return{retain,ownDialog,isChild,closeChild,activeRoute,openRoute,outgoingGuard,back,discard};
+ return{retain,ownDialog,isChild,closeChild,activeRoute,openRoute,outgoingGuard,back,discard,watchRoomsSelection,acceptedRoomsSync};
 })();window.OhanaBridgeChildren=OhanaBridgeChildren;
 
 async function messengerGo(action){
@@ -15805,13 +15867,12 @@ function sync(options) {
     if (d.messages.length) { const fresh = d.messages.filter(x => x.id > S.lastMsg); S.msgs = [...S.msgs, ...fresh].slice(-200); S.lastMsg = S.msgs[S.msgs.length - 1].id; S.unread=0;  }
     const allTurnGames=d.allGames||d.games;
     const turns = allTurnGames.filter(g => g.my_turn).map(g => g.id);
-    // Don't pop a "your turn" toast while you're busy in a game or puzzle — it interrupts typing.
-    if (hadSync && !S.game && !PZ.id) for (const id of turns) if (!S.seenTurns.has(id) && id !== S.game) {  }
     S.seenTurns = new Set(turns);
     const sig = JSON.stringify([d.games, d.allGames, d.invitations, d.rooms, d.members.map(x => [x.id, x.online, x.avatar, x.name, x.about]), S.unread, d.familyName]);
     // Never rebuild the screen out from under you while you're in a puzzle (it live-updates itself) — that wipes your table-talk text.
     if (!S.game && !PZ.id && sig !== S.sig && S.tab !== 'chat' && !S.avatarEditing && S.tab!=='rooms' && S.tab!=='settings') render();
     S.sig = sig;
+    window.OhanaBridgeChildren?.acceptedRoomsSync?.(d);
   } catch (e) { /* quiet */ }
  });
 }
