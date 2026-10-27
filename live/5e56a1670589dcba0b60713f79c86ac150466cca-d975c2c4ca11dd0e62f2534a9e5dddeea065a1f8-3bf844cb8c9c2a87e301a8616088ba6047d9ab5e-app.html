@@ -7072,7 +7072,7 @@ function gamePlayerDisplay(id,g,st){
  let score=st.scores?.[id]??0,unit='points',detail='';
  if(g.type==='journey'){unit='pieces placed';}
  else if(g.type==='ohana10'){score=st.penalties?.[id]??0;unit='shells';detail='Meld '+Math.min(10,(st.journeys?.[id]||0)+1)+(st.completed?.[id]?' complete':'');}
- else if(g.type==='spades'){const team=seat%2===0?'A':'B';score=st.teamScores?.[team]??0;unit='team points';const bid=st.bids?.[id];detail='Bid '+(bid?(bid.nil?'Nil':(bid.amt??bid.amount??'—')):'—')+' · '+(st.tricksWon?.[id]||0)+' tricks';}
+ else if(g.type==='spades'){const team=seat%2===0?'A':'B';score=st.teamScores?.[team]??0;unit='team points';const bid=st.bids?.[id];detail='Team '+team+' · Bid '+(bid?(bid.nil?'Nil':(bid.amt??bid.amount??'—')):'—')+' · '+(st.tricksWon?.[id]||0)+' tricks';}
  else if(g.type==='handfoot'){const pile=st.inFoot?.[id]?st.feet?.[id]:st.hands?.[id];const n=Array.isArray(pile)?pile.length:Number(pile)||0;detail=n+' cards · '+(st.inFoot?.[id]?'Foot':'Hand');}
  else if(g.type==='mahjong'&&st.mode==='family'){unit='chips';const n=Array.isArray(st.hands?.[id])?st.hands[id].length:Number(st.hands?.[id])||0;detail=n+' tiles'+(g.players[st.dealer]===id?' · East':'')+(st.roundResult?' · '+(st.roundResult.delta[id]>=0?'+':'')+st.roundResult.delta[id]:'');}
  else if(g.type==='domino'){const n=Array.isArray(st.hands?.[id])?st.hands[id].length:Number(st.hands?.[id])||0;detail=n+' tile'+(n===1?'':'s')+(st.trains?' · Train '+(seat+1):'');}
@@ -7089,7 +7089,7 @@ function worldPortrait(id,g=null,st=null){
  const {score,unit,detail}=gamePlayerDisplay(id,g,st);
  const numericDetail=detail.match(/^\d+/)?.[0]||'';
  const meldMinimum=g?.type==='handfoot'?(st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeldFE(st.scores?.[id]||0)):undefined;
- const visibleDetail=g?.type==='handfoot'?'':g?.type==='ohana10'?'':g?.type==='spades'?(st?.bids?.[id]?.nil?'0':String(st?.bids?.[id]?.amt??st?.bids?.[id]?.amount??'—'))+' · '+(st?.tricksWon?.[id]||0):numericDetail;
+ const visibleDetail=g?.type==='handfoot'?'':g?.type==='ohana10'?'':g?.type==='spades'?'Team '+(g.players.findIndex(p=>String(p)===String(id))%2===0?'A':'B')+' · '+(st?.bids?.[id]?.nil?'0':String(st?.bids?.[id]?.amt??st?.bids?.[id]?.amount??'—'))+' · '+(st?.tricksWon?.[id]||0):numericDetail;
  return `<div class="world-seat ${me?'self':''} ${active?'current':''} ${avatar!=='🌺'&&!CHARACTERS[avatar]?'avatar-emoji':''}" data-player-id="${esc(id)}" aria-label="${esc(name+(score!==undefined?', '+score+' '+unit:'')+(detail?', '+detail:'')+(active?', current turn':''))}"${dmAttr(id)}><div class="world-portrait">${avatar==='🌺'?'<img src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt="Hibiscus" class="world-flower-avatar">':avatarMarkup(avatar)}</div><div class="world-nameplate"><b>${esc(name)}</b>${score!==undefined?'<span class="world-plate-score" aria-label="'+esc(score+' '+unit)+'">'+esc(score)+'</span>':''}${active?'<span class="world-turn" aria-label="Current turn">◆</span>':''}</div>${visibleDetail?'<small aria-label="'+esc(g?.type==='handfoot'?'Opening meld '+meldMinimum+' points':detail)+'">'+esc(visibleDetail)+'</small>':''}</div>`;
 }
 
@@ -16414,10 +16414,8 @@ function renderSpades(st,g,myTurn){
   return new Set(legal.map(c=>c.id));
  })();
 
- const seatInfo=players.map((p,i)=>({p,i,team:i%2===0?'A':'B',bid:st.bids?.[p],tricks:st.tricksWon?.[p]||0,mine:String(p)===String(me)}));
  const tribute=`<div class="sp-tribute"><div class="sp-beam"><img class="sp-beam-flower" src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt=""><b>Ohana Mike’s <span class="sp-beam-spade">♠</span></b><img class="sp-beam-flower" src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt=""></div></div>`;
 
-  const seats=`<div class="sp-table-seats" role="group" aria-label="Players in seat order">${seatInfo.map(s=>`<div class="sp-table-seat ${s.mine?'me':''}" ${String(players[g.turn])===String(s.p)?'aria-current="true"':''}>${avOf(s.p)}<b aria-label="${esc(nameOf(s.p)+(s.mine?' · You':''))}" title="${esc(nameOf(s.p))}">${esc(nameOf(s.p))}</b><small>Team ${s.team}</small><span class="sp-bid">${s.bid?'Bid '+spBidLabel(s.bid):'Not bid'}${st.phase==='playing'||st.phase==='gameOver'?' · '+s.tricks+' won':''}</span></div>`).join('')}</div>`;
  const trickCards=st.currentTrick?.length?st.currentTrick:(st.lastTrick||[]);
  const trick=`<div class="sp-trick" role="group" aria-label="Cards played in the trick">${trickCards.length?trickCards.map(pl=>`<div class="sp-played${String(pl.p)===String(me)?'':' ohana-facing-away'}"><div class="hf-card sp-card ${red(pl.card)?'red':'blk'}">${spFace(pl.card)}</div><small>${String(pl.p)===String(me)?'You':esc(nameOf(pl.p))}</small></div>`).join(''):'<small style="color:#cfe6df">'+''+'</small>'}</div>`;
   const spBidKey=g.id+':'+(st.round||1)+':'+String(players[g.turn]);let spDraft=S.spBidDraft?.key===spBidKey?S.spBidDraft.value:null;if(!myTurn||st.phase!=='bidding')spDraft=null;
@@ -16430,7 +16428,7 @@ function renderSpades(st,g,myTurn){
   bidbar=`<div class="winbox">${st.finalWinnerTeam==='tie'?"It's a tie!":won?'🎉 Your team won!':'🏆 The other team won!'}</div>`;
  }
  const handHtml=`<div class="hf-hand-title sp-hand-heading">Your hand <small>${hand.length}</small></div><div class="hf-hand" aria-label="Your hand, ${hand.length} cards">${hand.map(c=>`<button type="button" class="hf-card sp-card ${red(c)?'red':'blk'}" data-cid="${c.id}" aria-label="${esc(c.rank+' '+c.suit)}" ${!myTurn||st.phase!=='playing'||!legalIds.has(c.id)?'disabled':''}>${spFace(c)}</button>`).join('')}</div>`;
- $('#board').innerHTML=`<div class="hf-felt sp-felt sp-table-rebuilt" aria-label="Spades table">${seats}${bidbar}${st.phase==='playing'?'<p class="sp-play-cue">'+(st.currentTrick?.length?'Follow suit when you can.':'Lead one card.')+'</p>':''}${trick}${st.phase==='playing'||st.phase==='bidding'?handHtml:''}</div>`;
+ $('#board').innerHTML=`<div class="hf-felt sp-felt sp-table-rebuilt" aria-label="Spades table">${bidbar}${st.phase==='playing'?'<p class="sp-play-cue">'+(st.currentTrick?.length?'Follow suit when you can.':'Lead one card.')+'</p>':''}${trick}${st.phase==='playing'||st.phase==='bidding'?handHtml:''}</div>`;
   // Choosing a bid is local; only deliberate confirmation submits the existing bid action.
   const bidChoices=[...$('#board').querySelectorAll('[data-bid],[data-nil]')],bidConfirm=$('#board').querySelector('[data-sp-confirm-bid]');
   const paintBid=()=>{for(const button of bidChoices){const chosen=button.hasAttribute('data-nil')?spDraft?.nil===true:spDraft?.amount===Number(button.dataset.bid);button.setAttribute('aria-pressed',String(chosen));}if(bidConfirm){bidConfirm.disabled=!spDraft;bidConfirm.textContent=spDraft?'Confirm '+(spDraft.nil?'Nil':'bid '+spDraft.amount):'Choose your bid first';}};
@@ -17712,12 +17710,25 @@ body.granny-open #gr-main#gr-main#gr-main#gr-main#gr-main#gr-main.gr-dark .gr-le
       }
      }
 
-     // Spades keeps its hint above the cardinal, with one full-width grid track.
+     // Spades keeps every participant in bounded workstation columns; text may grow vertically.
      if(dock.dataset.gameType==='spades'){
-      set(dock,{'grid-template-columns':'minmax(0,1fr)','grid-template-rows':'44px auto var(--landscape-player-row,112px) auto'});
+      const columns=innerWidth<=600?2:4;
+      set(dock,{'grid-template-columns':'minmax(0,1fr)','grid-template-rows':'44px auto auto auto'});
       for(const row of dock.querySelectorAll(':scope > .dock-command-row'))set(row,{'grid-column':'1 / -1','grid-row':'1'});
       for(const guide of dock.querySelectorAll(':scope > .dock-guide'))set(guide,{'grid-column':'1 / -1','grid-row':'2','justify-self':'stretch',width:'100%','min-width':'0','max-width':'100%',margin:'0',padding:'0','white-space':'normal','overflow-wrap':'anywhere'});
-      for(const row of dock.querySelectorAll(':scope > .dock-player'))set(row,{'grid-column':'1 / -1','grid-row':'3','justify-self':'start'});
+      for(const row of dock.querySelectorAll(':scope > .dock-player')){
+       set(row,{display:'grid','grid-template-columns':'repeat('+columns+',minmax(0,1fr))','grid-auto-rows':'minmax(64px,auto)','grid-column':'1 / -1','grid-row':'3','justify-self':'start',width:'calc(100% - 56px)','max-width':'calc(100% - 56px)','min-width':'0',height:'auto','min-height':'0','max-height':'none',gap:'4px 6px',padding:'0','box-sizing':'border-box','overflow-x':'visible','overflow-y':'visible','touch-action':'auto','align-items':'start'});
+       for(const seat of row.querySelectorAll('.world-seat')){
+        set(seat,{display:'grid','grid-template-columns':'36px minmax(0,1fr)','grid-template-rows':'auto auto',width:'100%','min-width':'0','max-width':'100%',height:'auto','min-height':'64px',gap:'0 4px','box-sizing':'border-box','align-self':'start','align-items':'center','justify-content':'stretch'});
+        const portrait=seat.querySelector('.world-portrait');if(portrait)set(portrait,{'grid-column':'1','grid-row':'1 / 3',width:'36px',height:'44px','min-width':'0','min-height':'0','font-size':'28px','line-height':'44px'});
+        const image=portrait?.querySelector('img');if(image)set(image,{width:'36px',height:'44px','max-width':'36px','max-height':'44px','object-fit':'contain'});
+        const plate=seat.querySelector('.world-nameplate');if(plate)set(plate,{'grid-column':'2','grid-row':'1',display:'flex','flex-direction':'row','flex-wrap':'wrap','align-items':'center','justify-content':'flex-start',width:'100%','min-width':'0','max-width':'100%','min-height':'0',gap:'0 4px','white-space':'normal'});
+        const name=plate?.querySelector('b');if(name)set(name,{display:'block',flex:'1 0 100%',width:'100%','min-width':'0','max-width':'100%','font-size':'14px','line-height':'16px','white-space':'normal','overflow-wrap':'anywhere','text-align':'left',overflow:'visible','text-overflow':'clip'});
+        const score=plate?.querySelector('.world-plate-score');if(score)set(score,{flex:'0 1 auto','min-width':'0','max-width':'100%','font-size':'16px','line-height':'18px','white-space':'normal','overflow-wrap':'anywhere','text-align':'left'});
+        const turn=plate?.querySelector('.world-turn');if(turn)set(turn,{position:'static',top:'auto',right:'auto',flex:'0 0 auto','font-size':'10px'});
+        for(const detail of seat.querySelectorAll(':scope > small'))set(detail,{'grid-column':'2','grid-row':'2',width:'100%','min-width':'0','max-width':'100%',height:'auto','max-height':'none','font-size':'12px','line-height':'14px','white-space':'normal','overflow-wrap':'anywhere',overflow:'visible','text-overflow':'clip','text-align':'left'});
+       }
+      }
       for(const row of dock.querySelectorAll(':scope > .dock-bottom-tools'))set(row,{'grid-column':'1 / -1','grid-row':'4'});
      }
 
