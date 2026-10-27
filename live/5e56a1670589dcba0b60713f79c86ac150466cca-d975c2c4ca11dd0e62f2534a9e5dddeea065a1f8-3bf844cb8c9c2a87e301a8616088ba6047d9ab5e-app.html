@@ -5327,7 +5327,7 @@ html.ohana-world body #app #game:is([data-game-type=handfoot],[data-game-type=oh
 :root.ohana-world body #app #pz-board .pz-bottom-actions #pz-qt-gear{display:inline-flex!important;width:44px!important;min-width:44px!important;height:44px!important;background:none!important;border:0!important;box-shadow:none!important;color:#fff4dd!important;font-size:25px!important;padding:0!important}
 </style><style id="ohana-mikes-open-table-v40">
 :root.ohana-world body #app #game #board:has(.sp-felt){background:none!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;padding:0 12px calc(var(--game-rail-space,190px) + env(safe-area-inset-bottom,0px) + 24px)!important;overflow:visible!important}
-:root.ohana-world body #app #game #board .hf-felt.sp-felt{background:repeating-linear-gradient(0deg,#ffffff03 0 1px,transparent 1px 3px),radial-gradient(ellipse at 45% 20%,#217e57,#135c40 75%)!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:none!important;padding:14px!important;min-height:calc(100dvh - var(--game-rail-space,190px) - 85px)!important;clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)}
+:root.ohana-world body #app #game #board .hf-felt.sp-felt{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:none!important;padding:14px!important;min-height:calc(100dvh - var(--game-rail-space,190px) - 85px)!important;clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)}
 :root.ohana-world body #app #game #board .sp-felt .sp-tribute{height:90px!important;min-height:90px!important;flex:0 0 90px!important;margin:-14px -14px 0!important;width:calc(100% + 28px)!important;background:url('/ohana-mikes-room-photo-v2.webp?asset=ohana-v105-binary-repair-20261011') center 20%/cover!important;overflow:hidden!important}
 :root.ohana-world body #app #game #board .sp-beam{left:14px!important;top:14px!important;max-width:none!important}
 :root.ohana-world body #app #game #board .sp-beam b{font-size:clamp(24px,3vw,38px)!important}
@@ -21725,5 +21725,61 @@ window.OhanaBridgeOpenwork=(()=>{'use strict';
  :root.ohana-world body #app #game[data-game-type=spades] #game-controls-dock[data-game-type=spades]{
   --landscape-hub-reserve:56px!important;
  }
+}
+</style>
+<style id="ohana-spades-open-scenery-v1">
+/* Spades open scenery (presentation only). Regular Rummy is the placement reference: the local hand sits low against the
+   workstation as one compact overlapped row, the played trick sits directly above it, and Mike's room scenery stays visible.
+   No CSS felt/table backing is painted behind the play area. Game rules, handlers, card ids and the workstation are untouched. */
+@layer ohanaApproved{
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{
+  display:flex!important;flex-direction:column!important;
+  /* Fill the space between the arched header (about 26.6vw, capped) and the workstation (rail space is dock height + 28px). */
+  min-height:calc(100dvh - min(26.6vw,138px) - (var(--game-rail-space,160px) - 28px) - 14px)!important;
+  padding:8px 3% calc(var(--game-rail-space,160px) + 10px)!important;box-sizing:border-box!important}
+/* Inside the existing board viewport (camera plane) the plane already ends at the workstation, so no rail padding is needed. */
+:root.ohana-world body #app #game[data-game-type=spades] [data-game-board-viewport]>#board#board#board#board#board{padding-bottom:12px!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-felt.sp-table-rebuilt{
+  flex:1 1 auto!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;
+  gap:6px!important;min-height:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;clip-path:none!important}
+/* The played trick sits directly above the hand; the Follow-suit/Lead cue stays with it. */
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick{
+  order:1!important;margin:0!important;padding:0!important;gap:8px!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:flex-start!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick .sp-card{width:62px!important;min-width:0!important;max-width:62px!important;height:93px!important;aspect-ratio:auto!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-played{flex:0 1 auto!important;min-width:0!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-table-rebuilt>.sp-play-cue{order:0!important;margin:0 0 2px!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-bidding{order:0!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-hand-heading{order:2!important;margin:2px 0 0!important;font-size:15px!important;line-height:1.2!important}
+/* One low, compact, overlapped row. Thirteen cards always fit the row width; fewer cards keep the same step and stay centered. */
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand{
+  --sp-card:72px;--sp-min-strip:22px;
+  order:3!important;container-type:inline-size;display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:flex-end!important;
+  width:100%!important;max-width:none!important;margin:0!important;padding:4px 0 2px!important;gap:0!important;overflow:visible!important;box-sizing:border-box!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card{
+  width:var(--sp-card)!important;min-width:var(--sp-card)!important;max-width:var(--sp-card)!important;flex:0 0 var(--sp-card)!important;
+  height:auto!important;aspect-ratio:2/3!important;margin:0!important;padding:0!important;position:relative!important;transform:none!important;z-index:1}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card+.sp-card{
+  margin-left:clamp(calc(var(--sp-min-strip) - var(--sp-card)),calc((100cqw - var(--sp-card)) / 12 - var(--sp-card)),-14px)!important}
+/* Rank and suit live on the exposed left strip; the character art shifts right so the strip stays readable and tappable. */
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card:not(.sp-back) .sp-art{left:33%!important;right:10%!important;top:16%!important;height:46%!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-rank{
+  left:6%!important;right:auto!important;width:auto!important;top:36%!important;bottom:auto!important;font:900 19px/1 Arial,sans-serif!important;text-align:left!important;letter-spacing:-.5px!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-suit{
+  left:7%!important;right:auto!important;width:auto!important;top:54%!important;bottom:auto!important;font:900 20px/1 Arial,sans-serif!important;text-align:left!important}
+:root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card:focus-visible{z-index:3!important;outline:3px solid #9dff42!important;outline-offset:2px!important}
+@media(min-width:601px){
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand{--sp-card:84px;--sp-min-strip:32px}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-rank{font-size:22px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-suit{font-size:23px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick .sp-card{width:72px!important;max-width:72px!important;height:108px!important}
+}
+@media(max-height:500px) and (orientation:landscape){
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{min-height:0!important}
+ /* Short landscape keeps the existing scrolling play window and rail: flow from the top so nothing is clipped above. */
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-felt.sp-table-rebuilt{justify-content:flex-start!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand{--sp-card:64px;--sp-min-strip:26px;padding-top:2px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick .sp-card{width:52px!important;max-width:52px!important;height:78px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-felt.sp-table-rebuilt{gap:3px!important}
+}
 }
 </style>
