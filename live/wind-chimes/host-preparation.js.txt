@@ -37,10 +37,14 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
    audio=new engine.RecordedChimes({clips:catalog.clips,qualityReviewed:catalog.qualityReviewed,ownerLiveTestAllowed:true,
     getContext,isMuted:muted,isBusy:busy,isActive:audioEligible,document:doc,events});
    controller.audio=audio;controller.audioStatus=audio.available?'Sound off':'Recording awaiting listening review';
-   audio.setVolume(controller.prefs.volume);controller.notify();controls?.refresh();
+   audio.setVolume(controller.prefs.volume);controller.notify();restoreChosenSound();controls?.refresh();
   }).catch(()=>{if(valid(stamp,key)){controller.audioStatus='Sound unavailable; remains silent';controller.notify();}});
  }
  function resolveTarget(value){try{return getRenderTarget(value)||null;}catch{return null;}}
+ // A route/modal park stops voices, not the user's saved speaker choice. Re-arm only
+ // an already decoded recording in this still-running page context; browser unlock
+ // after a reload or suspended context always remains a trusted speaker tap.
+ function restoreChosenSound(){if(controls?.wantsSound()&&!muted()&&!doc.hidden)controller.resumeSoundIfUnlocked();}
  function safeScene(){try{return readScene()||null;}catch{return null;}}
  function nodeId(node){if(!node||typeof node!=='object')return null;if(!nodeIds.has(node))nodeIds.set(node,++nextNodeId);return nodeIds.get(node);}
  // A failed placement may be retried only after an actual scene/geometry change, never on every poll or frame.
@@ -135,7 +139,7 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
   const controlsVisible=context.sessionKey&&value.visible===true&&value.eligible===true&&value.appInert!==true&&value.activity!=='music'&&!suspended;
   if(controlsVisible&&!controls)controls=installChimeSoundControls({controller,document:doc,events,storage,getGlobalMuted,onTrustedEnable:()=>{const next=current();if(next.value.activity==='bridge'&&next.context.sessionKey===controller.sessionKey&&next.context.visible&&controller.sound&&!muted())bridgeSoundScope=soundScope(next.value,next.context);}});
   if(!controlsVisible&&controls){controls.destroy();controls=null;}
-  controller.globalMuteChanged();controls?.refresh();
+  controller.globalMuteChanged();restoreChosenSound();controls?.refresh();
   if(!context.visible||suspended){controller.mute();releaseMounted();return;}
   ensureAudio();
   if(!wantsRenderer()){if(mounted||pendingMount)park('renderer-target-unavailable',{preserveSound:bridgeReturnPending===scope&&controller.sound===true&&previousSession===context.sessionKey&&context.visible&&value.rendererEligible===true&&value.reducedMotion!==true&&!muted()});else releaseMounted();return;}

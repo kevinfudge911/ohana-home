@@ -28,6 +28,11 @@ export class ChimeController{
  hostMuted(){try{return!!this.audio?.isMuted?.();}catch{return true;}}
  hostAllowed(){try{return !this.hostMuted()&&(typeof this.audio?.allowed!=="function"||this.audio.allowed());}catch{return false;}}
  async enableSound(event){if(!event?.isTrusted||!this.active||!this.audio?.available)return false;const intent=++this.unlockIntent,epoch=this.epoch;try{const ok=await this.audio.unlock(event,this.prefs.volume);if(intent!==this.unlockIntent||epoch!==this.epoch||!this.active)return false;if(!this.hostAllowed()){this.mute();return false;}this.sound=!!ok;this.audioStatus=ok?'Sound enabled':'Sound unavailable';this.schedule();this.notify();return this.sound;}catch{if(intent!==this.unlockIntent||epoch!==this.epoch)return false;this.sound=false;this.audioStatus='Sound unavailable; remains silent';this.notify();return false;}}
+ // A saved ON choice can resume only a recording that this page already unlocked with
+ // a trusted gesture. A new/suspended context must wait for another real tap.
+ resumeSoundIfUnlocked(){if(this.destroyed||!this.active||this.reduced||!this.audio?.available||this.prefs.volume<=0||this.sound)return false;
+  if(this.audio.ctx?.state!=='running'||!this.audio.master||!this.audio.buffers?.length||!this.hostAllowed())return false;
+  this.sound=true;this.audioStatus='Sound enabled';this.schedule();this.notify();return true;}
  mute(){if(this.destroyed)return;this.unlockIntent++;this.sound=false;this.audio?.stop('mute');this.audioStatus=this.audio?.available?'Sound off':'Recording awaiting listening review';this.notify();}
  globalMuteChanged(){if(this.destroyed)return;if(this.hostMuted())this.mute();}
  strike(event=null,{rigIndex=null,tubeIndex=null,contact=false}={}){if(this.hostMuted()){this.mute();return false;}if(!this.active||!this.sound||this.prefs.volume===0||event&&!event.isTrusted)return false;const r=this.rigs[rigIndex??Math.floor(this.random()*this.rigs.length)];if(!r)return false;const index=tubeIndex??Math.floor(this.random()*r.tubes.length);const played=this.audio.play({volume:this.prefs.volume,index,epoch:this.epoch});if(played){this.stats.strikes++;if(!this.reduced&&!contact)r.strikerV+=.07;this.notify();}return!!played;}
