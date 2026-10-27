@@ -21773,6 +21773,14 @@ window.OhanaBridgeOpenwork=(()=>{'use strict';
  :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-suit{font-size:23px!important}
  :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick .sp-card{width:72px!important;max-width:72px!important;height:108px!important}
 }
+@media(min-width:601px) and (max-height:650px){
+ /* Short desktop/tablet-landscape windows: smaller cards so the whole play area clears the workstation. */
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand{--sp-card:64px;--sp-min-strip:26px}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-rank{font-size:18px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .hf-hand>.sp-card .sp-suit{font-size:19px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-trick .sp-card{width:52px!important;max-width:52px!important;height:78px!important}
+ :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board .sp-felt.sp-table-rebuilt{gap:3px!important}
+}
 @media(max-height:500px) and (orientation:landscape){
  :root.ohana-world body #app #game[data-game-type=spades] #board#board#board#board#board{min-height:0!important}
  /* Short landscape keeps the existing scrolling play window and rail: flow from the top so nothing is clipped above. */
