@@ -21220,12 +21220,73 @@ function* visibleTourSteps(c,api,recent,rng){
   const back=[second,{x:home.x,y:home.y-90,z:home.z/1.06},home],last=leg(back,b.end+dwellB,'Returning visibly to the original perch','the original perch');last.duration=clamp(back.slice(1).reduce((n,p,i)=>n+distance(p,back[i]),0)/230+.35,1.35,6);last.end=last.start+last.duration;const legs=[a,b,last];if(['game:shuffle','game:spades'].includes(c.screen)){a.foregroundPass=true;last.foregroundPass=true;}legs.visibleTour=true;
   if(last.end<=29.75&&(yield*visibleSafetySteps(legs,c,api)))return{plan:legs,key,kind:close?'visible-multi-stop-close-pass':'visible-multi-stop',reason:null};
  }
- return yield*visibleAirSteps(c,api,recent,rng);
+ return (yield*patternTourSteps(c,api,recent,rng))||(yield*visibleAirSteps(c,api,recent,rng));
 }
+/* Twenty-five fully visible Daddy flights. Every pattern starts and ends on the nest, stays inside the
+   viewport, and is still checked against protected content by safePlanSteps, so nothing here is ever
+   drawn behind a screen or hidden off the edge. Coordinates are viewport fractions; z is a depth factor
+   on the nest depth (smaller = closer and larger). */
+const DADDY_PATTERNS=[
+ ['window-loop',[[.5,.3,.9],[.75,.45,.75],[.5,.62,.7],[.25,.45,.8],[.5,.3,.9]]],
+ ['figure-eight',[[.3,.4,.85],[.2,.55,.75],[.35,.65,.7],[.5,.5,.8],[.65,.35,.85],[.8,.45,.75],[.65,.6,.7],[.5,.5,.8]]],
+ ['low-sweep-left',[[.6,.35,.9],[.3,.6,.7],[.15,.75,.65],[.3,.6,.75],[.55,.4,.9]]],
+ ['low-sweep-right',[[.4,.35,.9],[.7,.6,.7],[.85,.75,.65],[.7,.6,.75],[.45,.4,.9]]],
+ ['zigzag-descent',[[.25,.3,.95],[.75,.42,.85],[.25,.55,.75],[.75,.68,.7],[.5,.8,.65],[.5,.5,.8]]],
+ ['spiral-in',[[.2,.3,1],[.8,.35,.95],[.8,.75,.85],[.2,.75,.8],[.25,.45,.75],[.65,.48,.7],[.6,.65,.65],[.45,.6,.7]]],
+ ['spiral-out',[[.5,.5,.7],[.58,.55,.72],[.45,.62,.75],[.38,.5,.8],[.5,.38,.85],[.7,.45,.9],[.68,.7,.95],[.3,.72,1],[.25,.4,1.05]]],
+ ['dive-and-swoop',[[.5,.35,.9],[.5,.75,.6],[.65,.6,.7],[.5,.45,.85]]],
+ ['left-wall',[[.2,.3,.9],[.15,.5,.8],[.15,.7,.75],[.3,.8,.7],[.35,.55,.8]]],
+ ['right-wall',[[.8,.3,.9],[.85,.5,.8],[.85,.7,.75],[.7,.8,.7],[.65,.55,.8]]],
+ ['perimeter-patrol',[[.2,.3,.95],[.2,.75,.85],[.5,.82,.8],[.8,.75,.85],[.8,.3,.95],[.5,.35,.95]]],
+ ['s-curve',[[.25,.3,.9],[.75,.45,.8],[.25,.6,.75],[.75,.75,.7],[.5,.5,.8]]],
+ ['double-dip',[[.3,.3,.9],[.3,.7,.7],[.5,.4,.85],[.7,.7,.7],[.7,.3,.9]]],
+ ['lazy-loop-left',[[.35,.35,.9],[.15,.5,.8],[.3,.7,.7],[.5,.6,.75],[.45,.4,.85]]],
+ ['lazy-loop-right',[[.65,.35,.9],[.85,.5,.8],[.7,.7,.7],[.5,.6,.75],[.55,.4,.85]]],
+ ['hover-visit',[[.5,.4,.85],[.5,.6,.65],[.52,.58,.64],[.48,.62,.66],[.5,.6,.65],[.5,.42,.85]]],
+ ['corner-tour',[[.2,.25,1],[.8,.25,1],[.8,.78,.8],[.2,.78,.8],[.5,.5,.9]]],
+ ['diamond',[[.5,.3,.9],[.8,.55,.75],[.5,.8,.65],[.2,.55,.75],[.5,.35,.9]]],
+ ['wave-across',[[.15,.45,.85],[.3,.6,.75],[.45,.45,.85],[.6,.6,.75],[.75,.45,.85],[.85,.6,.75],[.5,.4,.9]]],
+ ['bounce',[[.3,.3,.9],[.3,.75,.65],[.5,.35,.9],[.7,.75,.65],[.7,.3,.9]]],
+ ['close-circle',[[.5,.4,.75],[.7,.55,.6],[.5,.7,.55],[.3,.55,.6],[.5,.42,.75]]],
+ ['far-circle',[[.5,.35,1.15],[.7,.5,1.25],[.5,.65,1.3],[.3,.5,1.25],[.5,.38,1.15]]],
+ ['loop-de-loop',[[.35,.4,.85],[.6,.45,.8],[.65,.6,.7],[.5,.68,.68],[.4,.55,.75],[.55,.42,.82],[.75,.5,.78],[.6,.35,.88]]],
+ ['glide-and-rise',[[.3,.3,.95],[.5,.65,.7],[.8,.72,.65],[.8,.4,.8],[.55,.32,.9]]],
+ ['room-crossing',[[.15,.35,.95],[.5,.45,.8],[.85,.6,.7],[.5,.7,.72],[.15,.6,.8],[.4,.4,.9]]]
+];
+function* patternTourSteps(c,api,recent,rng){
+ const home=c.home,v=c.viewport||{x:0,y:0,width:c.width,height:c.height},hit=index(c.obstacles);
+ // Clear airspace: the tallest full-width band directly below the nest with no protected content in its middle 60%.
+ const restB=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),mid={x:v.x+v.width*.2,w:v.width*.6};
+ let top=Math.max(v.y+4,restB.y+restB.h+4),bottom=v.y+v.height-6;
+ const inMid=c.obstacles.filter(o=>o.x+o.w>mid.x&&o.x<mid.x+mid.w);
+ // Content at nest level (the sign, its arrows) pushes the band start down; the first content below it ends the band.
+ for(let guard=0;guard<12;guard++){const straddle=inMid.find(o=>o.y<=top&&o.y+o.h>top);if(!straddle)break;top=straddle.y+straddle.h+4;}
+ for(const o of inMid){if(o.y>top)bottom=Math.min(bottom,o.y-6);}
+ const boxH=bottom-top;if(boxH<70)return null;
+ // Depth: a closer (larger) bird needs more room; keep the hull inside about 60% of the band height.
+ const zFloor=Math.max(.9,.72*404/(.6*boxH)),unit=hull(api,.72/Math.max(home.z,zFloor)),padX=unit.w/2+6,padY=unit.h/2+4;
+ const P=([fx,fy,zf])=>{const z=Math.max(zFloor,Math.min(6,home.z*zf));return{x:v.x+padX+fx*(v.width-2*padX),y:top+padY+fy*Math.max(0,boxH-2*padY),z};};
+ // Leave straight down through the gate under the sign before heading anywhere, and return the same way.
+ const lift={x:home.x,y:Math.min(top,home.y+30),z:home.z/1.03},gate={x:home.x,y:top+padY,z:home.z/1.06};
+ const order=DADDY_PATTERNS.map((p,i)=>i).sort(()=>rng()-.5);
+ for(const i of order){
+  const [name,shape]=DADDY_PATTERNS[i],key=c.screen+':tour:'+name;if(recent.some(p=>p.key===key))continue;yield;
+  const points=[home,lift,gate,...shape.map(P),gate,lift,home];
+  // Two or three continuous legs so a tour can run 12-28 seconds.
+  const legs=[];let start=.25;const n=points.length,cuts=n>8?[0,Math.floor(n/3),Math.floor(2*n/3),n-1]:[0,Math.floor(n/2),n-1];
+  for(let k=0;k<cuts.length-1;k++){const seg=points.slice(cuts[k],cuts[k+1]+1);if(seg.length<2)continue;const l=leg(seg,start,k===0?'Taking off for a '+name.replace(/-/g,' ')+' flight':k===cuts.length-2?'Gliding home to the nest':'Flying the '+name.replace(/-/g,' '),k===cuts.length-2?'the original perch':'clear room air');l.duration=clamp(l.duration*1.2,4,12);l.end=l.start+l.duration;legs.push(l);start=l.end;}
+  if(!legs.length)continue;
+  if(legs.at(-1).end>29.5){const f=29.25/legs.at(-1).end;let s0=.25;for(const l of legs){l.start=s0;l.duration=Math.max(3.5,l.duration*f);l.end=l.start+l.duration;s0=l.end;}if(legs.at(-1).end>29.75)continue;}
+  if(yield*safePlanSteps(legs,c,api,hit))return{plan:legs,key,kind:'tour:'+name,reason:null};
+ }
+ return null;
+}
+
 function* chooseSteps(c,api,recent,rng=Math.random){
  if(['game:ohana10','game:handfoot','game:words','puzzle','game:shuffle','game:spades'].includes(c.screen))return yield*visibleTourSteps(c,api,recent,rng);
- if(rng()<.24){const near=yield*closePassSteps(c,api,recent,rng);if(near)return near;}
- const home=c.home,rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4};if(index(c.obstacles)(near))return yield*edgeSteps(c,api,recent,rng);const homeScale=.72/home.z,scale=clamp(homeScale*1.22,.18,.6),g=yield* gridSteps(c,api,scale);if(!g.nodes.length||Math.min(...g.nodes.map(p=>distance(p,home)))>Math.max(100,homeScale*300)){const clear=yield* foregroundSteps(c,api,recent,rng);if(clear)return clear;}if(!g.nodes.length)return yield*edgeSteps(c,api,recent,rng);
+ // Daddy is never hidden or sent off screen: the twenty-five visible tours come first, then the room grid.
+ const tour=yield*patternTourSteps(c,api,recent,rng);if(tour)return tour;
+ const home=c.home,rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1}),near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4};const homeScale=.72/home.z,scale=clamp(homeScale*1.22,.18,.6),g=yield* gridSteps(c,api,scale);if(!g.nodes.length||Math.min(...g.nodes.map(p=>distance(p,home)))>Math.max(100,homeScale*300)){const clear=yield* foregroundSteps(c,api,recent,rng);if(clear)return clear;}if(!g.nodes.length)return{plan:null,reason:'no-visible-route-yet'};
  const targets=[...c.perches.map(p=>({...p,land:true})),...g.nodes.filter(p=>distance(p,home)>Math.min(c.width,c.height)*.25).sort(()=>rng()-.5).slice(0,12).map(p=>({...p,z:.72/scale,land:false,kind:'air-arc'}))];
  for(const target of targets){if(!(target.x>0&&target.y>0&&target.x<c.width&&target.y<c.height))continue;const outbound=yield* searchSteps(home,target,g,c,rng),inbound=yield* searchSteps(target,home,g,c,rng);if(!outbound||!inbound)continue;
  const key=c.screen+':'+target.kind+':'+outbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';')+':'+inbound.map(p=>Math.round(p.x/48)+','+Math.round(p.y/48)).join(';');if(recent.some(v=>v.key===key))continue;
@@ -21239,7 +21300,7 @@ function* chooseSteps(c,api,recent,rng=Math.random){
   }
   const first=leg(depths(outbound,home,target),.25,'Approaching a clear '+target.kind,'a clear '+target.kind),back=leg(depths(inbound,target,home),first.end+2+rng()*2,'Returning to the original perch','the original perch');legs=[first,back];}else{const points=[...outbound,...inbound.slice(1)],all=depths(points,home,home);legs=[leg(all,.25,'A quiet flight through the room','the original perch')];}
  if(yield* safePlanSteps(legs,c,api,g.hit))return{plan:legs,key,kind:target.kind,reason:null};
- }return (yield* foregroundSteps(c,api,recent,rng))||(yield*edgeSteps(c,api,recent,rng));
+ }return (yield* foregroundSteps(c,api,recent,rng))||{plan:null,reason:'no-visible-route-yet'};
 }
 function drain(iterator){let step;do{step=iterator.next();}while(!step.done);return step.value;}
 function safePlan(...args){return drain(safePlanSteps(...args));}
@@ -21433,8 +21494,8 @@ function install({getState=()=>null,getPuzzleState=()=>null,api=typeof OhanaMemo
  // Launch zone: controls or text that Daddy's nest already overlaps at rest must not
  // block his takeoff and landing. Only the small zone around the nest is carved out
  // of those obstacles; everywhere else they keep their full protection.
- function launchClear(rects){const home=study?.home;if(!home)return rects;let rest=null;try{rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1});}catch{return rects;}if(!rest||![rest.x,rest.y,rest.w,rest.h].every(Number.isFinite))return rects;const near={x:rest.x-2,y:rest.y-2,w:rest.w+4,h:rest.h+4},pad=Math.max(rest.w,rest.h)*1.15+8,zone={x:rest.x-pad,y:rest.y-pad,w:rest.w+2*pad,h:rest.h+2*pad},out=[];
-  for(const r of rects){if(!routes.intersects(r,near)){out.push(r);continue;}const x1=r.x,y1=r.y,x2=r.x+r.w,y2=r.y+r.h,zx1=zone.x,zy1=zone.y,zx2=zone.x+zone.w,zy2=zone.y+zone.h;if(y1<zy1)out.push({...r,y:y1,h:Math.min(y2,zy1)-y1});if(y2>zy2){const y=Math.max(y1,zy2);out.push({...r,y,h:y2-y});}const my1=Math.max(y1,zy1),my2=Math.min(y2,zy2);if(my2>my1){if(x1<zx1)out.push({...r,x:x1,y:my1,w:Math.min(x2,zx1)-x1,h:my2-my1});if(x2>zx2){const x=Math.max(x1,zx2);out.push({...r,x,y:my1,w:x2-x,h:my2-my1});}}}
+ function launchClear(rects){const home=study?.home;if(!home)return rects;let rest=null;try{rest=api.bounds({...home,scale:.72/home.z,phase:'rest',facing:1});}catch{return rects;}if(!rest||![rest.x,rest.y,rest.w,rest.h].every(Number.isFinite))return rects;const pad=Math.max(rest.w,rest.h)*1.15+8,zone={x:rest.x-pad,y:rest.y-pad,w:rest.w+2*pad,h:rest.h+3*pad},out=[];
+  for(const r of rects){if(!routes.intersects(r,zone)){out.push(r);continue;}const x1=r.x,y1=r.y,x2=r.x+r.w,y2=r.y+r.h,zx1=zone.x,zy1=zone.y,zx2=zone.x+zone.w,zy2=zone.y+zone.h;if(y1<zy1)out.push({...r,y:y1,h:Math.min(y2,zy1)-y1});if(y2>zy2){const y=Math.max(y1,zy2);out.push({...r,y,h:y2-y});}const my1=Math.max(y1,zy1),my2=Math.min(y2,zy2);if(my2>my1){if(x1<zx1)out.push({...r,x:x1,y:my1,w:Math.min(x2,zx1)-x1,h:my2-my1});if(x2>zx2){const x=Math.max(x1,zx2);out.push({...r,x,y:my1,w:x2-x,h:my2-my1});}}}
   return out.filter(b=>b.w>0&&b.h>0);}
  function obstacles(c,dt=0,holdStatic=false){cacheAge+=dt;if(dirty&&!holdStatic){const scene=sceneData(c);cache=[...staticObstacles(c),...scene.obstacles];sceneCache=scene;dirty=false;cacheAge=0;}c.painted=sceneCache.painted;const puzzle=puzzleGeometry();c.perches=(c.screen==='game:shuffle'||c.screen==='game:spades')?cardRoomPerches(c):[...sceneCache.perches,...puzzle.perches,...tenPerches(c),...tablePerches(c)];return launchClear([...cache,...puzzle.boxes].map(clipped).filter(b=>b.w>0&&b.h>0));}
  function liveGeometryChanged(dt=0){
