@@ -18511,7 +18511,7 @@ new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true
    if(instance){instance.resume();status='prepared-host-active';return;}
    if(!promise){status='loading-prepared-host';promise=Promise.resolve().then(loadHost);promise.catch(()=>{});}
    promise.then(module=>{if(destroyed||parked||stamp!==generation||key(read())!==route||!eligible(read()))return;
-    if(!instance){instance=module.createPreparedChimeHost({readState:read,readScene,getContext,getGlobalMuted,getBusy,document:doc,events,storage,loadRenderer,getRenderTarget});}
+    if(!instance){instance=module.createPreparedChimeHost({readState:read,readScene,getContext,getGlobalMuted,getBusy,document:doc,events,storage,loadRenderer,getRenderTarget,loadWeather:()=>typeof api==='function'?api('/api/wind'):null});}
     instance.resume();status='prepared-host-active';
    }).catch(()=>{if(!destroyed&&stamp===generation)status='prepared-host-unavailable';});
   }

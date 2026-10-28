@@ -9715,6 +9715,35 @@ __name222(rid, "rid");
 __name2222(rid, "rid");
 __name22222(rid, "rid");
 __name222222(rid, "rid");
+// Real local wind for the wind chimes. Location comes from Cloudflare's request geolocation (city level,
+// no browser permission prompt); Ohana home base is the fallback. Open-Meteo needs no key. Cached ten minutes
+// per rounded location so a family refreshing all day costs a handful of calls.
+const WIND_HOME = { lat: 37.07, lon: -93.55, name: "Billings, MO" };
+async function windApi(req) {
+  const cf = req.cf || {};
+  let lat = Number(cf.latitude), lon = Number(cf.longitude), name = [cf.city, cf.region].filter(Boolean).join(", ");
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; name = WIND_HOME.name; }
+  lat = Math.round(lat * 10) / 10; lon = Math.round(lon * 10) / 10;
+  const key = new Request("https://ohana-wind.internal/v1?lat=" + lat + "&lon=" + lon);
+  let cache = null, hit = null;
+  try { cache = caches.default; hit = await cache.match(key); } catch {}
+  let body = null;
+  if (hit) { try { body = await hit.json(); } catch { body = null; } }
+  if (!body) {
+    let data = null;
+    try {
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=ms&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
+      if (r.ok) data = await r.json();
+    } catch {}
+    const c = data && data.current;
+    const speed = c ? Number(c.wind_speed_10m) : NaN;
+    body = Number.isFinite(speed)
+      ? { authorized: true, available: true, units: "m/s", speedMps: speed, gustMps: Number.isFinite(Number(c.wind_gusts_10m)) ? Number(c.wind_gusts_10m) : Math.round(speed * 15) / 10, directionDeg: Number.isFinite(Number(c.wind_direction_10m)) ? Number(c.wind_direction_10m) : 0, observed: c.time || null, updatedAt: Date.now(), place: { lat, lon, name } }
+      : { authorized: true, available: false, units: "m/s", updatedAt: Date.now(), place: { lat, lon, name } };
+    if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + (body.available ? 600 : 120) } })); } catch {} }
+  }
+  return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
 async function hash(s) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("ohana:" + s));
   return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
@@ -11859,6 +11888,7 @@ async function api2(req, env222222, url) {
   }
   const me = await auth(req, env222222);
   if (!me) return err("Please sign in.", 401);
+  if (p === "/api/wind" && req.method === "GET") return windApi(req);
   if(p === "/api/granny/word-check" && req.method === "GET")return grannyWordCheck(req,db,url);
   if (p === "/api/granny") return grannyApi(req, db, me, body);
   const managed = await childPolicy(db, me.id);

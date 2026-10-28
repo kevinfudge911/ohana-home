@@ -6,7 +6,7 @@ import {installChimeSoundControls} from './chime-sound-controls.js';
 export function createPreparedChimeHost({readState,readScene=()=>null,getContext,getGlobalMuted=()=>true,getBusy=()=>false,
  document:doc=globalThis.document,events=globalThis,storage=globalThis.localStorage,
  loadAudio=()=>Promise.all([import('./recorded-audio-layered.js'),import('./audio/catalog.js')]),
- loadRenderer=null,getRenderTarget=()=>null,
+ loadRenderer=null,getRenderTarget=()=>null,loadWeather=null,setInterval:setTimer=(f,t)=>globalThis.setInterval(f,t),clearInterval:clearTimer=id=>globalThis.clearInterval(id),
  requestFrame=callback=>globalThis.requestAnimationFrame(callback),cancelFrame=id=>globalThis.cancelAnimationFrame(id)}={}){
  if(typeof readState!=='function')throw Error('Sanitized host reader required');
  let destroyed=false,suspended=false,generation=0,frame=null,mounted=null,pendingMount=null,audio=null,controls=null;
@@ -17,7 +17,15 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  const muted=()=>{try{return!!getGlobalMuted()||!!controls?.isMuted();}catch{return true;}};
  const busy=()=>{try{return!!getBusy();}catch{return true;}};
  const current=()=>{const value=state();return{value,context:audioHostContext(value)};};
- const controller=new ChimeController({storage,allowSharedWeather:false});
+ const controller=new ChimeController({storage,allowSharedWeather:typeof loadWeather==='function'});
+ // Real local wind: the app supplies loadWeather (an authenticated /api/wind read). The chimes swing and
+ // strike with the actual wind at the viewer's location; when no reading is available they keep the
+ // simulated breeze. A reading is reapplied whenever the controller falls back to simulated wind.
+ let weather=null,weatherTimer=null,weatherBusy=false;const WEATHER_FRESH=1800000,WEATHER_POLL=600000;
+ const weatherFresh=()=>!!weather&&Date.now()-weather.updatedAt<WEATHER_FRESH;
+ function applyWeather(){if(destroyed||!weatherFresh()||controller.wind.mode==='shared-weather')return;controller.setSharedWeather(weather);}
+ async function refreshWeather(){if(destroyed||typeof loadWeather!=='function'||weatherBusy)return;const value=state();if(value.authenticated!==true||value.visible!==true)return;weatherBusy=true;try{const w=await loadWeather();if(!destroyed&&w&&w.available===true&&w.units==='m/s'&&Number.isFinite(w.speedMps)){weather={authorized:true,available:true,units:'m/s',speedMps:w.speedMps,gustMps:Number.isFinite(w.gustMps)?w.gustMps:w.speedMps,directionDeg:Number.isFinite(w.directionDeg)?w.directionDeg:0,updatedAt:Date.now(),place:w.place||null};controller.setSharedWeather(weather);}}catch{}finally{weatherBusy=false;}}
+ if(typeof loadWeather==='function'){controller.subscribe(s=>{if(s.mode==='simulated'&&s.session)applyWeather();});weatherTimer=setTimer(()=>{if(!weatherFresh()||Date.now()-weather.updatedAt>WEATHER_POLL)refreshWeather();else applyWeather();},60000);Promise.resolve().then(refreshWeather);}
  const valid=(stamp,key)=>!destroyed&&!suspended&&generation===stamp&&current().context.routeKey===key&&current().context.visible;
  function cancelOwnedFrame(){if(frame!==null){cancelFrame(frame);frame=null;}}
  function releaseMounted(){cancelOwnedFrame();const old=mounted;mounted=null;if(old){try{old.instance?.destroy?.();}catch{}old.layer.remove();}controller.setScene('',[]);}
@@ -147,6 +155,6 @@ export function createPreparedChimeHost({readState,readScene=()=>null,getContext
  }
  function suspend(reason='host-hidden'){if(destroyed)return;suspended=true;park(reason);guard.stop(reason);controls?.destroy();controls=null;}
  function resume(){if(destroyed)return;const wasSuspended=suspended;suspended=false;if(wasSuspended){geometryFailure=null;geometryRetries=0;}refresh();}
- function destroy(){if(destroyed)return;suspend('host-destroyed');destroyed=true;controls?.destroy();controls=null;guard.destroy();controller.destroy();audio=null;}
- return{refresh,resume,suspend,destroy,controller,get snapshot(){return{phase:'V6-INTEGRATION-CANDIDATE',rendererInstalled:typeof loadRenderer==='function',rendererStatus:mounted?'v6-mounted':typeof loadRenderer==='function'?'v6-pending':'v6-unavailable',audioLoaded:!!audio,audioAvailable:audio?.available===true,generation,framesPending:frame!==null,mounted:!!mounted,recoveryPending:!!geometryFailure,stats:{...stats},destroyed};}};
+ function destroy(){if(destroyed)return;suspend('host-destroyed');destroyed=true;if(weatherTimer!==null){clearTimer(weatherTimer);weatherTimer=null;}controls?.destroy();controls=null;guard.destroy();controller.destroy();audio=null;}
+ return{refresh,resume,suspend,destroy,controller,get snapshot(){return{phase:'V6-INTEGRATION-CANDIDATE',weather:weather?{...weather}:null,windMode:controller.wind.mode,rendererInstalled:typeof loadRenderer==='function',rendererStatus:mounted?'v6-mounted':typeof loadRenderer==='function'?'v6-pending':'v6-unavailable',audioLoaded:!!audio,audioAvailable:audio?.available===true,generation,framesPending:frame!==null,mounted:!!mounted,recoveryPending:!!geometryFailure,stats:{...stats},destroyed};}};
 }
