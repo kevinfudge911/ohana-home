@@ -12754,7 +12754,7 @@ async function openPrivateDuckville(){
  const visit=duckvilleVisit,tab=S.tab,game=S.game,puzzle=PZ.id,granny=S.granny,color=S.colorBook,lobby=PZ.lobby,shelf=S.gameShelf;
  const current=()=>duckvilleVisit===visit&&S.token===token&&S.me?.id===member&&Number(S.room)===room&&S.roomEpoch===roomEpoch&&S.tab===tab&&S.game===game&&PZ.id===puzzle&&S.granny===granny&&S.colorBook===color&&PZ.lobby===lobby&&S.gameShelf===shelf&&duckvillePanel?.isConnected!==false&&(S.sync?.rooms||[]).some(r=>Number(r.id)===room);
  duckvilleCurrent=current;
- const main=document.getElementById('main');if(!main){closePrivateDuckville();return}const d=document.createElement('section');duckvillePanel=d;d.setAttribute('aria-label','Ohana Gathering');d.setAttribute('data-private-ohana-room','');
+ const main=document.getElementById('main');if(!main){closePrivateDuckville();return}duckvilleOpenHash=location.hash;const d=document.createElement('section');duckvillePanel=d;d.setAttribute('aria-label','Ohana Gathering');d.setAttribute('data-private-ohana-room','');
  /* Same Bridge as every other screen: the sign reads Ohana Gathering, left arrow is Back, right arrow is Play. */
  d.innerHTML='<header class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close aria-label="Back">Back</button><h1 data-unified-title-source>Ohana Gathering</h1></header><p class="gathering-weather" aria-live="polite"></p><p role="status">Opening your room…</p><div data-private-room></div>';
  paintGatheringWeather(d.querySelector('.gathering-weather'),'Weather center');
@@ -12771,7 +12771,9 @@ async function openPrivateDuckville(){
 // Existing renderRooms doorway calls openPrivateDuckville. It does not recreate Bridge.
 // Pinned lifecycle patch preserves unchanged authenticated room frame before app.innerHTML;
 // native Home/tab/game/puzzle/granny transitions close it synchronously.
-function leavePrivateDuckvilleHistory(){if(!duckvillePanel)return;closePrivateDuckville();render()}
+let duckvilleOpenHash='';
+/* The Bridge opens and closes with a history step; coming back to the hash the room opened at is not leaving the room. */
+function leavePrivateDuckvilleHistory(){if(!duckvillePanel)return;if(location.hash===duckvilleOpenHash)return;closePrivateDuckville();render()}
 window.addEventListener('popstate',leavePrivateDuckvilleHistory);
 window.addEventListener('hashchange',leavePrivateDuckvilleHistory);
 window.addEventListener('pagehide',()=>{closePrivateGatheringEntry();closePrivateDuckville()});
