@@ -12776,7 +12776,7 @@ window.addEventListener('pagehide',()=>{closePrivateGatheringEntry();closePrivat
 async function installPrivateDuckvilleDoor(){
  if(!DUCKVILLE_APPROVED_ROOM_ID||Number(S.room)!==DUCKVILLE_APPROVED_ROOM_ID||!(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID))return;
  const main=document.getElementById('main');if(!main||main.querySelector('[data-private-room-door]'))return;
- closePrivateGatheringEntry();const b=document.createElement('button');b.setAttribute('data-private-room-door','');main.prepend(b);
+ closePrivateGatheringEntry();const b=document.createElement('button');b.setAttribute('data-private-room-door','');/* The door sits in the room list, right under the Puzzle room. */const rooms=main.querySelector('.ohana-seven-rooms'),puzzle=rooms?.querySelector(':scope>.pz-invite');if(puzzle)puzzle.after(b);else if(rooms)rooms.prepend(b);else main.prepend(b);
  const token=S.token,member=S.me?.id,room=S.room,epoch=S.roomEpoch;let canceled=false;duckvilleEntryAbort=()=>{canceled=true;b.remove()};
  const current=()=>!canceled&&b.isConnected&&S.token===token&&S.me?.id===member&&S.room===room&&S.roomEpoch===epoch&&(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID);
  try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else duckvilleEntry=entry}catch{b.remove()}
