@@ -12733,6 +12733,8 @@ function closePrivateDuckville(){
  ++duckvilleVisit;duckvilleCurrent=null;duckvilleMounted?.dispose();duckvilleMounted=null;
  const old=duckvillePanel;duckvillePanel=null;if(old)old.remove();
 }
+/* Ohana Gathering controls live in the Bridge like every other room: Inside / Porch / Ducks. */
+let duckvilleView='inside',duckvilleDucksPaused=false;
 function readPrivateDuckvilleHostState(){
  // Exact master/busy predicates from pinned app18607; music shell activity18572–75.
  let masterMuted=true,busy=true,reduced=true,paused=true;
@@ -12743,7 +12745,7 @@ function readPrivateDuckvilleHostState(){
   reduced=localStorage.getItem('ohana_less_motion')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   paused=JSON.parse(localStorage.getItem('ohana_chimes_device_v1')||'{}').paused===true;
  }catch{}
- return {masterMuted:!!masterMuted,busy:!!busy,visible:!document.hidden&&!!duckvilleCurrent?.(),reduced:!!reduced,paused:!!paused};
+ return {masterMuted:!!masterMuted,busy:!!busy,visible:!document.hidden&&!!duckvilleCurrent?.(),reduced:!!reduced,paused:!!paused||duckvilleDucksPaused,view:duckvilleView};
 }
 async function openPrivateDuckville(){
  closePrivateGatheringEntry();closePrivateDuckville();
@@ -15371,6 +15373,7 @@ async function messengerGo(action){
  if(action==='puzzle-next'){$('#pz-next-game')?.click();return;}
  if(action==='puzzle-full'){$('#pz-full')?.click();return;}
  if(action==='game-sound'){setGameMuted(!AudioSys.muted);return;}
+ if(action==='gathering-inside'||action==='gathering-porch'||action==='gathering-ducks'){if(action==='gathering-ducks')duckvilleDucksPaused=!duckvilleDucksPaused;else duckvilleView=action==='gathering-inside'?'inside':'outside';duckvilleMounted?.refreshHostState();if(d?.open){for(const b of d.querySelectorAll('[data-go^="gathering-"]'))b.setAttribute('aria-pressed',String(b.dataset.go==='gathering-ducks'?!duckvilleDucksPaused:b.dataset.go===(duckvilleView==='inside'?'gathering-inside':'gathering-porch')));}return;}
  if(action==='game-help'){if(S.game)showTableHelp(S.gstate?.type);return;}
 
  if(action==='puzzle-peek'){pzTogglePeek();return;}
@@ -15401,7 +15404,8 @@ function bridgeCommandsHtml(){
   if(['ohana10','handfoot'].includes(S.gstate?.type))current+=button('game-meld-help','Meld guide','Meld requirement and examples');
  }
  const family=button('games','Games','Choose a game')+button('puzzle','Puzzle','The Puzzle Room')+button('history','History','Finished games in your family rooms')+button('others','Other games','Other games in your rooms')+button('ohana','Ohana','Ohana Home')+button('invite','Invite','Invite family and friends')+button('rooms','Rooms','Family rooms')+button('faith','Got Jesus','Bible and prayer')+button('settings','Settings')+button('leaderboard','Scores','Leaderboard')+((S.me?.is_admin||S.me?.can_announce)?button('megaphone','Announce','Send an announcement to everyone'):'')+(S.me?.is_admin?button('aichat','AI Chat','Ohana AI Chat'):'');
- return '<div class="uc-command-sections" role="group" aria-label="Bridge commands">'+(current?group('current',inPuzzle?'Current puzzle':document.getElementById('gr-workstation')?'Current activity':'Current game',current):'')+group('family','Family &amp; rooms',family)+'</div>';
+ const gathering=duckvillePanel?group('gathering','Ohana Gathering',button('gathering-inside','Inside','Inside with the ducks','aria-pressed="'+String(duckvilleView==='inside')+'"')+button('gathering-porch','Porch','Porch and outside','aria-pressed="'+String(duckvilleView==='outside')+'"')+button('gathering-ducks','Ducks','Ducks moving','aria-pressed="'+String(!duckvilleDucksPaused)+'"')):'';
+ return '<div class="uc-command-sections" role="group" aria-label="Bridge commands">'+gathering+(current?group('current',inPuzzle?'Current puzzle':document.getElementById('gr-workstation')?'Current activity':'Current game',current):'')+group('family','Family &amp; rooms',family)+'</div>';
 }
 async function refreshChatInbox(){
  if(!S.me||!S.token||UC.busy)return;UC.busy=true;
