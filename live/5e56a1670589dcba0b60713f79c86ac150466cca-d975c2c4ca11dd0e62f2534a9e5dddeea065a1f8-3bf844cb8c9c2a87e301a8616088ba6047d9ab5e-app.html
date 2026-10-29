@@ -12754,7 +12754,8 @@ async function openPrivateDuckville(){
  duckvilleCurrent=current;
  const main=document.getElementById('main');if(!main){closePrivateDuckville();return}const d=document.createElement('section');duckvillePanel=d;d.setAttribute('aria-label','Ohana Gathering');d.setAttribute('data-private-ohana-room','');
  /* Same Bridge as every other screen: the sign reads Ohana Gathering, left arrow is Back, right arrow is Play. */
- d.innerHTML='<header class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close aria-label="Back">Back</button><h1 data-unified-title-source>Ohana Gathering</h1></header><p role="status">Opening your room…</p><div data-private-room></div>';
+ d.innerHTML='<header class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close aria-label="Back">Back</button><h1 data-unified-title-source>Ohana Gathering</h1></header><p class="gathering-weather" aria-live="polite"></p><p role="status">Opening your room…</p><div data-private-room></div>';
+ paintGatheringWeather(d.querySelector('.gathering-weather'),'Weather center');
  d.querySelector('[data-close]').onclick=()=>{closePrivateDuckville();render()};
  main.replaceChildren(d);const nativeHeading=document.querySelector?.('#app > header h1');if(nativeHeading)nativeHeading.textContent='Ohana Gathering';
  try{
@@ -12773,13 +12774,23 @@ window.addEventListener('popstate',leavePrivateDuckvilleHistory);
 window.addEventListener('hashchange',leavePrivateDuckvilleHistory);
 window.addEventListener('pagehide',()=>{closePrivateGatheringEntry();closePrivateDuckville()});
 
+/* Ohana Gathering is the weather center: temperature, wind and sky for wherever the family member is. */
+let gatheringWeatherCache={at:0,text:''};
+async function gatheringWeatherText(){
+ if(Date.now()-gatheringWeatherCache.at<600000&&gatheringWeatherCache.text)return gatheringWeatherCache.text;
+ try{const r=await fetch('/api/wind',{headers:{authorization:'Bearer '+S.token}});const w=await r.json();if(!w||!w.available)return '';
+  const parts=[];if(Number.isFinite(w.tempF))parts.push(w.tempF+'°');if(Number.isFinite(w.windMph))parts.push('Wind '+w.windMph+' mph'+(w.windFrom?' '+w.windFrom:''));if(w.condition)parts.push(w.condition);
+  const text=parts.join(' · ');gatheringWeatherCache={at:Date.now(),text};return text;}catch{return '';}
+}
+function paintGatheringWeather(el,lead){if(!el)return;gatheringWeatherText().then(t=>{if(el.isConnected)el.textContent=lead+(t?' · '+t:'');});}
+(()=>{const st=document.createElement('style');st.id='ohana-gathering-weather-v1';st.textContent='@layer ohanaApproved{[data-private-room-door]{position:relative!important}[data-private-room-door] .gathering-door-caption{position:absolute;left:0;right:0;bottom:0;margin:0;padding:22px 10px 8px;text-align:center;font:800 15px/1.3 Nunito,system-ui,sans-serif;color:var(--ohana-action-green,#43ff81);text-shadow:0 1px 2px #000;background:linear-gradient(transparent,#00000099);pointer-events:none}[data-private-room-door] .gathering-door-caption small{display:block;font-weight:600;font-size:13px;color:#fff6cf}[data-private-ohana-room] .gathering-weather{margin:4px 0 6px;text-align:center;font:800 16px/1.3 Nunito,system-ui,sans-serif;color:var(--ohana-action-green,#43ff81);text-shadow:0 1px 2px #000}}';document.head.append(st);})();
 async function installPrivateDuckvilleDoor(){
  if(!DUCKVILLE_APPROVED_ROOM_ID||Number(S.room)!==DUCKVILLE_APPROVED_ROOM_ID||!(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID))return;
  const main=document.getElementById('main');if(!main||main.querySelector('[data-private-room-door]'))return;
  closePrivateGatheringEntry();const b=document.createElement('button');b.setAttribute('data-private-room-door','');/* The door sits in the room list, right under the Puzzle room. */const rooms=main.querySelector('.ohana-feature-invites'),puzzle=rooms?.querySelector(':scope>.pz-invite');if(puzzle)puzzle.after(b);else if(rooms)rooms.prepend(b);else main.prepend(b);
  const token=S.token,member=S.me?.id,room=S.room,epoch=S.roomEpoch;let canceled=false;duckvilleEntryAbort=()=>{canceled=true;b.remove()};
  const current=()=>!canceled&&b.isConnected&&S.token===token&&S.me?.id===member&&S.room===room&&S.roomEpoch===epoch&&(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID);
- try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else duckvilleEntry=entry}catch{b.remove()}
+ try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else{duckvilleEntry=entry;const cap=document.createElement('p');cap.className='gathering-door-caption';cap.innerHTML='Ohana Gathering · Weather Center<small>Everybody\'s welcome — tap to come sit a spell with the family and the ducks</small>';b.append(cap);paintGatheringWeather(cap.firstChild,'Ohana Gathering · Weather Center');}}catch{b.remove()}
 }
 
 // Insert before render(); explicit reviewed configuration. No inferred room/member IDs.

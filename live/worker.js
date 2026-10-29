@@ -9722,12 +9722,19 @@ __name222222(rid, "rid");
 // no browser permission prompt); Ohana home base is the fallback. Open-Meteo needs no key. Cached ten minutes
 // per rounded location so a family refreshing all day costs a handful of calls.
 const WIND_HOME = { lat: 37.07, lon: -93.55, name: "Billings, MO" };
+function weatherWords(code) {
+  if (!Number.isFinite(code)) return "";
+  if (code === 0) return "Clear"; if (code === 1) return "Mostly clear"; if (code === 2) return "Partly cloudy"; if (code === 3) return "Cloudy";
+  if (code === 45 || code === 48) return "Foggy"; if (code >= 51 && code <= 57) return "Drizzle"; if (code >= 61 && code <= 67) return "Rain";
+  if (code >= 71 && code <= 77) return "Snow"; if (code >= 80 && code <= 82) return "Rain showers"; if (code === 85 || code === 86) return "Snow showers";
+  if (code >= 95) return "Thunderstorm"; return "";
+}
 async function windApi(req) {
   const cf = req.cf || {};
   let lat = Number(cf.latitude), lon = Number(cf.longitude), name = [cf.city, cf.region].filter(Boolean).join(", ");
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; name = WIND_HOME.name; }
   lat = Math.round(lat * 10) / 10; lon = Math.round(lon * 10) / 10;
-  const key = new Request("https://ohana-wind.internal/v1?lat=" + lat + "&lon=" + lon);
+  const key = new Request("https://ohana-wind.internal/v2?lat=" + lat + "&lon=" + lon);
   let cache = null, hit = null;
   try { cache = caches.default; hit = await cache.match(key); } catch {}
   let body = null;
@@ -9735,13 +9742,17 @@ async function windApi(req) {
   if (!body) {
     let data = null;
     try {
-      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=ms&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,apparent_temperature,weather_code,relative_humidity_2m&wind_speed_unit=ms&temperature_unit=fahrenheit&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
       if (r.ok) data = await r.json();
     } catch {}
     const c = data && data.current;
     const speed = c ? Number(c.wind_speed_10m) : NaN;
     body = Number.isFinite(speed)
-      ? { authorized: true, available: true, units: "m/s", speedMps: speed, gustMps: Number.isFinite(Number(c.wind_gusts_10m)) ? Number(c.wind_gusts_10m) : Math.round(speed * 15) / 10, directionDeg: Number.isFinite(Number(c.wind_direction_10m)) ? Number(c.wind_direction_10m) : 0, observed: c.time || null, updatedAt: Date.now(), place: { lat, lon, name } }
+      ? { authorized: true, available: true, units: "m/s", speedMps: speed, gustMps: Number.isFinite(Number(c.wind_gusts_10m)) ? Number(c.wind_gusts_10m) : Math.round(speed * 15) / 10, directionDeg: Number.isFinite(Number(c.wind_direction_10m)) ? Number(c.wind_direction_10m) : 0, observed: c.time || null, updatedAt: Date.now(), place: { lat, lon, name },
+          /* Weather center (Ohana Gathering): plain readings for people. */
+          tempF: Number.isFinite(Number(c.temperature_2m)) ? Math.round(Number(c.temperature_2m)) : null, feelsF: Number.isFinite(Number(c.apparent_temperature)) ? Math.round(Number(c.apparent_temperature)) : null, humidity: Number.isFinite(Number(c.relative_humidity_2m)) ? Math.round(Number(c.relative_humidity_2m)) : null,
+          windMph: Math.round(speed * 2.23694), gustMph: Math.round((Number.isFinite(Number(c.wind_gusts_10m)) ? Number(c.wind_gusts_10m) : speed * 1.5) * 2.23694), windFrom: ["N","NE","E","SE","S","SW","W","NW"][Math.round(((Number(c.wind_direction_10m) || 0) % 360) / 45) % 8],
+          weatherCode: Number.isFinite(Number(c.weather_code)) ? Number(c.weather_code) : null, condition: weatherWords(Number(c.weather_code)) }
       : { authorized: true, available: false, units: "m/s", updatedAt: Date.now(), place: { lat, lon, name } };
     if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + (body.available ? 600 : 120) } })); } catch {} }
   }
