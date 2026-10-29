@@ -93,7 +93,6 @@ bucket_name = "ohana-gathering-private"
 DUCKVILLE_APPROVED_ROOM_ID = "1"
 PEPAW_FAMILY_ROOM_ID = "1"
 PEPAW_OWNER_MEMBER_ID = "2"
-DUCKVILLE_UPLOAD_KEY = "gather-65351de01581223763f37c9f"
 
 [[previews.durable_objects.bindings]]
 name = "PUZZLE"
