@@ -1,7 +1,7 @@
 /** Private Worker adapter. Deliberately no inferred room ID or storage binding. */
 export const files = Object.freeze({
  'room.html':'text/html; charset=utf-8','room.css':'text/css; charset=utf-8','room.js':'text/javascript; charset=utf-8',
- 'assets/porch-outside.png':'image/png','assets/room-art.png':'image/png','assets/duck-motion-atlas.png':'image/png','assets/fudge-family-plaque.png':'image/png','assets/chime-primary-canopy.webp':'image/webp','assets/chime-v6-atlas.webp':'image/webp','assets/chime-tube01.mp3':'audio/mpeg','assets/chime-tube03.mp3':'audio/mpeg','assets/chime-tube04.mp3':'audio/mpeg','assets/memorial-original.jpg':'image/jpeg'
+ 'assets/porch-outside.png':'image/png','assets/porch-sign.png':'image/png','assets/room-art.png':'image/png','assets/duck-motion-atlas.png':'image/png','assets/fudge-family-plaque.png':'image/png','assets/chime-primary-canopy.webp':'image/webp','assets/chime-v6-atlas.webp':'image/webp','assets/chime-tube01.mp3':'audio/mpeg','assets/chime-tube03.mp3':'audio/mpeg','assets/chime-tube04.mp3':'audio/mpeg','assets/memorial-original.jpg':'image/jpeg'
 });
 const headers = {'Cache-Control':'private, no-store, max-age=0','Vary':'Authorization','X-Content-Type-Options':'nosniff','Cross-Origin-Resource-Policy':'same-origin','Referrer-Policy':'no-referrer'};
 const deny=(status)=>new Response('Unavailable',{status,headers});

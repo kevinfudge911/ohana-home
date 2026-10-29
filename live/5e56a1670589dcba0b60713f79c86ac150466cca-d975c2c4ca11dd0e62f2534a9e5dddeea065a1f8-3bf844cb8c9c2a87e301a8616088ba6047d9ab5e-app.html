@@ -12787,14 +12787,22 @@ async function gatheringWeatherText(){
   const text=parts.join(' · ');gatheringWeatherCache={at:Date.now(),text};return text;}catch{return '';}
 }
 function paintGatheringWeather(el,lead){if(!el)return;gatheringWeatherText().then(t=>{if(el.isConnected)el.textContent=lead+(t?' · '+t:'');});}
-(()=>{const st=document.createElement('style');st.id='ohana-gathering-weather-v1';st.textContent='@layer ohanaApproved{[data-private-room-door]{position:relative!important}[data-private-room-door] .gathering-door-caption{position:absolute;left:0;right:0;bottom:0;margin:0;padding:22px 10px 8px;text-align:center;font:800 15px/1.3 Nunito,system-ui,sans-serif;color:var(--ohana-action-green,#43ff81);text-shadow:0 1px 2px #000;background:linear-gradient(transparent,#00000099);pointer-events:none}[data-private-room-door] .gathering-door-caption small{display:block;font-weight:600;font-size:13px;color:#fff6cf}[data-private-ohana-room] .gathering-weather{margin:4px 0 6px;text-align:center;font:800 16px/1.3 Nunito,system-ui,sans-serif;color:var(--ohana-action-green,#43ff81);text-shadow:0 1px 2px #000}}';document.head.append(st);})();
+(()=>{const st=document.createElement('style');st.id='ohana-gathering-weather-v1';st.textContent='@layer ohanaApproved{.gathering-feature-scene>img+img{display:none!important}.gathering-invite .gathering-weather-chip{color:var(--ohana-action-green,#43ff81)!important;font-weight:800!important}[data-private-ohana-room] .gathering-weather{margin:4px 0 6px;text-align:center;font:800 16px/1.3 Nunito,system-ui,sans-serif;color:var(--ohana-action-green,#43ff81);text-shadow:0 1px 2px #000}}';document.head.append(st);})();
 async function installPrivateDuckvilleDoor(){
  if(!DUCKVILLE_APPROVED_ROOM_ID||Number(S.room)!==DUCKVILLE_APPROVED_ROOM_ID||!(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID))return;
  const main=document.getElementById('main');if(!main||main.querySelector('[data-private-room-door]'))return;
- closePrivateGatheringEntry();const b=document.createElement('button');b.setAttribute('data-private-room-door','');/* The door sits in the room list, right under the Puzzle room. */const rooms=main.querySelector('.ohana-feature-invites'),puzzle=rooms?.querySelector(':scope>.pz-invite');if(puzzle)puzzle.after(b);else if(rooms)rooms.prepend(b);else main.prepend(b);
- const token=S.token,member=S.me?.id,room=S.room,epoch=S.roomEpoch;let canceled=false;duckvilleEntryAbort=()=>{canceled=true;b.remove()};
+ closePrivateGatheringEntry();
+ /* The door is a room card like Ohana United and Ohana Blessings, right under the Puzzle room: picture with the carved sign, weather line, Go. */
+ const card=document.createElement('section');card.className='gathering-invite';card.setAttribute('data-private-room-door','');card.setAttribute('aria-label','Open Ohana Gathering, the weather center');
+ const b=document.createElement('div');b.className='ohana-feature-scene gathering-feature-scene';b.setAttribute('role','button');b.tabIndex=0;
+ const h3=document.createElement('h3');h3.textContent='Ohana Gathering';
+ const foot=document.createElement('div');foot.className='ohana-feature-foot';foot.innerHTML='<div class="pz-invite-status gathering-invite-status" aria-live="polite"><span class="pz-invite-chip gathering-weather-chip">Weather center</span></div><button type="button" class="pz-invite-go gathering-invite-go ohana-button" data-tone="reef">Go</button>';
+ card.append(b,foot);
+ const rooms=main.querySelector('.ohana-feature-invites'),puzzle=rooms?.querySelector(':scope>.pz-invite');if(puzzle)puzzle.after(card);else if(rooms)rooms.prepend(card);else main.prepend(card);
+ paintGatheringWeather(foot.querySelector('.gathering-weather-chip'),'Weather center');
+ const token=S.token,member=S.me?.id,room=S.room,epoch=S.roomEpoch;let canceled=false;duckvilleEntryAbort=()=>{canceled=true;card.remove()};
  const current=()=>!canceled&&b.isConnected&&S.token===token&&S.me?.id===member&&S.room===room&&S.roomEpoch===epoch&&(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID);
- try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else{duckvilleEntry=entry;const cap=document.createElement('p');cap.className='gathering-door-caption';cap.innerHTML='Ohana Gathering · Weather Center<small>Everybody\'s welcome — tap to come sit a spell with the family and the ducks</small>';b.append(cap);paintGatheringWeather(cap.firstChild,'Ohana Gathering · Weather Center');}}catch{b.remove()}
+ try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else{duckvilleEntry=entry;b.append(h3);foot.querySelector('.gathering-invite-go').onclick=()=>b.click();}}catch{card.remove()}
 }
 
 // Insert before render(); explicit reviewed configuration. No inferred room/member IDs.
@@ -13054,8 +13062,17 @@ function updateRoomPlayClocks(){
 setInterval(updateRoomPlayClocks,30000);
 
 // ---------- WHAT'S NEW board ----------
-const NEWS_VERSION='2026-10-28-bridge-v1';
+const NEWS_VERSION='2026-10-29-gathering-v1';
 const NEWS=[
+{
+  "key": "gathering-oct29-room-v1",
+  "title": "Ohana Gathering",
+  "sub": "Our porch, our ducks, and the weather",
+  "blurb": "A new room for the whole family: the duck enclosure porch with PePaw, Sue and Mike in their chairs, the ducks wandering, and Dad\u2019s cardinal on the shelf. Find it on Home, right under the Puzzle room. It is also the weather center: the card and the room show the temperature, wind and sky where you are.\n\nTap OHANA on the sign for Inside, Porch and Ducks. Tap Chimes under the picture to hear the chimes. Only our family can see this room.",
+  "img": "/ohana-cardinal-daddy-cap-v1.png",
+  "tone": "reef",
+  "tag": "NEW"
+},
 {
   "key": "bridge-oct28-new-bridge-v1",
   "title": "Your new Ohana Bridge",
