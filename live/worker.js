@@ -1,3 +1,6 @@
+import {createPePawRoute} from './pepaw/private-route.mjs';
+import {bindCurrentWorker} from './duckville-private/current-worker-adapter.mjs';
+import {readDuckvillePrivateFile} from './duckville-private/storage.mjs';
 import {chimeStaticResponse} from "./wind-chimes-static.js";
 import { handleAnnouncementMedia } from "./ohana-announcement-media.js";
 import { env as OHANA_PUSH_ENV } from "cloudflare:workers";
@@ -11108,6 +11111,13 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    if(p.startsWith('/api/ohana-character/'))return createPePawRoute({auth,roomId:env222222.PEPAW_FAMILY_ROOM_ID,ownerMemberId:env222222.PEPAW_OWNER_MEMBER_ID})(req,env222222);
+    if(p.startsWith('/api/duckville/')) {
+      try {
+        const handler=bindCurrentWorker({auth,privateRead:readDuckvillePrivateFile,approvedRoomId:env222222.DUCKVILLE_APPROVED_ROOM_ID});
+        return await handler(req,env222222) || new Response('Unavailable',{status:404,headers:{'cache-control':'private, no-store'}});
+      } catch {return new Response('Unavailable',{status:503,headers:{'cache-control':'private, no-store'}});}
+    }
     const chimeAsset=chimeStaticResponse(req);if(chimeAsset)return chimeAsset;
     if(/^\/api\/music\/audio\/m_[a-f0-9-]+$/.test(p))return handleMusicAudio(req,env222222,ohanaMusicReadable);
     if(req.method==='GET'&&p==='/ohana-blessings-prayer-sign-v1.webp')return new Response(OHANA_BLESSINGS_SIGN,{headers:{'content-type':'image/webp','cache-control':'public,max-age=3600'}});

@@ -7084,13 +7084,13 @@ function gamePlayerDisplay(id,g,st){
 function gamePlayerOrder(g,me){const players=g?.players||[];return players.some(p=>String(p)===String(me))?[...players.filter(p=>String(p)===String(me)),...players.filter(p=>String(p)!==String(me))]:[...players];}
 function worldPortrait(id,g=null,st=null){
  const me=String(id)===String(S.me?.id),member=g?.names?.[id]||(S.sync?.members||[]).find(p=>String(p.id)===String(id))||(me?S.me:null);
- const name=member?.name||nameOf(id),avatar=member?.avatar||(id===-1?'@hon':'🌺');
+ const pepaw=window.ohanaPePawPortrait?.resolve(id);const name=pepaw?.name||member?.name||nameOf(id),avatar=member?.avatar||(id===-1?'@hon':'🌺');
  const active=g&&g.status==='playing'&&String(g.players[g.turn])===String(id);
  const {score,unit,detail}=gamePlayerDisplay(id,g,st);
  const numericDetail=detail.match(/^\d+/)?.[0]||'';
  const meldMinimum=g?.type==='handfoot'?(st.rulesVersion===2?[50,90,120,150][Math.min(3,(st.round||1)-1)]:hfMinMeldFE(st.scores?.[id]||0)):undefined;
  const visibleDetail=g?.type==='handfoot'?'':g?.type==='ohana10'?'':g?.type==='spades'?'Team '+(g.players.findIndex(p=>String(p)===String(id))%2===0?'A':'B')+' · '+(st?.bids?.[id]?.nil?'0':String(st?.bids?.[id]?.amt??st?.bids?.[id]?.amount??'—'))+' · '+(st?.tricksWon?.[id]||0):numericDetail;
- return `<div class="world-seat ${me?'self':''} ${active?'current':''} ${avatar!=='🌺'&&!CHARACTERS[avatar]?'avatar-emoji':''}" data-player-id="${esc(id)}" aria-label="${esc(name+(score!==undefined?', '+score+' '+unit:'')+(detail?', '+detail:'')+(active?', current turn':''))}"${dmAttr(id)}><div class="world-portrait">${avatar==='🌺'?'<img src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt="Hibiscus" class="world-flower-avatar">':avatarMarkup(avatar)}</div><div class="world-nameplate"><b>${esc(name)}</b>${score!==undefined?'<span class="world-plate-score" aria-label="'+esc(score+' '+unit)+'">'+esc(score)+'</span>':''}${active?'<span class="world-turn" aria-label="Current turn">◆</span>':''}</div>${visibleDetail?'<small aria-label="'+esc(g?.type==='handfoot'?'Opening meld '+meldMinimum+' points':detail)+'">'+esc(visibleDetail)+'</small>':''}</div>`;
+ return `<div class="world-seat ${me?'self':''} ${active?'current':''} ${avatar!=='🌺'&&!CHARACTERS[avatar]?'avatar-emoji':''}" data-player-id="${esc(id)}" aria-label="${esc(name+(score!==undefined?', '+score+' '+unit:'')+(detail?', '+detail:'')+(active?', current turn':''))}"${dmAttr(id)}><div class="world-portrait">${pepaw?'<img class="character-avatar" src="'+esc(pepaw.url)+'" alt="PePaw">':avatar==='🌺'?'<img src="/ohana-flowers-v1.webp?asset=ohana-v105-binary-repair-20261011" alt="Hibiscus" class="world-flower-avatar">':avatarMarkup(avatar)}</div><div class="world-nameplate"><b>${esc(name)}</b>${score!==undefined?'<span class="world-plate-score" aria-label="'+esc(score+' '+unit)+'">'+esc(score)+'</span>':''}${active?'<span class="world-turn" aria-label="Current turn">◆</span>':''}</div>${visibleDetail?'<small aria-label="'+esc(g?.type==='handfoot'?'Opening meld '+meldMinimum+' points':detail)+'">'+esc(visibleDetail)+'</small>':''}</div>`;
 }
 
 const OHANA_ENTRANCE_NKJV=[{"r":"1 Corinthians 16:14","v":"Let all that you do be done with love.","translation":"NKJV"},{"r":"Psalm 119:105","v":"Your word is a lamp to my feet And a light to my path.","translation":"NKJV"},{"r":"Philippians 4:13","v":"I can do all things through Christ who strengthens me.","translation":"NKJV"},{"r":"Proverbs 3:5","v":"Trust in the Lord with all your heart, And lean not on your own understanding;","translation":"NKJV"},{"r":"Psalm 147:3","v":"He heals the brokenhearted And binds up their wounds.","translation":"NKJV"},{"r":"Psalm 23:1","v":"The Lord is my shepherd; I shall not want.","translation":"NKJV"},{"r":"1 Peter 5:7","v":"casting all your care upon Him, for He cares for you.","translation":"NKJV"},{"r":"Matthew 11:28","v":"Come to Me, all you who labor and are heavy laden, and I will give you rest.","translation":"NKJV"},{"r":"Philippians 4:4","v":"Rejoice in the Lord always. Again I will say, rejoice!","translation":"NKJV"},{"r":"Psalm 56:3","v":"Whenever I am afraid, I will trust in You.","translation":"NKJV"},{"r":"Psalm 118:24","v":"This is the day the Lord has made; We will rejoice and be glad in it.","translation":"NKJV"}];
@@ -7890,6 +7890,7 @@ async function openColorBook(page){leaveGrannyContext();S.colorBook=true;if(page
 function cbSurprise(){openColorBook('gen:'+Math.floor(Math.random()*4294967295));}
 function closeColorBook(){S.colorBook=false;render();}
 function renderColorBook(){
+  closePrivateDuckville();
  const m=$('#main');
  if(!CB.page){
   const mine=cbPageList();
@@ -8135,6 +8136,7 @@ function mountCoordinatedUnitedHeader(){
 }
 
 function renderPuzzleBoard(){
+  closePrivateDuckville();
  const d=PZ.data;document.body.classList.add('in-game');PZ.boardColor=PZ.boardColor||localStorage.getItem('ohana_pz_board')||'#986b43';PZ.trayColor=PZ.trayColor||localStorage.getItem('ohana_pz_traycolor')||'';PZ.trayRows=PZ.trayRows||Number(localStorage.getItem('ohana_pz_tray_rows'))||2;PZ.trayZoom=Math.min(2.2,Math.max(1,PZ.trayZoom||Number(localStorage.getItem('ohana_pz_tray_zoom'))||1));try{localStorage.setItem('ohana_pz_tray_zoom',PZ.trayZoom);}catch{}PZ.quiet=localStorage.getItem('ohana_pz_quiet')==='1';
  app.innerHTML=`<div id="pz-board" class="pz-board">
  <header class="pz-head">${roomHomeControl()}<button id="pz-leave" data-pz-tone="reef">‹ Back</button><h2>${d?esc(d.name):'Opening the puzzle…'}</h2><div class="pz-head-right">${(S.me?.is_admin&&S.sync?.rooms?.length===2)?(()=>{const other=S.sync.rooms.find(r=>r.id!==S.sync.roomId);return other?`<button id="pz-room-swap" data-pz-tone="palm" data-swap-room="${other.id}" aria-label="Swap to ${esc(other.name)}"><span class="pz-long">⇄ ${esc(other.name)}</span><span class="pz-short">⇄</span></button>`:'';})():''}<button id="pz-next-game" class="pz-next" data-pz-tone="mango" aria-label="Go to a game waiting for your turn">▶ <span class="pz-long">Next game</span><span class="pz-short">Next</span></button><button id="pz-peek-btn" data-pz-tone="reef" aria-label="Preview the finished picture">👁</button><button id="pz-qt-gear" data-pz-tone="reef" aria-label="Puzzle tools and customize" aria-haspopup="true">⚙</button></div></header>
@@ -8965,9 +8967,9 @@ function pzDraw(){const cv=$('#pz-canvas');const d=PZ.data;if(!cv||!d||!PZ.sprit
  pzDrawPuzzleBoundary(x,w,h,s);pzDrawLocatedEdge(x,s);
  const now=Date.now();PZ.sparks=PZ.sparks.filter(k=>now-k.at<800);for(const k of PZ.sparks){const t=(now-k.at)/800;x.globalAlpha=1-t;x.strokeStyle='#ffe9a8';x.lineWidth=3/s;x.beginPath();x.arc(k.x,k.y,Math.min(pw,ph)*(0.3+t*1.2),0,Math.PI*2);x.stroke();x.globalAlpha=1;}
  if(PZ.hintPulse){const pc=P[PZ.hintPulse.p];const t=(now-PZ.hintPulse.at)/1000;if(t>6||pc.l)PZ.hintPulse=null;else{x.save();x.strokeStyle='#ffe066';x.lineWidth=(4+Math.sin(t*8)*2)/s;x.shadowColor='#ffe066';x.shadowBlur=18;x.strokeRect(pc.x-6/s,pc.y-6/s,pw+12/s,ph+12/s);x.restore();}}
- for(const [id,c] of Object.entries(PZ.cursors)){if(now-c.at>6000)continue;const p=PZ.people[id];if(!p||+id===meId)continue;const r=13/s*PZ.dpr;x.beginPath();x.arc(c.x,c.y,r,0,Math.PI*2);x.fillStyle='rgba(255,209,102,.92)';x.fill();x.strokeStyle='#123';x.lineWidth=2/s;x.stroke();const img=PZ.avImg(p.avatar);if(img)x.drawImage(img,c.x-r*0.8,c.y-r*0.8,r*1.6,r*1.6);x.font=`bold ${13/s*PZ.dpr}px Nunito`;x.fillStyle='#fff';x.strokeStyle='rgba(0,0,0,.65)';x.lineWidth=3/s;x.strokeText(p.name,c.x+r+4/s,c.y+5/s);x.fillText(p.name,c.x+r+4/s,c.y+5/s);}
+ for(const [id,c] of Object.entries(PZ.cursors)){if(now-c.at>6000)continue;const p=PZ.people[id];if(!p||+id===meId)continue;const r=13/s*PZ.dpr;x.beginPath();x.arc(c.x,c.y,r,0,Math.PI*2);x.fillStyle='rgba(255,209,102,.92)';x.fill();x.strokeStyle='#123';x.lineWidth=2/s;x.stroke();const cursorName=window.ohanaPePawPortrait?.resolve(id)?.name||p.name;const img=PZ.avImg(p.avatar,id);if(img)x.drawImage(img,c.x-r*0.8,c.y-r*0.8,r*1.6,r*1.6);x.font=`bold ${13/s*PZ.dpr}px Nunito`;x.fillStyle='#fff';x.strokeStyle='rgba(0,0,0,.65)';x.lineWidth=3/s;x.strokeText(cursorName,c.x+r+4/s,c.y+5/s);x.fillText(cursorName,c.x+r+4/s,c.y+5/s);}
 }
-PZ.avCache={};PZ.avImg=a=>{const c=CHARACTERS[a];if(!c)return null;if(!PZ.avCache[a]){const im=new Image();im.src=c.file;PZ.avCache[a]=im;}const im=PZ.avCache[a];return im.complete&&im.naturalWidth?im:null;};
+PZ.avCache={};PZ.avImg=(a,memberId)=>{const personal=window.ohanaPePawPortrait?.resolve(memberId);if(personal)return personal.image;const c=CHARACTERS[a];if(!c)return null;if(!PZ.avCache[a]){const im=new Image();im.src=c.file;PZ.avCache[a]=im;}const im=PZ.avCache[a];return im.complete&&im.naturalWidth?im:null;};
 
 // ---------- OHANA MARIE CHESS — shared rules (server + client) ----------
 // Board: 64 squares, index 0 = a8 (top-left from white's view), 63 = h1. Uppercase = white, lowercase = black.
@@ -12420,6 +12422,7 @@ function grConflict(){
 }
 
 function openGranny(){
+  closePrivateDuckville();
  if(PZ.id)closePuzzle();
  S.granny=true;S.game=null;S.gstate=null;PZ.lobby=false;S.colorBook=false;S.tab='games';GR.record=null;GR.start=null;GR.feedback='';
  if(GR.owner!==S.me.id){GR.owner=S.me.id;GR.book={records:{}};GR.conflict=null;GR.conflicts={};GR.loading=false;
@@ -12718,7 +12721,86 @@ function grSettings(){
 window.addEventListener('online',()=>{if(GR.book)grLoad();});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&GR.book)grFlush();});
 
+// Insert in existing app script before render declaration; approved ID is a REVIEW CONFIG.
+// Inline private room retains the ACTUAL #app > header, native Bridge and tabs.
+const DUCKVILLE_APPROVED_ROOM_ID = 1; // intentionally fail-closed until explicitly verified
+let duckvilleEntry=null,duckvilleEntryAbort=null;
+function closePrivateGatheringEntry(){duckvilleEntryAbort?.();duckvilleEntryAbort=null;duckvilleEntry?.dispose();duckvilleEntry=null}
+let duckvilleVisit=0,duckvilleMounted=null,duckvillePanel=null,duckvilleCurrent=null;
+function reconcilePrivateDuckville(){if(duckvilleCurrent&&!duckvilleCurrent())closePrivateDuckville();return !!duckvilleCurrent}
+function closePrivateDuckville(){
+ closePrivateGatheringEntry();
+ ++duckvilleVisit;duckvilleCurrent=null;duckvilleMounted?.dispose();duckvilleMounted=null;
+ const old=duckvillePanel;duckvillePanel=null;if(old)old.remove();
+}
+function readPrivateDuckvilleHostState(){
+ // Exact master/busy predicates from pinned app18607; music shell activity18572–75.
+ let masterMuted=true,busy=true,reduced=true,paused=true;
+ try{masterMuted=typeof AudioSys==='undefined'||AudioSys.muted||localStorage.getItem('ohana_muted')==='true'}catch{}
+ try{const app=document.getElementById('app');const music=!app||app.inert===true||getComputedStyle(app).visibility==='hidden'||getComputedStyle(app).display==='none';
+  const modal=[...document.querySelectorAll('dialog[open]')].some(d=>d!==duckvillePanel);
+  busy=music||modal||!!window.speechSynthesis?.speaking||[...document.querySelectorAll('audio,video')].some(m=>!m.paused&&!m.ended&&!m.muted&&m.volume>0);
+  reduced=localStorage.getItem('ohana_less_motion')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
+  paused=JSON.parse(localStorage.getItem('ohana_chimes_device_v1')||'{}').paused===true;
+ }catch{}
+ return {masterMuted:!!masterMuted,busy:!!busy,visible:!document.hidden&&!!duckvilleCurrent?.(),reduced:!!reduced,paused:!!paused};
+}
+async function openPrivateDuckville(){
+ closePrivateGatheringEntry();closePrivateDuckville();
+ const room=Number(S.room),token=S.token,member=S.me?.id,roomEpoch=S.roomEpoch;
+ if(!DUCKVILLE_APPROVED_ROOM_ID||room!==DUCKVILLE_APPROVED_ROOM_ID||!token||!member)return;
+ const visit=duckvilleVisit,tab=S.tab,game=S.game,puzzle=PZ.id,granny=S.granny,color=S.colorBook,lobby=PZ.lobby,shelf=S.gameShelf;
+ const current=()=>duckvilleVisit===visit&&S.token===token&&S.me?.id===member&&Number(S.room)===room&&S.roomEpoch===roomEpoch&&S.tab===tab&&S.game===game&&PZ.id===puzzle&&S.granny===granny&&S.colorBook===color&&PZ.lobby===lobby&&S.gameShelf===shelf&&duckvillePanel?.isConnected!==false&&(S.sync?.rooms||[]).some(r=>Number(r.id)===room);
+ duckvilleCurrent=current;
+ const main=document.getElementById('main');if(!main){closePrivateDuckville();return}const d=document.createElement('section');duckvillePanel=d;d.setAttribute('aria-label','Ohana Gathering');d.setAttribute('data-private-ohana-room','');
+ d.innerHTML='<button type="button" data-close>Back to Ohana</button><p role="status">Opening your room…</p><div data-private-room></div>';
+ d.querySelector('[data-close]').onclick=()=>{closePrivateDuckville();render()};
+ main.replaceChildren(d);const nativeHeading=document.querySelector?.('#app > header h1');if(nativeHeading)nativeHeading.textContent='Ohana Gathering';
+ try{
+  // Only this nonprivate client module + its constants may be public, NEVER the art bundle.
+  const {mountPrivateDuckville}=await import('/ohana-duckville-client.mjs');
+  if(!current()){if(duckvillePanel===d)closePrivateDuckville();return}
+  const mounted=await mountPrivateDuckville({container:d.querySelector('[data-private-room]'),roomId:room,getToken:()=>current()?S.token:null,isCurrent:current,getHostState:readPrivateDuckvilleHostState,bridgeHeader:document.querySelector?.('#app > header')});
+  if(!current()){mounted.dispose();if(duckvillePanel===d)closePrivateDuckville();return}duckvilleMounted=mounted;d.querySelector('[role=status]').remove();
+ }catch{if(current())d.querySelector('[role=status]').textContent='This private room could not be opened. Please try again.';else if(duckvillePanel===d)closePrivateDuckville()}
+}
+// Existing renderRooms doorway calls openPrivateDuckville. It does not recreate Bridge.
+// Pinned lifecycle patch preserves unchanged authenticated room frame before app.innerHTML;
+// native Home/tab/game/puzzle/granny transitions close it synchronously.
+function leavePrivateDuckvilleHistory(){if(!duckvillePanel)return;closePrivateDuckville();render()}
+window.addEventListener('popstate',leavePrivateDuckvilleHistory);
+window.addEventListener('hashchange',leavePrivateDuckvilleHistory);
+window.addEventListener('pagehide',()=>{closePrivateGatheringEntry();closePrivateDuckville()});
+
+async function installPrivateDuckvilleDoor(){
+ if(!DUCKVILLE_APPROVED_ROOM_ID||Number(S.room)!==DUCKVILLE_APPROVED_ROOM_ID||!(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID))return;
+ const main=document.getElementById('main');if(!main||main.querySelector('[data-private-room-door]'))return;
+ closePrivateGatheringEntry();const b=document.createElement('button');b.setAttribute('data-private-room-door','');main.prepend(b);
+ const token=S.token,member=S.me?.id,room=S.room,epoch=S.roomEpoch;let canceled=false;duckvilleEntryAbort=()=>{canceled=true;b.remove()};
+ const current=()=>!canceled&&b.isConnected&&S.token===token&&S.me?.id===member&&S.room===room&&S.roomEpoch===epoch&&(S.sync?.rooms||[]).some(r=>Number(r.id)===DUCKVILLE_APPROVED_ROOM_ID);
+ try{const {mountPrivateGatheringEntry}=await import('/ohana-duckville/private-entry.mjs');if(!current())return;const entry=await mountPrivateGatheringEntry({button:b,roomId:DUCKVILLE_APPROVED_ROOM_ID,getToken:()=>current()?S.token:null,isCurrent:current,onEnter:openPrivateDuckville});if(!current())entry.dispose();else duckvilleEntry=entry}catch{b.remove()}
+}
+
+// Insert before render(); explicit reviewed configuration. No inferred room/member IDs.
+const PEPAW_OWNER_MEMBER_ID=5,PEPAW_FAMILY_ROOM_ID=1;
+let pepawLoading=false,pepawHidden=false;
+function syncPePawPortrait(){
+ if(window.ohanaPePawPortrait){void window.ohanaPePawPortrait.sync();return}
+ if(pepawLoading||!Number.isSafeInteger(PEPAW_OWNER_MEMBER_ID)||!Number.isSafeInteger(PEPAW_FAMILY_ROOM_ID))return;
+ pepawLoading=true;
+ import('/ohana-pepaw/private-portrait.mjs').then(({createPePawPortrait})=>{
+  window.ohanaPePawPortrait=createPePawPortrait({ownerMemberId:PEPAW_OWNER_MEMBER_ID,roomId:PEPAW_FAMILY_ROOM_ID,getState:()=>({token:S.token,memberId:S.me?.id,roomId:S.room,authorized:!pepawHidden&&Array.isArray(S.sync?.members)&&S.sync.members.some(p=>Number(p.id)===Number(S.me?.id))&&S.sync.members.some(p=>Number(p.id)===PEPAW_OWNER_MEMBER_ID)}),onChange:()=>{queueMicrotask(()=>{if(typeof render==='function')render()})}});
+  Object.defineProperty(window,'ohanaPrivatePePawPortraitURL',{configurable:true,get:()=>window.ohanaPePawPortrait?.resolve(PEPAW_OWNER_MEMBER_ID)?.url||null});
+  void window.ohanaPePawPortrait.sync();
+ }).catch(()=>{pepawLoading=false});
+}
+window.addEventListener('pagehide',()=>{pepawHidden=true;window.ohanaPePawPortrait?.clear()});
+window.addEventListener('pageshow',()=>{pepawHidden=false;syncPePawPortrait()});
+
 function render() {
+ syncPePawPortrait();
+  if(reconcilePrivateDuckville()){updatePushControls();duckvilleMounted?.refreshHostState();return;}
+  closePrivateGatheringEntry();
   if(ohanaInvite&&!ohanaInvite.current())ohanaInvite.close();
   ensureWorldScene();
   if (!S.token) { document.getElementById('chat-head')?.remove(); document.getElementById('ohana-chat-dialog')?.remove(); return renderJoin(); }
@@ -12741,6 +12823,7 @@ function render() {
       <button data-tab="faith" aria-label="Got Jesus — prayer, praise and a daily word" class="${S.tab === 'faith' ? 'on' : ''}"><span class="ic faith-ic">${prCrossSVG('')}</span>Got Jesus</button>
     </div></nav>`;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = async () => {
+    closePrivateDuckville();
     if(b.dataset.tab==='games'){await openGamesOrPuzzle();return;}
     S.tab = b.dataset.tab; S.colorBook=false; PZ.lobby=false; S.prayer=false; if(b.dataset.tab==='faith')PR.view='wall'; if(S.tab==='games')S.gameShelf='mine'; if (S.tab === 'chat') S.unread = 0; render(); });
   const rback=app.querySelector('#room-back');if(rback)rback.onclick=()=>{if(isSubRoomPorch)enterRoom(1);else goHomePorch();};
@@ -12752,10 +12835,12 @@ function render() {
   document.title = (myTurn ? `(${myTurn}) ` : '') + 'Ohana Home';
   if(S.tab==='chat'){S.tab='family';openChatInbox();}
   if (S.tab === 'games') { if (S.colorBook) renderColorBook(); else if (PZ.lobby) renderPuzzleLobby(); else renderGames(); } else if(S.tab==='rooms')renderRooms(); else if(S.tab==='faith')renderFaithRoom(); else if(S.tab==='settings')renderSettings(); else renderFamily();
+  if(isHomePorch)installPrivateDuckvilleDoor();
 }
 
 
 async function enterRoom(id,tab='games'){
+  closePrivateDuckville();
   ohanaInvite?.close();
   S.roomEpoch++;S.room=Number(id);localStorage.setItem('ohana_room',S.room);
   S.game=null;S.gstate=null;S.msgs=[];S.lastMsg=0;S.unread=0;S.sig=null;S.sync=null;S.tab=tab;
@@ -12766,6 +12851,7 @@ async function enterRoom(id,tab='games'){
   render();
 }
 function renderRooms(){
+  closePrivateDuckville();
   const sy=S.sync;if(!sy){$('#main').innerHTML='<p>Opening your doorways…</p>';return;}
   const roomManager=r=>!!S.me.is_admin||r.owner_id===S.me.id;
   $('#main').innerHTML=`<section class="room-welcome"><span class="room-host"><img src="/honu.webp?asset=ohana-v105-binary-repair-20261011" alt="Honu welcomes you"></span><div><h2>A little place of your own.</h2><p>Different doors. Same Ohana welcome.</p></div></section>
@@ -12794,6 +12880,7 @@ function renderRooms(){
   });
   $('#main').querySelectorAll('[data-room-restore]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await api('/api/rooms/restore',{room_id:+b.dataset.roomRestore});await sync();renderRooms();toast('Room restored.');}catch(e){b.disabled=false;toast(e.message);}});
   decorateWorldRooms();
+  installPrivateDuckvilleDoor();
   $('#new-room').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const r=await api('/api/rooms/create',{name:$('#room-name').value});await enterRoom(r.id,'rooms');toast('Your room is ready. Tap Invite friends.');}catch(e){b.disabled=false;toast(e.message);}};
 }
 async function openRoomMemberPicker(roomId){
@@ -13723,6 +13810,7 @@ function showRematchDialog(g) {
   try { dialog.showModal(); } catch { dialog.setAttribute('open', ''); }
 }
 function renderGame() {
+  closePrivateDuckville();
   const g = S.gstate;
   if(g?.type==='shuffle' && g.status!=='waiting')return renderShuffleScreen(g);
   const chessOptionsOpen=g?.type==='chess'&&document.getElementById('settingsModal')?.classList.contains('open');
@@ -15027,6 +15115,7 @@ function chatHeadDrag(h){h.setAttribute('aria-label','Open Ohana tools');h.oncli
 function toggleChatPop(){const d=document.getElementById('ohana-chat-dialog');if(d&&d.open){saveChatDraft();d.close();}else openChatInbox();}
 // The messenger doubles as a command hub: these shortcuts jump to Games/Rooms/Ohana/Got Jesus/Settings.
 async function openGamesOrPuzzle(shelf='new'){
+  closePrivateDuckville();
  leaveGrannyContext();
  const destination=['history','others'].includes(shelf)?shelf:'new';
  const done=()=>{S.colorBook=false;PZ.lobby=false;S.prayer=false;S.tab='games';S.gameShelf=destination;render();};
@@ -15045,6 +15134,7 @@ fitHomePorchWidth();
 
 document.addEventListener('click',e=>{const home=e.target.closest?.('[data-ohana-home]');if(home){e.preventDefault();goHomePorch();}});
 function goHomePorch(){
+  closePrivateDuckville();
  if(S.granny){grFlush();S.granny=false;GR.record=null;document.body.classList.remove("granny-open");history.replaceState(null,"",location.pathname+location.search);}
  const done=()=>{S.colorBook=false;PZ.lobby=false;S.prayer=false;S.newsOpen=undefined;S.tab='games';S.gameShelf='mine';render();};
  if(PZ.id){closePuzzle();setTimeout(done,0);}
@@ -20797,7 +20887,7 @@ window.ohanaRummyCameraOwner=OhanaRummyCameraAdapter.install();</script>
 
 #game #game-controls-dock [data-personal-mango-trigger] [data-mango-motion]{display:block!important;width:100%!important;height:100%!important}
 </style>
-<script>/* Local Mango speech. No profile writes, transport, recognition or autoplay. */
+<script>/* Local PePaw speech. No profile writes, transport, recognition or autoplay. */
 (()=>{'use strict';
 const mounts=new WeakMap();
 function mount(root,{synth=window.speechSynthesis,Utterance=window.SpeechSynthesisUtterance,timeoutMs=25000,initialMuted=false}={}){
@@ -20805,30 +20895,30 @@ function mount(root,{synth=window.speechSynthesis,Utterance=window.SpeechSynthes
  const $=s=>root.querySelector(s),message=$('[data-message]'),caption=$('[data-caption]'),status=$('[data-status]'),voices=$('[data-voices]'),hear=$('[data-hear]'),mute=$('[data-mute]'),stop=$('[data-stop]');
  let muted=!!initialMuted,active=null,timer=0,destroyed=false,local=[],generation=0;
  const supported=!!(synth&&Utterance&&typeof synth.getVoices==='function');
- const publish=(state,text)=>{root.dataset.voiceState=state;status.textContent=text;stop.disabled=!active;hear.disabled=muted||!supported||!local.length;mute.setAttribute('aria-pressed',String(muted));mute.textContent=muted?'Unmute Mango':'Mute Mango';root.dispatchEvent(new CustomEvent('mango-voice-state',{detail:{state,active:!!active,muted}}));};
- const idle=()=>publish(muted?'muted':local.length?'ready':'unavailable',muted?'Mango is muted. Captions stay on.':local.length?'Ready when you are.':'No local English voice is available. You can still read Mango’s words.');
+ const publish=(state,text)=>{root.dataset.voiceState=state;status.textContent=text;stop.disabled=!active;hear.disabled=muted||!supported||!local.length;mute.setAttribute('aria-pressed',String(muted));mute.textContent=muted?'Unmute PePaw':'Mute PePaw';root.dispatchEvent(new CustomEvent('mango-voice-state',{detail:{state,active:!!active,muted}}));};
+ const idle=()=>publish(muted?'muted':local.length?'ready':'unavailable',muted?'PePaw is muted. Captions stay on.':local.length?'Ready when you are.':'No local English voice is available. You can still read PePaw’s words.');
  function cancel(text){generation++;clearTimeout(timer);const owned=active;active=null;root.classList.remove('is-speaking');if(owned)try{synth.cancel();}catch{}idle();if(text)status.textContent=text;}
  function refresh(){if(destroyed)return;const chosen=voices.value;try{local=supported?synth.getVoices().filter(v=>v.localService===true&&/^en(?:-|_|$)/i.test(v.lang)):[];}catch{local=[];}
   voices.replaceChildren();for(const v of local){const option=document.createElement('option');option.value=v.voiceURI;option.textContent=v.name+' ('+v.lang+')';voices.append(option);}if(local.some(v=>v.voiceURI===chosen))voices.value=chosen;else{const preferred=local.find(v=>/Sonia|Tessa/i.test(v.name))||local.find(v=>v.default)||local[0];if(preferred)voices.value=preferred.voiceURI;}
-  if(!local.length){const option=document.createElement('option');option.value='';option.textContent='No local voice available';voices.append(option);}voices.disabled=!local.length;if(active&&!local.some(v=>v.voiceURI===active.voice.voiceURI))cancel('The local voice changed. Press Hear Mango to try again.');else if(!active)idle();
+  if(!local.length){const option=document.createElement('option');option.value='';option.textContent='No local voice available';voices.append(option);}voices.disabled=!local.length;if(active&&!local.some(v=>v.voiceURI===active.voice.voiceURI))cancel('The local voice changed. Press Hear PePaw to try again.');else if(!active)idle();
  }
  function speak(){
   if(destroyed||muted||!supported)return;cancel();refresh();
   // Re-resolve the explicit local voice immediately before speaking. Never use the platform default.
   const voice=local.find(v=>v.voiceURI===voices.value&&v.localService===true);if(!voice){idle();return;}
-  const text=message.value.trim().slice(0,240);caption.textContent=text||'Write a message for Mango first.';if(!text){status.textContent='Write a message before speaking.';return;}
+  const text=message.value.trim().slice(0,240);caption.textContent=text||'Write a message for PePaw first.';if(!text){status.textContent='Write a message before speaking.';return;}
   if(synth.speaking||synth.pending){publish('busy','Another voice is speaking. Try again when it finishes.');return;}
   const id=++generation;let utterance;
   try{utterance=new Utterance(text);utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=1.05;utterance.pitch=1.22;utterance.volume=.85;active=utterance;
    const current=()=>!destroyed&&generation===id&&active===utterance;
-   utterance.onstart=()=>{if(!current())return;root.classList.add('is-speaking');publish('speaking','Mango is speaking.');};
-   utterance.onend=()=>{if(!current())return;active=null;clearTimeout(timer);root.classList.remove('is-speaking');idle();status.textContent='Finished. Mango’s words stay here.';};
-   utterance.onerror=()=>{if(!current())return;active=null;clearTimeout(timer);root.classList.remove('is-speaking');publish('error','The local voice could not speak. Mango’s words stay here.');};
-   publish('starting','Starting Mango’s local voice…');synth.speak(utterance);timer=setTimeout(()=>{if(current())cancel('The local voice stopped. Press Hear Mango to try again.');},timeoutMs);
-  }catch{cancel('The local voice could not start. Mango’s words stay here.');}
+   utterance.onstart=()=>{if(!current())return;root.classList.add('is-speaking');publish('speaking','PePaw is speaking.');};
+   utterance.onend=()=>{if(!current())return;active=null;clearTimeout(timer);root.classList.remove('is-speaking');idle();status.textContent='Finished. PePaw’s words stay here.';};
+   utterance.onerror=()=>{if(!current())return;active=null;clearTimeout(timer);root.classList.remove('is-speaking');publish('error','The local voice could not speak. PePaw’s words stay here.');};
+   publish('starting','Starting PePaw’s local voice…');synth.speak(utterance);timer=setTimeout(()=>{if(current())cancel('The local voice stopped. Press Hear PePaw to try again.');},timeoutMs);
+  }catch{cancel('The local voice could not start. PePaw’s words stay here.');}
  }
- const click=e=>{if(!e.isTrusted)return;const b=e.target.closest('button');if(!b||!root.contains(b))return;if(b===hear)speak();else if(b===stop)cancel('Stopped. Mango’s words stay here.');else if(b===mute){muted=!muted;cancel();}else if(b.dataset.line){cancel();message.value=b.dataset.line;caption.textContent=message.value;}};
- const edit=()=>{cancel();caption.textContent=message.value.trim().slice(0,240)||'Write something for Mango to say.';},changeVoice=()=>cancel('Voice selected. Press Hear Mango when you are ready.'),hidden=()=>{if(document.hidden)cancel();},leaving=()=>cancel();
+ const click=e=>{if(!e.isTrusted)return;const b=e.target.closest('button');if(!b||!root.contains(b))return;if(b===hear)speak();else if(b===stop)cancel('Stopped. PePaw’s words stay here.');else if(b===mute){muted=!muted;cancel();}else if(b.dataset.line){cancel();message.value=b.dataset.line;caption.textContent=message.value;}};
+ const edit=()=>{cancel();caption.textContent=message.value.trim().slice(0,240)||'Write something for PePaw to say.';},changeVoice=()=>cancel('Voice selected. Press Hear PePaw when you are ready.'),hidden=()=>{if(document.hidden)cancel();},leaving=()=>cancel();
  root.addEventListener('click',click);message.addEventListener('input',edit);voices.addEventListener('change',changeVoice);synth?.addEventListener?.('voiceschanged',refresh);document.addEventListener('visibilitychange',hidden);window.addEventListener('pagehide',leaving);refresh();
  const api={stop:()=>cancel(),get state(){return{muted,status:root.dataset.voiceState,localVoices:local.map(v=>({name:v.name,lang:v.lang,voiceURI:v.voiceURI,localService:v.localService})),active:!!active};},destroy(){cancel();destroyed=true;root.removeEventListener('click',click);message.removeEventListener('input',edit);voices.removeEventListener('change',changeVoice);synth?.removeEventListener?.('voiceschanged',refresh);document.removeEventListener('visibilitychange',hidden);window.removeEventListener('pagehide',leaving);mounts.delete(root);}};
  mounts.set(root,api);return api;
@@ -20839,23 +20929,23 @@ window.OhanaMangoLocalSpeech={mount};
 /* Personal in-game presentation only. No profile, game-state, chat or transport writes. */
 (()=>{'use strict';if(window.OhanaPersonalMango)return;let owner=null;
 const save=e=>e.getAttribute('style'),restore=(e,v)=>{if(v==null)e.removeAttribute('style');else e.setAttribute('style',v);},put=(e,values)=>{for(const[k,v]of Object.entries(values))e.style.setProperty(k,String(v),'important');};
-function install({getState=()=>typeof S==='undefined'?null:S,ownerMemberId=null}={}){
+function install({getState=()=>typeof S==='undefined'?null:S,ownerMemberId=null,getPrivatePortraitURL=()=>null}={}){
  if(owner)return owner;let binding=null,bubble=null,voice=null,key='',frame=0,stopped=false,rememberedMute=false;
  function context(){const s=getState();if(!s?.token||!s.me||!Number.isSafeInteger(Number(s.me.id))||Number(s.me.id)<=0)return null;
-  const me=Number(s.me.id);if(!Number.isSafeInteger(ownerMemberId)||ownerMemberId<=0||me!==ownerMemberId)return null;
+  const portraitURL=getPrivatePortraitURL();if(typeof portraitURL!=='string'||!portraitURL.startsWith('blob:'))return null;const me=Number(s.me.id);if(!Number.isSafeInteger(ownerMemberId)||ownerMemberId<=0||me!==ownerMemberId)return null;
   const g=s.gstate,game=document.getElementById('game'),dock=document.getElementById('game-controls-dock');if(!g||String(s.game)!==String(g.id)||!g.in_game||!['playing','finished'].includes(g.status)||!g.players?.some(p=>Number(p)===me)||!game||!dock||!game.contains(dock))return null;
-  const seat=[...dock.querySelectorAll('.world-seat.self[data-player-id]')].find(e=>Number(e.dataset.playerId)===me),portrait=seat?.querySelector('.world-portrait');if(!portrait)return null;return{me,g,game,dock,seat,portrait,key:me+':'+g.id};
+  const seat=[...dock.querySelectorAll('.world-seat.self[data-player-id]')].find(e=>Number(e.dataset.playerId)===me),portrait=seat?.querySelector('.world-portrait');if(!portrait)return null;return{me,g,game,dock,seat,portrait,portraitURL,key:me+':'+g.id};
  }
  function close(focus=false){if(voice){rememberedMute=voice.state.muted;voice.destroy();voice=null;}bubble?.remove();bubble=null;if(binding){binding.trigger.setAttribute('aria-expanded','false');binding.trigger.classList.remove('is-speaking');if(focus&&binding.trigger.isConnected)binding.trigger.focus({preventScroll:true});}}
  function unbind(){if(!binding)return;const b=binding;binding=null;b.trigger.removeEventListener('click',triggerClick);b.portrait.replaceChildren(...b.nodes);restore(b.portrait,b.style);for(const[k,v]of Object.entries(b.attributes)){if(v==null)b.seat.removeAttribute(k);else b.seat.setAttribute(k,v);}}
  function place(){if(!bubble||!binding)return;const c=context();if(!c||c.key!==key)return;const dock=c.dock.getBoundingClientRect(),head=document.getElementById('game-head')?.getBoundingClientRect(),anchor=binding.portrait.getBoundingClientRect(),width=Math.max(120,Math.min(310,innerWidth-16)),left=Math.max(8,Math.min(innerWidth-width-8,anchor.left+anchor.width/2-width/2));put(bubble,{left:left+'px',bottom:Math.max(8,innerHeight-dock.top+8)+'px',width:width+'px','max-height':Math.max(44,dock.top-Math.max(0,head?.bottom||0)-16)+'px'});}
- function open(){const c=context();if(!c||c.key!==key)return;if(bubble){close(true);return;}bubble=document.createElement('aside');bubble.id='ohana-personal-mango';bubble.setAttribute('role','region');bubble.setAttribute('aria-label','Mango, your local speaking character');bubble.tabIndex=-1;
-  bubble.innerHTML='<div class="mango-bubble"><div class="mango-caption-row"><p data-caption>Aloha! I’m Mango. It’s good to be here with our Ohana.</p><button type="button" data-mango-close aria-label="Close Mango">×</button></div><div class="mango-voice-actions"><button type="button" data-hear>Hear Mango</button><button type="button" data-stop disabled>Stop</button><button type="button" data-mute aria-pressed="false">Mute Mango</button></div><p data-status role="status" aria-live="polite"></p><details><summary>Message and voice</summary><label>Mango’s words<textarea data-message maxlength="240" rows="3">Aloha! I’m Mango. It’s good to be here with our Ohana.</textarea></label><label>Local device voice<select data-voices></select></label><p class="mango-privacy">These words are spoken on this device only. Mango is not an assistant voice call. Nothing here is sent to the game chat.</p></details></div>';
+ function open(){const c=context();if(!c||c.key!==key)return;if(bubble){close(true);return;}bubble=document.createElement('aside');bubble.id='ohana-personal-mango';bubble.setAttribute('role','region');bubble.setAttribute('aria-label','PePaw, your local speaking character');bubble.tabIndex=-1;
+  bubble.innerHTML='<div class="mango-bubble"><div class="mango-caption-row"><p data-caption>Aloha! I’m PePaw. It’s good to be here with our Ohana.</p><button type="button" data-mango-close aria-label="Close PePaw">×</button></div><div class="mango-voice-actions"><button type="button" data-hear>Hear PePaw</button><button type="button" data-stop disabled>Stop</button><button type="button" data-mute aria-pressed="false">Mute PePaw</button></div><p data-status role="status" aria-live="polite"></p><details><summary>Message and voice</summary><label>PePaw’s words<textarea data-message maxlength="240" rows="3">Aloha! I’m PePaw. It’s good to be here with our Ohana.</textarea></label><label>Local device voice<select data-voices></select></label><p class="mango-privacy">These words are spoken on this device only. PePaw is not an assistant voice call. Nothing here is sent to the game chat.</p></details></div>';
   bubble.querySelector('[data-mango-close]').onclick=e=>{e.stopPropagation();close(true);};bubble.addEventListener('mango-voice-state',e=>binding?.trigger.classList.toggle('is-speaking',e.detail.active&&e.detail.state==='speaking'));document.body.append(bubble);voice=OhanaMangoLocalSpeech.mount(bubble,{initialMuted:rememberedMute});binding.trigger.setAttribute('aria-expanded','true');place();bubble.focus({preventScroll:true});
  }
  function triggerClick(e){e.stopPropagation();if(e.isTrusted)open();}
  function scan(){frame=0;if(stopped)return;let c;try{c=context();}catch{c=null;}if(!c){close();unbind();key='';rememberedMute=false;return;}if(key&&key!==c.key)close();if(key&&key.split(':')[0]!==String(c.me))rememberedMute=false;key=c.key;
-  if(binding?.portrait!==c.portrait){unbind();const trigger=document.createElement('button');trigger.type='button';trigger.dataset.personalMangoTrigger='';trigger.setAttribute('aria-label','Talk with Mango');trigger.setAttribute('aria-expanded',String(!!bubble));trigger.setAttribute('aria-controls','ohana-personal-mango');const image=document.createElement('img');image.src='/buddy-mango.webp?asset=ohana-v105-binary-repair-20261011';image.alt='Mango';image.draggable=false;put(image,{width:'100%',height:'100%','object-fit':'contain',background:'none','border-radius':'0',border:'0','box-shadow':'none'});const motion=document.createElement('span');motion.dataset.mangoMotion='';motion.append(image);trigger.append(motion);
+  if(binding?.portrait!==c.portrait){unbind();const trigger=document.createElement('button');trigger.type='button';trigger.dataset.personalMangoTrigger='';trigger.setAttribute('aria-label','Talk with PePaw');trigger.setAttribute('aria-expanded',String(!!bubble));trigger.setAttribute('aria-controls','ohana-personal-mango');const image=document.createElement('img');image.src=c.portraitURL;image.alt='PePaw';image.draggable=false;put(image,{width:'100%',height:'100%','object-fit':'contain',background:'none','border-radius':'0',border:'0','box-shadow':'none'});const motion=document.createElement('span');motion.dataset.mangoMotion='';motion.append(image);trigger.append(motion);
    const attributes=Object.fromEntries(['data-dm','role','tabindex','title'].map(k=>[k,c.seat.getAttribute(k)]));binding={portrait:c.portrait,seat:c.seat,nodes:[...c.portrait.childNodes],style:save(c.portrait),attributes,trigger};for(const k of['data-dm','tabindex','title'])c.seat.removeAttribute(k);c.seat.setAttribute('role','group');put(c.portrait,{position:'relative',background:'transparent','border-color':'transparent','box-shadow':'none'});c.portrait.replaceChildren(trigger);trigger.addEventListener('click',triggerClick);
   }place();
  }
@@ -20866,7 +20956,7 @@ function install({getState=()=>typeof S==='undefined'?null:S,ownerMemberId=null}
 window.OhanaPersonalMango={install};
 })();
 
-window.ohanaPersonalMangoOwner=OhanaPersonalMango.install({ownerMemberId:5});</script>
+window.ohanaPersonalMangoOwner=OhanaPersonalMango.install({ownerMemberId:PEPAW_OWNER_MEMBER_ID,getPrivatePortraitURL:()=>window.ohanaPrivatePePawPortraitURL});</script>
 <!-- OHANA PERSONAL MANGO END -->
 <style id="ohana-color-fill-keyboard-v1">#cb-canvas [data-cb][role="button"]:focus-visible{outline:3px solid #005b47;outline-offset:2px;stroke:#005b47;stroke-width:6px}#cb-canvas [data-cb][aria-disabled="true"]{cursor:inherit}</style>
 <!-- OHANA MANGO ANNOUNCEMENT ROLLOUT START -->
