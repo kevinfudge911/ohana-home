@@ -50,7 +50,7 @@ storage = "sqlite"
 
 [[rules]]
 type = "ESModule"
-globs = ["**/*.js"]
+globs = ["**/*.js", "**/*.mjs"]
 fallthrough = true
 
 # Friendly, deduplicated reminder checks; only opted-in waiting family turns.
@@ -61,6 +61,17 @@ crons = ["0 * * * *"]
 [[r2_buckets]]
 binding = "MUSIC_FILES"
 bucket_name = "ohana-music-files"
+
+# Ohana Gathering: private family room art and PePaw's portrait. Non-public bucket; every read goes
+# through the member-only Worker routes (/api/duckville/*, /api/ohana-character/*).
+[[r2_buckets]]
+binding = "DUCKVILLE_PRIVATE"
+bucket_name = "ohana-gathering-private"
+
+[vars]
+DUCKVILLE_APPROVED_ROOM_ID = "1"
+PEPAW_FAMILY_ROOM_ID = "1"
+PEPAW_OWNER_MEMBER_ID = "5"
 
 # Isolated resources for Workers Builds previews. Production bindings above are unchanged.
 [previews]
@@ -73,6 +84,16 @@ database_id = "60795113-1123-4413-9572-31029bb402f4"
 [[previews.r2_buckets]]
 binding = "MUSIC_FILES"
 bucket_name = "ohana-home-preview-isolated"
+
+[[previews.r2_buckets]]
+binding = "DUCKVILLE_PRIVATE"
+bucket_name = "ohana-gathering-private"
+
+[previews.vars]
+DUCKVILLE_APPROVED_ROOM_ID = "1"
+PEPAW_FAMILY_ROOM_ID = "1"
+PEPAW_OWNER_MEMBER_ID = "2"
+DUCKVILLE_UPLOAD_KEY = "gather-65351de01581223763f37c9f"
 
 [[previews.durable_objects.bindings]]
 name = "PUZZLE"
