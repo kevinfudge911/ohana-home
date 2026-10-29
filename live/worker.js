@@ -11122,16 +11122,6 @@ var worker_default = {
   async fetch(req, env222222, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
-    /* TEMPORARY (preview only, removed before production): admin + secret-key upload into the private Gathering bucket. */
-    if(p.startsWith('/api/duckville-upload/')&&env222222.DUCKVILLE_UPLOAD_KEY){
-      if(req.method!=='PUT')return new Response('Method not allowed',{status:405});
-      if(req.headers.get('x-upload-key')!==env222222.DUCKVILLE_UPLOAD_KEY)return new Response('Unavailable',{status:404});
-      const me=await auth(req,env222222);if(!me||!me.is_admin)return new Response('Unavailable',{status:404});
-      const name=decodeURIComponent(p.slice('/api/duckville-upload/'.length));if(!/^[A-Za-z0-9_./-]+$/.test(name)||name.includes('..'))return new Response('Bad name',{status:400});
-      await env222222.DUCKVILLE_PRIVATE.put('ohana-gathering/'+name,await req.arrayBuffer(),{httpMetadata:{contentType:req.headers.get('content-type')||'application/octet-stream'}});
-      const head=await env222222.DUCKVILLE_PRIVATE.head('ohana-gathering/'+name);
-      return new Response(JSON.stringify({ok:true,name,size:head?.size}),{headers:{'content-type':'application/json','cache-control':'no-store'}});
-    }
     if(p.startsWith('/api/ohana-character/'))return createPePawRoute({auth,roomId:env222222.PEPAW_FAMILY_ROOM_ID,ownerMemberId:env222222.PEPAW_OWNER_MEMBER_ID})(req,env222222);
     if(p.startsWith('/api/duckville/')) {
       try {
