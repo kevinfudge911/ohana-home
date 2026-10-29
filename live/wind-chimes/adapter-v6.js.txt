@@ -45,7 +45,7 @@ export function mount({layer,context,mode}={}){
  }
  function paint(snapshot){
   if(!updateGeometry())return false;
-  if(layer.isConnected!==true||snapshot?.visible!==true||snapshot?.mode!=='simulated'){failureKind='contract';destroy();return false;}
+  if(layer.isConnected!==true||snapshot?.visible!==true||!['simulated','shared-weather'].includes(snapshot?.mode)){failureKind='contract';destroy();return false;}
   const poses=Array.isArray(snapshot.rigs)?snapshot.rigs.filter(r=>r?.id===anchor.id):[];
   if(poses.length!==1){failureKind='contract';destroy();return false;}
   const pose=poses[0];
