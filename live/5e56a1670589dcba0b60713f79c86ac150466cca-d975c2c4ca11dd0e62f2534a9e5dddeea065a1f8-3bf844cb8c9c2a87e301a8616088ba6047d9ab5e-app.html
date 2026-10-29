@@ -12753,7 +12753,8 @@ async function openPrivateDuckville(){
  const current=()=>duckvilleVisit===visit&&S.token===token&&S.me?.id===member&&Number(S.room)===room&&S.roomEpoch===roomEpoch&&S.tab===tab&&S.game===game&&PZ.id===puzzle&&S.granny===granny&&S.colorBook===color&&PZ.lobby===lobby&&S.gameShelf===shelf&&duckvillePanel?.isConnected!==false&&(S.sync?.rooms||[]).some(r=>Number(r.id)===room);
  duckvilleCurrent=current;
  const main=document.getElementById('main');if(!main){closePrivateDuckville();return}const d=document.createElement('section');duckvillePanel=d;d.setAttribute('aria-label','Ohana Gathering');d.setAttribute('data-private-ohana-room','');
- d.innerHTML='<button type="button" data-close>Back to Ohana</button><p role="status">Opening your room…</p><div data-private-room></div>';
+ /* Same Bridge as every other screen: the sign reads Ohana Gathering, left arrow is Back, right arrow is Play. */
+ d.innerHTML='<header class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close aria-label="Back">Back</button><h1 data-unified-title-source>Ohana Gathering</h1></header><p role="status">Opening your room…</p><div data-private-room></div>';
  d.querySelector('[data-close]').onclick=()=>{closePrivateDuckville();render()};
  main.replaceChildren(d);const nativeHeading=document.querySelector?.('#app > header h1');if(nativeHeading)nativeHeading.textContent='Ohana Gathering';
  try{
