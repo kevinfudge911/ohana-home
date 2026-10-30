@@ -12784,6 +12784,24 @@ function gatheringStationCss(){if(document.getElementById('ohana-gathering-stati
 .gathering-sun{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font:700 11px/1.3 Nunito,system-ui,sans-serif;color:#8fa8c8}
 .gathering-sun b{color:#eaf6ff;font-family:Orbitron,Nunito,sans-serif;font-size:10.5px}
 .gathering-fx{position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:inherit}
+.gc-risk{display:grid;gap:5px;padding:8px 9px;border-radius:12px;background:linear-gradient(180deg,#131c29,#0b111a);box-shadow:inset 0 0 0 1px #2b3a4f}
+.gc-risk-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.gc-risk-row{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:start;padding:5px 6px;border-radius:9px;background:#ffffff08}
+.gc-risk-row b{display:block;font:800 12.5px/1.2 Nunito,system-ui,sans-serif;color:#eaf6ff}
+.gc-risk-row span{font:600 11.5px/1.3 Nunito,system-ui,sans-serif;color:#cfe3ff}
+.gc-pill{display:inline-block;text-align:center;padding:3px 6px;border-radius:999px;font:700 9.5px/1.2 Orbitron,Nunito,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#06110a;background:#43ff81}
+.gc-pill.l2{background:#ffd54f}.gc-pill.l3{background:#ff9f43}.gc-pill.l4{background:#ff5a3c;color:#fff}.gc-pill.l5{background:#b620e0;color:#fff;box-shadow:0 0 10px #b620e0}
+.gc-clear{font:600 11px/1.35 Nunito,system-ui,sans-serif;color:#8fa8c8;padding:2px 4px}
+.gc-clear b{color:#43ff81;font-weight:800}
+.gc-alert{border-radius:12px;padding:8px 10px;background:linear-gradient(180deg,#5a0d0d,#2a0606);box-shadow:inset 0 0 0 1px #ff5a3c,0 0 12px #ff5a3c55;color:#fff;font:600 12px/1.3 Nunito,system-ui,sans-serif}
+.gc-alert.watch{background:linear-gradient(180deg,#4a3a05,#241b02);box-shadow:inset 0 0 0 1px #ffd54f}
+.gc-alert b{display:block;font:800 13px/1.2 Fredoka,Nunito,sans-serif;letter-spacing:.02em}
+.gc-alert summary{cursor:pointer;color:#ffd7cc;font-size:11px;margin-top:3px}
+.gc-alert p{margin:4px 0 0;font-size:11.5px;color:#ffe9e3;white-space:pre-line}
+.gc-storms{display:grid;gap:3px;margin-top:2px}
+.gc-storms a{color:#9fd3ff;font:600 11px/1.3 Nunito,system-ui,sans-serif}
+@media (min-width:760px){.gc-risk-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}}
+
 .gathering-room-sock{position:absolute;left:15.5%;top:32%;width:10%;max-width:130px;z-index:2;pointer-events:none;filter:drop-shadow(0 3px 3px #0007)}
 .gathering-room-sock .gathering-sock{transform-origin:0 0}
 .gathering-sock{animation:gathering-flap 1.6s ease-in-out infinite alternate}
@@ -12843,12 +12861,20 @@ function gatheringFx(code,windMph){const stage=document.querySelector('.gatherin
  if(!snow&&!rain){cv?.remove();return;}if(!cv){cv=document.createElement('canvas');cv.className='gathering-fx';stage.append(cv);}
  const ctx=cv.getContext('2d');const n=snow?220:240;const wind=(Number.isFinite(windMph)?windMph:0)/10;const drops=Array.from({length:n},()=>({x:Math.random(),y:Math.random(),s:.5+Math.random(),t:Math.random()*6}));
  const step=()=>{if(!cv.isConnected)return;const W=cv.width=stage.clientWidth||300,H=cv.height=stage.clientHeight||200;ctx.clearRect(0,0,W,H);for(const d of drops){if(snow){d.t+=.03;d.y+=(.0025+.003*d.s);d.x+=Math.sin(d.t)*.0012+wind*.0015;ctx.fillStyle='rgba(255,255,255,.9)';ctx.beginPath();ctx.arc(d.x*W,d.y*H,.7+1.3*d.s,0,7);ctx.fill();}else{d.y+=.02+.02*d.s;d.x+=wind*.004;ctx.strokeStyle='rgba(190,220,255,.65)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(d.x*W,d.y*H);ctx.lineTo(d.x*W-wind*6,d.y*H-10*d.s);ctx.stroke();}if(d.y>1.02){d.y=-.02;d.x=Math.random();}if(d.x>1.02)d.x=-.02;}gatheringFxTimer=setTimeout(step,snow?40:30);};step();}
+let gatheringRisks=null;
+function gatheringRisksHtml(R){if(!R||!R.available)return '';const lv=(n)=>`<span class="gc-pill l${Math.max(1,n)}">${['All clear','Low','Moderate','High','Very high','Extreme'][Math.max(0,Math.min(5,n))]}</span>`;
+ const alerts=(R.alerts||[]).map(a=>`<details class="gc-alert ${/Watch|Advisory|Statement/i.test(a.event)&&!/Warning|Emergency/i.test(a.event)?'watch':''}"><summary><b>⚠ ${esc(a.event)}</b>${a.ends?`Until ${new Date(a.ends).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})}`:''} · tap for what to do</summary><p>${esc(a.headline||'')}${a.instruction?'\n\n'+esc(a.instruction):''}</p></details>`).join('');
+ const active=(R.risks||[]).filter(r=>r.level>0),calm=(R.risks||[]).filter(r=>r.level<=0);
+ const rows=active.map(r=>`<div class="gc-risk-row">${lv(r.level)}<div><b>${esc(r.label)}</b><span>${esc(r.plain)}</span></div></div>`).join('');
+ const storms=(R.storms||[]).slice(0,3).map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">🌀 ${esc(s.kind)} ${esc(s.name)}: ${s.windMph} mph winds, ${s.miles.toLocaleString()} miles away${s.moving?', moving '+esc(s.moving):''}</a>`).join('');
+ return `${alerts}<div class="gc-risk"><div class="gc-risk-head"><span class="gc-label">Risk board · ${esc(R.place?.name||'')}</span><span class="gc-sub">${active.length?active.length+' to watch':'All clear'}</span></div><div class="gc-risk-list">${rows}</div>${calm.length?`<div class="gc-clear"><b>All clear:</b> ${calm.map(r=>esc(r.label)).join(' · ')}</div>`:''}${storms?`<div class="gc-storms"><span class="gc-label">Hurricanes &amp; tropical storms worldwide</span>${storms}</div>`:''}</div>`;}
 function gatheringStationHtml(w){const n=(v,d=0)=>Number.isFinite(v)?(d?v.toFixed(d):Math.round(v)):'–';const who=gatheringPeople.find(p=>p.id===gatheringMember);const P=gatheringWords(w),tr=gatheringTrend(w);const pct=(v,max)=>Math.max(0,Math.min(100,Number.isFinite(v)?v/max*100:0)).toFixed(0);
  const trendMark=tr.arrow?`<span class="gc-trend ${tr.arrow}">${tr.arrow==='up'?'▲':tr.arrow==='down'?'▼':'▶'}</span>`:'';
  return `<h3>Weather Station · ${who&&!who.me?esc(who.name)+' · ':''}${esc(w.place?.name||'here')}</h3>${gatheringFamilyHtml()}
 <div class="gathering-tv" role="img" aria-label="Live rain radar"><div class="gathering-tv-screen"><canvas width="768" height="768"></canvas><div class="gathering-radar-sweep"></div><div class="gathering-radar-pin"></div><div class="gathering-radar-tag">Radar · loading…</div><div class="gathering-radar-credit">© OpenStreetMap · RainViewer</div></div><div class="gathering-tv-stand"></div></div>
 <div class="gathering-console" role="group" aria-label="Weather console">
  <div class="gathering-console-bar"><span>Ohana Weather Console</span><span class="gc-live">Live</span></div>
+ ${gatheringRisksHtml(gatheringRisks)}
  <div class="gathering-tiles">
   <div class="gc-tile big"><div><div class="gc-label">Temperature</div><div class="gc-value">${n(w.tempF)}<small>°F</small></div><div class="gc-plain">Feels like ${n(w.feelsF)}° · ${P.feel}</div><div class="gc-sub">High ${n(w.highF)}° · Low ${n(w.lowF)}° · ${esc(w.condition||'')}</div></div><div style="font-size:44px;line-height:1">${gatheringIcon(w.weatherCode)}</div></div>
   <div class="gc-tile big"><div><div class="gc-label">Wind</div><div class="gc-value">${n(w.windMph)}<small>mph</small></div><div class="gc-plain">${P.wind}</div><div class="gc-sub">Gusts ${n(w.gustMph)} mph · today's top gust ${n(w.gustMaxMph)} mph</div></div>${gatheringCompass(w.directionDeg)}</div>
@@ -12880,7 +12906,7 @@ async function gatheringRadar(box,lat,lon,signal){const canvas=box.querySelector
  let i=0;const step=()=>{if(signal.aborted||!canvas.isConnected)return;const cur=loaded[i];draw(cur.tiles);const when=new Date(cur.f.time*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});tag.textContent='Radar · '+when+(cur.f.kind==='nowcast'?' (next)':'');i=(i+1)%loaded.length;gatheringRadarTimer=setTimeout(step,i===0?1800:650);};step();}
 async function mountGatheringStation(panel){gatheringStationCss();if(gatheringStationAbort)gatheringStationAbort.abort();clearTimeout(gatheringStationTimer);clearTimeout(gatheringRadarTimer);const ac=new AbortController();gatheringStationAbort=ac;let sec=panel.querySelector('.gathering-station');if(!sec){sec=document.createElement('section');sec.className='gathering-station';sec.setAttribute('aria-label','Weather station');panel.append(sec);}if(!sec.ohanaFamilyWired){sec.ohanaFamilyWired=true;sec.addEventListener('click',e=>{const b=e.target.closest('.gathering-person');if(!b)return;const id=Number(b.dataset.member);const p=gatheringPeople.find(x=>x.id===id);gatheringMember=(p&&p.me)?null:id;mountGatheringStation(panel);});}
  const H={headers:{authorization:'Bearer '+S.token},signal:ac.signal};const q=gatheringMember?'?member='+gatheringMember:'';
- let w=null;const [wr]=await Promise.all([fetch('/api/wind'+q,H).then(r=>r.json()).catch(()=>null),fetch('/api/weather/people',H).then(r=>r.json()).then(j=>{gatheringPeople=j.people||[];}).catch(()=>{}),fetch('/api/sky',H).then(r=>r.json()).then(j=>{gatheringSky=j;}).catch(()=>{})]);w=wr;
+ let w=null;const [wr]=await Promise.all([fetch('/api/wind'+q,H).then(r=>r.json()).catch(()=>null),fetch('/api/weather/people',H).then(r=>r.json()).then(j=>{gatheringPeople=j.people||[];}).catch(()=>{}),fetch('/api/sky',H).then(r=>r.json()).then(j=>{gatheringSky=j;}).catch(()=>{}),fetch('/api/weather/risks'+q,H).then(r=>r.json()).then(j=>{gatheringRisks=j;}).catch(()=>{gatheringRisks=null;})]);w=wr;
  if(ac.signal.aborted||!sec.isConnected)return;if(!w||!w.available){sec.innerHTML='<h3>Weather Station</h3>'+gatheringFamilyHtml()+'<p class="gathering-sun">'+(w&&w.reason==='no-location'?'They have not been online yet, so we do not know their weather.':'Weather is taking a nap. Try again in a minute.')+'</p>';gatheringFx(null);return;}
  sec.innerHTML=gatheringStationHtml(w);const tv=sec.querySelector('.gathering-tv');if(tv)gatheringRadar(tv,w.place.lat,w.place.lon,ac.signal).catch(()=>{});gatheringFx(w.weatherCode,w.windMph);gatheringRoomSock(w);
  gatheringStationTimer=setTimeout(()=>{if(sec.isConnected&&!ac.signal.aborted)mountGatheringStation(panel);},10*60*1000);}

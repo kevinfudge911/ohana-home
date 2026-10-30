@@ -9811,6 +9811,112 @@ async function skyApi(req, env) {
   }
   return new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
 }
+/* ---------- Weather risk board: every hazard we can find for a place, in plain words ---------- */
+function geoContains(geom, lon, lat) {
+  if (!geom) return false;
+  const ring = (r) => { let inside = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) inside = !inside; } return inside; };
+  const poly = (p) => p.length && ring(p[0]) && !p.slice(1).some(ring);
+  if (geom.type === "Polygon") return poly(geom.coordinates);
+  if (geom.type === "MultiPolygon") return geom.coordinates.some(poly);
+  if (geom.type === "GeometryCollection") return (geom.geometries || []).some((g) => geoContains(g, lon, lat));
+  return false;
+}
+async function spcLayer(url, lon, lat) {
+  try { const r = await fetch(url, { headers: { "user-agent": "(ohanahome.app, kevin.fudge911@gmail.com)" }, cf: { cacheTtl: 900, cacheEverything: true } }); if (!r.ok) return null; const j = await r.json(); let best = null; for (const f of j.features || []) { if (geoContains(f.geometry, lon, lat)) { const dn = Number(f.properties?.DN) || 0; if (!best || dn > best.dn) best = { dn, label: f.properties?.LABEL || "", label2: f.properties?.LABEL2 || "" }; } } return best || { dn: 0, label: "" }; } catch { return null; }
+}
+function milesBetween(a, b, c, d) { const R = 3958.8, t = Math.PI / 180; const x = Math.sin((c - a) * t / 2) ** 2 + Math.cos(a * t) * Math.cos(c * t) * Math.sin((d - b) * t / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(x))); }
+const RISK_WORDS = ["None", "Low", "Moderate", "High", "Very high", "Extreme"];
+function risk(key, label, level, plain, source) { return { key, label, level, levelWord: RISK_WORDS[Math.max(0, Math.min(5, level))], plain, source }; }
+async function weatherRisksApi(req, env, me) {
+  const cf = req.cf || {};
+  let lat = Number(cf.latitude), lon = Number(cf.longitude), name = [cf.city, cf.region].filter(Boolean).join(", "), country = cf.country || "";
+  try { const want = Number(new URL(req.url).searchParams.get("member")); if (Number.isSafeInteger(want) && want > 0 && want !== me.id) { const shared = await env.DB.prepare("SELECT 1 FROM room_members a JOIN room_members b ON a.room_id=b.room_id WHERE a.member_id=? AND b.member_id=? LIMIT 1").bind(me.id, want).first(); const g = shared ? await memberGeo(env, want) : null; if (!g) return json({ available: false, reason: "no-location" }); lat = g.lat; lon = g.lon; name = g.name || ""; country = ""; } } catch {}
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; name = WIND_HOME.name; }
+  lat = Math.round(lat * 10) / 10; lon = Math.round(lon * 10) / 10;
+  const key = new Request("https://ohana-wind.internal/risks-v1?lat=" + lat + "&lon=" + lon);
+  let cache = null; try { cache = caches.default; const hit = await cache.match(key); if (hit) return new Response(await hit.text(), { headers: { "content-type": "application/json", "cache-control": "no-store" } }); } catch {}
+  const UA = { "user-agent": "(ohanahome.app, kevin.fudge911@gmail.com)", accept: "application/geo+json" };
+  const getJson = async (u, h, ttl) => { try { const r = await fetch(u, { headers: h || {}, cf: { cacheTtl: ttl || 600, cacheEverything: true } }); return r.ok ? await r.json() : null; } catch { return null; } };
+  const spc = "https://www.spc.noaa.gov/products/";
+  const [nws, cat, torn, wind, hail, cat2, fireW, fireD, wx, flood, air, nhc, quakes] = await Promise.all([
+    getJson("https://api.weather.gov/alerts/active?point=" + lat + "," + lon + "&status=actual", UA, 120),
+    spcLayer(spc + "outlook/day1otlk_cat.nolyr.geojson", lon, lat), spcLayer(spc + "outlook/day1otlk_torn.nolyr.geojson", lon, lat),
+    spcLayer(spc + "outlook/day1otlk_wind.nolyr.geojson", lon, lat), spcLayer(spc + "outlook/day1otlk_hail.nolyr.geojson", lon, lat),
+    spcLayer(spc + "outlook/day2otlk_cat.nolyr.geojson", lon, lat),
+    spcLayer(spc + "fire_wx/day1fw_windrh.nolyr.geojson", lon, lat), spcLayer(spc + "fire_wx/day1fw_dryt.nolyr.geojson", lon, lat),
+    getJson("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,wind_gusts_10m_max,relative_humidity_2m_min,vapour_pressure_deficit_max&past_days=7&forecast_days=3&temperature_unit=fahrenheit&precipitation_unit=inch&wind_speed_unit=mph&timezone=auto", null, 900),
+    getJson("https://flood-api.open-meteo.com/v1/flood?latitude=" + lat + "&longitude=" + lon + "&daily=river_discharge,river_discharge_mean,river_discharge_max&forecast_days=7", null, 3600),
+    getJson("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + lat + "&longitude=" + lon + "&current=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen", null, 1800),
+    getJson("https://www.nhc.noaa.gov/CurrentStorms.json", { "user-agent": UA["user-agent"] }, 900),
+    getJson("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson", null, 600)
+  ]);
+  const out = { available: true, place: { lat, lon, name }, alerts: [], risks: [], storms: [], quakes: [], updatedAt: Date.now() };
+  /* Official warnings (US) */
+  for (const f of nws?.features || []) { const a = f.properties || {}; if (!a.event) continue; out.alerts.push({ event: a.event, severity: a.severity, urgency: a.urgency, headline: a.headline, ends: a.ends || a.expires, instruction: String(a.instruction || "").slice(0, 600) }); }
+  const alertHas = (re) => out.alerts.some((a) => re.test(a.event));
+  const d = wx?.daily || {}; const T = 7; /* index of today (7 past days) */
+  const at = (k, i) => Number(d[k]?.[i]);
+  const range = (k, a, b) => (d[k] || []).slice(a, b).map(Number).filter(Number.isFinite);
+  /* Tornado */
+  const tPct = torn ? (torn.dn >= 2 ? torn.dn : 0) : null;
+  let tl = tPct == null ? 0 : tPct >= 30 ? 5 : tPct >= 15 ? 4 : tPct >= 10 ? 3 : tPct >= 5 ? 2 : tPct >= 2 ? 1 : 0;
+  if (alertHas(/Tornado Watch/i)) tl = Math.max(tl, 4); if (alertHas(/Tornado Warning|Tornado Emergency/i)) tl = 5;
+  out.risks.push(risk("tornado", "Tornado", tl, tl >= 5 ? "Tornado warning. Take shelter now in an inside room, lowest floor." : tl >= 4 ? "Tornadoes are possible. Know where you'd shelter and keep your phone charged." : tl >= 2 ? `About a ${tPct}% chance of a tornado nearby today.` : tl === 1 ? "A small (2%) chance of a tornado nearby today." : torn == null ? "Tornado outlook covers the U.S. only." : "No tornado threat today.", "NOAA Storm Prediction Center"));
+  /* Severe wind */
+  const wPct = wind ? (wind.dn >= 5 ? wind.dn : 0) : null; const gust = Math.max(...range("wind_gusts_10m_max", T, T + 2), 0);
+  let wl = wPct ? (wPct >= 45 ? 5 : wPct >= 30 ? 4 : wPct >= 15 ? 3 : 2) : 0; wl = Math.max(wl, gust >= 58 ? 4 : gust >= 45 ? 3 : gust >= 35 ? 2 : gust >= 25 ? 1 : 0);
+  if (alertHas(/High Wind Warning|Extreme Wind|Severe Thunderstorm Warning/i)) wl = Math.max(wl, 4); else if (alertHas(/Wind Advisory|High Wind Watch/i)) wl = Math.max(wl, 3);
+  out.risks.push(risk("wind", "Damaging wind", wl, wl >= 4 ? `Strong winds (gusts near ${Math.round(gust)} mph) can knock down trees and power lines. Tie down loose things.` : wl >= 2 ? `Gusty, up to about ${Math.round(gust)} mph. Secure trash cans and patio stuff.` : `Gusts stay under ${Math.max(15, Math.round(gust))} mph. Nothing to worry about.`, "NOAA SPC + Open-Meteo"));
+  /* Hail + storms */
+  const hPct = hail ? (hail.dn >= 5 ? hail.dn : 0) : null; const hl = !hPct ? 0 : hPct >= 30 ? 4 : hPct >= 15 ? 3 : 2;
+  out.risks.push(risk("hail", "Hail", hl, hl >= 3 ? "Hail likely in storms. Park cars under cover." : hl ? `About a ${hPct}% chance of hail nearby.` : "No hail expected.", "NOAA Storm Prediction Center"));
+  const catLv = { TSTM: 1, MRGL: 1, SLGT: 2, ENH: 3, MDT: 4, HIGH: 5 }; const cl = cat ? (catLv[cat.label] || 0) : 0, cl2 = cat2 ? (catLv[cat2.label] || 0) : 0;
+  const catWords = { TSTM: "Ordinary thunderstorms possible.", MRGL: "Marginal: an isolated strong storm is possible.", SLGT: "Slight risk: a few severe storms possible.", ENH: "Enhanced risk: several severe storms likely.", MDT: "Moderate risk: widespread severe storms likely.", HIGH: "High risk: a major severe weather outbreak expected." };
+  const thunderSoon = range("weather_code", T, T + 2).some((c) => c >= 95);
+  out.risks.push(risk("storms", "Severe storms", Math.max(cl, alertHas(/Severe Thunderstorm Warning/i) ? 4 : alertHas(/Severe Thunderstorm Watch/i) ? 3 : 0), (cat && catWords[cat.label]) || (thunderSoon ? "Thunderstorms in the forecast. When thunder roars, go indoors." : "No severe storms today.") + (cl2 >= 2 ? " Tomorrow: " + (catWords[cat2.label] || "") : ""), "NOAA Storm Prediction Center"));
+  /* Flood */
+  const rain3 = range("precipitation_sum", T, T + 3).reduce((s, v) => s + v, 0), rain7 = range("precipitation_sum", 0, T).reduce((s, v) => s + v, 0);
+  const fd = flood?.daily || {}; const q = (fd.river_discharge || []).map(Number).filter(Number.isFinite); const q0 = q[0]; const qPeak = q.length ? Math.max(...q) : NaN; /* only real rivers (>= 5 m3/s); ratio = how much it rises this week */ const ratio = Number.isFinite(qPeak) && q0 >= 5 ? qPeak / q0 : NaN;
+  let fl = rain3 >= 4 ? 4 : rain3 >= 2.5 ? 3 : rain3 >= 1.25 ? 2 : rain3 >= 0.5 ? 1 : 0; if (ratio >= 3) fl = Math.max(fl, 4); else if (ratio >= 2) fl = Math.max(fl, 3); else if (ratio >= 1.4) fl = Math.max(fl, 2);
+  if (rain7 >= 3 && rain3 >= 1) fl = Math.min(5, fl + 1);
+  if (alertHas(/Flash Flood Warning|Flash Flood Emergency/i)) fl = 5; else if (alertHas(/Flood Warning/i)) fl = Math.max(fl, 4); else if (alertHas(/Flood Watch|Flood Advisory/i)) fl = Math.max(fl, 3);
+  out.risks.push(risk("flood", "Flood", fl, (fl >= 4 ? "Flooding possible. Never drive into water on the road: turn around, don't drown. " : fl >= 2 ? "Low spots and creeks could run high. " : "Low flood risk. ") + `${rain3.toFixed(1)}" of rain expected over 3 days` + (Number.isFinite(ratio) ? `; nearby river ${ratio >= 1.4 ? "rising (" + ratio.toFixed(1) + "x today's level this week)" : "steady"}.` : "."), "Open-Meteo rain + GloFAS rivers + NWS"));
+  /* Fire */
+  const rhMin = Math.min(...range("relative_humidity_2m_min", T, T + 2), 100), vpd = Math.max(...range("vapour_pressure_deficit_max", T, T + 2), 0), hot = Math.max(...range("temperature_2m_max", T, T + 2), 0);
+  let fi = 0; if (rhMin < 35 && gust >= 15) fi = 1; if (rhMin < 25 && gust >= 20) fi = 2; if (rhMin < 20 && gust >= 25) fi = 3; if (rhMin < 15 && gust >= 30) fi = 4; if (rain7 < 0.1 && fi > 0) fi++; if (vpd > 3 && hot > 85) fi = Math.max(fi, 2);
+  const fireDn = Math.max(fireW?.dn || 0, fireD?.dn || 0); if (fireDn >= 8) fi = Math.max(fi, 5); else if (fireDn >= 5) fi = Math.max(fi, 4);
+  if (alertHas(/Red Flag Warning|Extreme Fire/i)) fi = Math.max(fi, 5); else if (alertHas(/Fire Weather Watch/i)) fi = Math.max(fi, 4);
+  fi = Math.min(5, fi);
+  out.risks.push(risk("fire", "Wildfire / burning", fi, fi >= 4 ? "Do not burn anything outside. Fires can spread fast today." : fi >= 2 ? `Dry and breezy (humidity down to ${Math.round(rhMin)}%). Be careful with burn piles and sparks.` : `Low fire danger. Humidity stays above ${Math.round(Math.min(rhMin, 99))}%.`, "Open-Meteo + NOAA SPC fire outlook + NWS"));
+  /* Pollen */
+  const ac = air?.current || {}; const pol = { Grass: ac.grass_pollen, Ragweed: ac.ragweed_pollen, Birch: ac.birch_pollen, Alder: ac.alder_pollen, Olive: ac.olive_pollen, Mugwort: ac.mugwort_pollen };
+  const measured = Object.entries(pol).filter(([, v]) => Number.isFinite(Number(v)) && v !== null);
+  if (measured.length) { const [top, v] = measured.sort((a, b) => b[1] - a[1])[0]; const pl = v >= 200 ? 4 : v >= 50 ? 3 : v >= 10 ? 2 : v > 0 ? 1 : 0; out.risks.push(risk("pollen", "Pollen", pl, pl ? `${top} pollen is the main one today (${Math.round(v)} grains/m³).` : "Very little pollen in the air.", "Open-Meteo (CAMS)")); }
+  else { const m = new Date().getUTCMonth() + 1; const warm = hot >= 50; const [pl, txt] = m >= 3 && m <= 5 ? [warm ? 3 : 2, "Spring tree pollen season (oak, maple, birch)."] : m >= 6 && m <= 7 ? [2, "Grass pollen season."] : m >= 8 && m <= 10 ? [hot >= 45 ? (m === 10 ? 1 : 3) : 1, m === 10 ? "Ragweed is winding down; mold from wet leaves can bother allergies." : "Ragweed season."] : [0, "Pollen season is over until spring. Indoor dust and mold are the main triggers."]; out.risks.push(risk("pollen", "Pollen (season guide)", pl, txt + " Live pollen counts aren't free for the U.S., so this is the seasonal outlook.", "Season guide")); }
+  /* Heat and cold */
+  const feelHi = Math.max(...range("apparent_temperature_max", T, T + 2), -99), feelLo = Math.min(...range("apparent_temperature_min", T, T + 2), 99), lo = Math.min(...range("temperature_2m_min", T, T + 2), 99);
+  const hlv = feelHi >= 115 ? 5 : feelHi >= 105 ? 4 : feelHi >= 100 ? 3 : feelHi >= 90 ? 2 : 0; if (hlv || alertHas(/Heat/i)) out.risks.push(risk("heat", "Heat", Math.max(hlv, alertHas(/Excessive Heat|Extreme Heat/i) ? 5 : alertHas(/Heat Advisory/i) ? 3 : 0), `Feels like up to ${Math.round(feelHi)}°. Drink water, rest in shade, check on older folks and pets.`, "Open-Meteo + NWS"));
+  const clv = feelLo <= -20 ? 5 : feelLo <= -5 ? 4 : feelLo <= 10 ? 3 : lo <= 28 ? 2 : lo <= 34 ? 1 : 0;
+  out.risks.push(risk("cold", "Freeze / cold", Math.max(clv, alertHas(/Extreme Cold|Wind Chill Warning|Hard Freeze/i) ? 4 : alertHas(/Freeze|Frost|Wind Chill Advisory|Cold/i) ? 2 : 0), clv >= 3 ? `Dangerous cold, feels like ${Math.round(feelLo)}°. Cover skin, bring pets in, drip faucets.` : clv >= 1 ? `Low near ${Math.round(lo)}°. Frost or freeze: cover plants, protect outdoor pipes.` : `Lows stay near ${Math.round(lo)}°. No freeze.`, "Open-Meteo + NWS"));
+  if (alertHas(/Winter Storm|Blizzard|Ice Storm|Winter Weather/i)) out.risks.push(risk("winter", "Snow / ice", alertHas(/Blizzard|Ice Storm Warning|Winter Storm Warning/i) ? 4 : 3, "Winter storm alert. Slick roads; stay home if you can.", "NWS"));
+  /* Hurricanes / tropical storms */
+  const kinds = { HU: "Hurricane", TS: "Tropical Storm", TD: "Tropical Depression", PTC: "Potential Tropical Cyclone", STS: "Subtropical Storm", STD: "Subtropical Depression", PC: "Post-tropical Cyclone" };
+  for (const s of nhc?.activeStorms || []) { const mi = milesBetween(lat, lon, Number(s.latitudeNumeric), Number(s.longitudeNumeric)); out.storms.push({ name: s.name, kind: kinds[s.classification] || s.classification, windMph: Math.round(Number(s.intensity) * 1.15078), miles: mi, moving: s.movementSpeed ? `${["N","NE","E","SE","S","SW","W","NW"][Math.round((Number(s.movementDir) || 0) / 45) % 8]} at ${Math.round(Number(s.movementSpeed) * 1.15078)} mph` : "", url: s.publicAdvisory?.url || "https://www.nhc.noaa.gov/" }); }
+  out.storms.sort((a, b) => a.miles - b.miles);
+  const near = out.storms[0]; const hl2 = alertHas(/Hurricane Warning|Storm Surge Warning/i) ? 5 : alertHas(/Hurricane Watch|Tropical Storm Warning/i) ? 4 : alertHas(/Tropical Storm Watch/i) ? 3 : near && near.miles < 250 ? 3 : near && near.miles < 600 ? 2 : near && near.miles < 1000 ? 1 : 0;
+  out.risks.push(risk("tropical", "Hurricane / tropical", hl2, hl2 >= 4 ? "Hurricane or tropical storm alert here. Follow evacuation orders." : near ? `${near.kind} ${near.name} is ${near.miles.toLocaleString()} miles away${near.moving ? ", moving " + near.moving : ""}.` : "No hurricanes or tropical storms anywhere right now.", "National Hurricane Center"));
+  /* Earthquakes in the last day nearby */
+  for (const f of quakes?.features || []) { const [qlon, qlat] = f.geometry?.coordinates || []; const mi = milesBetween(lat, lon, qlat, qlon); if (mi <= 300) out.quakes.push({ mag: f.properties.mag, place: f.properties.place, miles: mi, time: f.properties.time }); }
+  out.quakes.sort((a, b) => b.mag - a.mag); const bigQ = out.quakes[0];
+  out.risks.push(risk("quake", "Earthquakes", !bigQ ? 0 : bigQ.mag >= 5 ? 4 : bigQ.mag >= 4 ? 3 : bigQ.mag >= 3 ? 1 : 1, bigQ ? `M${bigQ.mag.toFixed(1)} ${bigQ.miles} miles away in the last day (${bigQ.place}).` : "No earthquakes within 300 miles in the last day.", "USGS"));
+  /* Anything else NWS is warning about */
+  const covered = /Tornado|Wind|Thunderstorm|Flood|Fire|Red Flag|Heat|Freeze|Frost|Cold|Chill|Winter|Blizzard|Ice|Hurricane|Tropical|Storm Surge/i;
+  for (const a of out.alerts) if (!covered.test(a.event)) out.risks.push(risk("other", a.event, /Warning|Emergency/i.test(a.event) ? 4 : /Watch/i.test(a.event) ? 3 : 2, a.headline || a.event, "National Weather Service"));
+  out.risks.sort((a, b) => b.level - a.level);
+  const body = JSON.stringify(out);
+  if (cache) { try { await cache.put(key, new Response(body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } })); } catch {} }
+  return new Response(body, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
 const memberGeoCache = new Map();
 async function rememberMemberGeo(env, me, cf) {
   if (!cf || !me?.id) return;
@@ -12036,6 +12142,7 @@ async function api2(req, env222222, url) {
   if (p === "/api/wind" && req.method === "GET") return windApi(req, env222222, me);
   if (p === "/api/weather/people" && req.method === "GET") return weatherPeopleApi(req, env222222, me);
   if (p === "/api/sky" && req.method === "GET") return skyApi(req, env222222);
+  if (p === "/api/weather/risks" && req.method === "GET") return weatherRisksApi(req, env222222, me);
   /* Weather station: radar frame list and map/radar tiles proxied through the Worker (member-only, cached). */
   if (p === "/api/weather/radar" && req.method === "GET") return radarFramesApi();
   if (p === "/api/weather/alerts" && req.method === "GET") return weatherAlertsApi(req);
