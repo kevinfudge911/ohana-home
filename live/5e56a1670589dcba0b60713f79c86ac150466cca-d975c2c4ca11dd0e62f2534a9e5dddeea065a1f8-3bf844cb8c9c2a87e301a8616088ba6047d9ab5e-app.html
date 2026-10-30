@@ -12805,7 +12805,8 @@ function updateGatheringTv(){const tv=duckvillePanel?.querySelector('.gathering-
 function unmountGatheringStation(){gatheringStationAbort?.abort();gatheringStationAbort=null;clearTimeout(gatheringStationTimer);clearTimeout(gatheringRadarTimer);gatheringStationTimer=gatheringRadarTimer=null;}
 
 /* Ohana Gathering controls live in the Bridge like every other room: Inside / Porch / Ducks. */
-let duckvilleView='inside',duckvilleDucksPaused=false,duckvilleChimes=false;
+let duckvilleView='inside',duckvilleDucksPaused=false,duckvilleChimes=true;/* Chimes ring when you walk in; the Bridge switch turns them off and its chime volume slider sets how loud. */
+function gatheringChimeVolume(){try{const v=Number(JSON.parse(localStorage.getItem('ohana_chime_sounds_v1')||'{}').volume);return Number.isFinite(v)?Math.max(0,Math.min(1,v))*.5:.18;}catch{return .18;}}
 function readPrivateDuckvilleHostState(){
  // Exact master/busy predicates from pinned app18607; music shell activity18572–75.
  let masterMuted=true,busy=true,reduced=true,paused=true;
@@ -12816,7 +12817,7 @@ function readPrivateDuckvilleHostState(){
   reduced=localStorage.getItem('ohana_less_motion')==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;
   paused=JSON.parse(localStorage.getItem('ohana_chimes_device_v1')||'{}').paused===true;
  }catch{}
- return {masterMuted:!!masterMuted,busy:!!busy,visible:!document.hidden&&!!duckvilleCurrent?.(),reduced:!!reduced,paused:!!paused||duckvilleDucksPaused,view:duckvilleView,sound:duckvilleChimes&&!masterMuted};
+ return {masterMuted:!!masterMuted,busy:!!busy,visible:!document.hidden&&!!duckvilleCurrent?.(),reduced:!!reduced,paused:!!paused||duckvilleDucksPaused,view:duckvilleView,sound:duckvilleChimes&&!masterMuted,volume:gatheringChimeVolume()};
 }
 async function openPrivateDuckville(){
  closePrivateGatheringEntry();closePrivateDuckville();
@@ -13157,13 +13158,13 @@ function updateRoomPlayClocks(){
 setInterval(updateRoomPlayClocks,30000);
 
 // ---------- WHAT'S NEW board ----------
-const NEWS_VERSION='2026-10-29-gathering-v1';
+const NEWS_VERSION='2026-10-29-gathering-v2';
 const NEWS=[
 {
   "key": "gathering-oct29-room-v1",
   "title": "Ohana Gathering",
   "sub": "Our porch, our ducks, and the weather",
-  "blurb": "A new room for the whole family: the duck enclosure porch with PePaw, Sue and Mike in their chairs, the ducks wandering, and Dad\u2019s cardinal on the shelf. Find it on Home, right under the Puzzle room. It is also the weather center: the card and the room show the temperature, wind and sky where you are.\n\nTap OHANA on the sign for Inside, Porch and Ducks. Tap Chimes under the picture to hear the chimes. Only our family can see this room.",
+  "blurb": "A new room for the whole family: the duck enclosure porch with PePaw, Sue and Mike in their chairs, the ducks wandering, and Dad\u2019s cardinal on the shelf. Find it on Home, right under the Puzzle room.\n\nIt is our weather station. The TV on the fence shows live rain radar (tap it to make it big). Under the picture: windsock, thermometer, barometer, humidity, wind, rain gauge, UV and clouds, all live for where you are. If a tornado or severe weather warning comes out for your area while you are online, a red banner pops up.\n\nThe wind chimes ring when you walk in. To adjust them, tap OHANA on the sign: Chimes turns them on or off, and the chime speaker slider sets how loud. Inside, Porch and Ducks are there too. Only our family can see this room.",
   "img": "/ohana-cardinal-daddy-cap-v1.png",
   "tone": "reef",
   "tag": "NEW"
