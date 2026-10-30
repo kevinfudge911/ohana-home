@@ -9761,7 +9761,7 @@ async function weatherTileApi(req, p) {
   if (!m) return new Response("Not found", { status: 404 });
   const [, kind, id, z, x, y] = m;
   if (Number(z) > 12) return new Response("Not found", { status: 404 });
-  const upstream = kind === "map" ? "https://basemaps.cartocdn.com/rastertiles/voyager/" + z + "/" + x + "/" + y + ".png" : id ? "https://tilecache.rainviewer.com/v2/radar/" + id + "/256/" + z + "/" + x + "/" + y + "/4/1_1.png" : null;
+  const upstream = kind === "map" ? "https://tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png" : id ? "https://tilecache.rainviewer.com/v2/radar/" + id + "/256/" + z + "/" + x + "/" + y + "/4/1_1.png" : null;
   if (!upstream) return new Response("Not found", { status: 404 });
   try {
     const r = await fetch(upstream, { headers: { "user-agent": "OhanaHome weather station (ohanahome.app)" }, cf: { cacheTtl: kind === "map" ? 86400 : 900, cacheEverything: true } });
