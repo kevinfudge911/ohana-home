@@ -12033,13 +12033,6 @@ async function api2(req, env222222, url) {
   if (!me) return err("Please sign in.", 401);
   /* Weather station: remember roughly where each family member is (city level, from the connection), so the family can check each other's weather. */
   try { const geoJob = rememberMemberGeo(env222222, me, req.cf); if (env222222.ctx?.waitUntil) env222222.ctx.waitUntil(geoJob); else await geoJob; } catch {}
-  if (p === "/api/duckville-copy" && req.method === "POST" && env222222.DUCKVILLE_COPY_KEY) { /* TEMP preview-only */
-    if (req.headers.get("x-copy-key") !== env222222.DUCKVILLE_COPY_KEY || !me.is_admin) return err("No.", 403);
-    const b = env222222.DUCKVILLE_PRIVATE, dst = String(env222222.DUCKVILLE_PRIVATE_PREFIX || ""); if (!b || !dst || dst === "ohana-gathering/") return err("Not here.", 400);
-    const list = await b.list({ prefix: "ohana-gathering/" }); const done = [];
-    for (const o of list.objects) { const obj = await b.get(o.key); if (!obj) continue; await b.put(dst + o.key.slice("ohana-gathering/".length), obj.body, { httpMetadata: obj.httpMetadata }); done.push(o.key); }
-    return json({ copied: done });
-  }
   if (p === "/api/wind" && req.method === "GET") return windApi(req, env222222, me);
   if (p === "/api/weather/people" && req.method === "GET") return weatherPeopleApi(req, env222222, me);
   if (p === "/api/sky" && req.method === "GET") return skyApi(req, env222222);

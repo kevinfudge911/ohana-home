@@ -91,7 +91,6 @@ bucket_name = "ohana-gathering-private"
 
 [previews.vars]
 DUCKVILLE_PRIVATE_PREFIX = "ohana-gathering-preview/"
-DUCKVILLE_COPY_KEY = "claudine-copy-20261029"
 DUCKVILLE_APPROVED_ROOM_ID = "1"
 PEPAW_FAMILY_ROOM_ID = "1"
 PEPAW_OWNER_MEMBER_ID = "2"
