@@ -9769,12 +9769,82 @@ async function weatherTileApi(req, p) {
     return new Response(r.body, { headers: { "content-type": r.headers.get("content-type") || "image/png", "cache-control": kind === "map" ? "public, max-age=86400" : "public, max-age=900" } });
   } catch { return new Response("Unavailable", { status: 502 }); }
 }
-async function windApi(req) {
+function aqiWords(v) { if (!Number.isFinite(v)) return null; return v <= 50 ? "Good air" : v <= 100 ? "Fair air" : v <= 150 ? "Unhealthy for sensitive folks" : v <= 200 ? "Unhealthy air" : v <= 300 ? "Very unhealthy air" : "Hazardous air"; }
+/* Moon: phase from a known new moon (2000-01-06 18:14 UTC), synodic month 29.530588853 days. Good to within a few hours. */
+const SYNODIC = 29.530588853, NEW_MOON_EPOCH = Date.UTC(2000, 0, 6, 18, 14);
+function moonNow(d) {
+  const days = (d.getTime() - NEW_MOON_EPOCH) / 864e5; const age = ((days % SYNODIC) + SYNODIC) % SYNODIC; const frac = age / SYNODIC;
+  const illum = Math.round((1 - Math.cos(frac * 2 * Math.PI)) / 2 * 100);
+  const names = ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"];
+  let idx = Math.round(frac * 8) % 8; const near = Math.abs(frac * 8 - Math.round(frac * 8)); if (near > 0.12 && idx % 2 === 0) idx = (idx + 1) % 8; /* only call it New/Quarter/Full within ~1 day */
+  const cycles = Math.floor(days / SYNODIC);
+  const nextFull = new Date(NEW_MOON_EPOCH + (cycles + (frac < 0.5 ? 0.5 : 1.5)) * SYNODIC * 864e5), nextNew = new Date(NEW_MOON_EPOCH + (cycles + 1) * SYNODIC * 864e5);
+  const seasonal = ["Wolf Moon", "Snow Moon", "Worm Moon", "Pink Moon", "Flower Moon", "Strawberry Moon", "Buck Moon", "Sturgeon Moon", "Harvest Moon", "Hunter's Moon", "Beaver Moon", "Cold Moon"];
+  return { phase: names[idx], ageDays: Math.round(age * 10) / 10, illuminationPct: illum, waxing: frac < 0.5, fraction: Math.round(frac * 1000) / 1000, nextFull: nextFull.toISOString(), nextNew: nextNew.toISOString(), fullMoonName: seasonal[nextFull.getUTCMonth()] };
+}
+/* Sky events people like to know about: meteor showers (yearly), eclipses (table), and asteroid fly-bys (NASA). */
+const METEOR_SHOWERS = [["Quadrantids", 1, 3, 1, 1, 1, 6], ["Lyrids", 4, 22, 4, 16, 4, 25], ["Eta Aquariids", 5, 6, 4, 19, 5, 28], ["Delta Aquariids", 7, 30, 7, 12, 8, 23], ["Perseids", 8, 12, 7, 17, 8, 24], ["Draconids", 10, 8, 10, 6, 10, 10], ["Orionids", 10, 21, 10, 2, 11, 7], ["Leonids", 11, 17, 11, 6, 11, 30], ["Geminids", 12, 14, 12, 4, 12, 17], ["Ursids", 12, 22, 12, 17, 12, 26]];
+const ECLIPSES = [["2026-08-12", "Total solar eclipse", "Seen from Greenland, Iceland and Spain; not from the United States"], ["2026-08-28", "Partial lunar eclipse", "Seen across the Americas in the evening"], ["2027-02-06", "Annular solar eclipse", "Ring of fire over South America and the Atlantic"], ["2027-02-20", "Penumbral lunar eclipse", "A faint shading of the Moon, seen from the Americas"], ["2027-07-18", "Penumbral lunar eclipse", "Very faint; Pacific side"], ["2027-08-02", "Total solar eclipse", "Spain, North Africa and the Middle East"], ["2028-01-12", "Partial lunar eclipse", "Seen from the Americas"], ["2028-01-26", "Annular solar eclipse", "South America and the Atlantic"], ["2028-07-06", "Partial lunar eclipse", "Seen from the Americas"], ["2028-07-22", "Total solar eclipse", "Australia and New Zealand"], ["2028-12-31", "Total lunar eclipse", "Seen from the Americas on New Year's Eve"], ["2029-01-14", "Partial solar eclipse", "Seen from North America"]];
+function skyEvents(now) {
+  const y = now.getUTCFullYear(); const out = [];
+  for (const [name, pm, pd, sm, sd, em, ed] of METEOR_SHOWERS) for (const yy of [y, y + 1]) {
+    const peak = Date.UTC(yy, pm - 1, pd), start = Date.UTC(yy, sm - 1, sd), end = Date.UTC(em < sm ? yy + 1 : yy, em - 1, ed);
+    if (end < now.getTime() - 864e5) continue; out.push({ kind: "meteor", name: name + " meteor shower", date: new Date(peak).toISOString().slice(0, 10), activeNow: now.getTime() >= start && now.getTime() <= end, note: "Best after midnight, away from lights" }); break;
+  }
+  for (const [date, name, note] of ECLIPSES) if (Date.parse(date) >= now.getTime() - 864e5) out.push({ kind: "eclipse", name, date, note });
+  return out.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+}
+async function skyApi(req, env) {
+  const key = new Request("https://ohana-wind.internal/sky-v1"); let cache = null, hit = null;
+  try { cache = caches.default; hit = await cache.match(key); } catch {}
+  let body = null; if (hit) { try { body = await hit.json(); } catch {} }
+  if (!body) {
+    const now = new Date(); let asteroids = [];
+    try {
+      const d0 = now.toISOString().slice(0, 10), d1 = new Date(now.getTime() + 6 * 864e5).toISOString().slice(0, 10);
+      const r = await fetch("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + d0 + "&end_date=" + d1 + "&api_key=" + (env?.NASA_API_KEY || "DEMO_KEY"), { cf: { cacheTtl: 21600, cacheEverything: true } });
+      if (r.ok) { const j = await r.json(); for (const list of Object.values(j.near_earth_objects || {})) for (const a of list) { const ap = a.close_approach_data?.[0]; if (!ap) continue; const ld = Number(ap.miss_distance?.lunar); const dia = a.estimated_diameter?.feet; asteroids.push({ name: String(a.name || "").replace(/[()]/g, "").trim(), date: ap.close_approach_date_full || ap.close_approach_date, lunarDistances: Math.round(ld * 10) / 10, sizeFt: dia ? Math.round((Number(dia.estimated_diameter_min) + Number(dia.estimated_diameter_max)) / 2) : null, mph: Math.round(Number(ap.relative_velocity?.miles_per_hour)), hazardous: !!a.is_potentially_hazardous_asteroid }); } }
+    } catch {}
+    asteroids.sort((a, b) => a.lunarDistances - b.lunarDistances); asteroids = asteroids.slice(0, 5);
+    body = { moon: moonNow(now), events: skyEvents(now), asteroids, asteroidCount: asteroids.length, updatedAt: Date.now() };
+    if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=10800" } })); } catch {} }
+  }
+  return new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
+const memberGeoCache = new Map();
+async function rememberMemberGeo(env, me, cf) {
+  if (!cf || !me?.id) return;
+  const lat = Number(cf.latitude), lon = Number(cf.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+  const geo = { lat: Math.round(lat * 10) / 10, lon: Math.round(lon * 10) / 10, name: [cf.city, cf.region].filter(Boolean).join(", "), at: Date.now() };
+  const prev = memberGeoCache.get(me.id);
+  if (prev && prev.lat === geo.lat && prev.lon === geo.lon && Date.now() - prev.at < 6 * 3600e3) return;
+  memberGeoCache.set(me.id, geo);
+  try { await env.DB.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind("member_geo_" + me.id, JSON.stringify(geo)).run(); } catch {}
+}
+async function memberGeo(env, id) {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key=?").bind("member_geo_" + id).first();
+  if (!row) return null; try { const g = JSON.parse(row.value); return Number.isFinite(g.lat) && Number.isFinite(g.lon) ? g : null; } catch { return null; }
+}
+async function weatherPeopleApi(req, env, me) {
+  const room = Number(req.headers.get("x-ohana-room")) || Number(new URL(req.url).searchParams.get("room")) || 0;
+  const mine = await env.DB.prepare("SELECT room_id FROM room_members WHERE member_id=?").bind(me.id).all();
+  const rooms = (mine.results || []).map((r) => Number(r.room_id));
+  const target = rooms.includes(room) ? room : rooms[0];
+  if (!target) return json({ people: [] });
+  const rows = await env.DB.prepare("SELECT m.id,m.name,m.avatar,m.last_seen,(SELECT value FROM settings WHERE key='member_geo_'||m.id) AS geo FROM room_members rm JOIN members m ON m.id=rm.member_id WHERE rm.room_id=? AND m.id>0 ORDER BY m.last_seen DESC").bind(target).all();
+  const people = [];
+  for (const r of rows.results || []) { let g = null; try { g = r.geo ? JSON.parse(r.geo) : null; } catch {} if (!g) continue; people.push({ id: r.id, name: r.name, avatar: r.avatar, place: g.name || "", lat: g.lat, lon: g.lon, seen: r.last_seen, me: r.id === me.id }); }
+  return json({ people });
+}
+async function windApi(req, env, me) {
   const cf = req.cf || {};
   let lat = Number(cf.latitude), lon = Number(cf.longitude), name = [cf.city, cf.region].filter(Boolean).join(", ");
+  /* ?member=ID: another family member's weather, only if we share a room. */
+  try { const want = Number(new URL(req.url).searchParams.get("member")); if (env && me && Number.isSafeInteger(want) && want > 0 && want !== me.id) { const shared = await env.DB.prepare("SELECT 1 FROM room_members a JOIN room_members b ON a.room_id=b.room_id WHERE a.member_id=? AND b.member_id=? LIMIT 1").bind(me.id, want).first(); const g = shared ? await memberGeo(env, want) : null; if (g) { lat = g.lat; lon = g.lon; name = g.name || name; } else return new Response(JSON.stringify({ authorized: true, available: false, reason: "no-location" }), { headers: { "content-type": "application/json", "cache-control": "no-store" } }); } } catch {}
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; name = WIND_HOME.name; }
   lat = Math.round(lat * 10) / 10; lon = Math.round(lon * 10) / 10;
-  const key = new Request("https://ohana-wind.internal/v3?lat=" + lat + "&lon=" + lon);
+  const key = new Request("https://ohana-wind.internal/v4?lat=" + lat + "&lon=" + lon);
   let cache = null, hit = null;
   try { cache = caches.default; hit = await cache.match(key); } catch {}
   let body = null;
@@ -9782,8 +9852,9 @@ async function windApi(req) {
   if (!body) {
     let data = null;
     try {
-      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,pressure_msl,precipitation,cloud_cover,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset&forecast_days=1&wind_speed_unit=ms&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,pressure_msl,precipitation,cloud_cover,is_day,dew_point_2m,visibility,snowfall&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset,weather_code,precipitation_sum,snowfall_sum,wind_gusts_10m_max,sunshine_duration&forecast_days=3&wind_speed_unit=ms&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
       if (r.ok) data = await r.json();
+      try { const a = await fetch("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + lat + "&longitude=" + lon + "&current=us_aqi,pm2_5&timezone=auto", { cf: { cacheTtl: 1800, cacheEverything: true } }); if (a.ok && data) data.air = (await a.json()).current || null; } catch {}
     } catch {}
     const c = data && data.current;
     const speed = c ? Number(c.wind_speed_10m) : NaN;
@@ -9797,7 +9868,13 @@ async function windApi(req) {
           pressureInHg: Number.isFinite(Number(c.pressure_msl)) ? Math.round(Number(c.pressure_msl) * 0.02953 * 100) / 100 : null, rainTodayIn: Number.isFinite(Number(c.precipitation)) ? Number(c.precipitation) : null, cloudPct: Number.isFinite(Number(c.cloud_cover)) ? Number(c.cloud_cover) : null, isDay: c.is_day === 1 || c.is_day === true,
           highF: Number.isFinite(Number(data.daily?.temperature_2m_max?.[0])) ? Math.round(Number(data.daily.temperature_2m_max[0])) : null, lowF: Number.isFinite(Number(data.daily?.temperature_2m_min?.[0])) ? Math.round(Number(data.daily.temperature_2m_min[0])) : null,
           rainChancePct: Number.isFinite(Number(data.daily?.precipitation_probability_max?.[0])) ? Number(data.daily.precipitation_probability_max[0]) : null, uvMax: Number.isFinite(Number(data.daily?.uv_index_max?.[0])) ? Math.round(Number(data.daily.uv_index_max[0]) * 10) / 10 : null,
-          sunrise: data.daily?.sunrise?.[0] || null, sunset: data.daily?.sunset?.[0] || null }
+          sunrise: data.daily?.sunrise?.[0] || null, sunset: data.daily?.sunset?.[0] || null,
+          /* More readings */
+          dewF: Number.isFinite(Number(c.dew_point_2m)) ? Math.round(Number(c.dew_point_2m)) : null, visibilityMi: Number.isFinite(Number(c.visibility)) ? Math.round(Number(c.visibility) / 1609.34 * 10) / 10 : null, snowNowIn: Number.isFinite(Number(c.snowfall)) ? Number(c.snowfall) : null,
+          snowTodayIn: Number.isFinite(Number(data.daily?.snowfall_sum?.[0])) ? Number(data.daily.snowfall_sum[0]) : null, gustMaxMph: Number.isFinite(Number(data.daily?.wind_gusts_10m_max?.[0])) ? Math.round(Number(data.daily.wind_gusts_10m_max[0]) * 2.23694) : null, sunshineHrs: Number.isFinite(Number(data.daily?.sunshine_duration?.[0])) ? Math.round(Number(data.daily.sunshine_duration[0]) / 360) / 10 : null,
+          aqi: Number.isFinite(Number(data.air?.us_aqi)) ? Math.round(Number(data.air.us_aqi)) : null, aqiWords: aqiWords(Number(data.air?.us_aqi)),
+          days: (data.daily?.time || []).slice(0, 3).map((t, i) => ({ date: t, code: Number(data.daily.weather_code?.[i]), condition: weatherWords(Number(data.daily.weather_code?.[i])), highF: Math.round(Number(data.daily.temperature_2m_max?.[i])), lowF: Math.round(Number(data.daily.temperature_2m_min?.[i])), rainChancePct: Number(data.daily.precipitation_probability_max?.[i]), precipIn: Number(data.daily.precipitation_sum?.[i]), snowIn: Number(data.daily.snowfall_sum?.[i]) })),
+          moon: moonNow(new Date()) }
       : { authorized: true, available: false, units: "m/s", updatedAt: Date.now(), place: { lat, lon, name } };
     if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + (body.available ? 600 : 120) } })); } catch {} }
   }
@@ -11954,7 +12031,11 @@ async function api2(req, env222222, url) {
   }
   const me = await auth(req, env222222);
   if (!me) return err("Please sign in.", 401);
-  if (p === "/api/wind" && req.method === "GET") return windApi(req);
+  /* Weather station: remember roughly where each family member is (city level, from the connection), so the family can check each other's weather. */
+  try { ctx.waitUntil(rememberMemberGeo(env222222, me, req.cf)); } catch {}
+  if (p === "/api/wind" && req.method === "GET") return windApi(req, env222222, me);
+  if (p === "/api/weather/people" && req.method === "GET") return weatherPeopleApi(req, env222222, me);
+  if (p === "/api/sky" && req.method === "GET") return skyApi(req, env222222);
   /* Weather station: radar frame list and map/radar tiles proxied through the Worker (member-only, cached). */
   if (p === "/api/weather/radar" && req.method === "GET") return radarFramesApi();
   if (p === "/api/weather/alerts" && req.method === "GET") return weatherAlertsApi(req);
