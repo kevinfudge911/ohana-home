@@ -9729,12 +9729,35 @@ function weatherWords(code) {
   if (code >= 71 && code <= 77) return "Snow"; if (code >= 80 && code <= 82) return "Rain showers"; if (code === 85 || code === 86) return "Snow showers";
   if (code >= 95) return "Thunderstorm"; return "";
 }
+async function radarFramesApi() {
+  const key = new Request("https://ohana-wind.internal/radar-frames");
+  let cache = null, hit = null; try { cache = caches.default; hit = await cache.match(key); } catch {}
+  if (hit) return new Response(await hit.text(), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  let body = { frames: [], host: "" };
+  try { const r = await fetch("https://api.rainviewer.com/public/weather-maps.json", { cf: { cacheTtl: 300 } }); if (r.ok) { const j = await r.json(); const past = (j.radar?.past || []).slice(-8), now = (j.radar?.nowcast || []).slice(0, 2); body = { generated: j.generated, frames: [...past.map((f) => ({ time: f.time, path: f.path, kind: "past" })), ...now.map((f) => ({ time: f.time, path: f.path, kind: "nowcast" }))] }; } } catch {}
+  if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } })); } catch {} }
+  return new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
+async function weatherTileApi(req, p) {
+  // /api/weather/tile/map/{z}/{x}/{y}  or  /api/weather/tile/radar/{pathId}/{z}/{x}/{y}
+  const m = /^\/api\/weather\/tile\/(map|radar)\/(?:([a-f0-9]{6,16})\/)?(\d{1,2})\/(\d{1,7})\/(\d{1,7})$/.exec(p);
+  if (!m) return new Response("Not found", { status: 404 });
+  const [, kind, id, z, x, y] = m;
+  if (Number(z) > 12) return new Response("Not found", { status: 404 });
+  const upstream = kind === "map" ? "https://basemaps.cartocdn.com/rastertiles/voyager/" + z + "/" + x + "/" + y + ".png" : id ? "https://tilecache.rainviewer.com/v2/radar/" + id + "/256/" + z + "/" + x + "/" + y + "/4/1_1.png" : null;
+  if (!upstream) return new Response("Not found", { status: 404 });
+  try {
+    const r = await fetch(upstream, { headers: { "user-agent": "OhanaHome weather station (ohanahome.app)" }, cf: { cacheTtl: kind === "map" ? 86400 : 900, cacheEverything: true } });
+    if (!r.ok) return new Response("Unavailable", { status: 502 });
+    return new Response(r.body, { headers: { "content-type": r.headers.get("content-type") || "image/png", "cache-control": kind === "map" ? "public, max-age=86400" : "public, max-age=900" } });
+  } catch { return new Response("Unavailable", { status: 502 }); }
+}
 async function windApi(req) {
   const cf = req.cf || {};
   let lat = Number(cf.latitude), lon = Number(cf.longitude), name = [cf.city, cf.region].filter(Boolean).join(", ");
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; name = WIND_HOME.name; }
   lat = Math.round(lat * 10) / 10; lon = Math.round(lon * 10) / 10;
-  const key = new Request("https://ohana-wind.internal/v2?lat=" + lat + "&lon=" + lon);
+  const key = new Request("https://ohana-wind.internal/v3?lat=" + lat + "&lon=" + lon);
   let cache = null, hit = null;
   try { cache = caches.default; hit = await cache.match(key); } catch {}
   let body = null;
@@ -9742,7 +9765,7 @@ async function windApi(req) {
   if (!body) {
     let data = null;
     try {
-      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,apparent_temperature,weather_code,relative_humidity_2m&wind_speed_unit=ms&temperature_unit=fahrenheit&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m,temperature_2m,apparent_temperature,weather_code,relative_humidity_2m,pressure_msl,precipitation,cloud_cover,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset&forecast_days=1&wind_speed_unit=ms&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=auto", { cf: { cacheTtl: 600, cacheEverything: true } });
       if (r.ok) data = await r.json();
     } catch {}
     const c = data && data.current;
@@ -9752,7 +9775,12 @@ async function windApi(req) {
           /* Weather center (Ohana Gathering): plain readings for people. */
           tempF: Number.isFinite(Number(c.temperature_2m)) ? Math.round(Number(c.temperature_2m)) : null, feelsF: Number.isFinite(Number(c.apparent_temperature)) ? Math.round(Number(c.apparent_temperature)) : null, humidity: Number.isFinite(Number(c.relative_humidity_2m)) ? Math.round(Number(c.relative_humidity_2m)) : null,
           windMph: Math.round(speed * 2.23694), gustMph: Math.round((Number.isFinite(Number(c.wind_gusts_10m)) ? Number(c.wind_gusts_10m) : speed * 1.5) * 2.23694), windFrom: ["N","NE","E","SE","S","SW","W","NW"][Math.round(((Number(c.wind_direction_10m) || 0) % 360) / 45) % 8],
-          weatherCode: Number.isFinite(Number(c.weather_code)) ? Number(c.weather_code) : null, condition: weatherWords(Number(c.weather_code)) }
+          weatherCode: Number.isFinite(Number(c.weather_code)) ? Number(c.weather_code) : null, condition: weatherWords(Number(c.weather_code)),
+          /* Weather station extras */
+          pressureInHg: Number.isFinite(Number(c.pressure_msl)) ? Math.round(Number(c.pressure_msl) * 0.02953 * 100) / 100 : null, rainTodayIn: Number.isFinite(Number(c.precipitation)) ? Number(c.precipitation) : null, cloudPct: Number.isFinite(Number(c.cloud_cover)) ? Number(c.cloud_cover) : null, isDay: c.is_day === 1 || c.is_day === true,
+          highF: Number.isFinite(Number(data.daily?.temperature_2m_max?.[0])) ? Math.round(Number(data.daily.temperature_2m_max[0])) : null, lowF: Number.isFinite(Number(data.daily?.temperature_2m_min?.[0])) ? Math.round(Number(data.daily.temperature_2m_min[0])) : null,
+          rainChancePct: Number.isFinite(Number(data.daily?.precipitation_probability_max?.[0])) ? Number(data.daily.precipitation_probability_max[0]) : null, uvMax: Number.isFinite(Number(data.daily?.uv_index_max?.[0])) ? Math.round(Number(data.daily.uv_index_max[0]) * 10) / 10 : null,
+          sunrise: data.daily?.sunrise?.[0] || null, sunset: data.daily?.sunset?.[0] || null }
       : { authorized: true, available: false, units: "m/s", updatedAt: Date.now(), place: { lat, lon, name } };
     if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + (body.available ? 600 : 120) } })); } catch {} }
   }
@@ -11910,6 +11938,9 @@ async function api2(req, env222222, url) {
   const me = await auth(req, env222222);
   if (!me) return err("Please sign in.", 401);
   if (p === "/api/wind" && req.method === "GET") return windApi(req);
+  /* Weather station: radar frame list and map/radar tiles proxied through the Worker (member-only, cached). */
+  if (p === "/api/weather/radar" && req.method === "GET") return radarFramesApi();
+  if (p.startsWith("/api/weather/tile/") && req.method === "GET") return weatherTileApi(req, p);
   if(p === "/api/granny/word-check" && req.method === "GET")return grannyWordCheck(req,db,url);
   if (p === "/api/granny") return grannyApi(req, db, me, body);
   const managed = await childPolicy(db, me.id);
