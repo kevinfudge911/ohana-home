@@ -9729,6 +9729,23 @@ function weatherWords(code) {
   if (code >= 71 && code <= 77) return "Snow"; if (code >= 80 && code <= 82) return "Rain showers"; if (code === 85 || code === 86) return "Snow showers";
   if (code >= 95) return "Thunderstorm"; return "";
 }
+/* Tornado / severe weather warnings for where the member is (National Weather Service, US only). */
+async function weatherAlertsApi(req) {
+  const cf = req.cf || {};
+  let lat = Number(cf.latitude), lon = Number(cf.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || (cf.country && cf.country !== "US")) { lat = WIND_HOME.lat; lon = WIND_HOME.lon; }
+  lat = Math.round(lat * 20) / 20; lon = Math.round(lon * 20) / 20;
+  const key = new Request("https://ohana-wind.internal/alerts?lat=" + lat + "&lon=" + lon);
+  let cache = null, hit = null; try { cache = caches.default; hit = await cache.match(key); } catch {}
+  if (hit) return new Response(await hit.text(), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  let body = { alerts: [], checked: Date.now() };
+  try {
+    const r = await fetch("https://api.weather.gov/alerts/active?point=" + lat + "," + lon + "&status=actual&message_type=alert,update", { headers: { "user-agent": "(ohanahome.app, kevin.fudge911@gmail.com)", "accept": "application/geo+json" }, cf: { cacheTtl: 120 } });
+    if (r.ok) { const j = await r.json(); body.alerts = (j.features || []).map((f) => f.properties || {}).filter((a) => a.event).map((a) => ({ id: a.id, event: a.event, severity: a.severity, urgency: a.urgency, headline: a.headline, area: a.areaDesc, onset: a.onset, expires: a.expires, ends: a.ends, instruction: a.instruction ? String(a.instruction).slice(0, 600) : "", description: a.description ? String(a.description).slice(0, 900) : "" })); }
+  } catch {}
+  if (cache) { try { await cache.put(key, new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "public, max-age=120" } })); } catch {} }
+  return new Response(JSON.stringify(body), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
 async function radarFramesApi() {
   const key = new Request("https://ohana-wind.internal/radar-frames");
   let cache = null, hit = null; try { cache = caches.default; hit = await cache.match(key); } catch {}
@@ -11940,6 +11957,7 @@ async function api2(req, env222222, url) {
   if (p === "/api/wind" && req.method === "GET") return windApi(req);
   /* Weather station: radar frame list and map/radar tiles proxied through the Worker (member-only, cached). */
   if (p === "/api/weather/radar" && req.method === "GET") return radarFramesApi();
+  if (p === "/api/weather/alerts" && req.method === "GET") return weatherAlertsApi(req);
   if (p.startsWith("/api/weather/tile/") && req.method === "GET") return weatherTileApi(req, p);
   if(p === "/api/granny/word-check" && req.method === "GET")return grannyWordCheck(req,db,url);
   if (p === "/api/granny") return grannyApi(req, db, me, body);
