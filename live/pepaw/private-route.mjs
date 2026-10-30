@@ -10,7 +10,7 @@ export function createPePawRoute({auth,roomId=null,ownerMemberId=null}){
   if(u.search||env?.__ohanaInviteMe||!/^Bearer \S+$/.test(req.headers.get('Authorization')||''))return deny(401);
   try{const me=await auth(req,env);if(!me)return deny(401);
    const row=await env.DB.prepare("SELECT r.id FROM rooms r JOIN room_members viewer ON viewer.room_id=r.id JOIN room_members owner ON owner.room_id=r.id WHERE r.id=? AND viewer.member_id=? AND owner.member_id=? AND NOT EXISTS(SELECT 1 FROM settings WHERE key='room_deleted_'||r.id AND value<>'')").bind(Number(roomId),me.id,Number(ownerMemberId)).first();
-   if(!row)return deny(404);const object=await env.DUCKVILLE_PRIVATE?.get('ohana-gathering/pepaw-firefighter-cardinal.png');if(!object)return deny(404);
+   if(!row)return deny(404);const object=await env.DUCKVILLE_PRIVATE?.get(String(env.DUCKVILLE_PRIVATE_PREFIX||'ohana-gathering/').replace(/\/?$/,'/')+'pepaw-firefighter-cardinal.png');if(!object)return deny(404);
    return new Response(await object.arrayBuffer(),{headers:{...headers,'Content-Type':'image/png'}});
   }catch{return deny(503)}
  };
