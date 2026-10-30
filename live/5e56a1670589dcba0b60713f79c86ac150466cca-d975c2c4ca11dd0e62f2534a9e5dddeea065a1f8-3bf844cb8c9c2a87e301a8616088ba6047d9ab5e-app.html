@@ -12823,7 +12823,7 @@ function gatheringStationHtml(w){const T=Number.isFinite(w.tempF)?w.tempF+'°':'
  <div class="gathering-instrument">${gatheringDial({min:0,max:11,value:w.uvMax,label:'UV INDEX',ticks:11,face:[[.08,'LOW'],[.9,'HIGH']]})}<b>${Number.isFinite(w.uvMax)?w.uvMax:'–'}</b><small>UV today</small></div>
  <div class="gathering-instrument">${gatheringDial({min:0,max:100,value:w.cloudPct,label:'CLOUDS',ticks:10,face:[[.08,'CLEAR'],[.9,'OVERCAST']]})}<b>${Number.isFinite(w.cloudPct)?w.cloudPct+'%':'–'}</b><small>cloud cover</small></div>
  <div class="gathering-instrument">${gatheringDial({min:0,max:300,value:w.aqi,label:'AIR',ticks:6,face:[[.08,'GOOD'],[.9,'BAD']]})}<b>${Number.isFinite(w.aqi)?w.aqi:'–'}</b><small>${esc(w.aqiWords||'air quality')}</small></div>
- <div class="gathering-instrument">${gatheringDial({min:0,max:10,value:w.visibilityMi,label:'VISIBILITY',ticks:10,face:[[.08,'FOG'],[.9,'CLEAR']]})}<b>${Number.isFinite(w.visibilityMi)?w.visibilityMi+' mi':'–'}</b><small>can see</small></div>
+ <div class="gathering-instrument">${gatheringDial({min:0,max:30,value:w.visibilityMi,label:'VISIBILITY',ticks:10,face:[[.08,'FOG'],[.9,'CLEAR']]})}<b>${Number.isFinite(w.visibilityMi)?w.visibilityMi+' mi':'–'}</b><small>can see</small></div>
  <div class="gathering-instrument">${gatheringThermometer(w.dewF,null,null)}<b>${Number.isFinite(w.dewF)?w.dewF+'°':'–'}</b><small>dew point</small></div>
  <div class="gathering-instrument">${gatheringRainGauge(w.snowTodayIn,null)}<b>${Number.isFinite(w.snowTodayIn)?w.snowTodayIn.toFixed(1)+'"':'–'}</b><small>snow today · sun ${Number.isFinite(w.sunshineHrs)?w.sunshineHrs+'h':'–'}</small></div>
 </div>

@@ -12032,7 +12032,7 @@ async function api2(req, env222222, url) {
   const me = await auth(req, env222222);
   if (!me) return err("Please sign in.", 401);
   /* Weather station: remember roughly where each family member is (city level, from the connection), so the family can check each other's weather. */
-  try { ctx.waitUntil(rememberMemberGeo(env222222, me, req.cf)); } catch {}
+  try { const geoJob = rememberMemberGeo(env222222, me, req.cf); if (env222222.ctx?.waitUntil) env222222.ctx.waitUntil(geoJob); else await geoJob; } catch {}
   if (p === "/api/wind" && req.method === "GET") return windApi(req, env222222, me);
   if (p === "/api/weather/people" && req.method === "GET") return weatherPeopleApi(req, env222222, me);
   if (p === "/api/sky" && req.method === "GET") return skyApi(req, env222222);
