@@ -8620,11 +8620,24 @@ __name22(o10CanTakePile, "o10CanTakePile");
 __name222(o10CanTakePile, "o10CanTakePile");
 __name2222(o10CanTakePile, "o10CanTakePile");
 __name22222(o10CanTakePile, "o10CanTakePile");
+function o10OpenFreshDeck(st, p) {
+  let maxId = 0;
+  const seen = (c) => { if (c && Number(c.id) > maxId) maxId = Number(c.id); };
+  for (const h of Object.values(st.hands || {})) (h || []).forEach(seen);
+  for (const m of Object.values(st.melds || {})) (m || []).forEach((g) => (g.cards || []).forEach(seen));
+  (st.deck || []).forEach(seen); (st.discard || []).forEach(seen);
+  const fresh = o10Deck(Math.random).map((c) => ({ ...c, id: c.id + maxId }));
+  st.deck = (st.deck || []).concat(fresh);
+  st.freshDecks = (st.freshDecks || 0) + 1;
+  (st.history || (st.history = [])).push({ p, note: "Opened a fresh deck" });
+}
 function o10Move(st, players, turn, move) {
   const p = players[turn], hand = st.hands[p];
   if (!hand) throw Error("Your hand is not available.");
   if (move.action === "draw") {
     if (st.hasDrawn) throw Error("You already drew. Build your journey or discard.");
+    /* Draw pile ran dry and the beach pile is too small to reshuffle: open a fresh deck so the game keeps going. */
+    if (!st.deck.length && st.discard.length < 2) o10OpenFreshDeck(st, p);
     if (o10Stalled(st, players)) return o10FinishVoyage(st, players, turn, "stalled");
     if (move.from === "discard") {
       if (!st.discard.length) throw Error("The beach pile is empty.");
@@ -8640,10 +8653,8 @@ function o10Move(st, players, turn, move) {
       const drawn = [];
       for (let i = 0; i < 2; i++) {
         if (!st.deck.length) {
-          if (st.discard.length < 2) {
-            if (!drawn.length && !players.some((q) => o10HasTablePlay(st, players, q))) return o10FinishVoyage(st, players, turn, "stalled");
-            break;
-          }
+          if (st.discard.length < 2) o10OpenFreshDeck(st, p);
+          if (!st.deck.length) break;
           const top = st.discard.pop();
           st.deck = shuffle(st.discard.splice(0), Math.random);
           st.discard = [top];
