@@ -28,3 +28,4 @@ dialog#ohana-profile-full.ohana-profile-full{width:100vw!important;height:100dvh
 #ohana-profile-full > .ohana-overlay-home-row .room-home-control{display:flex!important;align-items:center!important;gap:8px!important;overflow:hidden!important;background:#fff!important;max-width:220px!important}
 #ohana-profile-full > .ohana-overlay-home-row .room-home-wordmark{position:static!important;display:block!important;width:auto!important;height:auto!important;transform:none!important;background:none!important;color:#163d3b!important;font:700 17px system-ui!important;text-indent:0!important}
 #ohana-profile-full > .ohana-overlay-home-row .room-home-wordmark::before,#ohana-profile-full > .ohana-overlay-home-row .room-home-wordmark::after{display:none!important;content:none!important}
+#ohana-profile-full #ohana-wardrobe .wardrobe-gallery{grid-template-columns:repeat(auto-fit,minmax(115px,1fr))!important;gap:16px 12px!important}
