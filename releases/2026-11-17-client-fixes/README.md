@@ -1,7 +1,7 @@
-# Existing character greeting cadence
+# Targeted accessibility remediation
 
-A narrow client-only timing adjustment: existing supported base-character gesture sheets stay neutral for most of a 31-second cycle, then play their existing greeting frames and return to neutral. Existing reduced-motion, offscreen and hidden-page behavior is retained. No new walking, outfit substitution, game actions, control geometry, schema or backend changes.
+Client-only improvements for Word board/rack labels, checkers keyboard actions, tic-tac-toe coordinates, concealed memory-card labels, spoken card names, persistent status announcements, named navigation and game links, and bounded same-game DOM focus continuity. Game rules and server state are not changed.
 
-Native tests cover Otto and Eddie in the actual synthetic workstation at phone/tablet sizes, neutral/raised/live/reduced-motion and table replacement. Other existing sheets retain their routing; this is not a claim of exhaustive 22-character or all-outfit verification. The separate walking prototype is not included.
+These fixes are not a certification of complete accessibility or actual iPhone VoiceOver compatibility. Static/synthetic browser checks do not establish VoiceOver virtual-cursor continuity. Accessible jigsaw interaction and remaining game-specific gaps are separate work.
 
-Content-pinned publisher preserves all other modules/types/settings/runtime and fails closed on drift. Public payload contains only generic patch code and aggregate fingerprints, no private full source, family photos or credentials.
+Exact aggregate, app, type, settings and runtime pins guard publication. No full private app, family data, credentials, schema or backend changes are included. Other held character/walking and saved-game changes are excluded.
