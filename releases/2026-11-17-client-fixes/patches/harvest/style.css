@@ -1,0 +1,26 @@
+/* Immersive harvest welcome. Original game pieces, layouts, private portraits and puzzle imagery are deliberately untouched. */
+.ohana-harvest-welcome{display:none}
+@layer ohanaHarvest{
+:root[data-ohana-season="thanksgiving"]{--harvest-cream:#fff5df;--harvest-ink:#143d38;--harvest-gold:#dba955;--harvest-scene:url('/ohana-thanksgiving-gathering-wide-v1.webp')}
+:root.ohana-world[data-ohana-season="thanksgiving"][data-ohana-scene="home"]{--room-scene:var(--harvest-scene);background-color:#173c36!important;background-image:linear-gradient(#102b2940,#102b29b8),var(--harvest-scene)!important;background-size:cover!important;background-position:center top!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome{display:block!important;position:relative;margin:10px auto 0!important;padding:26px 20px 28px!important;max-width:1536px;box-sizing:border-box;text-align:center;background:#123c36f5!important;color:#fff5df!important;border-top:1px solid #dba95580;border-bottom:1px solid #dba95580}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome h2{font:600 clamp(29px,5vw,60px)/1.08 Georgia,serif!important;letter-spacing:-.025em!important;color:#fff5df!important;text-shadow:none!important;margin:8px 0 14px!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome p{font:600 clamp(14px,2vw,18px)/1.5 Nunito,system-ui,sans-serif!important;color:#f6dfb4!important;margin:0!important;text-shadow:none!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app#app#app #main .world-home-foyer{height:auto!important;min-height:0!important;aspect-ratio:1672/941!important;background:var(--harvest-scene) center top/cover no-repeat!important;border-radius:0 0 26px 26px!important;overflow:hidden!important;margin-bottom:22px!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app#app#app #main .world-home-foyer .ohana-room-view{aspect-ratio:1672/941!important;height:auto!important;min-height:0!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app .ohana-arched-bridge-header{background:linear-gradient(#103832d9,transparent)!important;box-shadow:none!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #ohana-home-profile-card{border-color:#dba955!important;background:#173f38!important;box-shadow:0 10px 30px #061e2260!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #ohana-home-profile-card .home-profile-card-art{background:linear-gradient(#102b2920,#102b2980),var(--harvest-scene) center/cover no-repeat!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #ohana-home-profile-card .home-profile-card-foot{background:#143d38!important;border-color:#dba955!important;color:#fff5df!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app :is(.ohana-feature-info,.ohana-room-go-strip,.category-game-status){background:#143d38!important;color:#fff5df!important;text-shadow:none!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app :is(.ohana-home-actions,.ohana-room-go-strip) button{color:#fff5df!important;text-shadow:0 2px 3px #102b29!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app :is(.ohana-feature-invites,.ohana-category-card,#pp-card){border-color:#dba955!important}
+:root[data-ohana-season="thanksgiving"] body .ohana-profile-full .profile-full-head{background:#143d38!important;color:#fff5df!important}
+:root[data-ohana-season="thanksgiving"] body .ohana-profile-full .profile-full-head h2{color:#fff5df!important}
+#access-help .harvest-choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 0}
+#access-help .harvest-choice input{width:24px;height:24px;flex:0 0 24px}
+#access-harvest-status{font-size:16px;line-height:1.5}
+@media(max-width:600px){:root[data-ohana-season="thanksgiving"]{--harvest-scene:url("/ohana-thanksgiving-gathering-portrait-v1.webp")}:root.ohana-world[data-ohana-season="thanksgiving"] body #app#app#app #main .world-home-foyer,:root.ohana-world[data-ohana-season="thanksgiving"] body #app#app#app #main .world-home-foyer .ohana-room-view{aspect-ratio:941/1672!important}:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome{padding:22px 16px!important}}
+@media(max-height:500px){:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome{padding:10px 16px!important;margin-top:0!important}:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome h2{font-size:24px!important;line-height:1.08!important;margin:4px 0!important}:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome p{display:none!important}}
+@media(forced-colors:active){:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome,:root.ohana-world[data-ohana-season="thanksgiving"] body #app #main .ohana-harvest-welcome :is(h2,p){background:Canvas!important;color:CanvasText!important}}
+}
