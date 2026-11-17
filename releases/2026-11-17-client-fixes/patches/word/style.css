@@ -1,3 +1,0 @@
-#game-controls-dock[data-game-type="words"] .word-opponent-last-play{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:3px 8px;width:100%;max-width:100%;box-sizing:border-box;padding:3px 8px;color:#fff4d4;font:600 14px/1.35 Nunito,sans-serif;text-shadow:0 1px 2px #321b0b;overflow-wrap:anywhere}
-#game-controls-dock[data-game-type="words"] .word-opponent-last-play strong{font-size:16px;color:inherit;letter-spacing:.04em}
-@media(forced-colors:active){#game-controls-dock[data-game-type="words"] .word-opponent-last-play{color:CanvasText;text-shadow:none}}

@@ -1,1 +1,0 @@
-const fs=require('node:fs');const {apply}=require('./apply.cjs');const [inputApp,inputWorker,outputApp,outputWorker]=process.argv.slice(2);if(!outputWorker)throw Error('Missing build paths');const r=apply(fs.readFileSync(inputApp,'utf8'),fs.readFileSync(inputWorker,'utf8'));fs.writeFileSync(outputApp,r.app);fs.writeFileSync(outputWorker,r.worker);

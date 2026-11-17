@@ -1,1 +1,0 @@
-const pairs=require("./server.json");function apply(s){for(const [a,b,n] of pairs){if(s.split(a).length-1!==n)throw Error("Anchor "+a.slice(0,100));s=s.split(a).join(b);}return s;}module.exports={apply};if(require.main===module){const fs=require("fs");fs.writeFileSync(process.argv[3],apply(fs.readFileSync(process.argv[2],"utf8")));}
