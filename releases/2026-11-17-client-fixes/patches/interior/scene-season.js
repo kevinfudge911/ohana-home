@@ -1,0 +1,8 @@
+/* Fixed presentation only; no iframe content is copied or transmitted. */
+function createSceneSeason({document,identity}){
+ const css='html[data-ohana-season="thanksgiving"] body dialog{border-color:#a7592b!important;box-shadow:inset 0 0 0 3px #e8bd75!important}html[data-ohana-season="thanksgiving"] body .primary{background-color:#5c2332!important;color:#fff2d6!important}html[data-ohana-season="thanksgiving"] body :is(.workstation,.family-desk){border-color:#a7592b!important}html[data-ohana-season="thanksgiving"] body :is(button,select,summary,a):focus-visible{outline-color:#863721!important}';
+ let doc=null,style=null,owner=null,previous=null;
+ function clear(){if(doc){if(previous===null)doc.documentElement.removeAttribute('data-ohana-season');else doc.documentElement.setAttribute('data-ohana-season',previous);}style?.remove();doc=null;style=null;owner=null;previous=null;}
+ function sync(frame,expected){try{if(!frame?.isConnected||frame!==document.querySelector('#pp-frame > iframe')||!expected||identity()!==expected||frame.contentWindow?.origin!==document.defaultView.origin){clear();return false;}const next=frame.contentDocument;if(!next?.head||!next.documentElement){clear();return false;}if(doc!==next||owner!==expected){clear();doc=next;owner=expected;previous=doc.documentElement.getAttribute('data-ohana-season');style=doc.createElement('style');style.dataset.ohanaSceneSeason='';style.textContent=css;doc.head.append(style);}const season=document.documentElement.dataset.ohanaSeason==='thanksgiving'?'thanksgiving':'normal';if(doc.documentElement.dataset.ohanaSeason!==season)doc.documentElement.dataset.ohanaSeason=season;return true;}catch{clear();return false;}}
+ return Object.freeze({sync,clear});
+}
