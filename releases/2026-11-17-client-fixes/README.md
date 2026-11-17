@@ -1,8 +1,7 @@
-# Ohana Flip entrance
+# Existing character greeting cadence
 
-GitHub-first, content-pinned visual update to the Ohana Flip entrance. Replaces only the Flip setup-renderer artwork with an original generated tropical card-table scene and removes its redundant character overlay. All other entrances, controls, game rules, saved games, chat, and puzzle cameras remain unchanged.
+A narrow client-only timing adjustment: existing supported base-character gesture sheets stay neutral for most of a 31-second cycle, then play their existing greeting frames and return to neutral. Existing reduced-motion, offscreen and hidden-page behavior is retained. No new walking, outfit substitution, game actions, control geometry, schema or backend changes.
 
-The publisher verifies the exact current module aggregate, settings, runtime, candidate, and output aggregate before updating app content. No private application source, module inventory, credentials, family photographs, or backend/schema changes are included in this recipe. Held saved-game and Spades landscape work is excluded.
+Native tests cover Otto and Eddie in the actual synthetic workstation at phone/tablet sizes, neutral/raised/live/reduced-motion and table replacement. Other existing sheets retain their routing; this is not a claim of exhaustive 22-character or all-outfit verification. The separate walking prototype is not included.
 
-Preview command: `node releases/2026-11-17-client-fixes/release.mjs check`
-Production command: `node releases/2026-11-17-client-fixes/release.mjs deploy`
+Content-pinned publisher preserves all other modules/types/settings/runtime and fails closed on drift. Public payload contains only generic patch code and aggregate fingerprints, no private full source, family photos or credentials.
