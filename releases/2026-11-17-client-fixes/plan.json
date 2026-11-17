@@ -1,13 +1,13 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "fda6619c9f7fb19105e04433f26c46359ad1ddbf35288eb2eb52514dfacd0e1c",
-  "outputModuleFingerprint": "c01bfec86e912c6ddd96f4fe46fe5ec3db661e48922dbbb3da9904082c5e1dd4",
-  "baseAppSha": "d3d1a74978b7ecc5bdf7cb4e4e9fa32af8924535860aa3810d4bcad6d213a3a8",
-  "outputAppSha": "11e4cba3977fca91c8cf66aac9919dd1f2bd41941bc852c51ebb72775c51ec71",
-  "outputPackedSha": "76a85703fd53f75672eb68e12599114008088cadc164bb8790342bc45240cc93",
+  "baseModuleFingerprint": "c01bfec86e912c6ddd96f4fe46fe5ec3db661e48922dbbb3da9904082c5e1dd4",
+  "outputModuleFingerprint": "50b782de83412ed1538ffa9882e1e7020931b1ad71714f04d9ee01e4c4803f8e",
+  "baseAppSha": "11e4cba3977fca91c8cf66aac9919dd1f2bd41941bc852c51ebb72775c51ec71",
+  "outputAppSha": "41268632670f9e943af7fc8e71c4e0804e9cc4bff89588babd98efe1a8234905",
+  "outputPackedSha": "a7bd71dc76c37bc35544bd97393650c8643d2ec4d16c495141cb5cf4a7a96879",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/navigation/apply.cjs"
+    "patches/home-card/apply.cjs"
   ]
 }
