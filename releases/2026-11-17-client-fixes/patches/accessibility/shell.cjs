@@ -31,7 +31,7 @@ function toast(t, ms = 2600) { ohanaAnnounceStatus(t); const e = document.create
 ['<nav class="tabs"><div class="in">','<nav class="tabs" aria-label="Main navigation"><div class="in">'],
 ['<button data-room="${r.id}">Come on in</button>','<button data-room="${r.id}" aria-label="Enter ${esc(r.name)} room">Come on in</button>'],
 ['data-game-room="${g.room_id}">${g.in_game?', 'data-game-room="${g.room_id}" aria-label="Open ${esc(g.name)} in ${esc((sy.rooms||[]).find(r=>r.id===g.room_id)?.name||g.room_name||\'Room\')}">${g.in_game?'],
-["document.body.append(d);bindGameSetups(d);d.showModal();", "document.body.append(d);bindGameSetups(d);d.showModal();const setupHeading=d.querySelector('#game-setup-title');if(setupHeading){setupHeading.tabIndex=-1;setupHeading.focus({preventScroll:true});}"],
+["document.body.append(d);bindGameSetups(d);d.showModal();", "document.body.append(d);bindGameSetups(d);d.tabIndex=-1;d.setAttribute('aria-label',(d.querySelector('#game-setup-title')?.textContent||'Game')+' setup');d.removeAttribute('aria-labelledby');d.showModal();d.focus({preventScroll:true});"],
 ];
 function apply(s){for(const [a,b]of changes){const n=s.split(a).length-1;if(n!==1)throw Error('Expected unique anchor ('+n+'): '+a.slice(0,90));s=s.replace(a,b);}return s;}
 module.exports={apply,changes};
