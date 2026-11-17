@@ -33,5 +33,28 @@ replace("const PZ_TOOLS=[", "const PZ_TOOLS=[['pz-frame','Fit whole puzzle'],['p
 replace("if(!PZ.view.ready&&PZ.view.frame&&PZ.data?.meta&&PZ.geo){", "if(!PZ.view.ready&&PZ.view.frame&&PZ.data?.meta&&PZ.geo&&cv.width>0&&cv.height>0){");
 replace(" PZ.view.s=s;PZ.view.x=cv.width/2-(q.x+pw/2)*s;"," PZ.view.fitMode=null;PZ.view.s=s;PZ.view.x=cv.width/2-(q.x+pw/2)*s;");
 replace("PZ.hintPulse={p:best.i,at:Date.now()};","PZ.view.fitMode=null;PZ.hintPulse={p:best.i,at:Date.now()};");
+
+
+// Keep readable controls and names inside the narrow landscape rail.
+replace("'grid-template-columns':'minmax(0,1fr) auto auto','grid-template-rows':'44px',width:'100%'", "'grid-template-columns':tight?'minmax(0,1fr) auto':'minmax(0,1fr) auto auto','grid-template-rows':tight?'44px 44px':'44px',width:'100%'");
+replace("height:'44px','min-height':'44px',gap:'4px','padding-right':'0'", "height:tight?'92px':'44px','min-height':tight?'92px':'44px',gap:'4px','padding-right':'0'");
+replace("display:'flex','grid-column':'1','grid-row':'1','align-items':'center'", "display:'flex','grid-column':tight?'1 / -1':'1','grid-row':'1','align-items':'center'");
+replace("width:'44px','min-width':'44px',flex:'0 0 44px',padding:'0'});", "width:tight&&control.id==='pz-tidy'?'88px':'44px','min-width':tight&&control.id==='pz-tidy'?'88px':'44px',flex:tight&&control.id==='pz-tidy'?'0 0 88px':'0 0 44px',padding:'0'});");
+replace("if(preview)set(preview,{'grid-column':'3','grid-row':'1'", "if(preview)set(preview,{'grid-column':tight?'1 / -1':'3','grid-row':tight?'2':'1'");
+replace("set(tabs,{position:'absolute',top:'52px'", "set(tabs,{position:tight?'relative':'absolute',top:tight?'auto':'52px'");
+replace("left:'10px',right:'64px',display:'flex','flex-wrap':'wrap','justify-content':'center'", "left:tight?'auto':'10px',right:tight?'auto':'64px',display:'flex','flex-wrap':'wrap','justify-content':'center'");
+replace("width:tight?'calc(100% - 56px)':'100%','max-width':tight?'calc(100% - 56px)':'100%','padding-right':tight?'0':'56px'", "width:'100%','max-width':'100%','padding-left':tight?'0':'','padding-right':tight?'0':'56px'");
+// Short-landscape puzzles put existing navigation and tools beside the table.
+// The stage remains the sole canvas-size owner; no piece or save data changes.
+replace("const tight=typeof matchMedia==='function'&&matchMedia('(orientation:landscape) and (max-height:500px)').matches;", "const tight=typeof matchMedia==='function'&&matchMedia('(orientation:landscape) and (max-height:500px)').matches;\n     if(tight)set(dock,{'min-height':'0',height:'calc(100% - 88px)','max-height':'calc(100% - 88px)',width:'224px','max-width':'224px','overflow-y':'auto','overflow-x':'hidden','overscroll-behavior':'contain','align-self':'end'});");
+replace("set(toggle.querySelector('.ohana-menu-label'),", "if(dock?.id==='pz-workstation'&&innerWidth>innerHeight&&innerHeight<=500)set(toggle,{right:'calc(100vw - 224px)'});\n   set(toggle.querySelector('.ohana-menu-label'),");
+s+=`\n<style id="ohana-puzzle-short-landscape-fit">
+@media (orientation:landscape) and (max-height:500px){
+:root.ohana-world body #app #pz-board#pz-board{display:grid!important;grid-template-columns:224px minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;gap:0!important;overflow:hidden!important}
+:root.ohana-world body #app #pz-board#pz-board>.pz-head{grid-column:1!important;grid-row:1!important;align-self:start!important;width:224px!important;max-width:224px!important;box-sizing:border-box!important}
+:root.ohana-world body #app #pz-board#pz-board>.pz-stage-wrap{grid-column:2!important;grid-row:1!important;align-self:stretch!important;min-width:0!important;height:100%!important;box-sizing:border-box!important}
+:root.ohana-world body #app #pz-board#pz-board>#pz-workstation{grid-column:1!important;grid-row:1!important;align-self:end!important}
+}
+</style>\n`;
 return s;}
 module.exports={patch,expected};if(require.main===module){const [a,b]=process.argv.slice(2);fs.writeFileSync(b,patch(fs.readFileSync(a,'utf8')));}
