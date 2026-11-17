@@ -36,6 +36,7 @@ replace("PZ.hintPulse={p:best.i,at:Date.now()};","PZ.view.fitMode=null;PZ.hintPu
 
 
 // Keep readable controls and names inside the narrow landscape rail.
+replace("set(seat,{flex:'0 1 216px'});", "set(seat,{flex:innerWidth>innerHeight&&innerHeight<=500?'0 0 216px':'0 1 216px'});");
 replace("'grid-template-columns':'minmax(0,1fr) auto auto','grid-template-rows':'44px',width:'100%'", "'grid-template-columns':tight?'minmax(0,1fr) auto':'minmax(0,1fr) auto auto','grid-template-rows':tight?'44px 44px':'44px',width:'100%'");
 replace("height:'44px','min-height':'44px',gap:'4px','padding-right':'0'", "height:tight?'92px':'44px','min-height':tight?'92px':'44px',gap:'4px','padding-right':'0'");
 replace("display:'flex','grid-column':'1','grid-row':'1','align-items':'center'", "display:'flex','grid-column':tight?'1 / -1':'1','grid-row':'1','align-items':'center'");
