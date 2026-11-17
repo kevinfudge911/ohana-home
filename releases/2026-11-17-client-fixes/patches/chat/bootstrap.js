@@ -21,10 +21,11 @@
  openGameSay=()=>typeof PZ!=='undefined'&&PZ.id?compose({kind:'puzzle',id:Number(PZ.id)},'Puzzle message'):document.getElementById('pp-frame')&&window.__ppHost?.snapshot()?.mode==='classic'?compose({kind:'classic',id:1},'MOMopoly Classic message'):document.getElementById('pp-frame')&&window.__ppHost?.snapshot()?.mode==='family'?compose({kind:'journey',id:1},'MOMopoly family message'):S.game?compose({kind:'game',id:Number(S.game)},'Game message'):compose({kind:'room',id:Number(S.room)},'Room message');
  function mountActions(){
   const identity=currentIdentity();const dock=document.querySelector('#pz-workstation,#game-controls-dock,.ohana-workstation')||document.querySelector('#pp-frame');
+  const slot=dock?.querySelector('.dock-gear-menu')||document.querySelector('#ohana-chat-dialog[open] .uc-command-sections');
   let action=document.getElementById('ohana-chat-v2-compose');
-  if(!identity||!dock){action?.remove();}else if(!action||action.parentElement!==dock){action?.remove();action=document.createElement('button');action.id='ohana-chat-v2-compose';action.type='button';action.textContent='Message';action.setAttribute('aria-label','Message this game or room');action.style.cssText='min-height:44px;min-width:70px;font:700 16px system-ui';action.onclick=()=>openGameSay();dock.append(action);}
+  if(!identity||!slot){action?.remove();}else if(!action||action.parentElement!==slot){action?.remove();action=document.createElement('button');action.id='ohana-chat-v2-compose';action.type='button';action.textContent='Message this game or room';action.setAttribute('aria-label','Message this game or room');action.style.cssText='min-height:44px;font:700 16px system-ui';action.onclick=()=>openGameSay();slot.append(action);}
   const top=[...document.querySelectorAll('dialog[open]')].at(-1)||document.body;
-  if(host.parentElement!==top)top.append(host);
+  if(host.parentElement!==top)top.append(host);view.reposition();
  }
  new MutationObserver(()=>{if(currentIdentity()!==session)refresh();mountActions();}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
  mountActions();
