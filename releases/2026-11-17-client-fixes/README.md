@@ -1,7 +1,5 @@
-# Seasonal private-scene presentation
+# Home character visibility
 
-Requires independent review and isolated native QA before promotion. App-only fixed generic CSS and scene preference synchronization. No private scene source, art, game state, credentials, or asset inventory is included here. No server, database, storage, avatar, game rule, or gameplay command changes.
+Home workstation only: larger character, separate name, active-game count and profile cue. Direct image/wrapper sizing preserves nested layered characters and canvas motion. Other game workstation geometry and all saved selections remain unchanged. Existing full Profile card and its order remain intact. No directory, favorites, messaging, server or storage change.
 
-Uses the existing content-pinned main-only publisher, unchanged. Preview runs checks only. Fresh exact baseline, module MIME/content fingerprints, settings, runtime and concurrency checks remain mandatory. No automatic retry of a failed upload or CI receipt.
-
-This phase supplies limited dialog/control accents and preference synchronization, not new room artwork or character outfits. Actual native tests use an owner-private fully isolated synthetic template, not real game navigation.
+Existing content-pinned main-only publisher unchanged; preview performs checks only. Independent review and owner-private synthetic phone/tablet/compact QA required before promotion.
