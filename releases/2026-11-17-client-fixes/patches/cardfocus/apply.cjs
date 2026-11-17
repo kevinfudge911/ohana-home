@@ -1,0 +1,1 @@
+const fs=require('fs');let s=fs.readFileSync(process.argv[2],'utf8');for(const [a,b] of require('./replacements.json')){if(s.split(a).length!==2)throw Error('anchor count');s=s.replace(a,b)}fs.writeFileSync(process.argv[3],s);
