@@ -13,6 +13,9 @@ if(!['check','deploy','offline'].includes(mode))throw Error('Usage: node release
 const plan=JSON.parse(await fs.readFile(path.join(here,'plan.json'),'utf8'));
 const canonical=x=>JSON.stringify(x,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+// Cloudflare replaces the descriptive release message on code uploads; operational settings stay pinned.
+const comparableSettings=value=>{const copy=structuredClone(value);if(copy.annotations)delete copy.annotations['workers/message'];return copy};
+const settingsFingerprint=value=>hash(canonical(comparableSettings(value)));
 const account=process.env.CLOUDFLARE_ACCOUNT_ID;
 const base=`https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts/${plan.worker}`;
 const token=process.env.CLOUDFLARE_API_TOKEN;
@@ -49,11 +52,11 @@ try{
  if(mode==='deploy')assert(process.env.WORKERS_CI==='1'&&process.env.WORKERS_CI_BRANCH==='main'&&/^[0-9a-f]{40}$/.test(process.env.WORKERS_CI_COMMIT_SHA||'')&&!!process.env.WORKERS_CI_BUILD_UUID,'Deployment allowed only from existing main-branch Workers Builds; no local/preview deployment');
  let modules,settings,version;
  if(mode==='offline'){
-  const root=path.resolve(process.argv[3]);modules=parseModules(await fs.readFile(path.join(root,'production-v2.multipart')),await fs.readFile(path.join(root,'content-type-v2.txt'),'utf8'));const savedSettings=JSON.parse(await fs.readFile(path.join(root,'settings.json'),'utf8')).result;assert(hash(canonical(savedSettings))===plan.settingsSha,'Reviewed settings mismatch');const savedRuntime=JSON.parse(await fs.readFile(path.join(root,'version.json'),'utf8')).result.resources.script_runtime;assert(hash(canonical(savedRuntime))===plan.runtimeSha,'Reviewed runtime metadata mismatch');
+  const root=path.resolve(process.argv[3]);modules=parseModules(await fs.readFile(path.join(root,'production-v2.multipart')),await fs.readFile(path.join(root,'content-type-v2.txt'),'utf8'));const savedSettings=JSON.parse(await fs.readFile(path.join(root,'settings.json'),'utf8')).result;assert(settingsFingerprint(savedSettings)===plan.settingsSha,'Reviewed settings mismatch');const savedRuntime=JSON.parse(await fs.readFile(path.join(root,'version.json'),'utf8')).result.resources.script_runtime;assert(hash(canonical(savedRuntime))===plan.runtimeSha,'Reviewed runtime metadata mismatch');
  }else{
   const d=await json('/deployments');version=d.deployments[0]?.versions;
   assert(version?.length===1&&version[0].percentage===100,'Split or missing production deployment');
-  settings=await json('/settings');assert(hash(canonical(settings))===plan.settingsSha,'Reviewed settings mismatch');const runtime=(await json('/versions/'+version[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Reviewed runtime/assets metadata mismatch');modules=await getModules();
+  settings=await json('/settings');assert(settingsFingerprint(settings)===plan.settingsSha,'Reviewed settings mismatch');const runtime=(await json('/versions/'+version[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Reviewed runtime/assets metadata mismatch');modules=await getModules();
  }
  const appNames=[...modules.keys()].filter(name=>name.endsWith('-app.html.gz'));assert(appNames.length===1,'Ambiguous private app module');const appModule=appNames[0];
  if(mode!=='offline'&&fingerprint(modules)===plan.outputModuleFingerprint){
@@ -86,14 +89,14 @@ try{
  else{
   // Recheck immediately before write. Other publishers must remain paused.
   const d=await json('/deployments');assert(JSON.stringify(d.deployments[0]?.versions)===JSON.stringify(version),'Concurrent release detected');
-  assert(JSON.stringify(await json('/settings'))===JSON.stringify(settings),'Concurrent settings change detected');
+  assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Concurrent settings change detected');
   assertModules(await getModules(),plan.baseModuleFingerprint);
   const form=new FormData();form.set('metadata',JSON.stringify({main_module:'worker.js'}));
   for(const [name,data] of candidateModules)form.append(name,new Blob([data],{type:modules.contentTypes.get(name)}),name);
   writeStarted=true;const upload=await(await api('/content',{method:'PUT',body:form})).json();assert(upload.success,'Upload failed; inspect deployment state before retry');
   const afterUpload=await json('/deployments');const released=afterUpload.deployments[0]?.versions;assert(released?.length===1&&released[0].percentage===100&&released[0].version_id!==version[0].version_id,'New release not at100%');const verified=await getModules();assertModules(verified,plan.outputModuleFingerprint);
-  assert(JSON.stringify(await json('/settings'))===JSON.stringify(settings),'Post-release settings differ; inspect immediately');
+  assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Post-release settings differ; inspect immediately');
   const deployed=await json('/deployments');const v=deployed.deployments[0]?.versions;assert(JSON.stringify(v)===JSON.stringify(released),'Concurrent release during verification');const runtime=(await json('/versions/'+v[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Post-release runtime/assets metadata differs');
-  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-2,settingsUnchanged:true}));
+  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-2,operationalSettingsUnchanged:true}));
  }
 }catch(error){console.error(error.name==='ReleaseSafetyError'?error.message:'Release stopped on build/transport error; private source and credential details suppressed');if(writeStarted)console.error('Upload was attempted. Inspect current production before retrying.');process.exitCode=1;}finally{if(directory)await fs.rm(directory,{recursive:true,force:true});}
