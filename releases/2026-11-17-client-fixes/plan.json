@@ -1,39 +1,13 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "697cf113f71f25b7f5e5a51713419bdc7ffe507f9932d88f7bbeb6263817720f",
-  "outputModuleFingerprint": "5bed97414ef52b74fa7021ddb0ec916a230ad292d4cacff9ecf9dffd1dec7ae1",
-  "baseAppSha": "b4cd20a773e7e5f5d05309d9c63e1c946eb57f62088e69c7866cc446900d3ce3",
-  "outputAppSha": "3b6f5fa131c20bba7b74cd03e835fa1c091bf1c1981175c78432c46f4e70130a",
-  "outputPackedSha": "f935bb04bff71ddfce32fbe7e73189015541f7da62e8e41b4a6daf74b817e5e1",
-  "outputWorkerSha": "83332bdd711b86452cf760b8f644b1f6528cd53fd00cded120ab9501b36ce558",
+  "baseModuleFingerprint": "5bed97414ef52b74fa7021ddb0ec916a230ad292d4cacff9ecf9dffd1dec7ae1",
+  "outputModuleFingerprint": "75fc7459a5b30df7364686ff0b57eff874d63997d56eb83e253d663838518948",
+  "baseAppSha": "3b6f5fa131c20bba7b74cd03e835fa1c091bf1c1981175c78432c46f4e70130a",
+  "outputAppSha": "8e9b649f55eed6fd11af8fc2fcf57dfd20977ecc0f8d437c5309cb1bfd3e025c",
+  "outputPackedSha": "abded1ab580d964ff01a1e48e7563ae14c231b19ddc6a98a68500d100464941d",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
-  "migrationSha": "5e024d7dc18f2773284f1d42b059f63309adbc26d05773f0a07f6697af272ed2",
-  "newModules": [
-    {
-      "name": "chat-v2/runtime.mjs",
-      "contentType": "application/javascript+module",
-      "sha": "cafb1b7f7d7a2c89946c3b4f0835991385a637482fd32ad0525d5ca43b291986"
-    },
-    {
-      "name": "chat-v2/service.mjs",
-      "contentType": "application/javascript+module",
-      "sha": "fa22fd6fd15e38f0df1c7e307c11314d2e0f5eb7a6d663353cd2c9bd0630edfc"
-    },
-    {
-      "name": "chat-v2/authorization.mjs",
-      "contentType": "application/javascript+module",
-      "sha": "8a3db26537228fe0dccde857e6d41da6e404813e0c3affd546fc26c9c91a6cab"
-    },
-    {
-      "name": "chat-v2/d1-repository.mjs",
-      "contentType": "application/javascript+module",
-      "sha": "1405ec68adf4e1d891e4d1f4281f7b89004ab79a44864111f87e96229c50fdfd"
-    },
-    {
-      "name": "chat-v2/http.mjs",
-      "contentType": "application/javascript+module",
-      "sha": "3715abf799926981a65571c90e77e30b4109718b4935cf70d261cbc4d147373d"
-    }
+  "patches": [
+    "patches/entry/apply.cjs"
   ]
 }
