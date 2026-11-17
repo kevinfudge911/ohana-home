@@ -1,5 +1,7 @@
 // Git-triggered, content-pinned client and response release. No credentials or live data in Git.
 import fs from 'node:fs/promises';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -77,7 +79,18 @@ try{
   scripts++;if(/type\s*=\s*["']module["']/i.test(match[1])){const f=path.join(directory,`inline-${scripts}.mjs`);await fs.writeFile(f,match[2]);execFileSync(process.execPath,['--check',f],{stdio:'pipe',env:{PATH:process.env.PATH||''}})}else new vm.Script(match[2],{filename:`inline-${scripts}.js`});
  }
  const packed=zlib.gzipSync(candidate,{level:9,mtime:0});assert(hash(packed)===plan.outputPackedSha,'Packed candidate differs from reviewed bytes');
- const candidateModules=new Map(modules);candidateModules.contentTypes=modules.contentTypes;candidateModules.set(appModule,packed);
+ const candidateModules=new Map(modules);candidateModules.contentTypes=new Map(modules.contentTypes);candidateModules.set(appModule,packed);
+ assert(modules.size===plan.baselineCount&&plan.baselineCount===146&&plan.outputCount===147,'Module count differs');
+ assert(modules.has('momo/server.mjs')&&!modules.has('momo/saved.mjs'),'Missing server or new module collision');
+ assert(modules.contentTypes.get('momo/server.mjs')===plan.serverType&&plan.serverType==='application/javascript+module','Server module type differs');
+ const baseServer=modules.get('momo/server.mjs');assert(hash(baseServer)===plan.baseServerSha,'Base server mismatch');
+ const nextServer=Buffer.from(require('./patches/journey/patch.cjs').server(baseServer.toString('utf8')));
+ const saved=await fs.readFile(path.join(here,'patches/journey/saved.mjs'));
+ assert(hash(nextServer)===plan.outputServerSha&&hash(saved)===plan.savedSha,'Reviewed server delta differs');
+ for(const [name,data] of [['server',nextServer],['saved',saved]]){const file=path.join(directory,name+'.mjs');await fs.writeFile(file,data);execFileSync(process.execPath,['--check',file],{stdio:'pipe',env:{PATH:process.env.PATH||''}});}
+ candidateModules.set('momo/server.mjs',nextServer);candidateModules.set('momo/saved.mjs',saved);candidateModules.contentTypes.set('momo/saved.mjs',plan.serverType);
+ assert(candidateModules.size===plan.outputCount,'Output module count differs');
+ for(const [name,data] of modules)if(name!==appModule&&name!=='momo/server.mjs')assert(candidateModules.get(name).equals(data)&&candidateModules.contentTypes.get(name)===modules.contentTypes.get(name),'Preserved module changed');
  assertModules(candidateModules,plan.outputModuleFingerprint);
  console.log(`Verified ${modules.size} baseline modules; ${scripts} scripts parse; candidate ${hash(candidate)}`);
  if(mode!=='deploy'){console.log('Read-only release check passed; no deployment');process.exitCode=0;}
@@ -87,11 +100,11 @@ try{
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Concurrent settings change detected');
   assertModules(await getModules(),plan.baseModuleFingerprint);
   const form=new FormData();form.set('metadata',JSON.stringify({main_module:'worker.js'}));
-  for(const [name,data] of candidateModules)form.append(name,new Blob([data],{type:modules.contentTypes.get(name)}),name);
+  for(const [name,data] of candidateModules)form.append(name,new Blob([data],{type:candidateModules.contentTypes.get(name)}),name);
   writeStarted=true;const upload=await(await api('/content',{method:'PUT',body:form})).json();assert(upload.success,'Upload failed; inspect deployment state before retry');
   const afterUpload=await json('/deployments');const released=afterUpload.deployments[0]?.versions;assert(released?.length===1&&released[0].percentage===100&&released[0].version_id!==version[0].version_id,'New release not at100%');const verified=await getModules();assertModules(verified,plan.outputModuleFingerprint);
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Post-release settings differ; inspect immediately');
   const deployed=await json('/deployments');const v=deployed.deployments[0]?.versions;assert(JSON.stringify(v)===JSON.stringify(released),'Concurrent release during verification');const runtime=(await json('/versions/'+v[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Post-release runtime/assets metadata differs');
-  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-1,operationalSettingsUnchanged:true}));
+  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:modules.size-2,operationalSettingsUnchanged:true}));
  }
 }catch(error){console.error(error.name==='ReleaseSafetyError'?error.message:'Release stopped on build/transport error; private source and credential details suppressed');if(writeStarted)console.error('Upload was attempted. Inspect current production before retrying.');process.exitCode=1;}finally{if(directory)await fs.rm(directory,{recursive:true,force:true});}
