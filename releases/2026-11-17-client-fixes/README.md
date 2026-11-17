@@ -1,7 +1,7 @@
-# Spades replay on the existing table
+# Puzzle initial picture fit and camera controls
 
-This isolated client-only patch keeps card and trick replay animation inside the normal seated Spades table instead of creating a separate brown screen. First entry renders the existing table under the busy gate. Missing or replaced replay hosts interrupt safely without marking an unseen event complete. Existing gameplay, scoring, winners and server code remain unchanged.
+This client-only patch opens the whole puzzle at the largest fit within its actual canvas, instead of shrinking it to include distant loose pieces. Fit puzzle, zoom in/out and the separate all-pieces view are camera-only. Automatic fit follows resize until manual camera interaction. Saved piece positions, puzzle progress, server code and game rules stay unchanged.
 
-The existing main-branch GitHub-to-Cloudflare publisher performs content-pinned checks of every module byte and MIME type, operational settings and runtime metadata. It changes one packed client and preserves 145 other modules, including the privacy-filtered chat worker. No database/schema operations or game moves are performed. Preview runs check only; main runs check then deploy. The other saved-game branch is not included.
+The existing content-pinned GitHub-to-Cloudflare publisher checks every module byte/MIME type, operational settings and runtime metadata, changes one packed app and preserves145 other modules. No database or schema calls. Preview runs check only; main runs check then deploy, with drift checks and exact post-release verification. This is coordinated, not an atomic global lock.
 
-The recipe contains public patch code and aggregate fingerprints only, never the private app export, family images, credentials, private module inventory or account identifiers. Deployment checks for drift immediately before upload and verifies exact output afterward; coordination is not an atomic cross-service lock.
+Only generic patch code and aggregate fingerprints are public. No private app export, family photos, credentials, account identifiers or private module inventory are included. Held Granny/Journey and private-only landscape changes are excluded.
