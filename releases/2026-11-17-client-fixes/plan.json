@@ -1,0 +1,16 @@
+{
+  "worker": "ohana-home",
+  "baseModuleFingerprint": "1a8b3b9239e5f900b8ef8231339598e71b9d29ba0aee672a18c41c539700cd8b",
+  "outputModuleFingerprint": "2ce4beb1d9cbb930327b52e45f3ebda21b162bbea0efa0af7a45dfcb43706624",
+  "baseAppSha": "43a830333d21e7c038720fca97e9b41431ef6653f4b01705eb64d5a13b97b68c",
+  "outputAppSha": "a392a555c9f453b62c0ed0b5e34f237295018469b77bc1ab3b5435cfbd992724",
+  "outputPackedSha": "1e1a7a40cf19b7c25623c7ce13b8d4d2d09ba3c97b2227e97eef865b4e618df4",
+  "settingsSha": "b4b5ce8711cf7c8647513f3c318458b00e483a083be6ba7d8d3ffdfe7acf28f0",
+  "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
+  "patches": [
+    "patches/handfoot/apply.cjs",
+    "patches/word/apply.cjs",
+    "patches/music/apply.cjs",
+    "patches/word/apply-layout.cjs"
+  ]
+}

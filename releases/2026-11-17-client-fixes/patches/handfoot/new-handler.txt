@@ -1,0 +1,24 @@
+ root.querySelectorAll('[data-cid]').forEach(b=>{
+ b.style.touchAction='manipulation';
+ b.onclick=e=>{
+  if(!myTurn||S.movePending||Date.now()<(S.handArrangeIgnoreUntil||0)){S.hfQuickTap=null;return;}
+  const id=+b.dataset.cid,c=hand.find(c=>c.id===id);if(!c)return;
+  // Persist across the single-tap re-render, but never across a changed turn/hand.
+  const key=JSON.stringify([g.id,g.turn,st.round,st.hasDrawn,inFoot,hand.map(c=>c.id).sort((a,b)=>a-b),st.melds,S.hfMeldTarget]);
+  const tap=hfQuickTap(S.hfQuickTap,c.rank,key,Date.now(),e.detail!==0||!!e.pointerType||e.sourceCapabilities?.firesTouchEvents===true);
+  S.hfQuickTap=tap.next;
+  if(tap.double){
+   const plan=hfQuickMeldPlan(hand,S.hfSel,c.rank,melds,opening,S.hfWild);
+   if(plan){
+    S.hfSel=plan.selected;S.hfMeldTarget=null;S.hfChoosingMeld=false;
+    if(!st.hasDrawn){hfRerender(st,g,myTurn);toast('Matching cards selected. Draw 2 first, or use Meld to take the discard pile.');return;}
+    if(!plan.ready){hfRerender(st,g,myTurn);toast(plan.message);return;}
+    commitSelectedMelds();return;
+   }
+  }
+  S.hfChoosingMeld=false;
+  if(S.hfSel.includes(id)){S.hfSel=S.hfSel.filter(x=>x!==id);delete S.hfWild[id];delete S.hfWildAuto[id];delete S.hfWildSkip[id];}
+  else{S.hfSel.push(id);if(wild(c)&&melds[S.hfMeldTarget])S.hfWild[id]=melds[S.hfMeldTarget].rank;}
+  hfRerender(st,g,myTurn);
+ };
+ });
