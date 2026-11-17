@@ -5,6 +5,7 @@ function app(s){
  s=one(s,s.slice(start,end),"function invitationReason(games,me,member,type,seats) {\n  // A new invitation creates a separate table; existing tables do not reserve people.\n  return '';\n}");
  s=one(s,"      if(op.status==='sent')return 'Invitation sent';\n",'');
  s=one(s,"    let op=state.attempt||invitationSends.get(k);\n    if(op?.status==='sending'||op?.status==='sent')return;","    let op=state.attempt||invitationSends.get(k);\n    if(op?.status==='sent'){invitationSends.delete(k);op=null;}\n    if(op?.status==='sending')return;");
+ s=one(s,"    if(focusSelector){const next=dialog.querySelector(focusSelector);if(next&&!next.matches(':disabled'))next.focus({preventScroll:true});}","    if(focused&&!focused.isConnected&&owner.current()&&dialog.open&&document.activeElement===document.body){const preferred=focusSelector?dialog.querySelector(focusSelector):null;const eligible=el=>{if(!el?.isConnected||el.matches(':disabled')||el.closest('[hidden],[inert]'))return false;for(let node=el;node&&node!==document.body;node=node.parentElement){const css=getComputedStyle(node);if(css.display==='none'||css.visibility==='hidden'||css.visibility==='collapse')return false;}return true;};const next=eligible(preferred)?preferred:dialog.querySelector('#cancel-ohana-invite');if(eligible(next))next.focus({preventScroll:true});}");
  return s;
 }
 function worker(s){

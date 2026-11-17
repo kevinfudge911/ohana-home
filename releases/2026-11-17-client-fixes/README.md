@@ -1,6 +1,6 @@
 # Separate games may share players
 
-The shared standard-multiplayer invitation flow no longer treats playing or being invited at another table as a global reservation. A deliberate new-game invitation may include the same person in different groups or game types. Completed-send UI cache no longer permanently blocks a fresh deliberate send after refresh failure; pending and uncertain sends retain retry/request protections.
+The shared standard-multiplayer invitation flow no longer treats playing or being invited at another table as a global reservation. A deliberate new-game invitation may include the same person in different groups or game types. Completed-send UI cache no longer permanently blocks a fresh deliberate send after refresh failure; pending and uncertain sends retain retry/request protections. After synchronous dialog redraw, focus is restored only if its prior node was removed, the same session/activity/dialog is current, and no newer focus exists; hidden, disabled or inert targets are skipped.
 
 Same-table duplicate invitations, seated-recipient checks, capacity/seat rules, room membership, child policy, recipient deduplication and atomic sender/room/request uniqueness remain enforced. Existing game rows are not edited. MOMopoly's separate shared family-board flow is unchanged and is not made into independent boards.
 

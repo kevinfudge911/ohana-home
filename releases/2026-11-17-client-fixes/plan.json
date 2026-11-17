@@ -5,10 +5,10 @@
   "workerContentType": "application/javascript+module",
   "workerPatch": "patches/invites/worker-apply.cjs",
   "baseModuleFingerprint": "1dcd5a57a70129e1339591517491dc06a1d857a2e3a4fc7231487597fcb1f268",
-  "outputModuleFingerprint": "2d6df82786f886a15348ab8bc77f25c3b6f088ce9346423c89022d162186b469",
+  "outputModuleFingerprint": "6e241ace8dc6e4370f4bff1c5c374c1b645172c4de06e52fb93096929758116a",
   "baseAppSha": "060a8a9281923d5e9b1ff481f281cc612f94cf2ee8ceefbd1fc5f19d62343744",
-  "outputAppSha": "33f6e477b3c2331e3ec676ed9631ca6a1c41516fb49fbecbf1568196fa9d67ca",
-  "outputPackedSha": "025c06881723c3d30ee00b96a5854d8cc669f3a3f3d0bec3070a984c72162a31",
+  "outputAppSha": "66fc8bb8b05f407a312346b9c2001ee03d435739dd771a6a339645d8052fdfb1",
+  "outputPackedSha": "f76de28f9b0ad8f02e0259350221d764f690005b3c178492da87699961ae8d33",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
