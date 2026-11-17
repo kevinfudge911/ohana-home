@@ -1,0 +1,1 @@
+const fs=require('fs');let s=fs.readFileSync(process.argv[2],'utf8');const a="const cue=document.createElement('span');cue.className='home-profile-cue';cue.textContent='My character & profile';(seat||player).append(cue);";if(s.split(a).length!==2)throw Error('Expected one Home profile cue');s=s.replace(a,'');fs.writeFileSync(process.argv[3],s);
