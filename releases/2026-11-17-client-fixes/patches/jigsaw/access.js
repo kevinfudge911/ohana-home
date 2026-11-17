@@ -53,7 +53,7 @@ function pzAccessDialog(){
   const input=dlg.querySelector('#pz-access-piece'),row=dlg.querySelector('#pz-access-row'),col=dlg.querySelector('#pz-access-col');
   const selected=()=>pzAccessCurrent(a)?a.data.pieces[Number(input.value)-1]:null;
   const describe=()=>{if(!pzAccessCurrent(a))return;const pc=selected(),text=pzAccessDescribe(pc);dlg.querySelector('#pz-access-description').textContent=text;pzAccessSay(text);};
-  input.onchange=describe;dlg.querySelector('#pz-access-read').onclick=describe;
+  input.oninput=describe;input.onchange=describe;dlg.querySelector('#pz-access-read').onclick=describe;
   for(const [id,step] of [['prev',-1],['next',1]])dlg.querySelector('#pz-access-'+id).onclick=()=>{if(!pzAccessCurrent(a))return;if(a.pending){pzAccessSay('Wait for placement confirmation first.');return;}const pieces=PZ.data.pieces,start=pzAccessBrowseStart(input.value,pieces.length);for(let k=1;k<=pieces.length;k++){const i=(start+step*k+pieces.length)%pieces.length,q=pieces[i];if(!q.l&&!pieces.some(p=>p.g===q.g&&pzHeldByOther(p))){input.value=String(i+1);describe();return;}}pzAccessSay('No available unplaced pieces.');};
   dlg.querySelector('#pz-access-clue').onclick=()=>{if(!pzAccessCurrent(a))return;const pc=selected();pzAccessSay(pc?'Location clue: piece '+(pc.i+1)+' belongs in row '+(pc.r+1)+', column '+(pc.c+1)+'. Enter that destination to place it.':'Choose a valid piece number.');};
   dlg.querySelector('#pz-access-place').onclick=()=>pzAccessPlace(Number(input.value)-1,Number(row.value),Number(col.value),a);
