@@ -1,0 +1,4 @@
+function apply(s){const rep=(a,b)=>{if(s.split(a).length!==2)throw Error('Anchor '+a);s=s.replace(a,b)};
+rep('aria-label="Take the top discard" data-draw="discard"','aria-label="${st.discard?\'Take the top discard, \'+shuffleCardLabel(st.discard):\'Take the top discard, pile empty\'}" data-draw="discard"');
+rep('<button type="button" data-layoff="${i}" ${live&&selected.length?\'\':\'disabled\'}>Add</button>','<button type="button" data-layoff="${i}" aria-label="${esc(\'Add selected cards to \'+who(m.owner)+\' meld \'+(i+1)+\': \'+shuffleMeldOrder(m.cards).map(shuffleCardLabel).join(\', \'))}" ${live&&selected.length?\'\':\'disabled\'}>Add</button>');return s;}
+module.exports={apply};if(require.main===module){const fs=require('fs');fs.writeFileSync(process.argv[3],apply(fs.readFileSync(process.argv[2],'utf8')));}

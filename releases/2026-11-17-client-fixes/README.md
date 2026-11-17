@@ -1,9 +1,7 @@
-# Optional new-game Mahjong claim window
+# Rummy accessible control labels
 
-This reviewed Git-triggered recipe changes only the app and Worker entry. It preserves all other modules, MIME types, bindings, assets and operational settings. It does not migrate game state or edit active games.
+Two client-only label changes identify the top discard (or empty pile) and each public target meld by owner, number and card names. Existing controls, disabled conditions, hands, scoring and game actions are unchanged. All other 145 modules and operational settings remain pinned and preserved, including the optional Mahjong timing implementation.
 
-New Mahjong setup and invitations offer explicit relaxed-claim modes with a 120-second maximum response window. Existing classic and eight-round choices retain their 15-second default. Existing pending claim deadlines are not rewritten, and responding players still allow the normal early resolution. Invitations disclose the selected accommodation. No automatic selection of the relaxed mode occurs.
+The public recipe contains patch code and aggregate fingerprints only. No private app, family photos, module inventory or credentials are included. The existing content-only publisher fails closed on baseline/output/configuration drift; previews check without deployment, and deployment is limited to the established main-branch CI workflow. Other publishers must remain paused; the last check is not a global atomic lock.
 
-The public package contains patch code and aggregate fingerprints, not a full private app, family photos, credentials or private module inventory. The publisher reads the private baseline in memory, validates it and the exact deterministic result, and permits deployment only from the existing main-branch Workers Builds workflow. Preview/check mode never uploads. Drift fails closed. Other publishers must remain paused; the final recheck is not an atomic global lock.
-
-Offline and synthetic/native-browser tests are not evidence of real iPhone VoiceOver behavior or a complete accessibility audit. No real games or invitations are created for QA.
+Synthetic native-browser and renderer tests do not establish actual iPhone VoiceOver behavior or full-app accessibility. No real moves are made for QA.
