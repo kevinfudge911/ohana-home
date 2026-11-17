@@ -1,31 +1,13 @@
 {
   "worker": "ohana-home",
-  "addedModules": [
-    {
-      "name": "seasonal/ohana-thanksgiving-gathering-wide-v1.webp",
-      "path": "assets/ohana-thanksgiving-gathering-wide-v1.webp",
-      "type": "application/octet-stream",
-      "sha": "6b9b50e7d2c851081dde2fb70184c8591e8906637ee27ad7c3ad359731ba9bcb"
-    },
-    {
-      "name": "seasonal/ohana-thanksgiving-gathering-portrait-v1.webp",
-      "path": "assets/ohana-thanksgiving-gathering-portrait-v1.webp",
-      "type": "application/octet-stream",
-      "sha": "3a83a0f3add764df568f5579a2a2e8024205354b1165af82e0003c7de04427a7"
-    }
-  ],
-  "baseWorkerSha": "41b60dae26105e997ea5da51cedd053c74ca6b603ff1ad86aa0252d55d6cdbbe",
-  "outputWorkerSha": "69dee28623cad72acbd42332dbeeea3e2a5162357ea14d40d607ea07952e8a90",
-  "workerContentType": "application/javascript+module",
-  "workerPatch": "patches/harvest/worker-assets.cjs",
-  "baseModuleFingerprint": "9c197abc64eece9f096c2e39bbb6dc3eb18f940bb6a5bc97cef23a3947eb188e",
-  "outputModuleFingerprint": "036513952356a758180588ec19eb8751153b63207cc5811d6128060323913b41",
-  "baseAppSha": "d8daf2f5f00ccc6031ddfe16a1f8bc87d0e1ca46814daf6ebd412c39a0621eee",
-  "outputAppSha": "44a2ae86019499197fa80957780dadd1a525cac8d5b5961ca6f6cb45c3281407",
-  "outputPackedSha": "29f6b9e9023bebfeafb2d2f7fec88cb293a97e044267a0fd948c786f77bd3dd8",
+  "baseModuleFingerprint": "036513952356a758180588ec19eb8751153b63207cc5811d6128060323913b41",
+  "outputModuleFingerprint": "5becac1492072d1b2600dca0e6f16c3f93a45a132d9bdef49a6df07ff32ab671",
+  "baseAppSha": "44a2ae86019499197fa80957780dadd1a525cac8d5b5961ca6f6cb45c3281407",
+  "outputAppSha": "997267397b953909e0bf8b844a9b4a242a9fbaf4394b071f08f3060dd91fb6ee",
+  "outputPackedSha": "429c114bceea5972b864bb3ca58e713b7642313e6656107d9312a0c7734e53de",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/harvest/apply.cjs"
+    "patches/bridge/apply.cjs"
   ]
 }
