@@ -1,0 +1,5 @@
+const fs=require('fs');
+const old='if(!characters.includes(avatar)&&!(avatar.length<=4&&/\\p{Extended_Pictographic}/u.test(avatar)&&!/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");';
+const next='if(!(avatar&&avatar===me.avatar)&&!characters.includes(avatar)&&!(avatar.length<=4&&/\\p{Extended_Pictographic}/u.test(avatar)&&!/[<>@]/.test(avatar)))throw new Error("Choose a character from the picker.");';
+function apply(s){const start=s.indexOf('if(p==="/api/profile"&&req.method==="POST")'),end=s.indexOf('if(p==="/api/push/subscribe"',start);if(start<0||end<=start)throw Error('Profile boundary changed');const route=s.slice(start,end);if(route.split(old).length!==2||s.split('if(p==="/api/profile"&&req.method==="POST")').length!==2)throw Error('Avatar guard changed');return s.slice(0,start)+route.replace(old,next)+s.slice(end)}
+module.exports={apply,old,next};if(require.main===module)fs.writeFileSync(process.argv[3],apply(fs.readFileSync(process.argv[2],'utf8')));
