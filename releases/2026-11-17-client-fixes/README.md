@@ -1,7 +1,9 @@
-# Chess square state and synchronous focus
+# Separate games may share players
 
-Three guarded client edits name selected squares, available destinations or captures, and a king in check, and retain focus on the same square during synchronous board redraw. Restoration avoids newer focus, open modals, hidden targets and changed games. It uses the existing legal-move computation and public board. Move handling, rules and promotion behavior are unchanged.
+The shared standard-multiplayer invitation flow no longer treats playing or being invited at another table as a global reservation. A deliberate new-game invitation may include the same person in different groups or game types. Completed-send UI cache no longer permanently blocks a fresh deliberate send after refresh failure; pending and uncertain sends retain retry/request protections.
 
-This app-only recipe preserves 145 other modules, original MIME types, assets, settings and previous accessibility fixes. Public files contain generic patch code and aggregate fingerprints only. The reviewed publisher checks exact baseline/output and fails closed on drift. Previews do not deploy; only existing main-branch CI can upload. Other publishers must remain paused; final checks are not a global atomic lock.
+Same-table duplicate invitations, seated-recipient checks, capacity/seat rules, room membership, child policy, recipient deduplication and atomic sender/room/request uniqueness remain enforced. Existing game rows are not edited. MOMopoly's separate shared family-board flow is unchanged and is not made into independent boards.
 
-Renderer and synthetic Windows Chrome tests do not establish physical iPhone VoiceOver behavior. Promotion remains separately unaudited and is not fixed here. No real moves are made for QA.
+This recipe changes the packed app and Worker entry only, preserving the other 144 modules, MIME types, assets, settings and all prior fixes. It contains generic patch code and aggregate fingerprints, not a private app, family photos, credentials or module inventory. Exact baseline/output and configuration checks fail closed; previews never upload, and only the existing main-branch CI can deploy. Other publishers must remain paused; the final check is not an atomic global lock.
+
+Tests use synthetic data, actual extracted handlers and isolated SQLite. Native dialog checks make no real invitations. These tests do not establish every game's behavior or full production concurrency under arbitrary failures.
