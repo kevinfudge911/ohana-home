@@ -1,9 +1,7 @@
-# Visible current-group chat entry
+# Spades replay on the existing table
 
-This Git-triggered follow-up changes only the reviewed client expression that chooses the current-group Message action container. An open Bridge command section takes priority over the legacy hidden gear menu. It adds no workstation row and changes no messages, games, server modules, or database schema.
+This isolated client-only patch keeps card and trick replay animation inside the normal seated Spades table instead of creating a separate brown screen. First entry renders the existing table under the busy gate. Missing or replaced replay hosts interrupt safely without marking an unseen event complete. Existing gameplay, scoring, winners and server code remain unchanged.
 
-The publisher exports the current private Worker in memory, validates aggregate byte/MIME, operational settings and runtime fingerprints, applies the exact guarded client patch, and preserves the other 145 modules byte-for-byte. No private export, filenames, account identifiers, credentials or family images are in this recipe.
+The existing main-branch GitHub-to-Cloudflare publisher performs content-pinned checks of every module byte and MIME type, operational settings and runtime metadata. It changes one packed client and preserves 145 other modules, including the privacy-filtered chat worker. No database/schema operations or game moves are performed. Preview runs check only; main runs check then deploy. The other saved-game branch is not included.
 
-Preview builds run `node releases/2026-11-17-client-fixes/release.mjs check`. Main runs the same check then `deploy`. Deployment is restricted to the existing main-branch Workers Builds environment, rechecks drift, and verifies the result. Other publishers must remain paused; this is coordinated, not an atomic cross-service lock.
-
-The existing chat schema and privacy-filtered Worker remain unchanged. Never roll back to an older unfiltered chat Worker after new chat messages exist.
+The recipe contains public patch code and aggregate fingerprints only, never the private app export, family images, credentials, private module inventory or account identifiers. Deployment checks for drift immediately before upload and verifies exact output afterward; coordination is not an atomic cross-service lock.
