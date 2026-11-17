@@ -1,0 +1,23 @@
+/* Seasonal chrome only. Card faces, boards, player art and chosen puzzle colors stay original. */
+@layer ohanaHarvest{
+:root[data-ohana-season="thanksgiving"]{--harvest-cream:#fff2d6;--harvest-berry:#5c2332;--harvest-copper:#a7592b;--harvest-gold:#e8bd75;--harvest-sage:#344d3b}
+:root[data-ohana-season="thanksgiving"] body .ohana-arched-bridge-header{background:linear-gradient(180deg,#532331e8,#492e1a80,transparent)!important;box-shadow:inset 0 3px #e8bd75!important}
+:root[data-ohana-season="thanksgiving"] body :is(.ohana-feature-invites,.ohana-category-card,#pp-card,#ohana-home-profile-card){border-color:#e8bd75!important;box-shadow:0 4px 0 #6b3221,0 9px 24px #30191660!important}
+:root[data-ohana-season="thanksgiving"] body #ohana-home-profile-card .home-profile-card-foot{background:#5c2332!important;border-color:#e8bd75!important;color:#fff2d6!important}
+:root[data-ohana-season="thanksgiving"] body #ohana-home-profile-card .home-profile-card-art{background:radial-gradient(ellipse at center,#ffe7ac40,transparent 70%),linear-gradient(135deg,#893d2740,#34513c44)!important}
+:root[data-ohana-season="thanksgiving"] body :is(.ohana-feature-info,.ohana-room-go-strip,.category-game-status){background:#344d3b!important;color:#fff2d6!important;text-shadow:none!important}
+:root[data-ohana-season="thanksgiving"] body :is(.game-bottom,.game-tray,#pz-workstation,.gr-workstation){box-shadow:inset 0 3px #e8bd75,inset 0 6px #5c2332!important}
+:root[data-ohana-season="thanksgiving"] body :is(#ohana-home-games,#ohana-invited-games,dialog.game-setup-room){box-shadow:inset 0 4px #a7592b,0 8px 26px #30191655!important}
+:root[data-ohana-season="thanksgiving"] body .ohana-profile-full .profile-full-head{background:#5c2332!important;color:#fff2d6!important}
+:root[data-ohana-season="thanksgiving"] body .ohana-profile-full .profile-full-head h2{color:#fff2d6!important}
+:root[data-ohana-season="thanksgiving"] body .wardrobe-grouped .wardrobe-current-look{background:#efe6cf!important}
+:root[data-ohana-season="thanksgiving"] body .wardrobe-grouped .wardrobe-choice[aria-pressed="true"]{border-color:#793142!important;box-shadow:0 0 0 2px #793142!important}
+:root[data-ohana-season="thanksgiving"] body :is(.ohana-home-actions,.ohana-room-go-strip) button{color:#fff2d6!important;text-shadow:0 2px 3px #321b15!important}
+:root[data-ohana-season="thanksgiving"] body #ohana-home-profile-card .home-profile-card-art{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20320%2090%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23e8bd75%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M8%2082Q80%2012%20154%2062M166%2062Q240%2012%20312%2082%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23b45c32%22%20stroke%3D%22%23e8bd75%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M36%2058Q10%2022%2036%2012Q60%2028%2036%2058M70%2043Q53%208%2080%205Q98%2025%2070%2043M108%2047Q107%2010%20135%2017Q144%2041%20108%2047M284%2058Q310%2022%20284%2012Q260%2028%20284%2058M250%2043Q267%208%20240%205Q222%2025%20250%2043M212%2047Q213%2010%20185%2017Q176%2041%20212%2047%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")!important;background-position:center bottom!important;background-size:100% auto!important;background-repeat:no-repeat!important}
+/* No motion, filters, hit-area overlays, game geometry changes or game-piece selectors. */
+:root[data-ohana-season="thanksgiving"] body .home-profile-card-foot::after{content:'Thankful together · Ohana';display:block;margin-top:10px;font:700 15px/1.4 Nunito,system-ui,sans-serif;letter-spacing:.07em;color:#f5d392}
+#access-help .harvest-choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 0}
+#access-help .harvest-choice input{width:24px;height:24px;flex:0 0 24px}
+#access-harvest-status{font-size:16px;line-height:1.5}
+@media(forced-colors:active){:root[data-ohana-season="thanksgiving"] body .home-profile-card-foot::after{color:CanvasText}}
+}
