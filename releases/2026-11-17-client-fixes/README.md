@@ -1,5 +1,5 @@
-# Home character visibility
+# Character-anchored chat presentation
 
-Home workstation only: larger character, separate name, active-game count and profile cue. Direct image/wrapper sizing preserves nested layered characters and canvas motion. Other game workstation geometry and all saved selections remain unchanged. Existing full Profile card and its order remain intact. No directory, favorites, messaging, server or storage change.
+App-only speech bubble and inline reply adapter. Uses verified sender IDs, preserves original private/group scopes and server authorization. Replying never acknowledges the incoming message. Uncertain sends reuse a client identifier; stale sessions and mention rosters are rejected/cleared. Existing controller/backend and all other modules remain unchanged.
 
-Existing content-pinned main-only publisher unchanged; preview performs checks only. Independent review and owner-private synthetic phone/tablet/compact QA required before promotion.
+Requires independent privacy review and full-shell private native visual/focus QA before main promotion. Existing content-pinned publisher retains baseline, MIME, settings, runtime and main-only deployment guards. No real messages or acknowledgments in QA. No private messages, credentials, artwork or member data are included in this recipe.
