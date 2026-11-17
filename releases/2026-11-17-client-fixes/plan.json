@@ -1,13 +1,17 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "93e877f1f6e9c2b663196c1210bf8e6b41c4c776ac68624c89234480b164c26b",
-  "outputModuleFingerprint": "2bc81439ffea636ff44f51ec736c4c7a9599088e8ffeca896c21739d3c7663d9",
-  "baseAppSha": "953c30c8add23874e826222e8c6d0f83096078270c5e75358dda9b38931ed19e",
-  "outputAppSha": "6882680e91bdfd54c80a85b237769b304bb9878c75c239686532a5959aa1e596",
-  "outputPackedSha": "fde0169fe16cf32f779f555d46afacfb2bf3f416f42bf6d5156617709b675cca",
+  "baseWorkerSha": "83332bdd711b86452cf760b8f644b1f6528cd53fd00cded120ab9501b36ce558",
+  "outputWorkerSha": "b8582ed2aca8d24edae4bc2cef8b235a4c0a02e1c6e705629588f24e01f0e92b",
+  "workerContentType": "application/javascript+module",
+  "workerPatch": "patches/mahjong/server-apply.cjs",
+  "baseModuleFingerprint": "2bc81439ffea636ff44f51ec736c4c7a9599088e8ffeca896c21739d3c7663d9",
+  "outputModuleFingerprint": "6bb7e89ea2f32f8b87c823e64ab02fc593190c87a686b378ecbf8142624dc9d5",
+  "baseAppSha": "6882680e91bdfd54c80a85b237769b304bb9878c75c239686532a5959aa1e596",
+  "outputAppSha": "d228d28b06fb5235b3e081b3c796d11589d2bfec1d1a1ce5e6837b5b56f71b0e",
+  "outputPackedSha": "f7e899f438777bc79923b1af7be6107b8a59c22d256d06f4434eec8b00799491",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/granny/apply.cjs"
+    "patches/mahjong/app-apply.cjs"
   ]
 }

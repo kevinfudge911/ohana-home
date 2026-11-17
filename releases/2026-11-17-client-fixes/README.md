@@ -1,5 +1,9 @@
-# Granny crossword device-keyboard option
+# Optional new-game Mahjong claim window
 
-Adds an explicit device-keyboard toggle within the visible crossword area. Device mode enables text input and bypasses the custom letter-key interceptor, retaining the original crossword input, answer and advance handlers. Existing custom keyboard remains available. Read-only and disabled cells cannot be edited through the custom handler. No game rules, persistence endpoints, schemas or other games change.
+This reviewed Git-triggered recipe changes only the app and Worker entry. It preserves all other modules, MIME types, bindings, assets and operational settings. It does not migrate game state or edit active games.
 
-Tests cover mocked input/capture/focus/redraw safeguards and synthetic native browser interaction. This does not certify actual iOS keyboard behavior or VoiceOver accessibility. The content-only publisher pins exact aggregates, module types, settings and runtime; no private full app, saved answers, family photos or credentials are published in this recipe.
+New Mahjong setup and invitations offer explicit relaxed-claim modes with a 120-second maximum response window. Existing classic and eight-round choices retain their 15-second default. Existing pending claim deadlines are not rewritten, and responding players still allow the normal early resolution. Invitations disclose the selected accommodation. No automatic selection of the relaxed mode occurs.
+
+The public package contains patch code and aggregate fingerprints, not a full private app, family photos, credentials or private module inventory. The publisher reads the private baseline in memory, validates it and the exact deterministic result, and permits deployment only from the existing main-branch Workers Builds workflow. Preview/check mode never uploads. Drift fails closed. Other publishers must remain paused; the final recheck is not an atomic global lock.
+
+Offline and synthetic/native-browser tests are not evidence of real iPhone VoiceOver behavior or a complete accessibility audit. No real games or invitations are created for QA.
