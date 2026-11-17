@@ -78,12 +78,7 @@ try{
  }
  const packed=zlib.gzipSync(candidate,{level:9,mtime:0});assert(hash(packed)===plan.outputPackedSha,'Packed candidate differs from reviewed bytes');
  const candidateModules=new Map(modules);candidateModules.contentTypes=modules.contentTypes;candidateModules.set(appModule,packed);
- const momoName='momo/server.mjs';assert(modules.has(momoName),'Expected game module unavailable');
- const momoInput=path.join(directory,'momo-input.mjs'),momoOutput=path.join(directory,'momo-output.mjs');
- await fs.writeFile(momoInput,modules.get(momoName));
- execFileSync(process.execPath,[path.join(here,'patches/momopoly/server-patch.cjs'),momoInput,momoOutput],{stdio:'pipe',env:{PATH:process.env.PATH||''}});
- execFileSync(process.execPath,['--check',momoOutput],{stdio:'pipe',env:{PATH:process.env.PATH||''}});
- candidateModules.set(momoName,await fs.readFile(momoOutput));assertModules(candidateModules,plan.outputModuleFingerprint);
+ assertModules(candidateModules,plan.outputModuleFingerprint);
  console.log(`Verified ${modules.size} baseline modules; ${scripts} scripts parse; candidate ${hash(candidate)}`);
  if(mode!=='deploy'){console.log('Read-only release check passed; no deployment');process.exitCode=0;}
  else{
@@ -97,6 +92,6 @@ try{
   const afterUpload=await json('/deployments');const released=afterUpload.deployments[0]?.versions;assert(released?.length===1&&released[0].percentage===100&&released[0].version_id!==version[0].version_id,'New release not at100%');const verified=await getModules();assertModules(verified,plan.outputModuleFingerprint);
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Post-release settings differ; inspect immediately');
   const deployed=await json('/deployments');const v=deployed.deployments[0]?.versions;assert(JSON.stringify(v)===JSON.stringify(released),'Concurrent release during verification');const runtime=(await json('/versions/'+v[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Post-release runtime/assets metadata differs');
-  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-2,operationalSettingsUnchanged:true}));
+  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-1,operationalSettingsUnchanged:true}));
  }
 }catch(error){console.error(error.name==='ReleaseSafetyError'?error.message:'Release stopped on build/transport error; private source and credential details suppressed');if(writeStarted)console.error('Upload was attempted. Inspect current production before retrying.');process.exitCode=1;}finally{if(directory)await fs.rm(directory,{recursive:true,force:true});}

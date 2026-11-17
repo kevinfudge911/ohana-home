@@ -1,0 +1,12 @@
+const fs=require('fs'),path=require('path');
+function patch(s){const one=(a,b)=>{if(s.split(a).length!==2)throw Error('Anchor mismatch: '+a.slice(0,100));s=s.replace(a,b)};
+ one("async open(){const w=this.w;try{if(!w||document.getElementById('pp-frame')||this.opening)return;", "async open(isCurrent=()=>true){const w=this.w;try{if(!isCurrent()||!w||document.getElementById('pp-frame')||this.opening)return;");
+ one("if(!r.ok)throw new Error('closed');const page=await r.text();const wrap=", "if(!isCurrent()){this.opening=false;return;}if(!r.ok)throw new Error('closed');const page=await r.text();if(!isCurrent()){this.opening=false;return;}const wrap=");
+ one('function mountOhanaHomeGames(main,table,nook){',fs.readFileSync(path.join(__dirname,'listing-helpers.js'),'utf8')+'\nfunction mountOhanaHomeGames(main,table,nook){');
+ one("table.append(actions,section);actions.querySelector('.ohana-home-start')", "table.append(actions,section);ohanaAppendClassicListing(section.querySelector('.ohana-home-game-rows'),ohanaOpenClassicListing);actions.querySelector('.ohana-home-start')");
+ one("const games=(S.sync?.allGames||S.sync?.games||[]).filter(g=>g.in_game&&['playing','waiting'].includes(g.status)).sort((a,b)=>Number(b.my_turn)-Number(a.my_turn)||Number(b.updated_at)-Number(a.updated_at));", "const games=ohanaUniqueGames(S.sync,S.me?.id);");
+ one("empty.textContent='No ongoing games yet.';list.append(empty)","empty.dataset.ownGamesEmpty='1';empty.textContent='No ongoing games yet.';list.append(empty)");
+ one("dialog.append(list,back);dialog.addEventListener('close'", "dialog.append(list,back);ohanaAppendClassicListing(list,async()=>{const current=bridgeGameContext();await bridgeDismissForGameExit(dialog,current);if(!current.valid())return;await OhanaBridgeChildren.openRoute('activity',bridge,ohanaOpenClassicListing);});dialog.addEventListener('close'");
+ one("status.className='dock-guide';status.textContent=ctx.snapshot.turn;status.setAttribute('role','status');", "status.className='dock-guide';status.textContent=ctx.snapshot.turn;status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.style.cssText='display:block!important;color:#fff8df!important;font:800 clamp(20px,3vw,26px)/1.2 Nunito,sans-serif!important;text-shadow:0 2px 2px #311600!important;text-align:center!important;width:100%!important;padding:4px 0!important;white-space:normal!important';");
+ return s;
+}module.exports={patch};if(require.main===module)fs.writeFileSync(process.argv[3],patch(fs.readFileSync(process.argv[2],'utf8')));
