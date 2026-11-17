@@ -1,7 +1,7 @@
-# Mahjong solitaire accessible focus and hints
+# Chess square state and synchronous focus
 
-Five guarded client edits retain focus on the same tile or Hint control during synchronous redraw, announce the coordinates of the existing visible hint pair, and name hinted tiles. Focus restoration stops if the game changes, a modal/new focus takes over, or the target is absent, hidden or disabled. A duplicate legacy toast announcement is removed while retaining visual feedback and the modal-aware status announcer; unrelated turn and chat announcements remain unchanged. Family Mahjong, match payloads and game rules are unchanged.
+Three guarded client edits name selected squares, available destinations or captures, and a king in check, and retain focus on the same square during synchronous board redraw. Restoration avoids newer focus, open modals, hidden targets and changed games. It uses the existing legal-move computation and public board. Move handling, rules and promotion behavior are unchanged.
 
-The app-only recipe preserves the other 145 modules, original MIME types, operational settings, assets and all prior fixes. Public files contain only patches and aggregate fingerprints, not private source, family photos, credentials or a module inventory. The reviewed publisher checks exact input and output; previews never deploy. Only existing main-branch CI can upload. Other publishers must remain paused; final drift checks are not an atomic global lock.
+This app-only recipe preserves 145 other modules, original MIME types, assets, settings and previous accessibility fixes. Public files contain generic patch code and aggregate fingerprints only. The reviewed publisher checks exact baseline/output and fails closed on drift. Previews do not deploy; only existing main-branch CI can upload. Other publishers must remain paused; final checks are not a global atomic lock.
 
-Synthetic renderer and Windows Chrome viewport tests do not establish physical iPhone VoiceOver behavior or full-game accessibility. No real moves are made for QA.
+Renderer and synthetic Windows Chrome tests do not establish physical iPhone VoiceOver behavior. Promotion remains separately unaudited and is not fixed here. No real moves are made for QA.
