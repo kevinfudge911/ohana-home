@@ -1,0 +1,39 @@
+(function(){
+'use strict';
+if(window.ohanaMexicanTrain)return;
+const out={ok:false};
+try{if(typeof dominoTrainLayout==='function'&&typeof dominoBoardLayout==='function'&&typeof dominoTileFace==='function'){
+ const orig=dominoTrainLayout;
+ const who=id=>{try{return nameOf(Number(id))||'Player';}catch(e){return 'Player';}};
+ const lab=(x,y,size,text,color)=>`<span class="domino-train-label dmx-mx-label" style="position:absolute;left:${x}px;top:${y}px;color:${color||'#fff6df'};font:600 ${size}px Fredoka;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.45)">${text}</span>`;
+ dominoTrainLayout=function(st,g,rowLimit=1100){
+  if(!st||!st.mx||!st.trains)return orig.apply(this,arguments);
+  const engine=st.board[0]?.tile,pip=Number(st.engine??engine?.a);
+  let html=engine?dominoTileFace(engine,'tabindex="-1" style="--dx:20px;--dy:16px;--dw:72px;--dh:144px"','board-piece vertical'):'';
+  const roundTxt=Number(st.rounds)>1?'Round '+st.round+' of '+st.rounds+' · '+pip+'|'+pip+' engine':pip+'|'+pip+' engine';
+  html+=lab(108,40,24,esc(roundTxt));
+  let sub='';
+  if(st.pendingDouble&&st.trains[st.pendingDouble]){const d=st.trains[st.pendingDouble].end;sub='Cover the '+d+'|'+d+' double first';}
+  else if(st.lastRound&&Number(st.round)>1){const lr=st.lastRound;sub='Round '+lr.round+': '+(lr.wentOut!=null?esc(who(lr.wentOut))+' went out':'blocked')+' · low score wins';}
+  else sub='Play yours, Mexican, or any 🚂 train';
+  html+=lab(108,80,16,sub,st.pendingDouble?'#ffd36b':'#f3e6c8');
+  const layout={w:Math.max(240,rowLimit),h:180,html:'',pieces:[]};let y=230;
+  const ids=Object.keys(st.trains).sort((a,b)=>(a==='mexican')-(b==='mexican'));
+  const me=(typeof S!=='undefined'&&S.me)?String(S.me.id):'';
+  for(const id of ids){
+   const line=st.trains[id];
+   const packed=dominoBoardLayout(line.tiles,{left:line.start??pip},st.lastPlay?.tile?.id,rowLimit);
+   const name=id==='mexican'?'🚂 Mexican train':id===me?'Your train':esc(who(id))+'’s train';
+   const tags=[];tags.push('needs '+Number(line.end));
+   if(id!=='mexican'&&line.open)tags.push('🚂 open');
+   if(st.pendingDouble===id)tags.push('cover the double');
+   html+=lab(20,y-30,18,name+' · '+tags.join(' · '),st.pendingDouble===id?'#ffd36b':(id!=='mexican'&&line.open?'#bfe9ff':'#fff6df'));
+   html+=`<div class="domino-train-path" style="position:absolute;left:0;top:${y}px;width:${packed.w}px;height:${packed.h}px">${packed.html}</div>`;
+   const end=packed.pieces.length?packed.right:{x:100,y:80};layout['train-'+id]={x:end.x,y:y+end.y};
+   layout.pieces.push(...packed.pieces.map(p=>({...p,y:p.y+y})));layout.w=Math.max(layout.w,packed.w);y+=packed.h+48;
+  }
+  layout.h=y;layout.html=html;return layout;
+ };
+ out.ok=true;}}catch(e){out.err=String(e&&e.message||e);}
+window.ohanaMexicanTrain=out;
+})();
