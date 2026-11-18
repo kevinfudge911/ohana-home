@@ -1,17 +1,13 @@
 {
   "worker": "ohana-home",
-  "baseWorkerSha": "69dee28623cad72acbd42332dbeeea3e2a5162357ea14d40d607ea07952e8a90",
-  "outputWorkerSha": "5ad79bafbe0dfa5a51baeedaf485c762a4da2bedb901efe40a333b5d544f3ed0",
-  "workerContentType": "application/javascript+module",
-  "workerPatch": "patches/favorites/apply.cjs",
-  "baseModuleFingerprint": "da194fe2ed90f4b1456cab648ab4420a9dce25ffb50cfc38550edc5835b6b35e",
-  "outputModuleFingerprint": "e8bee5d8fb08b16f614c1b5e41111748943d3132f42a61b529f77e05db5a8346",
-  "baseAppSha": "0a9ed542becf75428e6b62b3709a92519d0eefaf9a15cb4d370f9cd4ef6bf37d",
-  "outputAppSha": "d37aeb39c537835e725a95ae579460a3bf30d8b39f1073909685efa5fb9540df",
-  "outputPackedSha": "8be2d0a011fb0369abaa2b4517d160072d77273a27d1fb4fa9bd40f7a05fad08",
+  "baseModuleFingerprint": "e8bee5d8fb08b16f614c1b5e41111748943d3132f42a61b529f77e05db5a8346",
+  "outputModuleFingerprint": "68a9f6691e7ed3df875a39ebea146eb01e251484d6b14653e6e508cc4197fe97",
+  "baseAppSha": "d37aeb39c537835e725a95ae579460a3bf30d8b39f1073909685efa5fb9540df",
+  "outputAppSha": "2dfcd08e65008c4fef67c56ba346b7790ec69e07a54b5f00c72e7d1619c764fb",
+  "outputPackedSha": "25a9ca01b486dcab3102b501b7cc8ce863a14ca88b06d059b84dd76225ffd16a",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/gallery/apply-slideshow.cjs"
+    "patches/rooms/apply.cjs"
   ]
 }
