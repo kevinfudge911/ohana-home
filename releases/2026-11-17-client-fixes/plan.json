@@ -1,31 +1,13 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "9ddcf862b1d675c7955d5bc2870d90eada2a4f3ce6e923af1d83d3af46c1f1f3",
-  "outputModuleFingerprint": "ca139814f4cfaf9d602b40ba85a01fd88438d8c636fd65e03eb4b4b4794e9e33",
-  "baseAppSha": "0718bec2016c1c9615435bf70fcfde96e1eaf469617ec3bf6be68b5c213bf7d0",
-  "outputAppSha": "1c5c96f62a7d035faa6c41a6b4eaa65aa192ecd193c6231c4f8a4b42c328ac90",
-  "outputPackedSha": "15a83ece37dea557e14a5ef2d0d72a65d4759949604583564402a23980c843c8",
+  "baseModuleFingerprint": "ca139814f4cfaf9d602b40ba85a01fd88438d8c636fd65e03eb4b4b4794e9e33",
+  "outputModuleFingerprint": "9671db222317d1032c668f771ccb09fe0c9c98b0902e4c2ae5d2a9d9fe38d33e",
+  "baseAppSha": "1c5c96f62a7d035faa6c41a6b4eaa65aa192ecd193c6231c4f8a4b42c328ac90",
+  "outputAppSha": "62c890ebe0bbb70f8793980f2c7280e849f78cc0b3fbcfed410f490d67608a9c",
+  "outputPackedSha": "6aaacb6297bdd74affb0ebc4dd1827d20fd54b98bb19280acc0f7c289842368c",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/outfits/apply-app.cjs"
-  ],
-  "workerPatch": "patches/outfits/apply-worker.cjs",
-  "workerContentType": "application/javascript+module",
-  "baseWorkerSha": "547b3c5b8abfbb6e7d9e178ac8c3c8df4cf57e2168e76801879b38884fb647ce",
-  "outputWorkerSha": "926c2ec4eb160deb5dd191d4b93dffd5a50f50391b278e11c53aad6ce4b7de3b",
-  "addedModules": [
-    {
-      "name": "seasonal/ohana-honu-thanksgiving-2026-v1.webp",
-      "type": "application/octet-stream",
-      "path": "assets/ohana-honu-thanksgiving-2026-v1.webp",
-      "sha": "9acbdc3f2f955cc40b19895d2459e8e5ad63be21cc1a4e1be19b372f2b65af1a"
-    },
-    {
-      "name": "seasonal/ohana-eddie-thanksgiving-2026-v1.webp",
-      "type": "application/octet-stream",
-      "path": "assets/ohana-eddie-thanksgiving-2026-v1.webp",
-      "sha": "f2d2be837993a5d92e803034ac469ec010ddb887438be083ceff6a83dda270dc"
-    }
+    "patches/profile/apply.cjs"
   ]
 }
