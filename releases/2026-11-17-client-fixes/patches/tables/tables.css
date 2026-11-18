@@ -1,0 +1,30 @@
+/* Thanksgiving actual table surrounds. Presentation only, no new controls or geometry.
+   Cove games retain a seaside identity; lodge games use a cozy harvest hearth.
+   Treasured Spades and beach board artwork receive a transparent garland, not replacement. */
+@layer ohanaHarvestTables {
+:root[data-ohana-season="thanksgiving"]{--harvest-cove:url('/ohana-harvest-cove-wide-v1.webp');--harvest-lodge:url('/ohana-harvest-lodge-wide-v1.webp');--harvest-garland:url('/ohana-harvest-garland-v1.webp')}
+:root.ohana-world[data-ohana-season="thanksgiving"]:is([data-ohana-game="shuffle"],[data-ohana-game="ohana10"],[data-ohana-game="words"],[data-ohana-game="memory"],[data-ohana-game="flip"]){--harvest-table-scene:var(--harvest-cove);--room-scene:var(--harvest-table-scene)!important;background:var(--harvest-table-scene) center top/cover fixed #603213!important}
+:root.ohana-world[data-ohana-season="thanksgiving"]:is([data-ohana-game="handfoot"],[data-ohana-game="mahjong"],[data-ohana-game="domino"],[data-ohana-game="checkers"]){--harvest-table-scene:var(--harvest-lodge);--room-scene:var(--harvest-table-scene)!important;background:var(--harvest-table-scene) center top/cover fixed #3e2518!important}
+:root.ohana-world[data-ohana-season="thanksgiving"]:is([data-ohana-game="shuffle"],[data-ohana-game="ohana10"],[data-ohana-game="words"],[data-ohana-game="memory"],[data-ohana-game="flip"],[data-ohana-game="handfoot"],[data-ohana-game="mahjong"],[data-ohana-game="domino"],[data-ohana-game="checkers"]) #world-backdrop{visibility:hidden!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game:is([data-game-type="ohana10"],[data-game-type="words"],[data-game-type="memory"],[data-game-type="flip"],[data-game-type="handfoot"],[data-game-type="mahjong"],[data-game-type="domino"],[data-game-type="checkers"]){background:linear-gradient(#1a100b18,#1a100b50),var(--harvest-table-scene) center top/cover no-repeat!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game.rd-game #gb.shuffle-table{background:linear-gradient(#1a100b18,#1a100b50),var(--harvest-cove) center top/cover no-repeat!important;background-attachment:scroll!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game.rd-game #game-head{background:linear-gradient(#22140da8,#22140da8),var(--harvest-cove) center top/cover no-repeat!important}
+/* Existing Spades memorial stays exactly underneath this seasonal edge decoration. */
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game[data-game-type="spades"]{background-image:var(--harvest-garland),url('/ohana-mikes-room.webp?asset=ohana-v105-binary-repair-20261011')!important;background-repeat:no-repeat!important}
+/* Existing beach/sand board and pieces are not recolored. */
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game:has(#chs-beach-root),
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game #board#board#board[data-type="tictac"]{background-image:var(--harvest-garland),url('/ohana-beach-play-v4.webp?asset=ohana-v105-binary-repair-20261011')!important}
+/* Dominoes' canvas fills the viewport: adorn its wood edge without changing placement targets. */
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game #board .domino-board{background-image:var(--harvest-garland),linear-gradient(#622f1220,#421e0b33),var(--ohana-wood)!important;background-size:100% auto,auto,700px!important;background-repeat:no-repeat,repeat,repeat!important;background-position:center top,center,center!important}
+:root.ohana-world[data-ohana-season="thanksgiving"] body #app #game:not([data-game-type="spades"]):not([data-game-type="shuffle"]) #game-head#game-head#game-head#game-head#game-head#game-head{background:linear-gradient(#281a12cc,#281a12cc),var(--harvest-garland) center top/100% auto no-repeat!important}
+@media(orientation:portrait){:root[data-ohana-season="thanksgiving"]{--harvest-cove:url('/ohana-harvest-cove-portrait-v1.webp');--harvest-lodge:url('/ohana-harvest-lodge-portrait-v1.webp')}}
+@media(forced-colors:active){
+ :root.ohana-world[data-ohana-season="thanksgiving"]:is([data-ohana-game="shuffle"],[data-ohana-game="ohana10"],[data-ohana-game="words"],[data-ohana-game="memory"],[data-ohana-game="flip"],[data-ohana-game="handfoot"],[data-ohana-game="mahjong"],[data-ohana-game="domino"],[data-ohana-game="checkers"]),
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game,
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game#game#game.rd-game #gb.shuffle-table,
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game #board .domino-board,
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game #board#board#board[data-type="tictac"],
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game:has(#chs-beach-root),
+ :root.ohana-world[data-ohana-season="thanksgiving"] body #app #game#game#game#game #game-head#game-head#game-head#game-head#game-head#game-head{background:Canvas!important;color:CanvasText!important}
+}
+}

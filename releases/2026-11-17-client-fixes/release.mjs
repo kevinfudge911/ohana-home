@@ -77,7 +77,29 @@ try{
   scripts++;if(/type\s*=\s*["']module["']/i.test(match[1])){const f=path.join(directory,`inline-${scripts}.mjs`);await fs.writeFile(f,match[2]);execFileSync(process.execPath,['--check',f],{stdio:'pipe',env:{PATH:process.env.PATH||''}})}else new vm.Script(match[2],{filename:`inline-${scripts}.js`});
  }
  const packed=zlib.gzipSync(candidate,{level:9,mtime:0});assert(hash(packed)===plan.outputPackedSha,'Packed candidate differs from reviewed bytes');
- const candidateModules=new Map(modules);candidateModules.contentTypes=modules.contentTypes;candidateModules.set(appModule,packed);
+ const candidateModules=new Map(modules);candidateModules.contentTypes=new Map(modules.contentTypes);candidateModules.set(appModule,packed);
+ assert(modules.has('worker.js')&&modules.contentTypes.get('worker.js')===plan.workerContentType,'Worker entry or MIME changed');
+ assert(hash(modules.get('worker.js'))===plan.baseWorkerSha,'Worker baseline changed');
+ const workerInput=path.join(directory,'worker-input.mjs'),workerOutput=path.join(directory,'worker-output.mjs');
+ await fs.writeFile(workerInput,modules.get('worker.js'));
+ execFileSync(process.execPath,[path.join(here,plan.workerPatch),workerInput,workerOutput],{stdio:'pipe',env:{PATH:process.env.PATH||''}});
+ const workerCandidate=await fs.readFile(workerOutput);assert(hash(workerCandidate)===plan.outputWorkerSha,'Worker candidate differs from reviewed bytes');
+ execFileSync(process.execPath,['--check',workerOutput],{stdio:'pipe',env:{PATH:process.env.PATH||''}});
+ candidateModules.set('worker.js',workerCandidate);
+ assert(Array.isArray(plan.addedModules)&&plan.addedModules.length===5,'Expected five reviewed seasonal table art modules');
+ const addedNames=new Set();
+ for(const asset of plan.addedModules){
+  assert(/^seasonal\/ohana-harvest-(?:cove-portrait|cove-wide|lodge-portrait|lodge-wide|garland)-v1\.webp$/.test(asset.name),'Unexpected asset module name');
+  assert(asset.path==='assets/'+path.basename(asset.name),'Unexpected asset file path');
+  assert(asset.type==='application/octet-stream'&&!modules.has(asset.name)&&!addedNames.has(asset.name),'Asset collision or MIME mismatch');
+  const recipeRoot=await fs.realpath(here),file=await fs.realpath(path.join(here,asset.path)),assetRoot=await fs.realpath(path.join(here,'assets'));
+  assert(assetRoot.startsWith(recipeRoot+path.sep),'Asset directory escapes recipe');
+  assert(file.startsWith(assetRoot+path.sep),'Asset escapes recipe directory');
+  const data=await fs.readFile(file);assert(data.length>12&&data.length<=2*1024*1024&&data.subarray(0,4).toString()==='RIFF'&&data.subarray(8,12).toString()==='WEBP','Invalid or oversized WebP');
+  assert(hash(data)===asset.sha,'Asset differs from reviewed bytes');
+  candidateModules.set(asset.name,data);candidateModules.contentTypes.set(asset.name,asset.type);addedNames.add(asset.name);
+ }
+
  assertModules(candidateModules,plan.outputModuleFingerprint);
  console.log(`Verified ${modules.size} baseline modules; ${scripts} scripts parse; candidate ${hash(candidate)}`);
  if(mode!=='deploy'){console.log('Read-only release check passed; no deployment');process.exitCode=0;}
@@ -87,11 +109,11 @@ try{
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Concurrent settings change detected');
   assertModules(await getModules(),plan.baseModuleFingerprint);
   const form=new FormData();form.set('metadata',JSON.stringify({main_module:'worker.js'}));
-  for(const [name,data] of candidateModules)form.append(name,new Blob([data],{type:modules.contentTypes.get(name)}),name);
+  for(const [name,data] of candidateModules)form.append(name,new Blob([data],{type:candidateModules.contentTypes.get(name)}),name);
   writeStarted=true;const upload=await(await api('/content',{method:'PUT',body:form})).json();assert(upload.success,'Upload failed; inspect deployment state before retry');
   const afterUpload=await json('/deployments');const released=afterUpload.deployments[0]?.versions;assert(released?.length===1&&released[0].percentage===100&&released[0].version_id!==version[0].version_id,'New release not at100%');const verified=await getModules();assertModules(verified,plan.outputModuleFingerprint);
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Post-release settings differ; inspect immediately');
   const deployed=await json('/deployments');const v=deployed.deployments[0]?.versions;assert(JSON.stringify(v)===JSON.stringify(released),'Concurrent release during verification');const runtime=(await json('/versions/'+v[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Post-release runtime/assets metadata differs');
-  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-1,operationalSettingsUnchanged:true}));
+  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:[...modules].filter(([n,b])=>verified.has(n)&&hash(verified.get(n))===hash(b)&&verified.contentTypes.get(n)===modules.contentTypes.get(n)).length,addedModules:addedNames.size,operationalSettingsUnchanged:true}));
  }
 }catch(error){console.error(error.name==='ReleaseSafetyError'?error.message:'Release stopped on build/transport error; private source and credential details suppressed');if(writeStarted)console.error('Upload was attempted. Inspect current production before retrying.');process.exitCode=1;}finally{if(directory)await fs.rm(directory,{recursive:true,force:true});}
