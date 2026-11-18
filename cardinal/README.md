@@ -1,0 +1,7 @@
+# Daddy's Cardinal: flying in games, more songs (live fe5a302c, Nov 18 2026 2:51 PM CT)
+
+- **daddy-cardinal-game-flyer-v1.js**: during any game, Daddy leaves the arch nest and flies around the game on his own: 100 flight patterns (10 families x 10: arc glide, bounding flight, swoop, loop-de-loop, figure eight, spiral in, zigzag, wild sweep, hover and hop, overshoot and turn back). He perches on safe spots (never on top of cards, tiles, dominoes or buttons), hops, turns around, flicks his tail, sometimes flies off screen and comes back from another side. Perches are short (about 2 to 6.5 seconds).
+  - Speed-safe: one shadow-DOM layer, all motion is Web Animations on transform/opacity (runs on the compositor), no per-frame JavaScript, no screen-wide observers, pointer-events none. A 700 ms check handles start/stop.
+  - Respects: Cardinal motion / keep-perched setting, reduced motion, hidden tab. Only runs in games; outside games the original visits system flies as before.
+- **daddy-cardinal-songs-v1.js**: 60 songs cut from the cleared real recording (XC75501) - whistles, "what cheer", "birdy birdy", "cheer cheer", chips, reversed slurs, pitch varied. Used by both the game flyer and the original home-screen flights (was one 2 s clip). Respects mute, Daddy sound volume, speech.
+- **app-patches-2026-11-18.json**: the 4 string patches applied to the app HTML part (expose recording, songs for the old flights, hush, insert the two scripts).

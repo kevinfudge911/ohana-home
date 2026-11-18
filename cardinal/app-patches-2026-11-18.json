@@ -1,0 +1,22 @@
+[
+ {
+  "name": "recording",
+  "old": "window.ohanaCardinalAudio=OhanaCardinalAudio.install({recording:{\"cleared\"",
+  "neu": "window.ohanaCardinalAudio=OhanaCardinalAudio.install({recording:window.ohanaCardinalRecording={\"cleared\""
+ },
+ {
+  "name": "songs-play",
+  "old": "function play(){if(!ctx||ctx.state!=='running'||!buffer||!unlocked||flight.used)return;flight.used=true;let next,node;try{",
+  "neu": "function play(){if(!ctx||ctx.state!=='running'||!buffer||!unlocked||flight.used)return;flight.used=true;try{if(root.ohanaCardinalSongs&&root.ohanaCardinalSongs.sing({ctx,buffer,volume:volume*mix().level,owner:'visits'})){starts++;lastReason='playing';return;}}catch{}let next,node;try{"
+ },
+ {
+  "name": "songs-hush",
+  "old": "function silence(reason){lastReason=reason;",
+  "neu": "function silence(reason){lastReason=reason;try{if(reason!=='cue-ended'&&reason!=='cue-limit')root.ohanaCardinalSongs?.hush('visits');}catch{}"
+ },
+ {
+  "name": "insert",
+  "old": "<!-- OHANA REAL CARDINAL AUDIO END -->",
+  "note": "inserts daddy-cardinal-songs-v1.js and daddy-cardinal-game-flyer-v1.js right after this marker"
+ }
+]
