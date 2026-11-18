@@ -10161,7 +10161,15 @@ async function notifyTurnIfAway(db, memberIds, payload) {
   const placeholders = memberIds.map(() => "?").join(",");
   const rows = (await db.prepare(`SELECT id,last_seen FROM members WHERE id IN (${placeholders})`).bind(...memberIds).all()).results;
   const away = rows.filter((r) => now() - (r.last_seen || 0) > 9e4).map((r) => r.id);
-  if (away.length) return notifyMembers(db, away, payload);
+  if (!away.length) return;
+  let send = away;
+  if (payload && payload.from > 0) {
+    send = [];
+    for (const to of away) if (await ohanaPlayAlertOk(db, to, payload.from)) send.push(to);
+    if (!send.length) return;
+    payload = { ...payload, tag: "ohana-player-" + payload.from };
+  }
+  return notifyMembers(db, send, payload);
 }
 __name(notifyTurnIfAway, "notifyTurnIfAway");
 __name2(notifyTurnIfAway, "notifyTurnIfAway");
@@ -12005,7 +12013,8 @@ async function api2(req, env222222, url) {
             type: "turn",
             title: "Game on!",
             body: `${m.name} joined your ${gameName} game. Your turn!`,
-            tag: `ohana-game-${g.id}`
+            tag: `ohana-game-${g.id}`,
+            from: m.id
           }).catch(() => {
           }));
         }
@@ -12548,7 +12557,8 @@ async function api2(req, env222222, url) {
             type: "turn",
             title: "Your turn!",
             body: `It's your turn in ${gameName}`,
-            tag: `ohana-game-${id}`
+            tag: `ohana-game-${id}`,
+            from: me.id
           }).catch(() => {
           }));
         }
@@ -12571,7 +12581,8 @@ async function api2(req, env222222, url) {
           type: "turn",
           title: "Your turn!",
           body: `It's your turn in ${gameName}`,
-          tag: `ohana-game-${id}`
+          tag: `ohana-game-${id}`,
+          from: me.id
         }).catch(() => {
         }));
       }
@@ -12610,7 +12621,8 @@ async function api2(req, env222222, url) {
           type: "turn",
           title: "Your turn!",
           body: `${me.name} played in ${gameName}. Your move!`,
-          tag: `ohana-game-${id}`
+          tag: `ohana-game-${id}`,
+          from: me.id
         }).catch(() => {
         }));
       }
@@ -13239,4 +13251,15 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  const result=await db.prepare('SELECT fingerprint,target_id FROM ohana_photo_feedback_requests WHERE room_id=? AND member_id=? AND request_id=?').bind(room,me.id,body.request_id).first();
  if(!result||result.fingerprint!==fingerprint)return reply({error:'The photo or its feedback changed. Reopen it and try again.'},409);
  return reply({saved:true,...(remove?{removed:true}:{}),id:result.target_id});
+}
+// One game alert per player per hour (Nov 18 2026): the first game someone plays with you sends one alert; their other games in the next hour stay quiet.
+async function ohanaPlayAlertOk(db, to, from) {
+  try {
+    const t = Date.now();
+    const r = await db.prepare("INSERT INTO play_alerts(member_id,from_id,last_at) VALUES(?,?,?) ON CONFLICT(member_id,from_id) DO UPDATE SET last_at=excluded.last_at WHERE play_alerts.last_at<?").bind(to, from, t, t - 36e5).run();
+    return !!(r.meta && r.meta.changes);
+  } catch (e) {
+    console.warn("Ohana play alert check failed", e.message);
+    return true;
+  }
 }
