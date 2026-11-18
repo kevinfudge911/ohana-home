@@ -1,0 +1,6 @@
+{
+  "baseline": "62c890ebe0bbb70f8793980f2c7280e849f78cc0b3fbcfed410f490d67608a9c",
+  "old": " function park(reason='park'){frameExclusions=null;lastParkReason=reason;cancelPlanning();restore();if(layer)layer.hidden=true;plan=null;study?.reset();clearGeometryTracking();}",
+  "new": " function park(reason='park'){const interrupted=away;frameExclusions=null;lastParkReason=reason;cancelPlanning();restore();if(layer)layer.hidden=true;plan=null;study?.reset();clearGeometryTracking();if(interrupted&&reason!=='completed')wait=Math.max(wait,8+random()*8);}",
+  "scope": "Defensive abort cooldown only. Does not diagnose initiating puzzle interruption."
+}
