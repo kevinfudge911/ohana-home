@@ -1,11 +1,12 @@
 /* A short landscape needs two columns, not a keyboard on top of the board.
-   Scope is crossword + visible Ohana keyboard only; normal and native-keyboard layouts stay intact. */
+   Scope is short-landscape crossword only; keep the board visible after Done or device-keyboard choice. */
 @layer grannyShortLandscape {
 @media (min-width:700px) and (max-height:500px) and (orientation:landscape){
-body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) #gr-main{--gr-landscape-board-height:calc(100dvh - 160px)}
-body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) #gr-viewport{position:fixed!important;left:6px!important;top:100px!important;width:calc(48vw - 12px)!important;min-height:80px!important;margin:0!important;overflow:auto!important}
-body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) #gr-workstation{left:0!important;right:auto!important;width:48vw!important;max-height:60px!important;overflow:auto!important}
-body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) .gr-question-drawer{left:49vw!important;right:4px!important;top:88px!important;bottom:214px!important;width:auto!important;max-height:none!important;overflow:auto!important}
+body.granny-open:has(.gr-playing-crossword) #gr-main{--gr-landscape-board-height:calc(100dvh - 160px)}
+body.granny-open:has(.gr-playing-crossword) #gr-viewport{position:fixed!important;left:6px!important;top:100px!important;width:calc(48vw - 12px)!important;min-height:80px!important;margin:0!important;overflow:auto!important}
+body.granny-open:has(.gr-playing-crossword) #gr-workstation{left:0!important;right:auto!important;width:48vw!important;max-height:60px!important;overflow:auto!important}
+body.granny-open:has(.gr-playing-crossword) .gr-question-drawer{left:49vw!important;right:4px!important;top:88px!important;bottom:60px!important;width:auto!important;max-height:none!important;overflow:auto!important}
+body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) .gr-question-drawer{bottom:214px!important}
 body.granny-open:has(#ohana-letter-keyboard:not([hidden])):has(.gr-playing-crossword) #ohana-letter-keyboard{left:auto!important;right:0!important;bottom:env(safe-area-inset-bottom,0px)!important;transform:none!important;width:51vw!important;max-width:560px!important}
 body.granny-open:has(.gr-playing-crossword) #ohana-letter-keyboard:not([hidden]) button{height:44px!important;font-size:22px!important}
 }
