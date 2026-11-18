@@ -37,7 +37,7 @@ The joke pop-up's own code (the string inside `ohanaAddJoke0` in the live worker
 - Thanksgiving jokes until Thanksgiving, CHRISTmas jokes after, everyday jokes otherwise; no repeats until the list runs out (localStorage `ohana-joke-seen:*`).
 - Self-update: checks the page stamp and reloads to the newest version when the app is in the background.
 
-## Copy button + big joke list (Nov 18 2026, about 2:00 PM CT)
+## Copy button + big joke list (live d1ed2ed3, Nov 18 2026 1:46 PM CT)
 - Joke box has a small Copy button (copies the whole joke; shows "Copied"). Longer story jokes scroll inside the box.
 - `ohana-jokes.json` = 4,538 clean jokes served by the worker at `/ohana-jokes.json` (const OHANA_JOKES_JSON, function ohanaJokesResp, route added before the "/" route). Lists: tg Thanksgiving 946, cm CHRISTmas 1,055, ny New Year 158, es Easter 251, ev everyday 2,128 (incl. story jokes and light Christian fun).
 - Seasons (CT): tg = November through Thanksgiving Day; cm = day after Thanksgiving to Dec 25; ny = Dec 26 to Jan 2; es = 14 days before Easter to Easter Monday; ev otherwise. Only that season's jokes show.
