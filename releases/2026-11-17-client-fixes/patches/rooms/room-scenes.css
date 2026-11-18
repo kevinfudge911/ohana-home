@@ -1,7 +1,0 @@
-/* Seasonal room surrounds only. Entry art, boards, cards, layouts and labels remain original. */
-@layer ohanaHarvestRooms {
-:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category]{background:linear-gradient(#071e1999,#071e19b8),var(--harvest-scene) center top/cover no-repeat!important;background-attachment:fixed!important}
-:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category]>header{background:linear-gradient(#071e19ed,#071e19c9 70%,#071e1900)!important;border:0!important;box-shadow:none!important}
-:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category] :is(h2,.setup-start,.gr-go,[data-category-back]){color:#fff5df!important;text-shadow:0 2px 3px #071e19,0 0 12px #071e19!important}
-@media(forced-colors:active){:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category],:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category]>header{background:Canvas!important;color:CanvasText!important}:root[data-ohana-season="thanksgiving"] body dialog.ohana-category-room[data-ohana-category] :is(h2,.setup-start,.gr-go,[data-category-back]){color:CanvasText!important;text-shadow:none!important}}
-}

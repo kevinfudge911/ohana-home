@@ -1,0 +1,13 @@
+const fs=require('fs');const [src,dst]=process.argv.slice(2);let s=fs.readFileSync(src,'utf8');function rep(a,b){if(s.split(a).length!==2)throw Error('Guard mismatch: '+a.slice(0,80));s=s.replace(a,b);}
+rep('// Existing draw handlers remain on their real piles; duplicate commands proxy clicks.','// Rummy uses the real, accessible piles directly. Gin retains its opening-choice shortcuts.');
+rep("for(const pile of root.querySelectorAll('[data-draw]')){const b=document.createElement('button');", "for(const pile of (g.state.mode==='rummy'?[]:root.querySelectorAll('[data-draw]'))){const b=document.createElement('button');");
+rep("b.textContent='Add';b.setAttribute('aria-label','Add selected cards to the public meld');","b.textContent='Add to meld';b.setAttribute('aria-label','Add selected cards to the public meld');");
+rep("add.textContent='Add';add.disabled=meldButtons.every(b=>b.disabled);","add.textContent='Add to meld';add.disabled=meldButtons.every(b=>b.disabled);");
+rep("<dt>Stock / Draw</dt><dd>The face-down pile. Draw takes its top card.</dd><dt>Discard / Take</dt><dd>The face-up pile. Take takes only its top card.</dd>","<dt>Draw pile</dt><dd>Tap the face-down pile to draw its top card.</dd><dt>Discard pile</dt><dd>Tap the face-up pile to take only its top card.</dd>");
+rep("Use Draw for the stock or Take for the top discard'+(gin?' after the opening choice above':'')", "'+(gin?'Use Draw for the stock or Take for the top discard after the opening choice above':'Tap the face-down pile for a new card, or the face-up pile for its top discard')");
+rep('Select your cards, then use <b>Add</b>.','Select your cards, then use <b>Add to meld</b>.');
+rep('Draw/Take → optional Meld/Add → Discard, unless you have already emptied your hand.', 'Tap a draw pile → optional Meld/Add to meld → Discard, unless you have already emptied your hand.');
+rep("${st.discard?card(st.discard):'<span class=\"shuffle-empty\">Empty</span>'}<strong>Take</strong>", "${st.discard?card(st.discard):'<span class=\"shuffle-empty\">Empty</span>'}<strong>Take</strong>${Number.isInteger(st.discardCount)&&st.discardCount>=0?'<small aria-hidden=\"true\">'+st.discardCount+'</small>':''}");
+rep('#game.rd-game .shuffle-stock small{font:800 16px Nunito', '#game.rd-game .shuffle-stock small,#game.rd-game .shuffle-discard small{font:800 16px Nunito');
+rep("${st.discard?'Take the top discard, '+shuffleCardLabel(st.discard):'Take the top discard, pile empty'}\" data-draw", "${st.discard?'Take the top discard, '+shuffleCardLabel(st.discard):'Take the top discard, pile empty'}${Number.isInteger(st.discardCount)&&st.discardCount>=0?', '+st.discardCount+' cards in discard pile':''}\" data-draw");
+fs.writeFileSync(dst,s);
