@@ -1,0 +1,69 @@
+
+<!-- DOMINO PREMIUM TILES + WORDS-STYLE BOARD START (2026-11-18) -->
+<style id="ohana-domino-premium-v1">
+/* OhanO DominO premium tiles + Words-style board (2026-11-18) */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-board{isolation:isolate!important}
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-board::before{content:""!important;display:block!important;position:absolute!important;z-index:0!important;inset:var(--dmx-top,58px) 7px 9px 7px!important;pointer-events:none!important;box-sizing:border-box!important;border:2px solid #d8b2ed!important;border-radius:17px!important;padding:4px!important;
+ background:repeating-linear-gradient(0deg,transparent 0 23px,rgba(64,118,104,.22) 23px 24px) content-box,repeating-linear-gradient(90deg,transparent 0 23px,rgba(64,118,104,.22) 23px 24px) content-box,linear-gradient(160deg,#eef7e6,#d5e9d0) content-box,linear-gradient(130deg,#67351d,#dc9e48 28%,#8e4724 62%,#f4c66d) padding-box!important;
+ box-shadow:0 5px 0 #603b70,0 7px 14px #132340,inset 0 0 0 4px rgba(255,236,190,.18)!important}
+:root.ohana-world[data-ohana-season=thanksgiving] body #app #game#game#game[data-game-type=domino] #board#board#board .domino-board::before{background:repeating-linear-gradient(0deg,transparent 0 23px,rgba(70,96,86,.20) 23px 24px) content-box,repeating-linear-gradient(90deg,transparent 0 23px,rgba(70,96,86,.20) 23px 24px) content-box,linear-gradient(rgba(255,248,226,.42),rgba(255,240,205,.30)) content-box,url(/ohana-word-harvest-scenery-v4.webp) 0 50%/auto 112% no-repeat content-box,linear-gradient(#e8bf7c,#e8bf7c) content-box,linear-gradient(130deg,#67351d,#dc9e48 28%,#8e4724 62%,#f4c66d) padding-box!important}
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-board::after{content:""!important;display:block!important;position:absolute!important;z-index:1!important;left:0!important;right:0!important;top:0!important;height:calc(var(--dmx-top,58px) + 70px)!important;pointer-events:none!important;background:var(--dmx-garland,none) 50% 0/100% auto no-repeat!important}
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-chain{z-index:2!important}
+
+/* ivory bone tile: thick slab, grain, bevel */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile,
+:root.ohana-world body .domino-drag-ghost.domino-drag-ghost{border:1px solid #e2cda2!important;border-radius:11px!important;
+ background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.95) 45%,transparent 60%) -260% 0/250% 100% no-repeat,radial-gradient(120% 75% at 28% 12%,rgba(255,255,255,.95),rgba(255,255,255,0) 58%),repeating-linear-gradient(97deg,rgba(150,112,64,.045) 0 1px,transparent 1px 5px,rgba(150,112,64,.03) 5px 6px,transparent 6px 11px),linear-gradient(160deg,#fffbf1 0%,#f7ebd3 52%,#e8d3ad 100%)!important;
+ box-shadow:inset 0 1px 0 #fff,inset 0 -3px 5px rgba(146,104,50,.30),inset 0 0 0 2px rgba(255,255,255,.35),0 2px 0 #cdb184,0 4px 0 #a5865a,0 7px 10px rgba(40,20,4,.45)!important}
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile.dmx-double,
+:root.ohana-world body .domino-drag-ghost.dmx-double{border-color:#d9ac4a!important;box-shadow:inset 0 1px 0 #fff,inset 0 -3px 5px rgba(146,104,50,.30),inset 0 0 0 2px rgba(232,186,84,.75),0 2px 0 #c9a25c,0 4px 0 #9a7438,0 7px 10px rgba(40,20,4,.45)!important}
+/* brass spinner */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile::before,
+:root.ohana-world body .domino-drag-ghost.domino-drag-ghost::before{width:9px!important;height:9px!important;background:radial-gradient(circle at 34% 30%,#fff7cf 0,#f0c75a 30%,#b7801f 62%,#6e4710 100%)!important;box-shadow:0 1px 1px rgba(60,35,5,.6),0 0 0 1px rgba(110,72,16,.35)!important;z-index:3!important}
+/* engraved divider */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile::after,
+:root.ohana-world body .domino-drag-ghost.domino-drag-ghost::after{background:#7e5e36!important;box-shadow:1px 0 0 rgba(255,255,255,.9),-1px 0 0 rgba(96,66,30,.25)!important;opacity:.85!important}
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile.vertical::after,
+:root.ohana-world body .domino-drag-ghost.vertical::after{box-shadow:0 1px 0 rgba(255,255,255,.9),0 -1px 0 rgba(96,66,30,.25)!important}
+/* hand rack: lift on legal */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-hand .domino-tile:disabled:not(.legal){filter:saturate(.75) brightness(.97)!important}
+/* placement shine sweep */
+:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile.just-played{animation:dmx-arrive .42s cubic-bezier(.2,.9,.3,1.25),dmx-shine .9s .25s ease-out both!important}
+@keyframes dmx-arrive{0%{scale:1.18;translate:0 -14px;opacity:.4}100%{scale:1;translate:0 0;opacity:1}}
+@keyframes dmx-shine{0%{background-position:-260% 0,0 0,0 0,0 0}100%{background-position:260% 0,0 0,0 0,0 0}}
+@media (prefers-reduced-motion:reduce){:root.ohana-world body #app #game#game#game[data-game-type=domino] #board#board#board .domino-tile.just-played{animation:none!important}}
+</style>
+<script id="ohana-domino-premium-v1-js">
+(function(){
+'use strict';
+if(window.ohanaDominoPremium)return;
+if(typeof dominoPipsFace!=='function'||typeof dominoTileFace!=='function'||typeof renderDomino!=='function'){window.ohanaDominoPremium={ok:false};return;}
+const L=[[],[[50,50]],[[25,25],[75,75]],[[25,25],[50,50],[75,75]],[[25,25],[75,25],[25,75],[75,75]],[[25,25],[75,25],[50,50],[25,75],[75,75]],[[25,22],[75,22],[25,50],[75,50],[25,78],[75,78]],[[25,22],[75,22],[25,50],[50,50],[75,50],[25,78],[75,78]],[[25,20],[75,20],[25,40],[75,40],[25,60],[75,60],[25,80],[75,80]],[[22,20],[78,20],[22,40],[78,40],[50,50],[22,60],[78,60],[22,80],[78,80]],[[25,15],[75,15],[25,32.5],[75,32.5],[25,50],[75,50],[25,67.5],[75,67.5],[25,85],[75,85]],[[22,15],[78,15],[22,32.5],[78,32.5],[22,50],[50,50],[78,50],[22,67.5],[78,67.5],[22,85],[78,85]],[[20,20],[50,20],[80,20],[20,40],[50,40],[80,40],[20,60],[50,60],[80,60],[20,80],[50,80],[80,80]],[[20,15],[50,15],[80,15],[20,32.5],[80,32.5],[20,50],[50,50],[80,50],[20,67.5],[80,67.5],[20,85],[50,85],[80,85]],[[20,15],[50,15],[80,15],[20,32.5],[50,32.5],[80,32.5],[20,50],[80,50],[20,67.5],[50,67.5],[80,67.5],[20,85],[50,85],[80,85]],[[20,15],[50,15],[80,15],[20,32.5],[50,32.5],[80,32.5],[20,50],[50,50],[80,50],[20,67.5],[50,67.5],[80,67.5],[20,85],[50,85],[80,85]]];
+const origPips=dominoPipsFace,origFace=dominoTileFace,origRender=renderDomino;
+let inlays=null;try{inlays=DOMINO_INLAYS;}catch{}
+const cache=new Map();
+function pips(value){const n=Math.max(0,Math.min(15,Number(value)||0));const hit=cache.get(n);if(hit)return hit;const theme=inlays&&inlays[n];if(!theme)return origPips(value);
+ const r=n>=10?7.4:n>=8?8.6:10.2,rw=(r*1.24).toFixed(2);
+ const art='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b3d1a" stop-opacity=".62"/><stop offset=".55" stop-color="#8a6a3e" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity=".95"/></linearGradient><radialGradient id="g" cx=".36" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".78"/><stop offset=".38" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#000" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></radialGradient></defs>'+L[n].map(([x,y])=>'<g transform="translate('+x+' '+y+')"><circle r="'+rw+'" fill="url(#w)"/><circle r="'+r+'" fill="'+theme.color+'"/><g transform="scale('+(r/10.5).toFixed(3)+')" opacity=".9">'+theme.icon+'</g><circle r="'+r+'" fill="url(#g)"/></g>').join('')+'</svg>';
+ const uri='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(art);
+ const out='<span class="domino-pips dmx-pips v'+n+' theme-'+theme.name+'"><svg viewBox="0 0 100 100" aria-hidden="true"><image href="'+uri+'" x="0" y="0" width="100" height="100"/></svg></span>';
+ cache.set(n,out);return out;}
+function face(t,attrs='',extra=''){const dbl=t&&t.a===t.b;return origFace(t,attrs,extra+(dbl?' dmx-double':''));}
+// clack when a new tile lands (not on first open of a table)
+let lastGame=null,lastPlayed=null,lastDrop=0;
+try{if(typeof AudioSys!=='undefined'&&typeof AudioSys.tileDrop==='function'){const td=AudioSys.tileDrop;AudioSys.tileDrop=function(){lastDrop=performance.now();return td.apply(this,arguments);};}}catch{}
+function muted(){try{if(typeof AudioSys==='undefined'||AudioSys.muted||localStorage.getItem('ohana_muted')==='true')return true;}catch{return true;}return false;}
+let noise=null;
+function clack(){if(muted()||performance.now()-lastDrop<450)return;try{const ctx=AudioSys.getCtx?.();if(!ctx||ctx.state!=='running')return;if(!noise){noise=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.06),ctx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);}
+ const t=ctx.currentTime+.01,out=ctx.createGain();out.gain.value=.22;out.connect(ctx.destination);
+ [[2600,0,.9],[1450,.045,.6]].forEach(([f,dt,v])=>{const s=ctx.createBufferSource(),b=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noise;b.type='bandpass';b.frequency.value=f*(.92+Math.random()*.16);b.Q.value=7;g.gain.setValueAtTime(v,t+dt);g.gain.exponentialRampToValueAtTime(.001,t+dt+.07);s.connect(b);b.connect(g);g.connect(out);s.start(t+dt);s.stop(t+dt+.08);});
+ setTimeout(()=>{try{out.disconnect();}catch{}},400);}catch{}}
+let garland=null;
+function dress(){const b=document.querySelector('#board .domino-board');if(!b)return;if(garland===null){try{const bg=getComputedStyle(b).backgroundImage||'';const m=bg.match(/url\((["']?)([^"')]*garland[^"')]*)\1\)/i);garland=m?'url("'+m[2]+'")':'';}catch{garland='';}}
+ if(garland)b.style.setProperty('--dmx-garland',garland);const r=b.getBoundingClientRect();b.style.setProperty('--dmx-top',Math.round(Math.max(10,Math.min(70,r.width*.15)))+'px');}
+function render(st,g){const res=origRender.apply(this,arguments);try{dress();const p=document.querySelector('#board .domino-tile.just-played');const id=p?p.getAttribute('data-board-tile'):null;const gid=g&&g.id;if(gid!==lastGame){lastGame=gid;lastPlayed=id;}else if(id&&id!==lastPlayed){lastPlayed=id;clack();}}catch{}return res;}
+try{dominoPipsFace=pips;dominoTileFace=face;renderDomino=render;}catch{window.ohanaDominoPremium={ok:false};return;}
+window.ohanaDominoPremium={ok:true,clack,get garland(){return garland;}};
+})();
+</script>
+<!-- DOMINO PREMIUM TILES + WORDS-STYLE BOARD END -->
