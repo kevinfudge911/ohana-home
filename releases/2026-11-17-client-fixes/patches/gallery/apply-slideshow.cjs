@@ -1,5 +1,0 @@
-const fs=require('fs');let s=fs.readFileSync(process.argv[2],'utf8');if(!s.includes("portraitSize=compact?'88px':'124px'"))throw Error('Expected released dock baseline');const replace=(a,b)=>{if(s.split(a).length!==2)throw Error('Anchor mismatch '+a.slice(0,80));s=s.replace(a,b)};
-replace("card.append(button);return card;","card.append(button);const directory=document.createElement('button');directory.type='button';directory.className='home-profile-directory-open';directory.textContent='Meet our Ohana · View profiles';directory.onclick=()=>{if(card.isConnected&&S.token===token&&S.me?.id===owner&&S.room===room)openOhanaProfileDirectory();};card.append(directory);return card;");
-replace('function mountHomeProfileCard(shelf){',fs.readFileSync(__dirname+'/directory.js','utf8')+'\nfunction mountHomeProfileCard(shelf){');
-replace('S.me = d.me; S.sync = d;', 'S.me = d.me; S.sync = d; window.dispatchEvent(new Event("ohana-profile-members-updated"));');
-replace('</head>','<style id="ohana-profile-visibility-style">'+fs.readFileSync(__dirname+'/style.css','utf8')+'</style></head>');fs.writeFileSync(process.argv[3],s);
