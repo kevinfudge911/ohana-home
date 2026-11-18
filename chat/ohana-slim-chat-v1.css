@@ -1,0 +1,35 @@
+:root body #ohana-chat-compose-host .ohana-speech > article{border:0!important;box-shadow:0 2px 10px rgba(0,0,0,.18)!important;border-radius:12px!important;padding:6px 8px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"head head" "prev prev" "body acts"!important;align-items:end!important;column-gap:4px!important;row-gap:2px!important;outline:0!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > header{grid-area:head!important;min-height:0!important;margin:0!important;padding:0!important;font-size:13px!important;line-height:16px!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > .speech-body{grid-area:body!important;min-width:0!important;margin:0!important;padding:0!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > .speech-actions{grid-area:acts!important;display:flex!important;align-items:center!important;gap:0!important;margin:0!important;padding:0!important;min-height:0!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button{min-height:34px!important;height:34px!important;min-width:32px!important;padding:0 6px!important;font-size:15px!important;border:0!important;box-shadow:none!important;background:transparent!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send]{width:36px!important;min-width:36px!important;padding:0!important;font-size:0!important;color:transparent!important;position:relative!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send]::before{content:""!important;position:absolute!important;inset:5px!important;border-radius:50%!important;background:#1d7fe0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 19V6M6 11l6-6 6 6' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/18px 18px no-repeat!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send][disabled]::before{opacity:.45!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-history{margin:0 0 2px!important;padding:0!important;border:0!important;max-height:30vh;overflow-y:auto!important;scrollbar-width:none!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-history > p:only-child,:root body #ohana-chat-compose-host .ohana-speech .speech-history > p:last-child:first-of-type{font-size:12px!important;line-height:14px!important;opacity:.6!important;margin:0!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-reply{margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important;display:flex!important;align-items:flex-end!important;gap:2px!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-reply textarea{flex:1 1 auto!important;min-width:0!important;width:auto!important;border:0!important;box-shadow:none!important;outline:0!important;border-radius:17px!important;background:rgba(0,0,0,.06)!important;min-height:34px!important;height:auto!important;max-height:96px!important;field-sizing:content!important;resize:none!important;padding:7px 12px!important;font-size:16px!important;line-height:20px!important;margin:0!important}
+:root body #ohana-chat-compose-host .ohana-speech.compose-editor > svg{display:none!important}
+#ohana-chat-compose-host .oc-tool{flex:0 0 auto;width:30px;height:34px;padding:0;margin:0;border:0;background:transparent;box-shadow:none;color:#1d7fe0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ohana-chat-compose-host .oc-tool svg{width:22px;height:22px}
+#ohana-chat-compose-host .oc-gif{font:800 11px/1 system-ui,sans-serif;letter-spacing:.3px}
+#ohana-chat-compose-host .oc-gif span{border:2px solid currentColor;border-radius:5px;padding:2px 3px}
+#ohana-chat-compose-host .oc-gif[aria-pressed="true"]{color:#0b4f96}
+#ohana-chat-compose-host .oc-tray{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:5;display:flex;flex-wrap:nowrap;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:4px 6px;background:rgb(255,249,233);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#ohana-chat-compose-host .oc-tray::-webkit-scrollbar{display:none}
+#ohana-chat-compose-host .oc-tray[hidden],#ohana-chat-compose-host .oc-prev[hidden]{display:none}
+#ohana-chat-compose-host .oc-tray button{flex:0 0 72px;width:72px;border:0;background:transparent;box-shadow:none;padding:0;margin:0;min-height:0;height:56px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px}
+#ohana-chat-compose-host .oc-tray button:active{background:rgba(0,0,0,.06)}
+#ohana-chat-compose-host .oc-tray canvas{width:70px;height:56px;pointer-events:none}
+#ohana-chat-compose-host .oc-tray .oc-mine{flex-direction:column;font:700 11px/1.1 system-ui,sans-serif;color:#1d7fe0;gap:2px}
+#ohana-chat-compose-host .oc-tray .oc-mine svg{width:24px;height:24px}
+#ohana-chat-compose-host .oc-prev{grid-area:prev;display:flex;align-items:center;gap:4px;padding:2px 0}
+#ohana-chat-compose-host .oc-prev img{max-height:64px;max-width:120px;border-radius:8px;object-fit:contain}
+#ohana-chat-compose-host .oc-prev button{border:0;background:transparent;box-shadow:none;min-height:0;height:28px;width:28px;padding:0;font-size:18px;line-height:1;color:#666;cursor:pointer}
+#ohana-chat-compose-host .oc-note{font:12px/14px system-ui,sans-serif;color:#b3261e}
+#ohana-chat-compose-host .oc-note.ok{color:#2e7d32}
+#ohana-chat-compose-host .speech-reply textarea::placeholder{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-height:500px){#ohana-chat-compose-host .oc-prev img{max-height:40px}}
+#ohana-chat-compose-host .oc-busy .oc-tool,#ohana-chat-compose-host .oc-busy [data-speech-send]{opacity:.45;pointer-events:none}
+:root body .ohana-speech.minimal.reading .speech-photo{height:auto!important;max-height:96px!important;max-width:160px!important;border-radius:8px}

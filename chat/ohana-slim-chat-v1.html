@@ -1,0 +1,154 @@
+<!-- OHANA SLIM CHAT START (2026-11-18) -->
+<style id="ohana-slim-chat-v1">
+:root body #ohana-chat-compose-host .ohana-speech > article{border:0!important;box-shadow:0 2px 10px rgba(0,0,0,.18)!important;border-radius:12px!important;padding:6px 8px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"head head" "prev prev" "body acts"!important;align-items:end!important;column-gap:4px!important;row-gap:2px!important;outline:0!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > header{grid-area:head!important;min-height:0!important;margin:0!important;padding:0!important;font-size:13px!important;line-height:16px!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > .speech-body{grid-area:body!important;min-width:0!important;margin:0!important;padding:0!important}
+:root body #ohana-chat-compose-host .ohana-speech > article > .speech-actions{grid-area:acts!important;display:flex!important;align-items:center!important;gap:0!important;margin:0!important;padding:0!important;min-height:0!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button{min-height:34px!important;height:34px!important;min-width:32px!important;padding:0 6px!important;font-size:15px!important;border:0!important;box-shadow:none!important;background:transparent!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send]{width:36px!important;min-width:36px!important;padding:0!important;font-size:0!important;color:transparent!important;position:relative!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send]::before{content:""!important;position:absolute!important;inset:5px!important;border-radius:50%!important;background:#1d7fe0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 19V6M6 11l6-6 6 6' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/18px 18px no-repeat!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-actions > button[data-speech-send][disabled]::before{opacity:.45!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-history{margin:0 0 2px!important;padding:0!important;border:0!important;max-height:30vh;overflow-y:auto!important;scrollbar-width:none!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-history > p:only-child,:root body #ohana-chat-compose-host .ohana-speech .speech-history > p:last-child:first-of-type{font-size:12px!important;line-height:14px!important;opacity:.6!important;margin:0!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-reply{margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important;display:flex!important;align-items:flex-end!important;gap:2px!important}
+:root body #ohana-chat-compose-host .ohana-speech .speech-reply textarea{flex:1 1 auto!important;min-width:0!important;width:auto!important;border:0!important;box-shadow:none!important;outline:0!important;border-radius:17px!important;background:rgba(0,0,0,.06)!important;min-height:34px!important;height:auto!important;max-height:96px!important;field-sizing:content!important;resize:none!important;padding:7px 12px!important;font-size:16px!important;line-height:20px!important;margin:0!important}
+:root body #ohana-chat-compose-host .ohana-speech.compose-editor > svg{display:none!important}
+#ohana-chat-compose-host .oc-tool{flex:0 0 auto;width:30px;height:34px;padding:0;margin:0;border:0;background:transparent;box-shadow:none;color:#1d7fe0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ohana-chat-compose-host .oc-tool svg{width:22px;height:22px}
+#ohana-chat-compose-host .oc-gif{font:800 11px/1 system-ui,sans-serif;letter-spacing:.3px}
+#ohana-chat-compose-host .oc-gif span{border:2px solid currentColor;border-radius:5px;padding:2px 3px}
+#ohana-chat-compose-host .oc-gif[aria-pressed="true"]{color:#0b4f96}
+#ohana-chat-compose-host .oc-tray{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:5;display:flex;flex-wrap:nowrap;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:4px 6px;background:rgb(255,249,233);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#ohana-chat-compose-host .oc-tray::-webkit-scrollbar{display:none}
+#ohana-chat-compose-host .oc-tray[hidden],#ohana-chat-compose-host .oc-prev[hidden]{display:none}
+#ohana-chat-compose-host .oc-tray button{flex:0 0 72px;width:72px;border:0;background:transparent;box-shadow:none;padding:0;margin:0;min-height:0;height:56px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px}
+#ohana-chat-compose-host .oc-tray button:active{background:rgba(0,0,0,.06)}
+#ohana-chat-compose-host .oc-tray canvas{width:70px;height:56px;pointer-events:none}
+#ohana-chat-compose-host .oc-tray .oc-mine{flex-direction:column;font:700 11px/1.1 system-ui,sans-serif;color:#1d7fe0;gap:2px}
+#ohana-chat-compose-host .oc-tray .oc-mine svg{width:24px;height:24px}
+#ohana-chat-compose-host .oc-prev{grid-area:prev;display:flex;align-items:center;gap:4px;padding:2px 0}
+#ohana-chat-compose-host .oc-prev img{max-height:64px;max-width:120px;border-radius:8px;object-fit:contain}
+#ohana-chat-compose-host .oc-prev button{border:0;background:transparent;box-shadow:none;min-height:0;height:28px;width:28px;padding:0;font-size:18px;line-height:1;color:#666;cursor:pointer}
+#ohana-chat-compose-host .oc-note{font:12px/14px system-ui,sans-serif;color:#b3261e}
+#ohana-chat-compose-host .oc-note.ok{color:#2e7d32}
+#ohana-chat-compose-host .speech-reply textarea::placeholder{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-height:500px){#ohana-chat-compose-host .oc-prev img{max-height:40px}}
+#ohana-chat-compose-host .oc-busy .oc-tool,#ohana-chat-compose-host .oc-busy [data-speech-send]{opacity:.45;pointer-events:none}
+:root body .ohana-speech.minimal.reading .speech-photo{height:auto!important;max-height:96px!important;max-width:160px!important;border-radius:8px}
+</style>
+<script id="ohana-slim-chat-v1-js">
+(function(){
+if(window.ohanaSlimChat)return;
+var d=document,HOST='ohana-chat-compose-host',MAXLEN=880000;
+var SVG_PIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>';
+/* ---------- tiny GIF encoder ---------- */
+var PAL=[];for(var r=0;r<6;r++)for(var g=0;g<7;g++)for(var b=0;b<6;b++)PAL.push([r*51,Math.round(g*42.5),b*51]);
+var TI=252,BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function quant(px,w,h){var o=new Uint8Array(w*h);for(var y=0;y<h;y++)for(var x=0;x<w;x++){var i=y*w+x,p=i*4,a=px[p+3];if(a<110){o[i]=TI;continue;}var t=BAY[(y&3)*4+(x&3)]/16-.47,k=a/255,R=px[p]*k+255*(1-k),G=px[p+1]*k+255*(1-k),B=px[p+2]*k+255*(1-k);var rr=Math.min(5,Math.max(0,Math.round(R/51+t))),gg=Math.min(6,Math.max(0,Math.round(G/42.5+t))),bb=Math.min(5,Math.max(0,Math.round(B/51+t)));o[i]=rr*42+gg*6+bb;}return o;}
+function lzw(px,out){var MIN=8,clear=256,eoi=257,size=9,next=258,dict=new Map(),cur=0,bits=0,buf=[];
+ function emit(c){cur|=c<<bits;bits+=size;while(bits>=8){buf.push(cur&255);cur>>>=8;bits-=8;}}
+ out.push(MIN);emit(clear);var pre=px[0];
+ for(var i=1;i<px.length;i++){var k=px[i],key=pre*256+k,v=dict.get(key);if(v!==undefined){pre=v;continue;}
+  emit(pre);
+  if(next===4096){emit(clear);dict=new Map();size=9;next=258;}else{if(next>=(1<<size))size++;dict.set(key,next++);}
+  pre=k;}
+ emit(pre);emit(eoi);if(bits>0)buf.push(cur&255);
+ for(var j=0;j<buf.length;j+=255){var n=Math.min(255,buf.length-j);out.push(n);for(var q=0;q<n;q++)out.push(buf[j+q]);}
+ out.push(0);}
+function gif(w,h,frames,delay){var o=[];function B(x){o.push(x&255)}function W(x){B(x);B(x>>8)}function S(t){for(var i=0;i<t.length;i++)B(t.charCodeAt(i))}
+ S('GIF89a');W(w);W(h);B(0xF7);B(TI);B(0);for(var i=0;i<256;i++){var c=PAL[i]||[255,255,255];B(c[0]);B(c[1]);B(c[2]);}
+ B(0x21);B(0xFF);B(11);S('NETSCAPE2.0');B(3);B(1);W(0);B(0);
+ frames.forEach(function(f){B(0x21);B(0xF9);B(4);B(0x09);W(delay);B(TI);B(0);B(0x2C);W(0);W(0);W(w);W(h);B(0);lzw(f,o);});
+ B(0x3B);return new Uint8Array(o);}
+/* ---------- stickers ---------- */
+var FONT='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif',EMO='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function words(c,t,x,y,size,color){c.font='900 '+size+'px '+FONT;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=Math.max(4,size/4);c.strokeStyle='#fff';c.strokeText(t,x,y);c.fillStyle=color;c.fillText(t,x,y);}
+function emo(c,e,x,y,size,rot,sc){c.save();c.translate(x,y);if(rot)c.rotate(rot);if(sc)c.scale(sc,sc);c.font=size+'px '+EMO;c.textAlign='center';c.textBaseline='middle';c.fillText(e,0,2);c.restore();}
+function dots(c,t,n,col,seed,fall){for(var i=0;i<n;i++){var s=(Math.sin(i*91.7+seed)*43758.5)%1;s=s<0?s+1:s;var x=10+s*130,y=fall?((s*120+t*120)%130)-5:60+Math.sin(t*6.283+i)*30;c.fillStyle=col[i%col.length];c.beginPath();c.arc(x,y,fall?2.5:2+(i%3),0,6.283);c.fill();}}
+function domino(c,x,y,a){c.save();c.translate(x,y);c.rotate(a);c.fillStyle='#fff';c.strokeStyle='#222';c.lineWidth=3;var w=30,h=58;c.beginPath();c.roundRect?c.roundRect(-w/2,-h/2,w,h,6):c.rect(-w/2,-h/2,w,h);c.fill();c.stroke();c.beginPath();c.moveTo(-w/2+4,0);c.lineTo(w/2-4,0);c.stroke();c.fillStyle='#222';[[-7,-20],[7,-8],[0,-14],[-7,8],[7,8],[-7,20],[7,20]].forEach(function(p){c.beginPath();c.arc(p[0],p[1],3,0,6.283);c.fill();});c.restore();}
+var T=6.283;
+var STICKERS=[
+ {n:'LOL',f:function(c,t){emo(c,'\u{1F602}',75,44,52,Math.sin(t*T*2)*.25);words(c,'LOL',75,98,28,'#e0457b');}},
+ {n:'Nice play',f:function(c,t){emo(c,'\u{1F44D}',75,44,50,0,1+Math.sin(t*T)*.12);dots(c,t,10,['#ffc400','#ff6f00','#29b6f6'],3);words(c,'Nice play!',75,98,22,'#1d7fe0');}},
+ {n:'Domino',f:function(c,t){var u=Math.abs(Math.sin(t*T/2));domino(c,75,44-u*10,Math.sin(t*T)*.35);words(c,'Domino!',75,98,26,'#2e7d32');}},
+ {n:'Your turn',f:function(c,t){emo(c,'\u{1F449}',48+Math.sin(t*T)*10,46,46);emo(c,'\u{1F3B2}',108,46,36,t*T);words(c,'Your turn',75,98,24,'#6a1b9a');}},
+ {n:'Good game',f:function(c,t){emo(c,'\u{1F3C6}',75,44-Math.abs(Math.sin(t*T))*10,50);dots(c,t,12,['#ffd54f','#fff176','#ffb300'],7);words(c,'Good game',75,98,24,'#c77700');}},
+ {n:'Oops',f:function(c,t){emo(c,'\u{1F648}',75,44,50,Math.sin(t*T*2)*.18);words(c,'Oops!',75,98,28,'#ef6c00');}},
+ {n:'Woo hoo',f:function(c,t){emo(c,'\u{1F389}',75,46-Math.abs(Math.sin(t*T))*12,50);dots(c,t,24,['#e91e63','#ffc107','#4caf50','#2196f3'],11,true);words(c,'Woo hoo!',75,98,26,'#d81b60');}},
+ {n:'Hurry up',f:function(c,t){emo(c,'\u{23F0}',75,44,48,Math.sin(t*T*4)*.2);words(c,'Hurry up!',75,98,24,'#c62828');}},
+ {n:'Love you',f:function(c,t){var s=1+Math.max(0,Math.sin(t*T*2))*.18;emo(c,'\u{2764}\u{FE0F}',75,44,48,0,s);words(c,'Love you',75,98,24,'#d32f2f');}},
+ {n:'No way',f:function(c,t){emo(c,'\u{1F62E}',75,44,48,0,.8+((t*2)%1)*.3);words(c,'No way!',75,98,26,'#5d4037');}},
+ {n:'Hmm',f:function(c,t){emo(c,'\u{1F914}',75,44,50,Math.sin(t*T)*.08);words(c,'Hmm'+('...'.slice(0,Math.floor(t*4)%4)),75,98,26,'#455a64');}},
+ {n:'Too easy',f:function(c,t){emo(c,'\u{1F60E}',75,44+Math.sin(t*T)*5,50);words(c,'Too easy',75,98,24,'#00838f');}},
+ {n:'Hi',f:function(c,t){emo(c,'\u{1F44B}',75,44,52,Math.sin(t*T*2)*.4);words(c,'Hi!',75,98,30,'#1d7fe0');}},
+ {n:'Zzz',f:function(c,t){emo(c,'\u{1F634}',62,52,48);c.globalAlpha=1-t;words(c,'Z',100+t*14,40-t*26,18+t*10,'#5c6bc0');c.globalAlpha=1;words(c,'Zzz...',75,98,24,'#5c6bc0');}},
+ {n:'Merry CHRISTmas',f:function(c,t){emo(c,'\u{1F384}',75,42,50);dots(c,t,26,['#ffffff','#e3f2fd'],5,true);words(c,'Merry',75,86,18,'#c62828');words(c,'CHRISTmas',75,106,18,'#2e7d32');}},
+ {n:'Happy Thanksgiving',f:function(c,t){emo(c,'\u{1F64F}',75,42,46);for(var i=0;i<6;i++){var x=15+i*24,y=((t*130+i*37)%130)-6;emo(c,'\u{1F342}',x,y,14,t*T+i);}words(c,'Happy',75,86,18,'#bf5b04');words(c,'Thanksgiving',75,106,18,'#8d4004');}}
+];
+var W=150,H=120,FR=12;
+function makeGif(s){var cv=d.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d',{willReadFrequently:true}),fr=[];for(var i=0;i<FR;i++){c.clearRect(0,0,W,H);s.f(c,i/FR);fr.push(quant(c.getImageData(0,0,W,H).data,W,H));}var bytes=gif(W,H,fr,8),bin='';for(var j=0;j<bytes.length;j+=8192)bin+=String.fromCharCode.apply(null,bytes.subarray(j,j+8192));return 'data:image/gif;base64,'+btoa(bin);}
+/* ---------- photos ---------- */
+function readUrl(file){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result)};r.onerror=no;r.readAsDataURL(file);});}
+function loadImg(src){return new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=src;});}
+async function prepare(file){
+ if(!file||!/^image\//.test(file.type||'image/'))throw Error('Pick a picture or GIF.');
+ var url=await readUrl(file);
+ if(/^data:image\/gif;base64,/.test(url)&&url.length<=MAXLEN)return url;
+ var img=await loadImg(url),max=1280,q=.84;
+ for(var k=0;k<8;k++){var s=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),cv=d.createElement('canvas');cv.width=Math.max(1,Math.round(img.naturalWidth*s));cv.height=Math.max(1,Math.round(img.naturalHeight*s));var c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);c.drawImage(img,0,0,cv.width,cv.height);var out=cv.toDataURL('image/jpeg',q);if(out.length<=MAXLEN)return out;max=Math.round(max*.8);q=Math.max(.6,q-.06);}
+ throw Error('That picture is too big.');
+}
+/* ---------- compose wiring ---------- */
+var pending=null;
+function host(){return d.getElementById(HOST);}
+function art(){var h=host();return h&&h.querySelector('.ohana-speech > article');}
+function note(msg,ok){var a=art();if(!a)return;var p=a.querySelector('.oc-prev');var n=a.querySelector('.oc-note');if(!msg){if(n)n.remove();return;}if(!n){n=d.createElement('div');n.className='oc-note';n.style.gridArea='prev';a.appendChild(n);}n.className='oc-note'+(ok?' ok':'');n.textContent=msg;if(p&&!p.hidden)p.appendChild(n);clearTimeout(note.t);note.t=setTimeout(function(){var m=art()&&art().querySelector('.oc-note');if(m)m.remove();},ok?1600:5000);}
+function showPrev(){var a=art();if(!a)return;var p=a.querySelector('.oc-prev');if(!p)return;p.innerHTML='';if(!pending){p.hidden=true;return;}var im=d.createElement('img');im.src=pending;im.alt='Picture to send';var x=d.createElement('button');x.type='button';x.textContent='×';x.setAttribute('aria-label','Remove picture');x.onclick=function(){pending=null;showPrev();};p.append(im,x);p.hidden=false;}
+async function send(image){
+ var h=host(),a=art();if(!h||!a)return;var target=h.__ohanaTarget;
+ if(!target||typeof window.api!=='function'){note('Picture sending is updating. Close and reopen the chat.');return;}
+ var ta=a.querySelector('.speech-reply textarea'),text=ta?String(ta.value||'').trim():'';
+ if(text.length>2000){note('Keep it under 2,000 letters.');return;}
+ a.classList.add('oc-busy');
+ try{await window.api('/api/chat-v2',{action:'send',scope:target,text:text,image:image,clientId:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2))});
+  pending=null;showPrev();if(ta){ta.value='';ta.dispatchEvent(new Event('input',{bubbles:true}));}
+  var tray=a.querySelector('.oc-tray');if(tray)closeTray(tray);
+  if(target.kind!=='direct'){var x=a.querySelector('[data-speech-toggle]');if(x){x.click();return;}}
+  note('Sent',true);
+ }catch(e){note((e&&e.message)||'Not sent. Try again.');}
+ finally{a.classList.remove('oc-busy');}
+}
+var anim=0;
+function closeTray(tray){tray.hidden=true;cancelAnimationFrame(anim);var b=art()&&art().querySelector('.oc-gif');if(b)b.setAttribute('aria-pressed','false');}
+function openTray(tray){
+ if(!tray.firstChild){
+  var mine=d.createElement('button');mine.type='button';mine.className='oc-mine';mine.innerHTML=SVG_PIC+'<span>My GIFs</span>';mine.setAttribute('aria-label','Send a GIF from your phone');mine.onclick=function(){pick('image/gif,image/*');};tray.appendChild(mine);
+  STICKERS.forEach(function(s){var b=d.createElement('button');b.type='button';b.setAttribute('aria-label','Send '+s.n+' GIF');var cv=d.createElement('canvas');cv.width=W;cv.height=H;b.appendChild(cv);b.onclick=function(){try{send(makeGif(s));}catch(e){note('That GIF did not work. Try another.');}};tray.appendChild(b);});
+ }
+ tray.hidden=false;var b=art()&&art().querySelector('.oc-gif');if(b)b.setAttribute('aria-pressed','true');
+ var start=performance.now();cancelAnimationFrame(anim);
+ (function loop(now){if(tray.hidden||!tray.isConnected)return;var t=((now-start)/1000/.96)%1;var cs=tray.querySelectorAll('canvas');for(var i=0;i<cs.length;i++){var c=cs[i].getContext('2d');c.clearRect(0,0,W,H);STICKERS[i].f(c,t);}anim=requestAnimationFrame(loop);})(start);
+}
+var input=null;
+function pick(accept){if(!input){input=d.createElement('input');input.type='file';input.style.display='none';input.onchange=async function(){var f=input.files&&input.files[0];input.value='';if(!f)return;try{pending=await prepare(f);showPrev();var t=art()&&art().querySelector('.oc-tray');if(t)closeTray(t);var ta=art()&&art().querySelector('.speech-reply textarea');if(ta)ta.focus({preventScroll:true});}catch(e){note(e.message||'That picture did not work.');}};d.body.appendChild(input);}input.accept=accept;input.click();}
+function size(t){if(t.getAttribute('rows')!=='1')t.setAttribute('rows','1');t.style.setProperty('height','auto','important');var h=Math.min(96,Math.max(34,t.scrollHeight));t.style.setProperty('height',h+'px','important');}
+function wire(){
+ var a=art();if(!a)return;
+ var rep=a.querySelector('.speech-reply'),ta=rep&&rep.querySelector('textarea');
+ if(ta){size(ta);if(!rep.querySelector('.oc-pic')){var p=d.createElement('button');p.type='button';p.className='oc-tool oc-pic';p.innerHTML=SVG_PIC;p.setAttribute('aria-label','Send a picture');p.onclick=function(){pick('image/*');};var g=d.createElement('button');g.type='button';g.className='oc-tool oc-gif';g.innerHTML='<span>GIF</span>';g.setAttribute('aria-label','Send a GIF');g.setAttribute('aria-pressed','false');g.onclick=function(){var tr=a.querySelector('.oc-tray');if(!tr)return;if(tr.hidden)openTray(tr);else closeTray(tr);};rep.insertBefore(g,ta);rep.insertBefore(p,g);}}
+ if(!a.querySelector(':scope > .oc-tray')){var tr=d.createElement('div');tr.className='oc-tray';tr.hidden=true;a.appendChild(tr);}
+ if(!a.querySelector(':scope > .oc-prev')){var pv=d.createElement('div');pv.className='oc-prev';pv.hidden=true;a.appendChild(pv);if(pending)showPrev();}
+}
+d.addEventListener('input',function(e){var t=e.target;if(t&&t.matches&&t.matches('#'+HOST+' textarea'))size(t);},true);
+d.addEventListener('focusin',function(e){var t=e.target;if(t&&t.matches&&t.matches('#'+HOST+' textarea'))size(t);},true);
+d.addEventListener('paste',async function(e){var t=e.target;if(!t||!t.closest||!t.closest('#'+HOST))return;var items=(e.clipboardData&&e.clipboardData.files)||[];var f=items[0];if(!f||!/^image\//.test(f.type))return;e.preventDefault();try{pending=await prepare(f);showPrev();}catch(x){note(x.message||'That picture did not work.');}},true);
+d.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#'+HOST+' [data-speech-send]');if(!b||!pending)return;e.preventDefault();e.stopImmediatePropagation();send(pending);},true);
+d.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.shiftKey||!pending)return;var t=e.target;if(t&&t.matches&&t.matches('#'+HOST+' textarea')){e.preventDefault();e.stopImmediatePropagation();send(pending);}},true);
+var mo=new MutationObserver(function(){if(!host()){pending=null;return;}wire();});
+mo.observe(d.body,{childList:true,subtree:false});
+var hmo=null,last=null;
+setInterval(function(){var h=host();if(h&&h!==last){last=h;if(hmo)hmo.disconnect();hmo=new MutationObserver(wire);hmo.observe(h,{childList:true,subtree:true});wire();}if(!h&&last){last=null;pending=null;if(hmo)hmo.disconnect();}},500);
+window.ohanaSlimChat={wire:wire,makeGif:function(i){return makeGif(STICKERS[i||0]);},stickers:STICKERS.length,prepare:prepare};
+})();
+</script>
+<!-- OHANA SLIM CHAT END -->
