@@ -1,4 +1,0 @@
-/* Presentation-only seasonal additions. Preserve faith text, private scenery and player controls. */
-:root[data-ohana-season="thanksgiving"] #faith .faith-hero{background-image:url('/ohana-harvest-garland-v1.webp');background-repeat:no-repeat;background-position:center top;background-size:100% auto}
-:root[data-ohana-season="thanksgiving"] #faith .faith-hero :is(h1,small,.faith-tag){text-shadow:0 2px 4px #3c2019}
-:root[data-ohana-season="thanksgiving"] [data-private-ohana-room]{background-image:url('/ohana-harvest-garland-v1.webp');background-repeat:no-repeat;background-position:center top;background-size:100% auto}

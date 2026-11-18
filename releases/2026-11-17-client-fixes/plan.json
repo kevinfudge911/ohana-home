@@ -1,13 +1,14 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "b974a0a827cc34d014703e975316e50279df74bceecdc567514b08c028774a88",
-  "outputModuleFingerprint": "baf962376cde5533db75c67725eeb333394d10c0444d091a315fc3436a0d59cf",
-  "baseAppSha": "153e5a67b4e60c8910cdf5f4d462c918d083fc69264278331eb66871c3c88955",
-  "outputAppSha": "76ba96a2667817a6209aa16e5a4e6f137f086a8885d8c70599b5b9f13a4831e0",
-  "outputPackedSha": "3c739504d38fb0cacbc090af4b7f8a7d49ef0fc7660cd020bfdc7a2c7ea30db7",
+  "baseModuleFingerprint": "baf962376cde5533db75c67725eeb333394d10c0444d091a315fc3436a0d59cf",
+  "outputModuleFingerprint": "686a16243583123cd38bfe16ff11fc885c7c8906116bdd966d8c57ddc0bdf06b",
+  "baseAppSha": "76ba96a2667817a6209aa16e5a4e6f137f086a8885d8c70599b5b9f13a4831e0",
+  "outputAppSha": "589f280aa9ebe99662b9f7d4926b035e3efa169fc2726b33e49e106f77012ba6",
+  "outputPackedSha": "b087b13f444921ff8d69834a0344f1fe5211e8837ad6982e8b25ab8ab6b590c9",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/special/apply.cjs"
+    "patches/rummy/apply.cjs",
+    "patches/chess/apply.cjs"
   ]
 }
