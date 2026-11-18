@@ -1,0 +1,22 @@
+<!-- OHANA AUTO UPDATE START (2026-11-18) -->
+<script id="ohana-auto-update-v1">
+(function(){
+'use strict';
+if(window.ohanaAutoUpdate)return;
+// When Kevin comes back to the app and a newer version is live, quietly load it. Never while typing or a dialog is open.
+let base=null,newer=null,last=0,hiddenAt=0,busyWait=0;
+const KEY='ohana_auto_update_at';
+async function build(){try{const r=await fetch('/__ohana-build',{cache:'no-store',credentials:'omit'});if(!r.ok)return null;const t=(await r.text()).trim();return /^[0-9a-z-]{4,40}$/.test(t)?t:null;}catch(e){return null;}}
+function busy(){try{const a=document.activeElement;if(a&&a!==document.body&&a.matches&&a.matches('input,textarea,select,[contenteditable],[contenteditable=true]'))return true;if([...document.querySelectorAll('dialog[open],[aria-modal="true"]')].some(e=>e.offsetWidth||e.offsetHeight))return true;if(window.speechSynthesis&&window.speechSynthesis.speaking)return true;}catch(e){}return false;}
+function recently(){try{return Date.now()-Number(sessionStorage.getItem(KEY)||0)<120000;}catch(e){return false;}}
+function swUpdate(){try{navigator.serviceWorker&&navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});}catch(e){}}
+function reload(){if(recently())return;try{sessionStorage.setItem(KEY,String(Date.now()));}catch(e){}swUpdate();location.reload();}
+async function check(returning){if(document.hidden)return;const now=Date.now();if(!returning&&now-last<240000)return;last=now;const b=await build();if(!b)return;if(!base){base=b;return;}if(b!==base)newer=b;if(newer&&returning){if(busy()){busyWait=1;return;}reload();}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=Date.now();return;}swUpdate();check(hiddenAt&&Date.now()-hiddenAt>4000);});
+addEventListener('pageshow',e=>{if(e.persisted)check(true);});
+setInterval(()=>{if(!document.hidden){check(false);if(busyWait&&newer&&!busy()&&document.visibilityState==='visible'){busyWait=0;}}},60000);
+check(false);
+window.ohanaAutoUpdate={get snapshot(){return{base,newer,last};},check:()=>check(false)};
+})();
+</script>
+<!-- OHANA AUTO UPDATE END -->
