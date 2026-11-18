@@ -1,0 +1,3 @@
+/* Shadow-local decoration sits with scenery, never in front of interactive jukebox. */
+:host([data-ohana-season="thanksgiving"]) .portrait-room::after{content:'';position:absolute;inset:0;pointer-events:none;background:url('/ohana-harvest-garland-v1.webp') center top/100% auto no-repeat}
+:host([data-ohana-season="thanksgiving"]) .full .tunes-reader.tunes-modern.tunes-playdium{background-color:#542f23!important}
