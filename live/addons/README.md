@@ -30,3 +30,9 @@ Light animation for games that had none, wired as `ohanaAddOAN` (outermost in th
 ## ocf-card-faces.css update (857c026a)
 Ohana 10 cards get the same light hologram face and big, haloed numbers (draw pile back left alone).
 The end-of-game box (`#game .winbox`) sits above the board, so Memory's "It's a tie! / Play again" box is no longer hidden.
+
+## ohana-joke.html (ohanaAddJoke0, live 91891edc, Nov 18 2026 12:10 PM CT)
+The joke pop-up's own code (the string inside `ohanaAddJoke0` in the live worker.js).
+- Shows one joke only when the app first opens (once per visit, kept in sessionStorage `ohana-joke-session`). No joke between games, on coming back to the app, or after a self-update reload. The New button still gives another joke on request.
+- Thanksgiving jokes until Thanksgiving, CHRISTmas jokes after, everyday jokes otherwise; no repeats until the list runs out (localStorage `ohana-joke-seen:*`).
+- Self-update: checks the page stamp and reloads to the newest version when the app is in the background.

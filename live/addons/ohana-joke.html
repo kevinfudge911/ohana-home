@@ -1,0 +1,217 @@
+<style id="ohana-joke-css">
+#ohanaJoke{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 32vh);transform:translateX(-50%);z-index:2147483000;width:min(340px,calc(100vw - 32px));background:rgba(14,59,71,.97);color:#fff4d3;border:1px solid rgba(255,219,121,.55);border-radius:14px;padding:10px 14px 9px;box-shadow:0 8px 24px rgba(0,0,0,.45);font-family:Nunito,system-ui,sans-serif;animation:ohanaJokeIn .25s ease-out}
+#ohanaJoke .oj-t{font:600 12px Fredoka,Nunito,sans-serif;color:#ffdb79;letter-spacing:.3px;margin:0 0 4px}
+#ohanaJoke .oj-q{font-size:15px;line-height:1.35;margin:0}
+#ohanaJoke .oj-a{font-size:15px;line-height:1.35;margin:4px 0 0;color:#ffdb79;font-style:italic}
+#ohanaJoke .oj-b{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+#ohanaJoke button{font:600 13px Fredoka,Nunito,sans-serif;color:#fff4d3;background:transparent;border:1px solid rgba(255,219,121,.6);border-radius:999px;padding:3px 12px;min-height:0;line-height:1.4;cursor:pointer}
+#ohanaJoke button.oj-ok{background:#ffdb79;color:#0e3b47;border-color:#ffdb79}
+@keyframes ohanaJokeIn{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+<script id="ohana-joke-js">
+(function(){
+  if (window.__ohanaJokeOn) return; window.__ohanaJokeOn = 1;
+  try { if (window.top !== window) return; } catch (e) { return; }
+  var T = [
+    ["Why did the turkey join the band?","Because it had the drumsticks."],
+    ["What do you call a running turkey?","Fast food."],
+    ["Why did the cranberries turn red?","They saw the turkey dressing."],
+    ["What did the turkey say to the computer?","Google, google, google."],
+    ["Why can't you take a turkey to church?","Because it uses fowl language."],
+    ["What's a turkey's favorite dessert?","Peach gobbler."],
+    ["What do you get when you cross a turkey with a banjo?","A turkey that can pluck itself."],
+    ["Why did the pie go to the dentist?","It needed a filling."],
+    ["What did the mama turkey say to her kids?","If your father could see you now, he'd turn over in his gravy."],
+    ["What sound does a turkey's phone make?","Wing, wing."],
+    ["Why was the turkey invited to the party?","He was a good gobbler."],
+    ["What's the key to a great Thanksgiving dinner?","The turkey."],
+    ["Why did the turkey cross the road?","To prove he wasn't chicken."],
+    ["What did the sweet potato say to the pumpkin pie?","You're the apple of my pie."],
+    ["What do you call a turkey on the day after Thanksgiving?","Lucky."],
+    ["Why do pilgrims' pants keep falling down?","Their belt buckles are on their hats."],
+    ["What did the Pilgrims wear to the first Thanksgiving?","Harvest moon boots."],
+    ["What kind of music did the Pilgrims like?","Plymouth Rock."],
+    ["If April showers bring May flowers, what do May flowers bring?","Pilgrims."],
+    ["Why did the gravy boat go to school?","To get a little saucier."],
+    ["What's the best thing to put in a pumpkin pie?","Your fork."],
+    ["Why did the police arrest the turkey?","They suspected fowl play."],
+    ["What do turkeys give thanks for on Thanksgiving?","Vegetarians."],
+    ["What did one green bean say to the other?","We make a great casserole."],
+    ["How does a turkey stay in shape?","Lots of drumstick exercises."],
+    ["What do you call a turkey that can't stop eating?","A gobble-holic."],
+    ["Why are pumpkins so good at gardening?","They have a lot of patch experience."],
+    ["Why did the turkey refuse dessert?","He was already stuffed."],
+    ["What happened when the turkey got in a fight?","He got the stuffing knocked out of him."],
+    ["What's the most musical part of a turkey?","The drumstick."],
+    ["What do you call the age of a pumpkin pie?","Pi-age."],
+    ["Why did the mashed potatoes get the lead role?","They were a smash hit."],
+    ["What did the corn say when it got complimented?","Aw, shucks."],
+    ["What's a scarecrow's favorite Thanksgiving dish?","Straw-berry pie."],
+    ["Why did the scarecrow win an award?","He was outstanding in his field."],
+    ["How did the turkey feel after dinner?","Gobbled up."],
+    ["What did the leaf say to the wind?","Leaf me alone, I'm falling for you."],
+    ["Why don't turkeys ever get invited out?","They always gobble the conversation."],
+    ["What's orange and sounds like a parrot?","A carrot."],
+    ["What did the turkey say before it was roasted?","Boy, I'm stuffed."],
+    ["Why did the roll go to the party?","It heard there'd be butter company."],
+    ["What do you get if you cross a turkey with an octopus?","Enough drumsticks for the whole Ohana."],
+    ["Why did the family bring a ladder to dinner?","They heard the pie was on the house."],
+    ["How do you fix a broken pumpkin?","With a pumpkin patch."],
+    ["What did the plate say to the fork?","Dinner's on me."],
+    ["What did baby corn say to mama corn?","Where's pop corn?"],
+    ["What's the best dance to do on Thanksgiving?","The turkey trot."],
+    ["Why did Honu bring a pie to the beach?","He wanted a little shell-ebration."],
+    ["Why did the stuffing blush?","It saw the turkey's dressing."],
+    ["Who isn't hungry on Thanksgiving?","The turkey, because he's already stuffed."],
+    ["What did the pumpkin say after Thanksgiving?","Thank gourd that's over."],
+    ["Why did the potato cross the road?","It saw a fork up ahead."]
+  ];
+  var C = [
+    ["What do snowmen eat for breakfast?","Frosted Flakes."],
+    ["Why was the CHRISTmas tree so bad at knitting?","It kept dropping its needles."],
+    ["What do you call a snowman with a six-pack?","An abdominal snowman."],
+    ["What do elves learn in school?","The elf-abet."],
+    ["Why did the gingerbread man go to the doctor?","He was feeling crummy."],
+    ["How does a snowman get around?","By riding an icicle."],
+    ["What's every parent's favorite CHRISTmas carol?","Silent Night."],
+    ["Why are CHRISTmas trees good at sewing?","They always have their needles handy."],
+    ["What do you get when you cross a snowman and a dog?","Frostbite."],
+    ["What did the stamp say to the CHRISTmas card?","Stick with me and we'll go places."],
+    ["Why did the snowman call his dog Frost?","Because Frost bites."],
+    ["What do you call an elf who sings?","A wrapper."],
+    ["What goes Oh, Oh, Oh?","Santa walking backwards."],
+    ["How do sheep say Merry CHRISTmas?","Fleece Navidad."],
+    ["What's a snowman's favorite drink?","Iced tea."],
+    ["Why is it so cold at CHRISTmas?","Because it's in Decembrrrr."],
+    ["What do you call a cat on the beach at CHRISTmas?","Sandy Claws."],
+    ["Why don't you ever see Santa in the hospital?","He has private elf care."],
+    ["What did the CHRISTmas tree say to the ornament?","Aren't you tired of hanging around?"],
+    ["How do snowmen say hello?","Ice to meet you."],
+    ["Why was the snowman looking through the carrots?","He was picking his nose."],
+    ["What do reindeer hang on their CHRISTmas trees?","Horn-aments."],
+    ["What's red, white and blue at CHRISTmas?","A sad candy cane."],
+    ["What did the gingerbread man put on his bed?","A cookie sheet."],
+    ["What kind of motorcycle does Santa ride?","A Holly Davidson."],
+    ["Why does Santa have three gardens?","So he can hoe, hoe, hoe."],
+    ["What do you call a broke Santa?","Saint Nickel-less."],
+    ["Which of Santa's reindeer has the worst manners?","Rude-olph."],
+    ["What does a snowman eat for lunch?","An iceberger."],
+    ["What do you call a kid who doesn't believe in Santa?","A rebel without a Claus."],
+    ["What do you get if you eat CHRISTmas decorations?","Tinsel-itis."],
+    ["Why did Honu put a bow on his shell?","He wanted to be wrapped up for CHRISTmas."],
+    ["What do angry mice send at CHRISTmas?","Cross-mouse cards."],
+    ["What's the best CHRISTmas present?","A broken drum. You can't beat it."],
+    ["What did Adam say the day before CHRISTmas?","It's CHRISTmas, Eve."],
+    ["How does a penguin build its house?","Igloos it together."],
+    ["What do you call a reindeer with no eyes?","No eye deer."]
+  ];
+  var E = [
+    ["Why don't eggs tell jokes?","They'd crack each other up."],
+    ["What do you call a sleeping bull?","A bulldozer."],
+    ["Why did the math book look sad?","It had too many problems."],
+    ["What do you call a fish with no eyes?","A fsh."],
+    ["Why can't a bicycle stand up by itself?","It's two tired."],
+    ["What do you call a bear with no teeth?","A gummy bear."],
+    ["Why did the cookie go to the nurse?","It felt crummy."],
+    ["What did the ocean say to the beach?","Nothing, it just waved."],
+    ["What has ears but can't hear?","A cornfield."],
+    ["Why did the golfer bring two pairs of pants?","In case he got a hole in one."],
+    ["What do you call a dinosaur that's sleeping?","A dino-snore."],
+    ["What did the left eye say to the right eye?","Between you and me, something smells."],
+    ["Why did the banana go to the doctor?","It wasn't peeling well."],
+    ["What do you call a pig that does karate?","A pork chop."],
+    ["Why was the broom late?","It over-swept."],
+    ["How do you make a tissue dance?","Put a little boogie in it."],
+    ["What did the grape do when it got stepped on?","It let out a little whine."],
+    ["Why do bees have sticky hair?","They use honeycombs."],
+    ["What did one wall say to the other?","I'll meet you at the corner."],
+    ["Why did the kid bring a ladder to school?","To go to high school."],
+    ["What do you call cheese that isn't yours?","Nacho cheese."],
+    ["Why did Honu cross the playground?","To get to the other slide."],
+    ["What kind of tree fits in your hand?","A palm tree."],
+    ["What's brown and sticky?","A stick."],
+    ["Why are frogs so happy?","They eat whatever bugs them."],
+    ["What did the zero say to the eight?","Nice belt."],
+    ["How do you catch a squirrel?","Climb a tree and act like a nut."],
+    ["Why did the tomato blush?","It saw the salad dressing."],
+    ["What do you call a boomerang that won't come back?","A stick."]
+  ];
+  function ctParts(){
+    try {
+      var p = new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date());
+      var o = {}; p.forEach(function(x){ o[x.type] = +x.value; }); return o;
+    } catch(e){ var d = new Date(); return {year:d.getFullYear(),month:d.getMonth()+1,day:d.getDate()}; }
+  }
+  function season(){
+    var t = ctParts(), y = t.year, m = t.month, d = t.day;
+    var first = new Date(y,10,1).getDay();
+    var tg = 1 + ((4 - first + 7) % 7) + 21;
+    if (m === 11 && d <= tg) return {k:'tg',title:'Thanksgiving joke',list:T};
+    if ((m === 11 && d > tg) || (m === 12 && d <= 25)) return {k:'cm',title:'CHRISTmas joke',list:C};
+    return {k:'ev',title:'Joke of the day',list:E};
+  }
+  function pick(s){
+    var key = 'ohana-joke-seen:' + s.k, seen = [];
+    try { seen = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+    if (!Array.isArray(seen) || seen.length >= s.list.length) seen = [];
+    var left = []; for (var i = 0; i < s.list.length; i++) if (seen.indexOf(i) < 0) left.push(i);
+    var last = -1; try { last = +localStorage.getItem('ohana-joke-last:' + s.k); } catch(e) {}
+    if (left.length > 1) left = left.filter(function(i){ return i !== last; });
+    var n = left[Math.floor(Math.random() * left.length)];
+    seen.push(n);
+    try { localStorage.setItem(key, JSON.stringify(seen)); localStorage.setItem('ohana-joke-last:' + s.k, String(n)); } catch(e) {}
+    return s.list[n];
+  }
+  function close(){ var b = document.getElementById('ohanaJoke'); if (b) b.remove(); document.removeEventListener('pointerdown', outside, true); }
+  function outside(ev){ var b = document.getElementById('ohanaJoke'); if (b && !b.contains(ev.target)) close(); }
+  function show(){
+    if (!document.body) return;
+    var s = season(), j = pick(s), b = document.getElementById('ohanaJoke');
+    if (!b) {
+      b = document.createElement('div'); b.id = 'ohanaJoke';
+      b.setAttribute('role','dialog'); b.setAttribute('aria-live','polite'); b.setAttribute('aria-label', s.title);
+      b.innerHTML = '<p class="oj-t"></p><p class="oj-q"></p><p class="oj-a"></p><div class="oj-b"><button type="button" class="oj-new">New</button><button type="button" class="oj-ok">OK</button></div>';
+      b.querySelector('.oj-new').onclick = function(){ show(); };
+      b.querySelector('.oj-ok').onclick = close;
+      document.body.appendChild(b);
+      setTimeout(function(){ document.addEventListener('pointerdown', outside, true); }, 400);
+    }
+    b.querySelector('.oj-t').textContent = s.title;
+    b.querySelector('.oj-q').textContent = j[0];
+    b.querySelector('.oj-a').textContent = j[1];
+    window.__ohanaJokeShown = (window.__ohanaJokeShown || 0) + 1;
+  }
+  window.ohanaShowJoke = show;
+  function typing(){ var a = document.activeElement; return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)); }
+  // Self-update: remember the live page stamp, reload when a newer one is live.
+  var base = null, stale = false, hiddenAt = 0;
+  function stamp(){ return fetch('/', {method:'HEAD', cache:'no-store', credentials:'same-origin'}).then(function(r){ return r.ok ? r.headers.get('last-modified') : null; }).catch(function(){ return null; }); }
+  function check(){ return stamp().then(function(v){ if (!v) return false; if (!base) { base = v; return false; } if (v !== base) stale = true; return stale; }); }
+  function reloadNow(){
+    var k = 'ohana-joke-reloaded', now = Date.now(), t = 0;
+    try { t = +sessionStorage.getItem(k) || 0; } catch(e) {}
+    if (now - t < 120000) return false;
+    try { sessionStorage.setItem(k, String(now)); } catch(e) {}
+    location.reload(); return true;
+  }
+  window.ohanaJokeCheckUpdate = check;
+  setTimeout(check, 4000);
+  setInterval(function(){ check().then(function(s){ if (s && document.hidden && !typing()) reloadNow(); }); }, 15 * 60 * 1000);
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) { hiddenAt = Date.now(); if (stale && !typing()) reloadNow(); return; }
+    var away = hiddenAt ? Date.now() - hiddenAt : 0;
+    if (away < 30000) return;
+    check().then(function(s){ if (s && !typing()) reloadNow(); });
+  });
+  // One joke per visit: only when the app first opens, never between games or on coming back.
+  var SK = 'ohana-joke-session';
+  function autoShow(){
+    if (window.__ohanaJokeAuto) return;
+    window.__ohanaJokeAuto = 1;
+    try { if (sessionStorage.getItem(SK)) return; sessionStorage.setItem(SK, String(Date.now())); } catch(e) {}
+    show();
+  }
+  function start(){ setTimeout(autoShow, 1500); }
+  if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
+})();
+</script>
