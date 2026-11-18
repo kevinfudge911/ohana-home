@@ -78,24 +78,6 @@ try{
  }
  const packed=zlib.gzipSync(candidate,{level:9,mtime:0});assert(hash(packed)===plan.outputPackedSha,'Packed candidate differs from reviewed bytes');
  const candidateModules=new Map(modules);candidateModules.contentTypes=modules.contentTypes;candidateModules.set(appModule,packed);
- // Only the existing reviewed public Memories page may change alongside the app.
- const memoriesName='ohana-memories.html';
- assert(plan.memoriesModule===memoriesName&&plan.memoriesContentType==='text/plain','Unexpected Memories target or MIME');
- assert(modules.has(memoriesName)&&modules.contentTypes.get(memoriesName)===plan.memoriesContentType,'Memories module or MIME changed');
- assert(hash(modules.get(memoriesName))===plan.baseMemoriesSha,'Memories baseline changed');
- assert(plan.memoriesPatch==='patches/special/apply-memories.cjs','Unexpected Memories patch');
- const mi=path.join(directory,'memories-input.html'),mo=path.join(directory,'memories-output.html');
- await fs.writeFile(mi,modules.get(memoriesName));
- execFileSync(process.execPath,[path.join(here,plan.memoriesPatch),mi,mo],{stdio:'pipe',env:{PATH:process.env.PATH||''}});
- const mc=await fs.readFile(mo);assert(hash(mc)===plan.outputMemoriesSha,'Memories candidate differs from reviewed bytes');
- let memoriesScripts=0;
- for(const match of mc.toString('utf8').matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)){
-  if(/\bsrc\s*=|application\/ld\+json|application\/json/i.test(match[1])||!match[2].trim())continue;
-  assert(!/type\s*=\s*["']module["']/i.test(match[1]),'Unexpected Memories module script');
-  new vm.Script(match[2],{filename:'memories-inline-'+(++memoriesScripts)+'.js'});
- }
- assert(memoriesScripts===4,'Unexpected Memories executable script count');
- candidateModules.set(memoriesName,mc);
  assertModules(candidateModules,plan.outputModuleFingerprint);
  console.log(`Verified ${modules.size} baseline modules; ${scripts} scripts parse; candidate ${hash(candidate)}`);
  if(mode!=='deploy'){console.log('Read-only release check passed; no deployment');process.exitCode=0;}
@@ -110,6 +92,6 @@ try{
   const afterUpload=await json('/deployments');const released=afterUpload.deployments[0]?.versions;assert(released?.length===1&&released[0].percentage===100&&released[0].version_id!==version[0].version_id,'New release not at100%');const verified=await getModules();assertModules(verified,plan.outputModuleFingerprint);
   assert(settingsFingerprint(await json('/settings'))===settingsFingerprint(settings),'Post-release settings differ; inspect immediately');
   const deployed=await json('/deployments');const v=deployed.deployments[0]?.versions;assert(JSON.stringify(v)===JSON.stringify(released),'Concurrent release during verification');const runtime=(await json('/versions/'+v[0].version_id)).resources.script_runtime;assert(hash(canonical(runtime))===plan.runtimeSha,'Post-release runtime/assets metadata differs');
-  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-2,operationalSettingsUnchanged:true}));
+  console.log(JSON.stringify({verified:true,commit:process.env.WORKERS_CI_COMMIT_SHA,appSha:plan.outputAppSha,modules:verified.size,unchangedModules:verified.size-1,operationalSettingsUnchanged:true}));
  }
 }catch(error){console.error(error.name==='ReleaseSafetyError'?error.message:'Release stopped on build/transport error; private source and credential details suppressed');if(writeStarted)console.error('Upload was attempted. Inspect current production before retrying.');process.exitCode=1;}finally{if(directory)await fs.rm(directory,{recursive:true,force:true});}

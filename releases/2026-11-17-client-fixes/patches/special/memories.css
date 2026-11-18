@@ -1,5 +1,0 @@
-/* Preserve accepted family room, sky header, album photographs and geometry.
-   The legacy .porch is intentionally hidden by the accepted album layout. */
-:root[data-ohana-season="thanksgiving"] body{background-image:url('/ohana-harvest-garland-v1.webp'),url('/ohana-family-home-v2.webp'),var(--ohana-wood);background-position:center top,center top,center top;background-size:100% auto,100% auto,600px;background-repeat:no-repeat,no-repeat,repeat;background-attachment:scroll,scroll,scroll}
-:root[data-ohana-season="thanksgiving"] body>header{background-image:linear-gradient(#0a2a3a55,#08202e99),url('/ohana-harvest-garland-v1.webp'),url('/ohana-world-scene.webp?asset=ohana-v105-binary-repair-20261011');background-position:center top,center top,center top;background-size:cover,100% auto,cover;background-repeat:no-repeat;background-attachment:scroll,scroll,fixed}
-@media(forced-colors:active){:root[data-ohana-season="thanksgiving"] body,:root[data-ohana-season="thanksgiving"] body>header{background-image:none;background-color:Canvas;color:CanvasText}}
