@@ -1,13 +1,25 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "9671db222317d1032c668f771ccb09fe0c9c98b0902e4c2ae5d2a9d9fe38d33e",
-  "outputModuleFingerprint": "ca5f64aee03b7834d57cfddf02e6bfb5e529b42841b5a43709c9d9cb886e42e7",
-  "baseAppSha": "62c890ebe0bbb70f8793980f2c7280e849f78cc0b3fbcfed410f490d67608a9c",
-  "outputAppSha": "5be93f2b1bfbd89cd67abb891673a55b1e68ebaf83df77ad90d8fc7181340f9a",
-  "outputPackedSha": "8954b85b46f5812e5667bddf79fec7ace2ebd3919e35b07747a10823c008bab5",
+  "baseModuleFingerprint": "ca5f64aee03b7834d57cfddf02e6bfb5e529b42841b5a43709c9d9cb886e42e7",
+  "outputModuleFingerprint": "9a8f64226a37445e2337fa906bb6be417a1a1bff4ab308240f377fbbb7f2ae6d",
+  "baseAppSha": "5be93f2b1bfbd89cd67abb891673a55b1e68ebaf83df77ad90d8fc7181340f9a",
+  "outputAppSha": "eb6a6cca8da661bfa72ccf508ebb070c25f7787896a26f98a8c7a4ecc6f94c1d",
+  "outputPackedSha": "a13a31bbddeba8c0f8800c8e9dd28bbfa6b2ed073e152bf8b1574f36607fd65d",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/cardinal/apply.cjs"
+    "patches/outfits/apply-app.cjs"
+  ],
+  "workerPatch": "patches/outfits/apply-worker.cjs",
+  "workerContentType": "application/javascript+module",
+  "baseWorkerSha": "926c2ec4eb160deb5dd191d4b93dffd5a50f50391b278e11c53aad6ce4b7de3b",
+  "outputWorkerSha": "73338771e9b0d3aed5a691cd27ed5f5b668fb662ed2f64feb14541c7b72bfa2c",
+  "addedModules": [
+    {
+      "name": "seasonal/ohana-splash-thanksgiving-2026-v1.webp",
+      "type": "application/octet-stream",
+      "path": "assets/ohana-splash-thanksgiving-2026-v1.webp",
+      "sha": "853a67c2fefd4e0d37a9ed1649ac8668330aae570bea2dbac3218839d28a823b"
+    }
   ]
 }
