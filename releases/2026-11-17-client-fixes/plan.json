@@ -1,25 +1,13 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "3177507cb26ceceb9e4f8aa186455550798bfea140cfef1f897f0fc78f27a0d3",
-  "outputModuleFingerprint": "84196b07a8474ee591fb5f45a9faefb433ebf2474e30d523ede010f0ee4f7a57",
-  "baseAppSha": "fe33a796fa48055ee0acf59c8f60e9d9ab8037f7270431efb4babcab079903f7",
-  "outputAppSha": "925b77050ea28361e5e97ec72dce8101fcc38f9760500f927d15aab044d982b6",
-  "outputPackedSha": "038f7802f9959c0e2ea9d1075665a579640d0ce2ef22cf2f4eb8a7f80817f820",
+  "baseModuleFingerprint": "84196b07a8474ee591fb5f45a9faefb433ebf2474e30d523ede010f0ee4f7a57",
+  "outputModuleFingerprint": "1f40c204abe791385ae8c7f185a2d795a8426ef02c4422e0a85e271881d88c9e",
+  "baseAppSha": "925b77050ea28361e5e97ec72dce8101fcc38f9760500f927d15aab044d982b6",
+  "outputAppSha": "8e01fde1e1a7531ff82636d80ab7c07b027ce5451e41b7c49ef0a2adcb4d12a7",
+  "outputPackedSha": "ba663bde3865ca570b1534ebec2ed27c16f20da5d467d24a7c80c5452dbede6e",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/word/apply.cjs"
-  ],
-  "workerPatch": "patches/word/worker-assets.cjs",
-  "workerContentType": "application/javascript+module",
-  "baseWorkerSha": "3272b0982b04da541b69a85aa1fdf5459b1e87525f5680194ac69ad3d9f64771",
-  "outputWorkerSha": "547b3c5b8abfbb6e7d9e178ac8c3c8df4cf57e2168e76801879b38884fb647ce",
-  "addedModules": [
-    {
-      "name": "seasonal/ohana-word-harvest-scenery-v4.webp",
-      "type": "application/octet-stream",
-      "path": "assets/ohana-word-harvest-scenery-v4.webp",
-      "sha": "207cb209823ef58512d34902c412d43a53910d4e6c4bd95426087814c75eb2a3"
-    }
+    "patches/profile/apply.cjs"
   ]
 }
