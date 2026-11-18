@@ -1,14 +1,18 @@
 {
   "worker": "ohana-home",
-  "baseModuleFingerprint": "baf962376cde5533db75c67725eeb333394d10c0444d091a315fc3436a0d59cf",
-  "outputModuleFingerprint": "686a16243583123cd38bfe16ff11fc885c7c8906116bdd966d8c57ddc0bdf06b",
-  "baseAppSha": "76ba96a2667817a6209aa16e5a4e6f137f086a8885d8c70599b5b9f13a4831e0",
-  "outputAppSha": "589f280aa9ebe99662b9f7d4926b035e3efa169fc2726b33e49e106f77012ba6",
-  "outputPackedSha": "b087b13f444921ff8d69834a0344f1fe5211e8837ad6982e8b25ab8ab6b590c9",
+  "baseModuleFingerprint": "686a16243583123cd38bfe16ff11fc885c7c8906116bdd966d8c57ddc0bdf06b",
+  "outputModuleFingerprint": "d62b1bab33f6261ac35388ecf3b808ce2a2a5a609928dcbe64766a87cb0b6927",
+  "baseAppSha": "589f280aa9ebe99662b9f7d4926b035e3efa169fc2726b33e49e106f77012ba6",
+  "outputAppSha": "12f8c26a34c09f21c2f57618b5e8174e6786e3108e76bcdf7f8c4812495427cb",
+  "outputPackedSha": "d3463e939b69363eb2a3ae7d9069b1327069ac6b7c51b9886cb165e010e1edcb",
   "settingsSha": "464304120acbd3f52e8b09351516d2780cd90e2f2f37aa2ad8248df4d4e765a0",
   "runtimeSha": "8fed1dbf9e0f04942024be39c206033b54ebe0de36c610d6d58e31c058b1b6c4",
   "patches": [
-    "patches/rummy/apply.cjs",
-    "patches/chess/apply.cjs"
-  ]
+    "patches/surrounds/apply.cjs"
+  ],
+  "memoriesModule": "ohana-memories.html",
+  "memoriesContentType": "text/plain",
+  "baseMemoriesSha": "47c8a58d683708280ee3e4505b6ffe5db94ec2eb41563a66ea63eec42ad7072c",
+  "outputMemoriesSha": "45d8a67119c75c9829112358ef50ee8b4c32b6aa58ae1d2b69fe4f351957d9ec",
+  "memoriesPatch": "patches/special/apply-memories.cjs"
 }
