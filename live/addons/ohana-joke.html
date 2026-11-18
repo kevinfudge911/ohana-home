@@ -1,6 +1,7 @@
 <style id="ohana-joke-css">
 #ohanaJoke{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 32vh);transform:translateX(-50%);z-index:2147483000;width:min(340px,calc(100vw - 32px));background:rgba(14,59,71,.97);color:#fff4d3;border:1px solid rgba(255,219,121,.55);border-radius:14px;padding:10px 14px 9px;box-shadow:0 8px 24px rgba(0,0,0,.45);font-family:Nunito,system-ui,sans-serif;animation:ohanaJokeIn .25s ease-out}
 #ohanaJoke .oj-t{font:600 12px Fredoka,Nunito,sans-serif;color:#ffdb79;letter-spacing:.3px;margin:0 0 4px}
+#ohanaJoke .oj-x{max-height:min(44vh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 #ohanaJoke .oj-q{font-size:15px;line-height:1.35;margin:0}
 #ohanaJoke .oj-a{font-size:15px;line-height:1.35;margin:4px 0 0;color:#ffdb79;font-style:italic}
 #ohanaJoke .oj-b{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
@@ -142,43 +143,60 @@
       var o = {}; p.forEach(function(x){ o[x.type] = +x.value; }); return o;
     } catch(e){ var d = new Date(); return {year:d.getFullYear(),month:d.getMonth()+1,day:d.getDate()}; }
   }
+  // Big joke list (thousands) served by the worker; built-in lists above are the fallback.
+  var JV = '5fb2d8a6a7', R = null;
+  var RP = fetch('/ohana-jokes.json?v=' + JV, {credentials:'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ if (j && j.tg && j.cm && j.ev && j.tg.length && j.cm.length && j.ev.length) R = j; }).catch(function(){});
+  function L(k){ if (R && R[k] && R[k].length) return R[k]; return k === 'tg' ? T : k === 'cm' ? C : E; }
+  function easter(y){ var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1; return Date.UTC(y,mo-1,da); }
   function season(){
     var t = ctParts(), y = t.year, m = t.month, d = t.day;
     var first = new Date(y,10,1).getDay();
     var tg = 1 + ((4 - first + 7) % 7) + 21;
-    if (m === 11 && d <= tg) return {k:'tg',title:'Thanksgiving joke',list:T};
-    if ((m === 11 && d > tg) || (m === 12 && d <= 25)) return {k:'cm',title:'CHRISTmas joke',list:C};
-    return {k:'ev',title:'Joke of the day',list:E};
+    var k = (m === 11 && d <= tg) ? 'tg' : ((m === 11 && d > tg) || (m === 12 && d <= 25)) ? 'cm' : ((m === 12 && d >= 26) || (m === 1 && d <= 2)) ? 'ny' : 'ev';
+    if (k === 'ev') { var e = (Date.UTC(y, m - 1, d) - easter(y)) / 864e5; if (e >= -14 && e <= 1) k = 'es'; }
+    var titles = {tg:'Thanksgiving joke', cm:'CHRISTmas joke', ny:'New Year joke', es:'Easter joke', ev:'Joke of the day'};
+    return {k:k,title:titles[k],list:L(k)};
   }
   function pick(s){
-    var key = 'ohana-joke-seen:' + s.k, seen = [];
+    var key = 'ohana-joke-seen:' + s.k + (R ? ':' + JV : ''), seen = [];
     try { seen = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
     if (!Array.isArray(seen) || seen.length >= s.list.length) seen = [];
-    var left = []; for (var i = 0; i < s.list.length; i++) if (seen.indexOf(i) < 0) left.push(i);
-    var last = -1; try { last = +localStorage.getItem('ohana-joke-last:' + s.k); } catch(e) {}
+    var had = {}; seen.forEach(function(i){ had[i] = 1; });
+    var left = []; for (var i = 0; i < s.list.length; i++) if (!had[i]) left.push(i);
+    if (!left.length) { seen = []; for (i = 0; i < s.list.length; i++) left.push(i); }
+    var last = -1; try { last = +localStorage.getItem('ohana-joke-last:' + s.k + (R ? ':' + JV : '')); } catch(e) {}
     if (left.length > 1) left = left.filter(function(i){ return i !== last; });
     var n = left[Math.floor(Math.random() * left.length)];
     seen.push(n);
-    try { localStorage.setItem(key, JSON.stringify(seen)); localStorage.setItem('ohana-joke-last:' + s.k, String(n)); } catch(e) {}
+    try { localStorage.setItem(key, JSON.stringify(seen)); localStorage.setItem('ohana-joke-last:' + s.k + (R ? ':' + JV : ''), String(n)); } catch(e) {}
     return s.list[n];
   }
   function close(){ var b = document.getElementById('ohanaJoke'); if (b) b.remove(); document.removeEventListener('pointerdown', outside, true); }
   function outside(ev){ var b = document.getElementById('ohanaJoke'); if (b && !b.contains(ev.target)) close(); }
+  function copyJoke(b){
+    var t = b.querySelector('.oj-q').textContent + '\n' + b.querySelector('.oj-a').textContent, btn = b.querySelector('.oj-cp');
+    function done(ok){ btn.textContent = ok ? 'Copied' : 'Copy'; clearTimeout(btn._t); btn._t = setTimeout(function(){ btn.textContent = 'Copy'; }, 1500); }
+    function old(){ try { var x = document.createElement('textarea'); x.value = t; x.setAttribute('readonly',''); x.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(x); x.select(); x.setSelectionRange(0, t.length); var ok = document.execCommand('copy'); x.remove(); done(ok); } catch(e) { done(false); } }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(function(){ done(true); }, old); else old();
+  }
   function show(){
     if (!document.body) return;
     var s = season(), j = pick(s), b = document.getElementById('ohanaJoke');
     if (!b) {
       b = document.createElement('div'); b.id = 'ohanaJoke';
       b.setAttribute('role','dialog'); b.setAttribute('aria-live','polite'); b.setAttribute('aria-label', s.title);
-      b.innerHTML = '<p class="oj-t"></p><p class="oj-q"></p><p class="oj-a"></p><div class="oj-b"><button type="button" class="oj-new">New</button><button type="button" class="oj-ok">OK</button></div>';
+      b.innerHTML = '<p class="oj-t"></p><div class="oj-x"><p class="oj-q"></p><p class="oj-a"></p></div><div class="oj-b"><button type="button" class="oj-new">New</button><button type="button" class="oj-cp">Copy</button><button type="button" class="oj-ok">OK</button></div>';
       b.querySelector('.oj-new').onclick = function(){ show(); };
       b.querySelector('.oj-ok').onclick = close;
+      b.querySelector('.oj-cp').onclick = function(){ copyJoke(b); };
       document.body.appendChild(b);
       setTimeout(function(){ document.addEventListener('pointerdown', outside, true); }, 400);
     }
     b.querySelector('.oj-t').textContent = s.title;
     b.querySelector('.oj-q').textContent = j[0];
     b.querySelector('.oj-a').textContent = j[1];
+    var cp = b.querySelector('.oj-cp'); if (cp) cp.textContent = 'Copy';
+    var x = b.querySelector('.oj-x'); if (x) x.scrollTop = 0;
     window.__ohanaJokeShown = (window.__ohanaJokeShown || 0) + 1;
   }
   window.ohanaShowJoke = show;
@@ -209,7 +227,8 @@
     if (window.__ohanaJokeAuto) return;
     window.__ohanaJokeAuto = 1;
     try { if (sessionStorage.getItem(SK)) return; sessionStorage.setItem(SK, String(Date.now())); } catch(e) {}
-    show();
+    var done = false; function go(){ if (!done) { done = true; show(); } }
+    RP.then(go); setTimeout(go, 2500);
   }
   function start(){ setTimeout(autoShow, 1500); }
   if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
