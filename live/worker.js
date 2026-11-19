@@ -7146,7 +7146,7 @@ async function sendInvitationBatch(db,me,roomId,body,ctx) {
       if(createdGameIds.some(id=>!id))throw invitationSendUncertain();
     }
     const notified=recipients.filter((_,i)=>writes[1+codes.length+i].meta.changes);
-    if(notified.length)ctx?.waitUntil?.(notifyMembers(db,notified,{type:'invite',title:me.name+' saved you a seat',body:'Join '+gt.name+' — open your Game Nook to accept.',tag:'ohana-invite-'+requestId}).catch(()=>{}));
+    if(notified.length)ctx?.waitUntil?.(notifyMembers(db,notified,{type:'invite',from:me.id,title:me.name+' saved you a seat',body:'Join '+gt.name+' — open your Game Nook to accept.',tag:'ohana-invite-'+requestId}).catch(()=>{}));
   }
   let storedCodes;
   try{storedCodes=JSON.parse(result.codes);}catch(e){throw invitationSendUncertain(e);}
@@ -10132,7 +10132,7 @@ __name222(sendPush, "sendPush");
 __name2222(sendPush, "sendPush");
 __name22222(sendPush, "sendPush");
 __name222222(sendPush, "sendPush");
-async function notifyMembers(db, memberIds, payload) {
+async function notifyMembers0(db, memberIds, payload) {
   if (!memberIds.length) return;
   const placeholders = memberIds.map(() => "?").join(",");
   const subs = (await db.prepare(`SELECT * FROM push_subscriptions WHERE member_id IN (${placeholders})`).bind(...memberIds).all()).results;
@@ -11870,7 +11870,7 @@ async function ohanaCreateReplay(db,env,me,g,players,names){
  const results=await db.batch(batch),mapped=await db.prepare('SELECT new_game_id FROM game_replays WHERE original_game_id=?').bind(g.id).first();
  if(!(mapped?.new_game_id>0))throw Error('Could not confirm the replay. Check My games before trying again.');
  const created=!!results[0]?.meta?.changes;
- if(created&&!started&&recipients.length)env.ctx?.waitUntil?.(notifyMembers(db,recipients,{type:'invite',title:me.name+' invited you to replay',body:'Join '+(type.name||g.type)+' in Ohana Home.',tag:'ohana-replay-'+mapped.new_game_id}).catch(()=>{}));
+ if(created&&!started&&recipients.length)env.ctx?.waitUntil?.(notifyMembers(db,recipients,{type:'invite',from:me.id,title:me.name+' invited you to replay',body:'Join '+(type.name||g.type)+' in Ohana Home.',tag:'ohana-replay-'+mapped.new_game_id}).catch(()=>{}));
  return {id:mapped.new_game_id,existing:!created};
 }
 
@@ -12517,7 +12517,7 @@ async function api2(req, env222222, url) {
       await allowGame(db, recipient, g.type);
       if (!names[recipient] || recipient === me.id || players.includes(recipient)) throw new Error("Choose another member of this room\u2019s Ohana.");
       const sent = await db.prepare("INSERT INTO game_invitations(game_id,member_id,sender_id,status,created_at) VALUES(?,?,?,'pending',?) ON CONFLICT(game_id,member_id) DO UPDATE SET sender_id=excluded.sender_id,status='pending',created_at=excluded.created_at WHERE game_invitations.status!='pending'").bind(id, recipient, me.id, now()).run();
-      if (sent.meta.changes) env222222.ctx?.waitUntil?.(notifyMembers(db, [recipient], { type: "invite", title: me.name + " saved you a seat", body: "Join " + (GAME_TYPES[g.type]?.name || g.type) + " \u2014 open your Game Nook to accept.", tag: "ohana-invite-" + id }).catch(() => {
+      if (sent.meta.changes) env222222.ctx?.waitUntil?.(notifyMembers(db, [recipient], { type: "invite", from: me.id, title: me.name + " saved you a seat", body: "Join " + (GAME_TYPES[g.type]?.name || g.type) + " \u2014 open your Game Nook to accept.", tag: "ohana-invite-" + id }).catch(() => {
       }));
       return json({ ok: true });
     }
@@ -13253,7 +13253,7 @@ async function ohanaPhotoFeedbackApi(req,env,url,me,room,reply){
  return reply({saved:true,...(remove?{removed:true}:{}),id:result.target_id});
 }
 // One game alert per player per hour (Nov 18 2026): the first game someone plays with you sends one alert; their other games in the next hour stay quiet.
-async function ohanaPlayAlertOk(db, to, from) {
+async function ohanaPlayAlertOk0(db, to, from) {
   try {
     const t = Date.now();
     const r = await db.prepare("INSERT INTO play_alerts(member_id,from_id,last_at) VALUES(?,?,?) ON CONFLICT(member_id,from_id) DO UPDATE SET last_at=excluded.last_at WHERE play_alerts.last_at<?").bind(to, from, t, t - 36e5).run();
@@ -13263,3 +13263,7 @@ async function ohanaPlayAlertOk(db, to, from) {
     return true;
   }
 }
+
+// One alert per player (Nov 19 2026, Kevin): the first alert from a player (a seat invite or a turn) reaches you; while that player keeps playing, even 25 games, nothing more comes until they've been quiet for an hour.
+async function ohanaPlayAlertOk(db,to,from){try{const t=Date.now();const row=await db.prepare("SELECT last_at FROM play_alerts WHERE member_id=? AND from_id=?").bind(to,from).first();await db.prepare("INSERT INTO play_alerts(member_id,from_id,last_at) VALUES(?,?,?) ON CONFLICT(member_id,from_id) DO UPDATE SET last_at=excluded.last_at").bind(to,from,t).run();return !row||row.last_at<t-36e5;}catch(e){console.warn("Ohana play alert check failed",e.message);return true;}}
+async function notifyMembers(db,memberIds,payload){if(payload&&payload.type==="invite"&&payload.from>0&&memberIds&&memberIds.length){const send=[];for(const to of memberIds)if(await ohanaPlayAlertOk(db,+to,payload.from))send.push(to);if(!send.length)return;payload={...payload,tag:"ohana-player-"+payload.from};memberIds=send;}return notifyMembers0(db,memberIds,payload);}
