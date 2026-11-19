@@ -1,4 +1,4 @@
-# One alert per player (live 2b10e321, Nov 19 2026 12:52 PM CT)
+# One alert per player (live 2b10e321, Nov 19 2026 12:45 PM CT)
 
 Kevin: one alert per player, even if that player plays 25 games. Never one alert per game.
 
@@ -13,3 +13,4 @@ Now (worker.js only, built on ef2cd28b):
   alerts and nothing more comes while they keep playing, until they've been quiet for an hour.
 - Invites still show in the Game Nook; only the phone buzz is held back. Chat, wins, "says", puzzles unchanged.
 - Old functions kept as ohanaPlayAlertOk0 / notifyMembers0. Rollback: ef2cd28b.
+- Repo live/worker.js is a stale formatted copy (3 of the 4 invite spots exist there); never deploy it.
