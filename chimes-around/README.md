@@ -1,14 +1,17 @@
-# Wind chimes all around (live ae90cb7f, Nov 19 2026)
+# Wind chimes all around (v2 live ef2cd28b, Nov 19 2026)
 
-Why they stopped at the entrance: the nine V6 chime designs (renderer, art, scene contract) were built and are
-served by the worker under /wind-chimes/, but the app hookup was left switched off ("V6 ABSENT; LISTENING GATE
-CLOSED") waiting on a design okay, so only the entrance chime ever showed.
+v1 (ae90cb7f) hung two chimes from the top corners of every screen. Kevin: they covered buttons, sat up in the
+control panel, and there were two in one window. v2 fixes that.
 
-What this adds (inserted in app.html right after `<!-- OHANA MESSENGER CHAT END -->`):
-- Loads /wind-chimes/renderer-v6.js and hangs two designs from the top corners of every screen.
-- Each tab (games, faith, family, rooms, settings), each category room and each game type gets its own pair.
-  Home = "In Memory of Daddy" + garden bells.
-- Gentle sway with a gust every 9 to 23 seconds. Still if the phone asks for reduced motion.
-- Pointer-events none; moves inward or shrinks if a button is under it, hides rather than cover one.
-- Sits behind game tables (z 60); above a category room dialog (z 76) only while that room is open.
-- Visual only; the entrance ring sound is unchanged.
+What v2 does (block in app.html between `OHANA CHIMES ALL AROUND START` and `END`):
+- ONE chime per area, never two in the same window. Visual only: no chime sounds added anywhere
+  (the entrance ring sound in Ohana Gathering is unchanged).
+- The big cardinal chime ("In Memory of Daddy", memorial-study) hangs only at the main entrance (home).
+- The other designs are spread out: faith crystal-cascade, family garden-bells, rooms bell-quartet,
+  settings crystal-duet; each game type its own (spades crystal-cascade, hand and foot garden-bells, etc.);
+  category rooms get one picked from the rest.
+- Hangs low (30 to 42 percent down the screen first) in a window of the scene art. A spot is only used when every
+  sample point looks down to the big background without hitting a button, a pointer, words, a picture or a panel.
+  If no window spot is open (busy game tables, rooms filled by a card picture), the chime simply doesn't show.
+- Gentle sway with a gust every 9 to 23 seconds; still if the phone asks for reduced motion.
+- z 60 (z 76 only while a category room is open); pointer-events none.
