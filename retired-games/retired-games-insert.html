@@ -1,0 +1,37 @@
+<!-- OHANA RETIRED GAMES START (2026-11-19) -->
+<style id="ohana-retired-games-v1-css">
+[data-setup-game="mahjong"]{display:none!important}
+.ohana-retired-line{grid-column:1/-1;width:100%;margin:12px auto 6px;text-align:center;font-size:14px;line-height:1.4;color:#ffe2a3;text-shadow:0 1px 3px #000b;opacity:.92}
+.ohana-retired-line b{font-weight:700;letter-spacing:.2px}
+</style>
+<script id="ohana-retired-games-v1">
+(()=>{
+if(window.ohanaRetiredGames)return;
+// Retired games: no new tables (the server refuses them too), games already going can finish,
+// and they drop off the game screens once the last one is done. Code and saved games are kept.
+const RETIRED={mahjong:'Ohana Mahjong'};
+window.OHANA_RETIRED_GAMES=Object.keys(RETIRED);
+const going=t=>{try{return(S.sync.games||[]).filter(g=>g.type===t&&(g.status==='playing'||g.status==='waiting')).length}catch(e){return 0}};
+function lineText(){
+ return Object.entries(RETIRED).map(([t,name])=>{const n=going(t);return'<b>'+name+'</b>'+(n?' · '+n+(n===1?' game':' games')+' still finishing':'');}).join(' · ');
+}
+function sweep(){
+ for(const p of document.querySelectorAll('.room-games')){
+  const txt=p.textContent;if(!/Mahjong/.test(txt))continue;
+  const next=txt.split(' · ').filter(s=>!/^\s*(Ohana )?Mahjong\s*$/i.test(s)).join(' · ');
+  if(next!==txt)p.textContent=next;
+ }
+ for(const o of document.querySelectorAll('option')){if(RETIRED[o.value]&&!o.selected)o.remove();}
+ for(const card of document.querySelectorAll('[data-setup-game]')){
+  if(!RETIRED[card.dataset.setupGame])continue;
+  const host=card.parentElement;if(!host)continue;
+  let line=host.querySelector(':scope > .ohana-retired-line');
+  if(!line){line=document.createElement('p');line.className='ohana-retired-line';host.append(line);}
+  const html='Retired games: '+lineText();if(line.innerHTML!==html)line.innerHTML=html;
+ }
+}
+setInterval(sweep,1000);setTimeout(sweep,300);
+window.ohanaRetiredGames={retired:window.OHANA_RETIRED_GAMES,going,sweep};
+})();
+</script>
+<!-- OHANA RETIRED GAMES END -->

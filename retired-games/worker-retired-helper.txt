@@ -1,0 +1,2 @@
+var RETIRED_GAMES=["mahjong"];function retiredGameCheck(type){if(RETIRED_GAMES.includes(type))throw new Error(((GAME_TYPES[type]&&GAME_TYPES[type].name)||"That game")+" is retired now. Games already going can still finish.");}
+async function allowGame(db,id,type){

@@ -1,0 +1,126 @@
+<!-- OHANA CHIMES ALL AROUND START (2026-11-19) -->
+<style id="ohana-chimes-around-v1-css">
+#oc-chimes{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden;contain:layout style}
+#oc-chimes[hidden]{display:none!important}
+#oc-chimes .oc-rig{position:absolute;top:0;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(40,22,8,.35));transition:opacity .6s ease;opacity:0}
+#oc-chimes .oc-rig.oc-on{opacity:1}
+</style>
+<script id="ohana-chimes-around-v1">
+(()=>{
+if(window.ohanaChimesAround)return;
+// The nine V6 designs already served by the worker under /wind-chimes/.
+// Each screen and each game gets its own pair, hung from the top corners.
+const TABS={games:['memorial-study','garden-bells'],faith:['crystal-cascade','floral-trio'],family:['garden-bells','crystal-arc'],rooms:['bell-quartet','crystal-trio'],settings:['crystal-duet','floral-trio']};
+const GAME_PAIRS=[['porch-primary','crystal-duet'],['floral-trio','crystal-trio'],['bell-quartet','crystal-arc'],['crystal-cascade','garden-bells'],['porch-primary','floral-trio'],['crystal-arc','bell-quartet'],['garden-bells','crystal-trio'],['crystal-cascade','porch-primary']];
+const GAMES={spades:['crystal-cascade','porch-primary'],handfoot:['garden-bells','crystal-arc'],words:['porch-primary','crystal-duet'],domino:['floral-trio','crystal-trio'],ohana10:['bell-quartet','crystal-cascade'],flip:['crystal-arc','floral-trio'],shuffle:['garden-bells','crystal-duet'],mahjong:['crystal-trio','bell-quartet'],chess:['porch-primary','crystal-arc'],checkers:['bell-quartet','crystal-duet'],tictac:['floral-trio','crystal-duet'],memory:['garden-bells','crystal-trio']};
+const FAMILY={'porch-primary':'p','memorial-study':'p','garden-bells':'u','floral-trio':'u','bell-quartet':'u','crystal-cascade':'c','crystal-arc':'c','crystal-trio':'c','crystal-duet':'c'};
+const ASPECT={p:250/1000,u:400/950,c:500/1100};
+const COUNT={'porch-primary':5,'memorial-study':5,'garden-bells':5,'floral-trio':3,'bell-quartet':4,'crystal-cascade':5,'crystal-arc':4,'crystal-trio':3,'crystal-duet':2};
+const CONTROLS='button,a[href],input,select,textarea,[role="button"],[onclick],summary,.btn';
+const reduced=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+let mod=null,loading=null,layer=null,place='',rigs=[],raf=0,lastFrame=0,gust=0,gustAt=0,nextGust=0,failed=false;
+const st=()=>{try{return typeof S==='object'&&S?S:null}catch(e){return null}};
+function placeKey(){
+ const s=st();if(!s||!s.me)return'';
+ if(document.querySelector('#om-chat:not([hidden])'))return'';
+ if(s.game){const gs=s.gstate,t=String((gs&&(gs.type||gs.game&&gs.game.type))||'game');return'game:'+t;}
+ // Category rooms (Ohana Tile, cards...) open as a dialog over home: hang chimes there too.
+ const open=[...document.querySelectorAll('dialog[open]')].filter(d=>d.getClientRects().length);
+ const room=open.find(d=>d.classList.contains('ohana-category-room'));
+ if(open.some(d=>d!==room))return'';
+ if(room)return'room:'+(room.dataset.ohanaCategory||room.getAttribute('aria-label')||'room');
+ return TABS[s.tab]?'tab:'+s.tab:'tab:games';
+}
+function pairFor(key){
+ if(key.startsWith('tab:'))return TABS[key.slice(4)]||TABS.games;
+ if(key.startsWith('game:')&&GAMES[key.slice(5)])return GAMES[key.slice(5)];
+ let h=7;for(const ch of key)h=(h*31+ch.charCodeAt(0))>>>0;
+ return GAME_PAIRS[h%GAME_PAIRS.length];
+}
+function ensureLayer(){
+ if(layer&&layer.isConnected)return layer;
+ layer=document.createElement('div');layer.id='oc-chimes';layer.setAttribute('aria-hidden','true');layer.inert=true;
+ document.body.append(layer);return layer;
+}
+function load(){
+ if(mod)return Promise.resolve(mod);
+ if(!loading)loading=import('/wind-chimes/renderer-v6.js').then(m=>(mod=m)).catch(()=>{failed=true;return null;});
+ return loading;
+}
+function clear(){rigs.forEach(r=>{try{r.view.destroy()}catch(e){}r.el.remove()});rigs=[];}
+function sizeFor(style,inGame){
+ const f=FAMILY[style],vh=innerHeight,vw=innerWidth;
+ let h=f==='p'?Math.min(inGame?170:230,vh*(inGame?.27:.34)):f==='u'?Math.min(inGame?130:175,vh*(inGame?.21:.27)):Math.min(inGame?140:190,vh*(inGame?.23:.29));
+ let w=h*ASPECT[f];const maxW=Math.max(30,vw*(inGame?.1:.14));if(w>maxW){w=maxW;h=w/ASPECT[f];}
+ return{w:Math.round(w),h:Math.round(h)};
+}
+function controlRects(limitY){
+ const out=[];
+ for(const e of document.querySelectorAll(CONTROLS)){
+  if(e.closest('#oc-chimes'))continue;
+  const r=e.getBoundingClientRect();if(!r.width||!r.height||r.top>limitY||r.bottom<0)continue;
+  const cs=getComputedStyle(e);if(cs.visibility==='hidden'||cs.display==='none'||Number(cs.opacity)===0)continue;
+  out.push(r);if(out.length>400)break;
+ }
+ return out;
+}
+const hit=(a,list)=>list.some(r=>a.x+3<r.right&&a.x+a.w-3>r.left&&a.y+3<r.bottom&&a.y+a.h-3>r.top);
+function layout(){
+ if(!rigs.length)return;
+ const inGame=place.startsWith('game:'),vw=innerWidth,inset=6;
+ const list=controlRects(innerHeight*.5);
+ rigs.forEach((r,i)=>{
+  const base=sizeFor(r.style,inGame);let done=false;
+  for(const k of[1,.8,.62]){
+   const w=Math.round(base.w*k),h=Math.round(base.h*k);
+   for(const step of[0,.035,.07,.11]){
+    const off=inset+Math.round(vw*step),x=i===0?off:vw-off-w;
+    if(!hit({x,y:0,w,h},list)){Object.assign(r.el.style,{left:x+'px',width:w+'px',height:h+'px',display:''});done=true;break;}
+   }
+   if(done)break;
+  }
+  r.el.style.display=done?'':'none';
+ });
+}
+function pose(r,t){
+ const ph=r.phase,g=gust,n=COUNT[r.style];
+ const tubes=[];for(let i=0;i<n;i++)tubes.push((.035+g*.07)*Math.sin(t*(1.25+i*.19)+ph+i*1.7));
+ return{angle:(.025+g*.05)*Math.sin(t*.62+ph),tubes,striker:(.04+g*.08)*Math.sin(t*1.05+ph*1.3),sail:(.06+g*.09)*Math.sin(t*.83+ph*.7)};
+}
+function frame(now){
+ raf=0;if(!rigs.length||document.hidden)return;
+ if(now-lastFrame>=45){
+  lastFrame=now;const t=now/1000;
+  if(now>nextGust){gustAt=now;nextGust=now+9000+Math.random()*14000;}
+  const since=(now-gustAt)/1000;gust=since<4?Math.sin(Math.PI*since/4):0;
+  rigs.forEach(r=>{try{r.view.paint(pose(r,t))}catch(e){}});
+ }
+ raf=requestAnimationFrame(frame);
+}
+function start(){if(reduced()){rigs.forEach(r=>{try{r.view.paint({angle:0,tubes:[],striker:0,sail:0})}catch(e){}});return;}if(!raf)raf=requestAnimationFrame(frame);}
+async function apply(key){
+ place=key;
+ if(!key){clear();if(layer)layer.hidden=true;return;}
+ const m=await load();if(!m||place!==key)return;
+ const L=ensureLayer();L.hidden=false;L.style.zIndex=key.startsWith('room:')?'76':'';clear();
+ pairFor(key).forEach((style,i)=>{
+  const el=document.createElement('div');el.className='oc-rig';el.dataset.side=i?'right':'left';el.dataset.style=style;L.append(el);
+  try{const view=m.mountRig(el,style);rigs.push({el,view,style,phase:Math.random()*6.28});}catch(e){el.remove();}
+ });
+ layout();requestAnimationFrame(()=>rigs.forEach(r=>r.el.classList.add('oc-on')));
+ nextGust=performance.now()+1200;start();
+}
+function tick(){
+ if(failed)return;
+ const key=placeKey();
+ if(key!==place)apply(key);else if(rigs.length)layout();
+ if(rigs.length&&!raf&&!document.hidden)start();
+}
+setInterval(tick,1200);
+addEventListener('resize',()=>{if(rigs.length)layout();},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)start();});
+window.ohanaChimesAround={refresh:tick,get place(){return place},get rigs(){return rigs.map(r=>({style:r.style,shown:r.el.style.display!=='none',left:r.el.style.left,width:r.el.style.width,height:r.el.style.height}))}};
+setTimeout(tick,600);
+})();
+</script>
+<!-- OHANA CHIMES ALL AROUND END -->
