@@ -211,6 +211,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
         var tagK = it.who.zone + "|" + it.where, again = said[tagK]; said[tagK] = 1;
         w.innerHTML = '<span class="nm">' + esc(it.name) + "</span>" + (again ? "" : '<span class="pl">' + esc(it.where) + "</span>"); st.appendChild(w);
       } else if (it.house) {
+        if (people.some(function(p){ return p.zone === "house" && "h-" + p.house === it.id; })) return;
         var hn = document.createElement("div"); hn.className = "hname"; hn.style.left = it.x + "%"; hn.style.top = (it.y + 0.3) + "%"; hn.textContent = it.name; st.appendChild(hn);
       } else if (found[it.id]) mark(it, false);
     });
