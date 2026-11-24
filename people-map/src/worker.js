@@ -5,6 +5,7 @@
 //  - Life360 (polled here with Kevin's own Life360 key, or pushed in) and Google sharing (pushed in) -> feed_positions
 // Everyone else shows as their Ohana character when they have one.
 import PAGE from "./page.html";
+import ROOM from "./room.html";
 import CHARS from "./chars.json";
 import SCHEMA from "./schema.sql";
 import ART_PINKEY from "./art/pinkey.webp";
@@ -15,13 +16,14 @@ import ART_VAN from "./art/grand-van.webp";
 import ART_FIRETRUCK from "./art/fire-truck.svg";
 import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
+import ART_SIGN from "./art/waldo-sign.webp";
 
-const VERSION = "people-v2";
+const VERSION = "people-v2"; // schema version; room page added Nov 24
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
   "grand-van.webp": [ART_VAN, "image/webp"],
-  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"],
+  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"],
 };
 const LIMO_FRESH_MS = 30 * 60e3, JJ_FRESH_MS = 30 * 60e3, FEED_KEEP_MS = 3 * 864e5;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -278,6 +280,8 @@ export default {
     }
     if (req.method === "GET" && (p === "/people" || p === "/people/index.html" || p === "/people/family"))
       return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
+    if (req.method === "GET" && p === "/people/room") // Where's Waldo room, shown inside Ohana Gathering
+      return new Response(ROOM, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
       const a = ART[p.slice(12)]; if (!a) return new Response("Not found", { status: 404 });
       return new Response(a[0], { headers: { "content-type": a[1], "cache-control": "public, max-age=86400" } });

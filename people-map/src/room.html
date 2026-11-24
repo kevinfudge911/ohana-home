@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Where's Waldo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;800&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:transparent;font:600 13px/1.25 Nunito,system-ui,sans-serif;color:#2a1a0c}
+body.solo{background:#d4d6dc}
+.room{max-width:1100px;margin:0 auto;padding:6px 6px 12px;display:grid;gap:8px}
+.sign{display:block;width:min(92%,460px);height:auto;margin:2px auto 0;filter:drop-shadow(0 4px 6px #0006)}
+.who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;margin:0}
+.p{display:grid;justify-items:center;gap:1px;padding:2px 4px;border:0;background:none;cursor:pointer;font:inherit;max-width:96px}
+.p img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px #0005)}
+.p b{font:800 12px/1.1 Fredoka,Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 3px #000;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p small{font:600 10px/1.1 Nunito,sans-serif;color:#4a5563;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p .dot{width:40px;height:40px;display:grid;place-items:center;font:800 18px Fredoka,sans-serif;color:#fff;background:#2b6f8f;border-radius:50%}
+.p.on b{color:#fff}
+.empty{font:700 12px Nunito,sans-serif;color:#4a5563;text-align:center;padding:4px}
+.frame{position:relative;width:100%;max-width:820px;margin:0 auto;border-radius:22px;padding:7px;background:linear-gradient(#a8692b,#7a4618);box-shadow:0 0 0 2px #4a2a0e,0 8px 16px #0007}
+.screen{position:relative;width:100%;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:#e8e4da}
+#map{position:absolute;inset:0}
+.ctl{position:absolute;z-index:600;top:8px;right:8px;display:flex;gap:5px}
+.ctl button{min-width:30px;height:30px;padding:0 10px;border:0;border-radius:999px;cursor:pointer;background:linear-gradient(#ffd77a,#eaa63c);color:#4a2508;font:800 12px Fredoka,Nunito,sans-serif;box-shadow:0 2px 0 #b06e1d,0 3px 5px #0005}
+.ctl button.go{background:linear-gradient(#7dffae,#2fcf6a);color:#063a19;box-shadow:0 2px 0 #1b8a43,0 3px 5px #0005}
+.tag{position:absolute;z-index:600;left:10px;bottom:6px;font:800 12px Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 4px #000}
+.line{text-align:center;font:600 11px Nunito,sans-serif;color:#4a5563}
+.pm{background:none;border:0}
+.pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 2px 2px #0006)}
+.pm span{display:block;width:max-content;margin:0 auto;padding:0 5px;border-radius:7px;background:#fff8e6;color:#4a2508;font:800 10px/1.4 Nunito,sans-serif;box-shadow:0 1px 2px #0005;white-space:nowrap}
+.pm .pin{width:28px;height:28px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:#2b6f8f;color:#fff;font:800 12px Fredoka,sans-serif;border:2px solid #fff}
+.pm.old{opacity:.55}
+.leaflet-popup-content{margin:8px 10px;font:600 12px/1.35 Nunito,sans-serif}
+.leaflet-popup-content b{font:800 13px Fredoka,Nunito,sans-serif}
+.leaflet-container .leaflet-control-attribution{font-size:9px}
+.note{position:absolute;z-index:700;left:50%;top:46px;transform:translateX(-50%);background:#fff8e6;border-radius:12px;padding:7px 12px;box-shadow:0 2px 8px #0004;font:700 12px Nunito,sans-serif;max-width:90%;display:none;text-align:center}
+.note.on{display:block}
+</style>
+</head>
+<body>
+<div class="room">
+  <img class="sign" src="/people/art/waldo-sign.webp" alt="Where's Waldo">
+  <div class="who" id="who"></div>
+  <div class="frame"><div class="screen">
+    <div id="map"></div>
+    <div class="ctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="all">All</button><button id="share">Share: Off</button></div>
+    <div class="tag" id="tag"></div>
+    <div class="note" id="note"></div>
+  </div></div>
+  <div class="line" id="line">Only family who turn Share on show up here. Turn it off and your spot is gone.</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  if (window.parent === window) document.body.classList.add("solo");
+  var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
+  var map = L.map("map", { zoomControl: false, attributionControl: true }).setView([37.2, -93.3], 7);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
+  var markers = {}, last = [], fitted = false, sharing = false, watchId = null, lastSent = 0, admin = false;
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
+  function ago(iso){ var m = Math.round((Date.now() - Date.parse(iso)) / 60000); if (!isFinite(m)) return ""; if (m < 1) return "just now"; if (m < 60) return m + " min ago"; var h = Math.round(m / 60); if (h < 24) return h + " hr ago"; return Math.round(h / 24) + " days ago"; }
+  function sub(p){ return p.label ? p.label : ago(p.at); }
+  function icon(p){
+    var w = p.kind === "vehicle" ? 56 : p.kind === "place" ? 36 : 36, h = p.kind === "vehicle" ? 34 : p.kind === "place" ? 32 : 40;
+    var inner = p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="" style="width:' + w + 'px;height:' + h + 'px">' : '<div class="pin">' + esc((p.name || "?").charAt(0)) + "</div>";
+    if (!p.art) h = 28;
+    var W = Math.max(w, 64);
+    return L.divIcon({ className: "pm" + (Date.now() - Date.parse(p.at) > 2 * 3600e3 ? " old" : ""), html: inner + "<span>" + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
+  }
+  function fitAll(){
+    if (!last.length) return;
+    if (last.length === 1) return map.setView([last[0].lat, last[0].lng], 12);
+    map.fitBounds(L.latLngBounds(last.map(function(p){ return [p.lat, p.lng]; })), { padding: [40, 40], maxZoom: 12 });
+  }
+  function draw(){
+    var seen = {};
+    last.forEach(function(p){
+      seen[p.key] = 1; var m = markers[p.key];
+      if (!m) m = markers[p.key] = L.marker([p.lat, p.lng], { icon: icon(p), riseOnHover: true }).addTo(map);
+      else { m.setLatLng([p.lat, p.lng]); m.setIcon(icon(p)); }
+      m.bindPopup("<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") + "<br>" + esc(p.src) + " · " + esc(ago(p.at)));
+    });
+    Object.keys(markers).forEach(function(k){ if (!seen[k]) { map.removeLayer(markers[k]); delete markers[k]; } });
+    var who = $("who"); who.innerHTML = "";
+    last.forEach(function(p){
+      var b = document.createElement("button"); b.className = "p";
+      b.innerHTML = (p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="">' : '<div class="dot">' + esc((p.name || "?").charAt(0)) + "</div>") + "<b>" + esc(p.name) + "</b><small>" + esc(sub(p)) + "</small>";
+      b.onclick = function(){ map.setView([p.lat, p.lng], Math.max(map.getZoom(), 13)); markers[p.key].openPopup(); };
+      who.appendChild(b);
+    });
+    if (!last.length) who.innerHTML = '<div class="empty">Nobody is sharing yet</div>';
+    if (!fitted && last.length) { fitAll(); fitted = true; }
+    $("tag").textContent = last.length ? (DEMO ? "Sample spots · " : "") + last.length + " showing · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
+    tellHeight();
+  }
+  function tellHeight(){ try { window.parent.postMessage({ type: "ohana-waldo-height", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
+  window.addEventListener("resize", function(){ map.invalidateSize(); tellHeight(); });
+  function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 3500); }
+  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: Off"; b.className = sharing ? "go" : ""; }
+  function send(pos){
+    if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
+    fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).then(load);
+  }
+  function watch(on){
+    if (on && navigator.geolocation && watchId == null) watchId = navigator.geolocation.watchPosition(send, function(e){ if (e.code === 1) note("Location is blocked for Ohana on this phone."); }, { enableHighAccuracy: true, maximumAge: 60000, timeout: 30000 });
+    if (!on && watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  }
+  function demo(){
+    var now = Date.now(), t = function(m){ return new Date(now - m * 60000).toISOString(); };
+    last = [
+      { key: "a", name: "Pe-paw", lat: 37.0670, lng: -93.5520, at: t(1), src: "Ohana", kind: "character", art: "/wardrobe-otto-firefighter-v92.webp", label: "Home" },
+      { key: "b", name: "Memaw", lat: 37.2089, lng: -93.2923, at: t(6), src: "Life360", kind: "character", art: "/buddy-pebble.webp?asset=ohana-v105-binary-repair-20261011", label: "Springfield" },
+      { key: "c", name: "Ethan", lat: 36.7050, lng: -93.3700, at: t(3), src: "Life360", kind: "place", art: "fire-truck.svg", label: "At the fire station" },
+      { key: "d", name: "Eagle", lat: 36.6437, lng: -93.2185, at: t(2), src: "Limo app", kind: "vehicle", art: "pinkey.webp", label: "Pinkey · on a run" },
+      { key: "e", name: "MomFudge", lat: 38.6270, lng: -90.1994, at: t(25), src: "Google", kind: "character", art: "/ohana-l07-v1.webp?asset=ohana-v105-binary-repair-20261011", label: "St. Louis" },
+      { key: "f", name: "Jeremy", lat: 37.0842, lng: -94.5133, at: t(9), src: "JJ Friends", kind: "vehicle", art: "grand-van.webp", label: "Grand Van · on a run" }
+    ];
+    draw();
+  }
+  function load(){
+    if (DEMO) return demo();
+    if (!tok) { last = []; draw(); $("line").textContent = "Sign in to Ohana Home to see the map."; return; }
+    var h = { authorization: "Bearer " + tok };
+    fetch("/people/api/family", { headers: h, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
+      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); }
+      return fetch("/people/api/where", { headers: h, cache: "no-store" }).then(function(r){
+        if (r.ok) { admin = true; return r.json(); }
+        return f;
+      });
+    }).then(function(d){
+      last = ((d && d.people) || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
+      draw();
+    }).catch(function(){ $("tag").textContent = "offline"; });
+  }
+  $("zin").onclick = function(){ map.zoomIn(); };
+  $("zout").onclick = function(){ map.zoomOut(); };
+  $("all").onclick = fitAll;
+  $("share").onclick = function(){
+    if (DEMO) { sharing = !sharing; setShare(); return note(sharing ? "Your family can see you while Ohana is open." : "Sharing is off. Your spot was removed."); }
+    if (!tok) return;
+    var on = !sharing;
+    fetch("/people/api/family/share", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ on: on }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (!d.ok) return; sharing = on; setShare(); lastSent = 0; watch(on);
+        note(on ? "Your family can see you while Ohana is open." : "Sharing is off. Your spot was removed."); load();
+      });
+  };
+  load(); if (!DEMO) setInterval(load, 30000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !DEMO) load(); });
+})();
+</script>
+</body>
+</html>
