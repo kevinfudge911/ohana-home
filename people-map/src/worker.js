@@ -150,7 +150,10 @@ function placeKind(name) {
 
 async function buildWhere(env) {
   await ensureSchema(env);
-  const people = (await env.PEOPLE.prepare("SELECT * FROM people WHERE hidden=0 ORDER BY sort").all()).results || [];
+  const all = (await env.PEOPLE.prepare("SELECT * FROM people ORDER BY sort").all()).results || [];
+  const people = all.filter((p) => !p.hidden);
+  // A hidden row with a Life360/Google name keeps that account off the map (e.g. an old business account).
+  const skip = new Set(all.filter((p) => p.hidden).flatMap((p) => [p.life360_name && "life360:" + String(p.life360_name).trim().toLowerCase(), p.google_name && "google:" + String(p.google_name).trim().toLowerCase()]).filter(Boolean));
   const members = (await env.OHANA.prepare("SELECT id,name,avatar FROM members").all()).results || [];
   const memberById = Object.fromEntries(members.map((m) => [m.id, m]));
   const feed = (await env.PEOPLE.prepare("SELECT * FROM feed_positions").all()).results || [];
@@ -207,7 +210,7 @@ async function buildWhere(env) {
   for (const o of fam) if (!used.has("ohana:" + o.memberId) && !people.some((p) => p.ohana_member_id === o.memberId)) emit(o);
   // Anyone else sharing on Life360/Google shows by their own name.
   for (const f of feed) {
-    if (used.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS || /@/.test(f.who)) continue; // an email name is the sharing account itself
+    if (used.has(f.source + ":" + lc(f.who)) || skip.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS || /@/.test(f.who)) continue; // an email name is the sharing account itself
     emit({ key: f.source + "-" + lc(f.who), name: f.who, lat: f.lat, lng: f.lng, at: f.at, src: f.source === "life360" ? "Life360" : "Google", kind: "pin", art: null, label: f.place || "" });
   }
   const l360 = await getSetting(env, "life360_status");
