@@ -10,67 +10,58 @@
 *{box-sizing:border-box}
 html,body{margin:0;background:transparent;font:600 13px/1.25 Nunito,system-ui,sans-serif;color:#2a1a0c}
 body.solo{background:#6b4a2b}
-.room{max-width:1100px;margin:0 auto;padding:6px 6px 12px;display:grid;gap:8px}
-.head{margin:2px 0 0;text-align:center;font:800 18px/1.2 Fredoka,Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 4px #000}
-.who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;margin:0}
-.p{display:grid;justify-items:center;gap:1px;padding:2px 4px;border:0;background:none;cursor:pointer;font:inherit;max-width:96px}
-.p img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px #0005)}
-.p b{font:800 12px/1.1 Fredoka,Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 3px #000;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.p small{font:700 10px/1.1 Nunito,sans-serif;color:#fff6e0;text-shadow:0 1px 2px #000,0 0 4px #000;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.p .dot{width:40px;height:40px;display:grid;place-items:center;font:800 18px Fredoka,sans-serif;color:#fff;background:#2b6f8f;border-radius:50%}
-.p.on b{color:#fff}
-.empty{font:700 12px Nunito,sans-serif;color:#fff6e0;text-shadow:0 1px 2px #000,0 0 4px #000;text-align:center;padding:4px}
-.frame{position:relative;width:100%;max-width:820px;margin:0 auto;border-radius:22px;padding:7px;background:linear-gradient(#b87633,#7a4618);box-shadow:0 0 0 2px #4a2a0e,inset 0 0 0 2px #e7b567,0 8px 16px #0007}
-.screen{position:relative;width:100%;aspect-ratio:16/10;min-height:300px;border-radius:16px;overflow:hidden;background:#efe2c4}
-.screen .leaflet-tile-pane{filter:sepia(.38) saturate(1.35) hue-rotate(-6deg) contrast(1.04) brightness(1.02)}
-.screen::after{content:'';position:absolute;inset:0;z-index:450;pointer-events:none;border-radius:16px;box-shadow:inset 0 0 0 3px #e7b567,inset 0 0 38px 10px #7a46188c;background:radial-gradient(ellipse at center,transparent 60%,#c89b5a40 100%)}
-#map{position:absolute;inset:0}
-.ctl{position:absolute;z-index:600;top:8px;right:8px;display:flex;gap:5px}
-.ctl button{min-width:30px;height:30px;padding:0 10px;border:0;border-radius:999px;cursor:pointer;background:linear-gradient(#ffd77a,#eaa63c);color:#4a2508;font:800 12px Fredoka,Nunito,sans-serif;box-shadow:0 2px 0 #b06e1d,0 3px 5px #0005}
-.ctl button.go{background:linear-gradient(#7dffae,#2fcf6a);color:#063a19;box-shadow:0 2px 0 #1b8a43,0 3px 5px #0005}
-.tag{position:absolute;z-index:600;left:10px;bottom:6px;font:800 12px Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 4px #000}
-.line{text-align:center;font:700 11px Nunito,sans-serif;color:#fff6e0;text-shadow:0 1px 2px #000,0 0 4px #000}
+.room{max-width:1100px;margin:0 auto;padding:4px 6px 14px;display:grid;gap:6px}
+/* Plain words only: no boxes, no frames, no panels. Everything sits on the painted world. */
+.txt,.who b,.ctl button,.line,.l360 *{text-shadow:0 1px 2px #000,0 0 5px #000,0 0 9px #0009}
+.who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 14px;margin:0}
+.p{display:grid;justify-items:center;gap:1px;padding:2px 2px;border:0;background:none;cursor:pointer;font:inherit;max-width:110px}
+.p img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
+.p b{font:800 14px/1.1 Fredoka,Nunito,sans-serif;color:#43ff81;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p small{font:800 11px/1.15 Nunito,sans-serif;color:#fff3c6;text-shadow:0 1px 2px #000,0 0 5px #000;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{font:800 13px Nunito,sans-serif;color:#fff3c6;text-shadow:0 1px 2px #000,0 0 5px #000;text-align:center;padding:4px}
+.ctl{display:flex;justify-content:center;gap:4px 18px;flex-wrap:wrap}
+.ctl button{border:0;background:none;padding:2px 2px;cursor:pointer;font:800 15px Fredoka,Nunito,sans-serif;color:#ffd77a}
+.ctl button.go{color:#43ff81}
+.map-wrap{position:relative;width:100%;max-width:980px;margin:0 auto;aspect-ratio:16/10;min-height:300px;
+ -webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 72% 70% at 50% 50%,#000 62%,transparent 100%)}
+#map{position:absolute;inset:0;background:transparent}
+#map .leaflet-tile-pane{filter:sepia(.3) saturate(1.3) hue-rotate(-6deg) contrast(1.05)}
+.leaflet-container{background:transparent!important}
+.leaflet-control-attribution{background:none!important;color:#fff3c6!important;text-shadow:0 1px 2px #000;font-size:9px!important}
+.leaflet-control-attribution a{color:#fff3c6!important}
 .pm{background:none;border:0}
-.pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 2px 2px #0006)}
-.pm span{display:block;width:max-content;margin:0 auto;padding:0 6px 1px;border-radius:6px;background:linear-gradient(#fff6dc,#f1d79a);border:1px solid #8a5a22;color:#4a2508;font:800 10px/1.35 Nunito,sans-serif;box-shadow:0 1px 3px #0006;white-space:nowrap}
-.pm img{filter:drop-shadow(0 3px 2px #0007)}
-.pm .pin{width:28px;height:28px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:#2b6f8f;color:#fff;font:800 12px Fredoka,sans-serif;border:2px solid #fff}
+.pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
+.pm span{display:block;width:max-content;margin:0 auto;font:800 12px/1.2 Fredoka,Nunito,sans-serif;color:#1d0f04;white-space:nowrap;
+ text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 0 7px #fff8}
 .pm.old{opacity:.55}
 .leaflet-popup-content{margin:8px 10px;font:600 12px/1.35 Nunito,sans-serif}
 .leaflet-popup-content b{font:800 13px Fredoka,Nunito,sans-serif}
-.leaflet-container .leaflet-control-attribution{font-size:9px}
-.panel{position:absolute;z-index:800;left:50%;top:46px;transform:translateX(-50%);width:min(92%,380px);background:linear-gradient(#fff8e6,#f6e3b6);border:2px solid #8a5a22;border-radius:16px;padding:10px 12px;box-shadow:0 6px 18px #0006;display:none;font:600 12px/1.35 Nunito,sans-serif;color:#3a2008}
-.panel.on{display:block}
-.panel h4{margin:0 0 4px;font:800 15px Fredoka,Nunito,sans-serif;color:#4a2508}
-.panel ol{margin:4px 0 6px;padding-left:18px}
-.panel input{width:100%;padding:7px 9px;border-radius:10px;border:1px solid #b98a4a;font:600 12px Nunito,sans-serif;background:#fff}
-.panel .row{display:flex;gap:6px;margin-top:7px;justify-content:flex-end}
-.panel .row button{height:30px;padding:0 12px;border:0;border-radius:999px;cursor:pointer;background:linear-gradient(#ffd77a,#eaa63c);color:#4a2508;font:800 12px Fredoka,Nunito,sans-serif;box-shadow:0 2px 0 #b06e1d}
-.panel .row button.go{background:linear-gradient(#7dffae,#2fcf6a);color:#063a19;box-shadow:0 2px 0 #1b8a43}
-.panel .st{margin-top:5px;font-weight:800}
-.note{position:absolute;z-index:700;left:50%;top:46px;transform:translateX(-50%);background:#fff8e6;border-radius:12px;padding:7px 12px;box-shadow:0 2px 8px #0004;font:700 12px Nunito,sans-serif;max-width:90%;display:none;text-align:center}
-.note.on{display:block}
+.line{text-align:center;font:800 12px/1.3 Nunito,sans-serif;color:#fff3c6;min-height:16px}
+.line.note{color:#43ff81}
+.l360{display:none;max-width:520px;margin:0 auto;text-align:center;color:#fff3c6;font:800 12px/1.4 Nunito,sans-serif}
+.l360.on{display:block}
+.l360 h4{margin:0;font:800 16px Fredoka,Nunito,sans-serif;color:#ffd77a}
+.l360 p{margin:2px 0}
+.l360 input{width:min(100%,360px);margin:5px auto 2px;display:block;padding:6px 10px;border-radius:10px;border:1px solid #e7b567;background:#fff8e6ee;font:700 12px Nunito,sans-serif;color:#2a1a0c;text-shadow:none}
+.l360 .acts{display:flex;justify-content:center;gap:18px}
+.l360 .acts button{border:0;background:none;cursor:pointer;font:800 15px Fredoka,Nunito,sans-serif;color:#ffd77a;padding:2px}
+.l360 .acts button.go{color:#43ff81}
 </style>
 </head>
 <body>
 <div class="room">
-  <h3 class="head">Where's Waldo</h3>
   <div class="who" id="who"></div>
-  <div class="frame"><div class="screen">
-    <div id="map"></div>
-    <div class="ctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="all">All</button><button id="l360">Life360</button><button id="share">Share: Off</button></div>
-    <div class="panel" id="lp">
-      <h4>Connect your Life360</h4>
-      <div>Your Life360 shows <b>your</b> people, and only you see them here. Each person connects their own.</div>
-      <ol><li>On a computer, sign in at life360.com.</li><li>Press F12, open Application, then Cookies, then life360.com.</li><li>Copy the value named <b>access_token</b> and paste it here.</li></ol>
-      <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
-      <div class="st" id="ls"></div>
-      <div class="row"><button id="loff">Turn off</button><button id="lclose">Close</button><button class="go" id="lsave">Connect</button></div>
-    </div>
-    <div class="tag" id="tag"></div>
-    <div class="note" id="note"></div>
-  </div></div>
-  <div class="line" id="line">You see family who turn Share on, plus your own Life360 people. Nobody else sees your Life360.</div>
+  <div class="ctl"><button id="all">Everyone</button><button id="l360">Life360</button><button id="share">Share: off</button></div>
+  <div class="map-wrap"><div id="map"></div></div>
+  <div class="l360" id="lp">
+    <h4>Your Life360</h4>
+    <p>It shows your people, and only you see them here. Everyone connects their own.</p>
+    <p>On a computer, sign in at life360.com, press F12, open Application, then Cookies, then life360.com, and copy the access_token.</p>
+    <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
+    <p id="ls"></p>
+    <div class="acts"><button class="go" id="lsave">Connect</button><button id="loff">Turn off</button><button id="lclose">Close</button></div>
+  </div>
+  <div class="line" id="line">You see family who turn Share on, plus your own Life360 people.</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -79,7 +70,7 @@ body.solo{background:#6b4a2b}
   var DEMO = /[?&]demo=1/.test(location.search);
   if (window.parent === window) document.body.classList.add("solo");
   var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
-  var map = L.map("map", { zoomControl: false, attributionControl: true }).setView([37.2, -93.3], 7);
+  var map = L.map("map", { zoomControl: false, attributionControl: true, zoomSnap: 0.5 }).setView([37.2, -93.3], 7);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
   var markers = {}, last = [], fitted = false, sharing = false, watchId = null, lastSent = 0, admin = false, l360 = { connected: false };
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -117,7 +108,6 @@ body.solo{background:#6b4a2b}
     if (!last.length) who.innerHTML = '<div class="empty">Nobody is sharing yet</div>';
     if (!fitted && last.length) { fitAll(); fitted = true; }
     setTimeout(spread, 0);
-    $("tag").textContent = last.length ? (DEMO ? "Sample spots · " : "") + last.length + " showing · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
     tellHeight();
   }
   function spread(){ // fan out people who sit on top of each other so every face shows
@@ -133,13 +123,13 @@ body.solo{background:#6b4a2b}
   }
   map.on("zoomend viewreset", spread);
   function findPerson(p){
-    document.querySelector(".frame").scrollIntoView({ behavior: "smooth", block: "center" });
     map.setView([p.lat, p.lng], Math.max(map.getZoom(), 13)); setTimeout(function(){ markers[p.key] && markers[p.key].openPopup(); }, 400);
   }
   function tellHeight(){ try { window.parent.postMessage({ type: "ohana-waldo-height", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
   window.addEventListener("resize", function(){ map.invalidateSize(); tellHeight(); });
-  function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 3500); }
-  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: Off"; b.className = sharing ? "go" : ""; }
+  var LINE = "You see family who turn Share on, plus your own Life360 people.", noteT = null;
+  function note(t){ var n = $("line"); n.textContent = t; n.classList.add("note"); clearTimeout(noteT); noteT = setTimeout(function(){ n.textContent = LINE; n.classList.remove("note"); }, 4000); }
+  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.className = sharing ? "go" : ""; }
   function send(pos){
     if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
     fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).then(load);
@@ -162,7 +152,7 @@ body.solo{background:#6b4a2b}
   }
   function load(){
     if (DEMO) return demo();
-    if (!tok) { last = []; draw(); $("line").textContent = "Sign in to Ohana Home to see the map."; return; }
+    if (!tok) { last = []; draw(); LINE = "Sign in to Ohana Home to see the map."; $("line").textContent = LINE; return; }
     var h = { authorization: "Bearer " + tok };
     fetch("/people/api/family", { headers: h, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
       if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); l360 = f.life360 || { connected: false }; }
@@ -173,10 +163,10 @@ body.solo{background:#6b4a2b}
     }).then(function(d){
       last = ((d && d.people) || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
       draw(); setL360();
-    }).catch(function(){ $("tag").textContent = "offline"; });
+    }).catch(function(){ note("Can't reach the map right now. Trying again."); });
   }
   function setL360(){
-    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 !" : "Life360 ✓") : "Life360"; b.className = l360.connected && !l360.error ? "go" : "";
+    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 needs a new key" : "Life360 on") : "Life360"; b.className = l360.connected && !l360.error ? "go" : "";
     $("ls").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh key." : "Connected. " + (l360.members || 0) + " of your people coming in.") : "Not connected yet.";
     $("loff").style.display = l360.connected ? "" : "none";
   }
@@ -196,8 +186,6 @@ body.solo{background:#6b4a2b}
     });
   };
   $("loff").onclick = function(){ sendL360({ off: true }).then(function(){ l360 = { connected: false }; setL360(); $("lp").classList.remove("on"); note("Your Life360 is turned off here."); load(); }); };
-  $("zin").onclick = function(){ map.zoomIn(); };
-  $("zout").onclick = function(){ map.zoomOut(); };
   $("all").onclick = fitAll;
   $("share").onclick = function(){
     if (DEMO) { sharing = !sharing; setShare(); return note(sharing ? "Your family can see you while Ohana is open." : "Sharing is off. Your spot was removed."); }
