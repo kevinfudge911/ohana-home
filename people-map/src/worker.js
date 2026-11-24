@@ -170,7 +170,9 @@ async function buildWhere(env) {
   const result = [];
   const emit = (o) => result.push(o);
   const first = (src, n) => { n = lc(n); if (!n || / /.test(n)) return null; const hits = feed.filter((f) => f.source === src && lc(f.who).split(" ")[0] === n); return hits.length === 1 ? lc(hits[0].who) : null; };
-  const nameOk = (src, f, n) => lc(f.who) === lc(n) || (!feed.some((g) => g.source === src && lc(g.who) === lc(n)) && first(src, n) === lc(f.who));
+  const nameOk1 = (src, f, n) => lc(f.who) === lc(n) || (!feed.some((g) => g.source === src && lc(g.who) === lc(n)) && first(src, n) === lc(f.who));
+  // A person's feed name can list a few names, like "Suzanne|Sue|KangaSue", since a Google or Life360 account may use any of them.
+  const nameOk = (src, f, n) => String(n || "").split("|").some((x) => x.trim() && nameOk1(src, f, x.trim()));
   const pickFeed = (p) => feed.filter((f) => (f.source === "life360" && nameOk("life360", f, p.life360_name)) || (f.source === "google" && nameOk("google", f, p.google_name)))
     .sort((a, b) => ms(b.at) - ms(a.at))[0];
 
