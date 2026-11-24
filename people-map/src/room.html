@@ -11,21 +11,7 @@
 html,body{margin:0;background:transparent;font:600 13px/1.25 Nunito,system-ui,sans-serif;color:#2a1a0c}
 body.solo{background:#d4d6dc}
 .room{max-width:1100px;margin:0 auto;padding:6px 6px 12px;display:grid;gap:8px}
-.scene{position:relative;width:100%;max-width:820px;margin:0 auto;border-radius:22px;padding:7px;background:linear-gradient(#b87633,#7a4618);box-shadow:0 0 0 2px #4a2a0e,inset 0 0 0 2px #e7b567,0 8px 16px #0007}
-.scene-in{position:relative;border-radius:16px;overflow:hidden;line-height:0}
-.scene-in>img.town{display:block;width:100%;height:auto}
-.scene-in>img.sign{position:absolute;left:50%;top:1.2%;width:46%;transform:translateX(-50%);filter:drop-shadow(0 4px 5px #000a)}
-.hide{position:absolute;transform:translate(-50%,-100%);border:0;background:none;padding:0;cursor:pointer;line-height:0;z-index:2}
-.hide img{width:clamp(24px,5.4vw,46px);height:auto;filter:drop-shadow(0 2px 2px #000b)}
-.hide span,.ribbon{display:block;margin:1px auto 0;width:max-content;padding:1px 6px 2px;border-radius:6px;background:linear-gradient(#fff6dc,#f1d79a);border:1px solid #8a5a22;color:#4a2508;font:800 clamp(8px,1.5vw,11px)/1.2 Nunito,sans-serif;box-shadow:0 1px 3px #0007;white-space:nowrap}
-.hide.tag{transform:translate(-50%,-50%)}
-.hide.tag span{position:relative}
-.hide.tag span::after{content:'';position:absolute;left:50%;bottom:-5px;margin-left:-4px;border:4px solid transparent;border-top-color:#8a5a22;border-bottom:0}
-.hide.found{animation:found 1.2s ease-in-out 2}
-@keyframes found{50%{transform:translate(-50%,-112%) scale(1.25)}}
-.hide.tag.found{animation:foundtag 1.2s ease-in-out 2}
-@keyframes foundtag{50%{transform:translate(-50%,-60%) scale(1.25)}}
-.hint{position:absolute;left:10px;bottom:8px;z-index:3;line-height:1.2;font:800 clamp(10px,1.6vw,13px) Fredoka,Nunito,sans-serif;color:#fff6da;text-shadow:0 1px 2px #000,0 0 6px #000}
+.head{margin:2px 0 0;text-align:center;font:800 18px/1.2 Fredoka,Nunito,sans-serif;color:#43ff81;text-shadow:0 1px 2px #000,0 0 4px #000}
 .who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;margin:0}
 .p{display:grid;justify-items:center;gap:1px;padding:2px 4px;border:0;background:none;cursor:pointer;font:inherit;max-width:96px}
 .p img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px #0005)}
@@ -35,7 +21,7 @@ body.solo{background:#d4d6dc}
 .p.on b{color:#fff}
 .empty{font:700 12px Nunito,sans-serif;color:#4a5563;text-align:center;padding:4px}
 .frame{position:relative;width:100%;max-width:820px;margin:0 auto;border-radius:22px;padding:7px;background:linear-gradient(#b87633,#7a4618);box-shadow:0 0 0 2px #4a2a0e,inset 0 0 0 2px #e7b567,0 8px 16px #0007}
-.screen{position:relative;width:100%;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:#efe2c4}
+.screen{position:relative;width:100%;aspect-ratio:16/10;min-height:300px;border-radius:16px;overflow:hidden;background:#efe2c4}
 .screen .leaflet-tile-pane{filter:sepia(.38) saturate(1.35) hue-rotate(-6deg) contrast(1.04) brightness(1.02)}
 .screen::after{content:'';position:absolute;inset:0;z-index:450;pointer-events:none;border-radius:16px;box-shadow:inset 0 0 0 3px #e7b567,inset 0 0 38px 10px #7a46188c;background:radial-gradient(ellipse at center,transparent 60%,#c89b5a40 100%)}
 #map{position:absolute;inset:0}
@@ -53,26 +39,38 @@ body.solo{background:#d4d6dc}
 .leaflet-popup-content{margin:8px 10px;font:600 12px/1.35 Nunito,sans-serif}
 .leaflet-popup-content b{font:800 13px Fredoka,Nunito,sans-serif}
 .leaflet-container .leaflet-control-attribution{font-size:9px}
+.panel{position:absolute;z-index:800;left:50%;top:46px;transform:translateX(-50%);width:min(92%,380px);background:linear-gradient(#fff8e6,#f6e3b6);border:2px solid #8a5a22;border-radius:16px;padding:10px 12px;box-shadow:0 6px 18px #0006;display:none;font:600 12px/1.35 Nunito,sans-serif;color:#3a2008}
+.panel.on{display:block}
+.panel h4{margin:0 0 4px;font:800 15px Fredoka,Nunito,sans-serif;color:#4a2508}
+.panel ol{margin:4px 0 6px;padding-left:18px}
+.panel input{width:100%;padding:7px 9px;border-radius:10px;border:1px solid #b98a4a;font:600 12px Nunito,sans-serif;background:#fff}
+.panel .row{display:flex;gap:6px;margin-top:7px;justify-content:flex-end}
+.panel .row button{height:30px;padding:0 12px;border:0;border-radius:999px;cursor:pointer;background:linear-gradient(#ffd77a,#eaa63c);color:#4a2508;font:800 12px Fredoka,Nunito,sans-serif;box-shadow:0 2px 0 #b06e1d}
+.panel .row button.go{background:linear-gradient(#7dffae,#2fcf6a);color:#063a19;box-shadow:0 2px 0 #1b8a43}
+.panel .st{margin-top:5px;font-weight:800}
 .note{position:absolute;z-index:700;left:50%;top:46px;transform:translateX(-50%);background:#fff8e6;border-radius:12px;padding:7px 12px;box-shadow:0 2px 8px #0004;font:700 12px Nunito,sans-serif;max-width:90%;display:none;text-align:center}
 .note.on{display:block}
 </style>
 </head>
 <body>
 <div class="room">
-  <div class="scene"><div class="scene-in">
-    <img class="town" src="/people/art/waldo-town.webp" alt="A busy lakeside town full of people to find">
-    <img class="sign" src="/people/art/waldo-sign.webp" alt="Where's Waldo">
-    <div id="hide"></div>
-    <div class="hint" id="hint"></div>
-  </div></div>
+  <h3 class="head">Where's Waldo</h3>
   <div class="who" id="who"></div>
   <div class="frame"><div class="screen">
     <div id="map"></div>
-    <div class="ctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="all">All</button><button id="share">Share: Off</button></div>
+    <div class="ctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="all">All</button><button id="l360">Life360</button><button id="share">Share: Off</button></div>
+    <div class="panel" id="lp">
+      <h4>Connect your Life360</h4>
+      <div>Your Life360 shows <b>your</b> people, and only you see them here. Each person connects their own.</div>
+      <ol><li>On a computer, sign in at life360.com.</li><li>Press F12, open Application, then Cookies, then life360.com.</li><li>Copy the value named <b>access_token</b> and paste it here.</li></ol>
+      <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
+      <div class="st" id="ls"></div>
+      <div class="row"><button id="loff">Turn off</button><button id="lclose">Close</button><button class="go" id="lsave">Connect</button></div>
+    </div>
     <div class="tag" id="tag"></div>
     <div class="note" id="note"></div>
   </div></div>
-  <div class="line" id="line">Only family who turn Share on show up here. Turn it off and your spot is gone.</div>
+  <div class="line" id="line">You see family who turn Share on, plus your own Life360 people. Nobody else sees your Life360.</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -83,15 +81,15 @@ body.solo{background:#d4d6dc}
   var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
   var map = L.map("map", { zoomControl: false, attributionControl: true }).setView([37.2, -93.3], 7);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
-  var markers = {}, last = [], fitted = false, sharing = false, watchId = null, lastSent = 0, admin = false;
+  var markers = {}, last = [], fitted = false, sharing = false, watchId = null, lastSent = 0, admin = false, l360 = { connected: false };
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
   function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
   function ago(iso){ var m = Math.round((Date.now() - Date.parse(iso)) / 60000); if (!isFinite(m)) return ""; if (m < 1) return "just now"; if (m < 60) return m + " min ago"; var h = Math.round(m / 60); if (h < 24) return h + " hr ago"; return Math.round(h / 24) + " days ago"; }
   function sub(p){ return p.label ? p.label : ago(p.at); }
   function icon(p){
     var w = p.kind === "vehicle" ? 56 : p.kind === "place" ? 36 : 36, h = p.kind === "vehicle" ? 34 : p.kind === "place" ? 32 : 40;
-    var inner = p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="" style="width:' + w + 'px;height:' + h + 'px">' : '<div class="pin">' + esc((p.name || "?").charAt(0)) + "</div>";
-    if (!p.art) h = 28;
+    if (!p.art) { w = 28; h = 31; }
+    var inner = '<img src="' + esc(artUrl(p.art || "person.svg")) + '" alt="" style="width:' + w + 'px;height:' + h + 'px">';
     var W = Math.max(w, 64);
     return L.divIcon({ className: "pm" + (Date.now() - Date.parse(p.at) > 2 * 3600e3 ? " old" : ""), html: inner + "<span>" + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
   }
@@ -112,13 +110,13 @@ body.solo{background:#d4d6dc}
     var who = $("who"); who.innerHTML = "";
     last.forEach(function(p){
       var b = document.createElement("button"); b.className = "p";
-      b.innerHTML = (p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="">' : '<div class="dot">' + esc((p.name || "?").charAt(0)) + "</div>") + "<b>" + esc(p.name) + "</b><small>" + esc(sub(p)) + "</small>";
+      b.innerHTML = '<img src="' + esc(artUrl(p.art || "person.svg")) + '" alt=""' + (p.art ? "" : ' style="width:30px;height:34px"') + "><b>" + esc(p.name) + "</b><small>" + esc(sub(p)) + "</small>";
       b.onclick = function(){ findPerson(p); };
       who.appendChild(b);
     });
     if (!last.length) who.innerHTML = '<div class="empty">Nobody is sharing yet</div>';
     if (!fitted && last.length) { fitAll(); fitted = true; }
-    setTimeout(spread, 0); placeInTown();
+    setTimeout(spread, 0);
     $("tag").textContent = last.length ? (DEMO ? "Sample spots · " : "") + last.length + " showing · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
     tellHeight();
   }
@@ -134,36 +132,12 @@ body.solo{background:#d4d6dc}
     });
   }
   map.on("zoomend viewreset", spread);
-  // Hiding spots in the town picture (percent of width / height). Vehicles and the fire station get a tag on the painted one.
-  var SPOT = { porch: [14.1, 67.8], station: [21.5, 37], limo: [28.9, 47], van: [34.5, 56.5] };
-  var OPEN = [[46, 49.5], [59.2, 29.5], [84.9, 29.5], [75.7, 61.3], [89.5, 75.5], [65.8, 89.6], [15.1, 82.5], [92.1, 50.7], [45.4, 20.6], [42.8, 70.8], [52, 62], [70, 45]];
-  function hashOf(k){ var h = 0; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0; return h; }
-  function placeInTown(){
-    var box = $("hide"); box.innerHTML = ""; var used = {}, taken = {};
-    last.forEach(function(p){
-      var a = String(p.art || ""), spot = null, tag = false;
-      if (p.kind === "vehicle") { tag = true; spot = /van/.test(a) ? "van" : "limo"; }
-      else if (/fire-truck/.test(a)) { tag = true; spot = "station"; }
-      else if (/house/.test(a) || /^home$/i.test(p.label || "")) spot = "porch";
-      var xy = spot && !taken[spot] ? SPOT[spot] : null;
-      if (xy) taken[spot] = 1;
-      else { var n = hashOf(p.key) % OPEN.length; for (var i = 0; i < OPEN.length && used[(n + i) % OPEN.length]; i++); n = (n + i) % OPEN.length; used[n] = 1; xy = OPEN[n]; tag = !p.art || p.kind !== "character"; }
-      var b = document.createElement("button"); b.className = "hide" + (tag ? " tag" : ""); b.style.left = xy[0] + "%"; b.style.top = xy[1] + "%";
-      b.title = p.name; b.setAttribute("aria-label", "Find " + p.name);
-      b.innerHTML = (tag ? "" : '<img src="' + esc(artUrl(p.art)) + '" alt="">') + "<span>" + esc(p.name) + "</span>";
-      b.onclick = function(){ findPerson(p); };
-      p._town = b; box.appendChild(b);
-    });
-    $("hint").textContent = last.length ? "Find your people in town, then tap them" : "";
-  }
   function findPerson(p){
-    if (p._town) { p._town.classList.remove("found"); void p._town.offsetWidth; p._town.classList.add("found"); }
     document.querySelector(".frame").scrollIntoView({ behavior: "smooth", block: "center" });
     map.setView([p.lat, p.lng], Math.max(map.getZoom(), 13)); setTimeout(function(){ markers[p.key] && markers[p.key].openPopup(); }, 400);
   }
   function tellHeight(){ try { window.parent.postMessage({ type: "ohana-waldo-height", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
   window.addEventListener("resize", function(){ map.invalidateSize(); tellHeight(); });
-  document.querySelector(".town").addEventListener("load", tellHeight);
   function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 3500); }
   function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: Off"; b.className = sharing ? "go" : ""; }
   function send(pos){
@@ -191,16 +165,37 @@ body.solo{background:#d4d6dc}
     if (!tok) { last = []; draw(); $("line").textContent = "Sign in to Ohana Home to see the map."; return; }
     var h = { authorization: "Bearer " + tok };
     fetch("/people/api/family", { headers: h, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
-      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); }
+      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); l360 = f.life360 || { connected: false }; }
       return fetch("/people/api/where", { headers: h, cache: "no-store" }).then(function(r){
-        if (r.ok) { admin = true; return r.json(); }
-        return f;
+        if (r.ok) { admin = true; return r.json().then(function(d){ l360 = (d.sources && d.sources.life360) || { connected: false }; return d; }); }
+        return f ? { people: (f.people || []).concat(f.mine || []) } : null;
       });
     }).then(function(d){
       last = ((d && d.people) || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
-      draw();
+      draw(); setL360();
     }).catch(function(){ $("tag").textContent = "offline"; });
   }
+  function setL360(){
+    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 !" : "Life360 ✓") : "Life360"; b.className = l360.connected && !l360.error ? "go" : "";
+    $("ls").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh key." : "Connected. " + (l360.members || 0) + " of your people coming in.") : "Not connected yet.";
+    $("loff").style.display = l360.connected ? "" : "none";
+  }
+  function sendL360(body){
+    if (DEMO) { l360 = body.off ? { connected: false } : { connected: true, members: 4 }; setL360(); return Promise.resolve({ ok: true }); }
+    return fetch(admin ? "/people/api/life360" : "/people/api/family/life360", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify(body) }).then(function(r){ return r.json(); });
+  }
+  $("l360").onclick = function(){ setL360(); $("lp").classList.toggle("on"); };
+  $("lclose").onclick = function(){ $("lp").classList.remove("on"); };
+  $("lsave").onclick = function(){
+    var k = $("lk").value.trim(); if (!k) return;
+    sendL360({ key: k }).then(function(d){
+      $("lk").value = "";
+      if (!d.ok) { $("ls").textContent = d.error || "That didn't work."; return; }
+      if (d.status) l360 = d.status; setL360();
+      note(d.status && d.status.error ? "Saved, but Life360 said no. Try a fresh key." : "Life360 connected. Your people are coming in."); load();
+    });
+  };
+  $("loff").onclick = function(){ sendL360({ off: true }).then(function(){ l360 = { connected: false }; setL360(); $("lp").classList.remove("on"); note("Your Life360 is turned off here."); load(); }); };
   $("zin").onclick = function(){ map.zoomIn(); };
   $("zout").onclick = function(){ map.zoomOut(); };
   $("all").onclick = fitAll;

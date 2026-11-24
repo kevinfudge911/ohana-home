@@ -23,3 +23,5 @@ INSERT OR IGNORE INTO people (key,name,ohana_member_id,limo_driver_id,jj_member,
 CREATE TABLE IF NOT EXISTS family_share (member_id INTEGER PRIMARY KEY, sharing INTEGER NOT NULL DEFAULT 0, lat REAL, lng REAL, acc REAL, at TEXT, changed TEXT);
 
 CREATE TABLE IF NOT EXISTS art (name TEXT NOT NULL, part INTEGER NOT NULL, type TEXT, data BLOB, at TEXT, PRIMARY KEY(name, part));
+CREATE TABLE IF NOT EXISTS member_life360 (member_id INTEGER PRIMARY KEY, key TEXT NOT NULL, status TEXT, at TEXT);
+CREATE TABLE IF NOT EXISTS member_feed (owner_id INTEGER NOT NULL, source TEXT NOT NULL, who TEXT NOT NULL, lat REAL NOT NULL, lng REAL NOT NULL, acc REAL, place TEXT, since TEXT, at TEXT NOT NULL, PRIMARY KEY(owner_id, source, who));

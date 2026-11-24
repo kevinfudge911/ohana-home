@@ -18,13 +18,14 @@ import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
 import ART_SIGN from "./art/waldo-sign.webp";
 import ART_TOWN from "./art/waldo-town.webp";
+import ART_PERSON from "./art/person.svg";
 
-const VERSION = "people-v4"; // schema version; room page added Nov 24
+const VERSION = "people-v5"; // schema version; per-person Life360 added Nov 24
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
   "grand-van.webp": [ART_VAN, "image/webp"],
-  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"], "waldo-town.webp": [ART_TOWN, "image/webp"],
+  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"], "waldo-town.webp": [ART_TOWN, "image/webp"], "person.svg": [ART_PERSON, "image/svg+xml"],
 };
 const LIMO_FRESH_MS = 30 * 60e3, JJ_FRESH_MS = 30 * 60e3, FEED_KEEP_MS = 3 * 864e5;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -163,7 +164,9 @@ async function buildWhere(env) {
   const used = new Set();
   const result = [];
   const emit = (o) => result.push(o);
-  const pickFeed = (p) => feed.filter((f) => (f.source === "life360" && lc(f.who) === lc(p.life360_name)) || (f.source === "google" && lc(f.who) === lc(p.google_name)))
+  const first = (src, n) => { n = lc(n); if (!n || / /.test(n)) return null; const hits = feed.filter((f) => f.source === src && lc(f.who).split(" ")[0] === n); return hits.length === 1 ? lc(hits[0].who) : null; };
+  const nameOk = (src, f, n) => lc(f.who) === lc(n) || (!feed.some((g) => g.source === src && lc(g.who) === lc(n)) && first(src, n) === lc(f.who));
+  const pickFeed = (p) => feed.filter((f) => (f.source === "life360" && nameOk("life360", f, p.life360_name)) || (f.source === "google" && nameOk("google", f, p.google_name)))
     .sort((a, b) => ms(b.at) - ms(a.at))[0];
 
   for (const p of people) {
@@ -204,7 +207,7 @@ async function buildWhere(env) {
   for (const o of fam) if (!used.has("ohana:" + o.memberId) && !people.some((p) => p.ohana_member_id === o.memberId)) emit(o);
   // Anyone else sharing on Life360/Google shows by their own name.
   for (const f of feed) {
-    if (used.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS) continue;
+    if (used.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS || /@/.test(f.who)) continue; // an email name is the sharing account itself
     emit({ key: f.source + "-" + lc(f.who), name: f.who, lat: f.lat, lng: f.lng, at: f.at, src: f.source === "life360" ? "Life360" : "Google", kind: "pin", art: null, label: f.place || "" });
   }
   const l360 = await getSetting(env, "life360_status");
@@ -251,10 +254,43 @@ export async function pollLife360(env) {
   return status;
 }
 
+// ---- Each Ohana Home person can connect their OWN Life360. Their people go in member_feed under their id and only they see them.
+export async function pollMemberLife360(env, row) {
+  const status = { connected: true, at: new Date().toISOString(), members: 0, error: null };
+  try {
+    const cr = await fetch(L360 + "/v4/circles", { headers: L360_HEADERS(row.key) });
+    if (!cr.ok) throw new Error("circles " + cr.status);
+    for (const c of ((await cr.json()).circles) || []) {
+      const mr = await fetch(L360 + "/v3/circles/" + c.id + "/members", { headers: L360_HEADERS(row.key) });
+      if (!mr.ok) throw new Error("members " + mr.status);
+      for (const m of ((await mr.json()).members) || []) {
+        const loc = m.location; if (!loc || loc.latitude == null) continue;
+        const who = [m.firstName, m.lastName].filter(Boolean).join(" ").trim().slice(0, 40); if (!who) continue;
+        await env.PEOPLE.prepare("INSERT INTO member_feed(owner_id,source,who,lat,lng,acc,place,since,at) VALUES(?,'life360',?,?,?,?,?,?,?) ON CONFLICT(owner_id,source,who) DO UPDATE SET lat=excluded.lat,lng=excluded.lng,acc=excluded.acc,place=excluded.place,since=excluded.since,at=excluded.at")
+          .bind(row.member_id, who, +loc.latitude, +loc.longitude, +loc.accuracy || null, loc.name || null, loc.since ? new Date(1000 * +loc.since).toISOString() : null, new Date(1000 * +(loc.timestamp || 0) || Date.now()).toISOString()).run();
+        status.members++;
+      }
+    }
+  } catch (e) { status.error = String(e.message || e); }
+  await env.PEOPLE.prepare("UPDATE member_life360 SET status=?,at=? WHERE member_id=?").bind(JSON.stringify(status), status.at, row.member_id).run();
+  return status;
+}
+async function pollAllMembers(env) {
+  await ensureSchema(env);
+  const rows = (await env.PEOPLE.prepare("SELECT member_id,key FROM member_life360 LIMIT 50").all()).results || [];
+  for (const r of rows) await pollMemberLife360(env, r).catch(() => null);
+}
+// A person's own people (from their own Life360), shown by name. Never anyone else's.
+async function myPeople(env, me) {
+  const rows = (await env.PEOPLE.prepare("SELECT * FROM member_feed WHERE owner_id=?").bind(me.id).all()).results || [];
+  return rows.filter((f) => Date.now() - ms(f.at) <= FEED_KEEP_MS)
+    .map((f) => ({ key: "mine-" + f.source + "-" + f.who.toLowerCase(), name: f.who, lat: f.lat, lng: f.lng, at: f.at, src: "Life360", kind: "pin", art: null, label: f.place || "" }));
+}
+
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
 
 export default {
-  async scheduled(event, env, ctx) { ctx.waitUntil(pollLife360(env).catch((e) => console.error(String(e)))); },
+  async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([pollLife360(env).catch((e) => console.error(String(e))), pollAllMembers(env).catch((e) => console.error(String(e)))])); },
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname.replace(/\/+$/, "") || "/";
     if (p.startsWith("/people/api/family")) {
@@ -263,7 +299,20 @@ export default {
       await ensureSchema(env);
       if (p === "/people/api/family" && req.method === "GET") {
         const mine = await env.PEOPLE.prepare("SELECT sharing FROM family_share WHERE member_id=?").bind(me.id).first();
-        return json({ ok: true, me: { id: me.id, name: me.name, sharing: !!(mine && mine.sharing) }, people: await familyPeople(env, me.id, false) });
+        const l = await env.PEOPLE.prepare("SELECT status FROM member_life360 WHERE member_id=?").bind(me.id).first();
+        return json({ ok: true, me: { id: me.id, name: me.name, sharing: !!(mine && mine.sharing) }, people: await familyPeople(env, me.id, false),
+          mine: await myPeople(env, me), life360: l ? JSON.parse(l.status || '{"connected":true}') : { connected: false } });
+      }
+      if (p === "/people/api/family/life360" && req.method === "POST") { // this person's OWN Life360 key
+        const b = await readJson(req); const k = String((b && b.key) || "").trim().replace(/^Bearer\s+/i, "");
+        if (b && b.off) {
+          await env.PEOPLE.prepare("DELETE FROM member_life360 WHERE member_id=?").bind(me.id).run();
+          await env.PEOPLE.prepare("DELETE FROM member_feed WHERE owner_id=?").bind(me.id).run();
+          return json({ ok: true, connected: false });
+        }
+        if (k.length < 20 || k.length > 400 || /\s/.test(k)) return json({ ok: false, error: "That doesn't look like a Life360 key." }, 400);
+        await env.PEOPLE.prepare("INSERT INTO member_life360(member_id,key,at) VALUES(?,?,?) ON CONFLICT(member_id) DO UPDATE SET key=excluded.key,at=excluded.at").bind(me.id, k, new Date().toISOString()).run();
+        return json({ ok: true, status: await pollMemberLife360(env, { member_id: me.id, key: k }) });
       }
       if (p === "/people/api/family/share" && req.method === "POST") {
         const b = await readJson(req); const on = !!(b && b.on);

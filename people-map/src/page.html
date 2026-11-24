@@ -111,7 +111,7 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
     if (p.art) {
       if (p.kind === "vehicle") { w = 64; h = 40; } else if (p.kind === "place") { w = 40; h = 36; } else { w = 40; h = 46; }
       inner = '<img class="art" src="' + esc(artUrl(p.art)) + '" alt="" style="width:' + w + 'px;height:' + h + 'px;object-fit:contain">';
-    } else { w = 30; h = 30; inner = '<div class="pin"><i>' + esc((p.name || "?").charAt(0)) + '</i></div>'; }
+    } else { w = 28; h = 31; inner = '<img src="/people/art/person.svg" alt="" style="width:28px;height:31px">'; }
     var html = inner + '<span class="who">' + esc(p.name) + '</span>';
     return L.divIcon({ className: "pm" + (old ? " old" : ""), html: html, iconSize: [Math.max(w, 70), h + 18], iconAnchor: [Math.max(w, 70) / 2, h] });
   }
@@ -132,7 +132,7 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
     var dock = $("dock"); dock.innerHTML = "";
     list.forEach(function(p){
       var b = document.createElement("button"); b.className = "chip";
-      b.innerHTML = (p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="">' : '<div class="dot">' + esc((p.name || "?").charAt(0)) + "</div>") +
+      b.innerHTML = '<img src="' + esc(artUrl(p.art || "person.svg")) + '" alt="">' +
         esc(p.name) + " <span>" + esc(ago(p.at)) + "</span>";
       b.onclick = function(){ map.setView([p.lat, p.lng], Math.max(map.getZoom(), 14)); markers[p.key].openPopup(); };
       dock.appendChild(b);
