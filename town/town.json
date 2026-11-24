@@ -1,5 +1,5 @@
 {
- "version": 3,
+ "version": 4,
  "width": 1440,
  "height": 2579,
  "waldo": false,
@@ -609,6 +609,23 @@
    "go": {
     "place": "town:LIVE_EVENTS",
     "web": "https://liveeventsmissouri.com/"
+   }
+  },
+  {
+   "id": "messenger",
+   "label": "Messenger",
+   "shape": "oval",
+   "box": [
+    85,
+    2385,
+    180,
+    2535
+   ],
+   "go": {
+    "app": [
+     "com.facebook.orca"
+    ],
+    "web": "https://www.messenger.com/"
    }
   }
  ]
