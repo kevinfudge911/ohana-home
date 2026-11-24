@@ -1,11 +1,11 @@
 {
- "version": 10,
+ "version": 11,
  "width": 1440,
  "height": 2579,
  "waldo": false,
  "art": {
-  "night": "town-night-v3.webp",
-  "day": "town-day-v4.webp"
+  "night": "town-night-v5.webp",
+  "day": "town-day-v6.webp"
  },
  "spots": [
   {
@@ -683,5 +683,6 @@
     ]
    }
   }
- ]
+ ],
+ "heart": false
 }
