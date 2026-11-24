@@ -59,6 +59,18 @@
     b.addEventListener("click", function () { openRoom(panel); });
     st.parentNode.insertBefore(b, st.nextSibling);
   }
+  // Deep link: ohanahome.app/#waldo (the town's Where's My People shop) opens Ohana Gathering, then this room.
+  if (location.hash === "#waldo") {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    var t0 = Date.now(), asked = false;
+    (function step() {
+      var e = document.querySelector(".waldo-entry");
+      if (e && !room) { e.click(); return; }
+      var g = document.querySelector(".gathering-feature-scene");
+      if (g && !asked && !document.querySelector(".gathering-station")) { asked = true; g.click(); }
+      if (Date.now() - t0 < 30000) setTimeout(step, 400);
+    })();
+  }
   var queued = false;
   function soon() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; tick(); }); }
   new MutationObserver(soon).observe(document.documentElement, { childList: true, subtree: true });
