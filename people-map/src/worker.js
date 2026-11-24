@@ -16,7 +16,7 @@ import ART_FIRETRUCK from "./art/fire-truck.svg";
 import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
 
-const VERSION = "people-v1";
+const VERSION = "people-v2";
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
@@ -62,6 +62,35 @@ async function ohanaAdmin(req, env) {
   if (!m) return null;
   const allow = String(env.ALLOWED_MEMBER_IDS || "5").split(",").map((s) => +s.trim());
   return m.is_admin || allow.includes(m.id) ? m : null;
+}
+
+// Any signed-in Ohana member (for the family map).
+async function ohanaMember(req, env) {
+  const t = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+  if (!t || t.length < 8) return null;
+  return await env.OHANA.prepare("SELECT id,name,avatar,is_admin FROM members WHERE token=?").bind(t).first();
+}
+
+// Family map: only people who turned sharing on, and only family who share an Ohana room with the viewer.
+async function familyPeople(env, viewerId, all) {
+  const rows = (await env.PEOPLE.prepare("SELECT * FROM family_share WHERE sharing=1 AND lat IS NOT NULL").all()).results || [];
+  if (!rows.length) return [];
+  let allowed = null;
+  if (!all) {
+    const r = (await env.OHANA.prepare("SELECT DISTINCT b.member_id AS id FROM room_members a JOIN room_members b ON a.room_id=b.room_id WHERE a.member_id=?").bind(viewerId).all()).results || [];
+    allowed = new Set(r.map((x) => Number(x.id))); allowed.add(viewerId);
+  }
+  const ids = rows.map((r) => r.member_id).filter((id) => !allowed || allowed.has(id));
+  if (!ids.length) return [];
+  const mem = (await env.OHANA.prepare("SELECT id,name,avatar FROM members WHERE id IN (" + ids.map(() => "?").join(",") + ")").bind(...ids).all()).results || [];
+  const byId = Object.fromEntries(mem.map((m) => [m.id, m]));
+  const out = [];
+  for (const r of rows) {
+    const m = byId[r.member_id]; if (!m) continue;
+    const c = CHARS[m.avatar];
+    out.push({ key: "ohana-" + m.id, memberId: m.id, name: m.name, lat: r.lat, lng: r.lng, at: r.at, src: "Ohana", kind: c ? "character" : "pin", art: c ? c.f : null, character: c ? c.n : null, label: "" });
+  }
+  return out;
 }
 
 async function limoDrivers(env) {
@@ -122,7 +151,7 @@ async function buildWhere(env) {
   const memberById = Object.fromEntries(members.map((m) => [m.id, m]));
   const feed = (await env.PEOPLE.prepare("SELECT * FROM feed_positions").all()).results || [];
   const places = (await env.PEOPLE.prepare("SELECT * FROM places").all()).results || [];
-  const [limo, jj] = await Promise.all([limoDrivers(env).catch(() => []), jjDrivers(env).catch(() => [])]);
+  const [limo, jj, fam] = await Promise.all([limoDrivers(env).catch(() => []), jjDrivers(env).catch(() => []), familyPeople(env, 0, true).catch(() => [])]);
   const lc = (s) => String(s || "").trim().toLowerCase();
   const charFor = (memberId) => {
     const m = memberById[memberId]; if (!m) return null;
@@ -146,6 +175,8 @@ async function buildWhere(env) {
     else {
       const cands = [];
       if (j) cands.push({ lat: j.lat, lng: j.lng, at: j.at, src: "JJ Friends", place: null });
+      const o = fam.find((x) => x.memberId === p.ohana_member_id);
+      if (o) { cands.push({ lat: o.lat, lng: o.lng, at: o.at, src: "Ohana", place: null }); used.add("ohana:" + o.memberId); }
       if (f) cands.push({ lat: f.lat, lng: f.lng, at: f.at, src: f.source === "life360" ? "Life360" : "Google", place: f.place, since: f.since });
       if (!cands.length) continue;
       const c = cands.sort((a, b) => ms(b.at) - ms(a.at))[0];
@@ -166,6 +197,8 @@ async function buildWhere(env) {
     const v = vehicleArt(l.vehicle);
     emit({ key: "limo-" + l.driverId, name: l.first || l.name, lat: l.lat, lng: l.lng, at: l.at, src: "Limo app", kind: "vehicle", art: v.art, label: v.label + " · on the clock" });
   }
+  // Family sharing in Ohana who aren't in the people list show as their character.
+  for (const o of fam) if (!used.has("ohana:" + o.memberId) && !people.some((p) => p.ohana_member_id === o.memberId)) emit(o);
   // Anyone else sharing on Life360/Google shows by their own name.
   for (const f of feed) {
     if (used.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS) continue;
@@ -221,8 +254,30 @@ export default {
   async scheduled(event, env, ctx) { ctx.waitUntil(pollLife360(env).catch((e) => console.error(String(e)))); },
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname.replace(/\/+$/, "") || "/";
-    if (req.method === "GET" && (p === "/people" || p === "/people/index.html"))
-      return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "same-origin" } });
+    if (p.startsWith("/people/api/family")) {
+      const me = await ohanaMember(req, env);
+      if (!me) return json({ ok: false, error: "sign in" }, 401);
+      await ensureSchema(env);
+      if (p === "/people/api/family" && req.method === "GET") {
+        const mine = await env.PEOPLE.prepare("SELECT sharing FROM family_share WHERE member_id=?").bind(me.id).first();
+        return json({ ok: true, me: { id: me.id, name: me.name, sharing: !!(mine && mine.sharing) }, people: await familyPeople(env, me.id, false) });
+      }
+      if (p === "/people/api/family/share" && req.method === "POST") {
+        const b = await readJson(req); const on = !!(b && b.on);
+        if (on) await env.PEOPLE.prepare("INSERT INTO family_share(member_id,sharing,changed) VALUES(?,1,?) ON CONFLICT(member_id) DO UPDATE SET sharing=1,changed=excluded.changed").bind(me.id, new Date().toISOString()).run();
+        else await env.PEOPLE.prepare("INSERT INTO family_share(member_id,sharing,changed) VALUES(?,0,?) ON CONFLICT(member_id) DO UPDATE SET sharing=0,lat=NULL,lng=NULL,acc=NULL,at=NULL,changed=excluded.changed").bind(me.id, new Date().toISOString()).run();
+        return json({ ok: true, sharing: on });
+      }
+      if (p === "/people/api/family/spot" && req.method === "POST") {
+        const b = await readJson(req); const lat = +(b && b.lat), lng = +(b && b.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return json({ ok: false }, 400);
+        const r = await env.PEOPLE.prepare("UPDATE family_share SET lat=?,lng=?,acc=?,at=? WHERE member_id=? AND sharing=1").bind(lat, lng, Number.isFinite(+b.acc) ? +b.acc : null, new Date().toISOString(), me.id).run();
+        return json({ ok: true, saved: !!(r.meta && r.meta.changes) });
+      }
+      return json({ ok: false, error: "not found" }, 404);
+    }
+    if (req.method === "GET" && (p === "/people" || p === "/people/index.html" || p === "/people/family"))
+      return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
       const a = ART[p.slice(12)]; if (!a) return new Response("Not found", { status: 404 });
       return new Response(a[0], { headers: { "content-type": a[1], "cache-control": "public, max-age=86400" } });

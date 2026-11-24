@@ -59,11 +59,12 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
 <div id="map"></div>
 <div class="top">
   <a class="home" href="/" title="Back to Ohana Home">🏠</a>
-  <h1>Where's My <b>People</b>?</h1>
+  <h1 id="ttl">Where's My <b>People</b>?</h1>
   <div class="sp"></div>
   <small id="when"></small>
   <button class="btn" id="fit" title="Show everybody">All</button>
   <button class="btn" id="l360btn">Life360</button>
+  <button class="btn" id="sharebtn" style="display:none">Share: Off</button>
 </div>
 <div class="dock" id="dock"></div>
 <div class="note" id="note"></div>
@@ -85,11 +86,18 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
 (function(){
   var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
   var $ = function(id){ return document.getElementById(id); };
+  var FAMILY = /\/people\/family\/?$/.test(location.pathname);
+  if (FAMILY) {
+    document.title = "Ohana Map";
+    $("ttl").innerHTML = "Ohana <b>Map</b>";
+    $("l360btn").style.display = "none";
+    $("sharebtn").style.display = "";
+  }
   if (!tok) { $("signin").classList.add("on"); return; }
   var map = L.map("map", { zoomControl: false, attributionControl: true }).setView([38.5, -95.5], 4);
   L.control.zoom({ position: "bottomright" }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-    maxZoom: 19, subdomains: "abcd", attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
   var markers = {}, last = [], fitted = false;
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
   function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
@@ -129,7 +137,7 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
       b.onclick = function(){ map.setView([p.lat, p.lng], Math.max(map.getZoom(), 14)); markers[p.key].openPopup(); };
       dock.appendChild(b);
     });
-    if (!list.length) dock.innerHTML = '<span class="chip">Nobody sharing right now</span>';
+    if (!list.length) dock.innerHTML = '<span class="chip">' + (FAMILY ? "Nobody is sharing yet" : "Nobody sharing right now") + "</span>";
   }
   function fitAll(){
     if (!last.length) return;
@@ -138,9 +146,42 @@ html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Ro
   }
   var l360 = { connected: false };
   function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 4000); }
-  function load(){
-    fetch("/people/api/where", { headers: { authorization: "Bearer " + tok }, cache: "no-store" }).then(function(r){
+  var sharing = false, watchId = null, lastSent = 0;
+  function setShareBtn(){ var b = $("sharebtn"); b.textContent = sharing ? "Sharing: On" : "Share: Off"; b.className = sharing ? "btn go" : "btn"; }
+  function sendSpot(pos){
+    if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
+    fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" },
+      body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).then(function(){ load(); });
+  }
+  function startWatch(){
+    if (!navigator.geolocation || watchId != null) return;
+    watchId = navigator.geolocation.watchPosition(sendSpot, function(e){ if (e.code === 1) note("Location is blocked for Ohana on this phone. Allow it in the browser to share."); }, { enableHighAccuracy: true, maximumAge: 60000, timeout: 30000 });
+  }
+  function stopWatch(){ if (watchId != null && navigator.geolocation) navigator.geolocation.clearWatch(watchId); watchId = null; }
+  function loadFamily(){
+    fetch("/people/api/family", { headers: { authorization: "Bearer " + tok }, cache: "no-store" }).then(function(r){
       if (r.status === 401) { $("signin").classList.add("on"); throw 0; }
+      return r.json();
+    }).then(function(d){
+      sharing = !!(d.me && d.me.sharing); setShareBtn(); if (sharing) startWatch(); else stopWatch();
+      last = (d.people || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
+      draw(last); if (!fitted && last.length) { fitAll(); fitted = true; }
+      $("when").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }).catch(function(e){ if (e !== 0) $("when").textContent = "offline"; });
+  }
+  $("sharebtn").onclick = function(){
+    var on = !sharing;
+    fetch("/people/api/family/share", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ on: on }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (!d.ok) return; sharing = on; setShareBtn(); lastSent = 0;
+        if (on) { startWatch(); note("Your family can see you while Ohana is open."); } else { stopWatch(); note("Sharing is off. Your spot was removed."); }
+        load();
+      });
+  };
+  function load(){
+    if (FAMILY) return loadFamily();
+    fetch("/people/api/where", { headers: { authorization: "Bearer " + tok }, cache: "no-store" }).then(function(r){
+      if (r.status === 401) { location.replace("/people/family"); throw 0; }
       return r.json();
     }).then(function(d){
       last = (d.people || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
