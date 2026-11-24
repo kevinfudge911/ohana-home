@@ -17,13 +17,14 @@ import ART_FIRETRUCK from "./art/fire-truck.svg";
 import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
 import ART_SIGN from "./art/waldo-sign.webp";
+import ART_TOWN from "./art/waldo-town.webp";
 
-const VERSION = "people-v3"; // schema version; room page added Nov 24
+const VERSION = "people-v4"; // schema version; room page added Nov 24
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
   "grand-van.webp": [ART_VAN, "image/webp"],
-  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"],
+  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"], "waldo-town.webp": [ART_TOWN, "image/webp"],
 };
 const LIMO_FRESH_MS = 30 * 60e3, JJ_FRESH_MS = 30 * 60e3, FEED_KEEP_MS = 3 * 864e5;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
