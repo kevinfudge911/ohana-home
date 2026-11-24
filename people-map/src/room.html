@@ -408,6 +408,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   $("lclose").onclick = function(){ $("lp").classList.remove("on"); tellHeight(); };
   $("lsave").onclick = function(){
     var k = $("lk").value.trim(); if (!k) return;
+    if (/%[0-9A-F]{2}/i.test(k)) { try { k = decodeURIComponent(k); } catch (e) {} }
     // Take whatever got copied: the bare key, "Bearer key", access_token=key, or the whole token reply.
     var m = k.match(/"access_token"\s*:\s*"([^"]+)"/) || k.match(/(?:access_token|LIFE360_AUTH_TOKEN)\s*[=:]\s*["']?([A-Za-z0-9._~+\/-]+)/i) || k.match(/Bearer\s+([A-Za-z0-9._~+\/-]+)/i);
     if (m) k = m[1]; k = k.replace(/^["']|["';]$/g, "").trim();
