@@ -110,7 +110,13 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   var HAT = '<svg viewBox="0 0 40 40"><defs><clipPath id="hc"><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z"/></clipPath></defs><g clip-path="url(#hc)"><rect width="40" height="40" fill="#fff"/><g fill="#d7141d"><rect y="8" width="40" height="5"/><rect y="18" width="40" height="5"/><rect y="28" width="40" height="5"/></g></g><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z" fill="none" stroke="#141414" stroke-width="2"/><rect x="3" y="31" width="32" height="6" rx="3" fill="#d7141d" stroke="#141414" stroke-width="2"/><circle cx="25" cy="6" r="4.5" fill="#fff" stroke="#141414" stroke-width="2"/></svg>';
   var GLASSES = '<svg viewBox="0 0 44 22"><g fill="#ffffffcc" stroke="#141414" stroke-width="3"><circle cx="11" cy="11" r="8"/><circle cx="33" cy="11" r="8"/></g><path d="M19 10q3-3 6 0M3 9 1 6M41 9l2-3" stroke="#141414" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
   // A little person in a striped hat, for anyone without their own Ohana character yet.
-  var BUDDY = '<svg viewBox="0 0 40 52"><path d="M7 51c0-11 6-17 13-17s13 6 13 17z" fill="#d7141d" stroke="#141414" stroke-width="2"/><path d="M12 40h16M10 46h20" stroke="#fff" stroke-width="3"/><circle cx="20" cy="25" r="9" fill="#f2c29b" stroke="#141414" stroke-width="2"/><circle cx="17" cy="25" r="1.3" fill="#141414"/><circle cx="23" cy="25" r="1.3" fill="#141414"/><path d="M17 29q3 2 6 0" stroke="#141414" stroke-width="1.5" fill="none"/><path d="M10 20c1-9 6-14 12-14 3 4 6 9 8 14z" fill="#fff" stroke="#141414" stroke-width="2"/><path d="M12 13h14M11 17h17" stroke="#d7141d" stroke-width="3"/><circle cx="22" cy="5" r="3.5" fill="#d7141d" stroke="#141414" stroke-width="1.6"/></svg>';
+  function buddy(seed){
+    var v = seed % 4, skin = ["#f2c29b", "#c98e62", "#8d5a3b", "#f7d7b8"][(seed >> 3) % 4];
+    var shirt = ["#d7141d", "#141414", "#fff", "#d7141d"][v], band = ["#fff", "#d7141d", "#d7141d", "#141414"][v];
+    var hat = ["#fff", "#d7141d", "#141414", "#141414"][v], hband = ["#d7141d", "#fff", "#d7141d", "#fff"][v], pom = ["#d7141d", "#fff", "#fff", "#d7141d"][v];
+    return '<svg viewBox="0 0 40 52"><path d="M7 51c0-11 6-17 13-17s13 6 13 17z" fill="' + shirt + '" stroke="#141414" stroke-width="2"/><path d="M12 40h16M10 46h20" stroke="' + band + '" stroke-width="3"/><circle cx="20" cy="25" r="9" fill="' + skin + '" stroke="#141414" stroke-width="2"/><circle cx="17" cy="25" r="1.3" fill="#141414"/><circle cx="23" cy="25" r="1.3" fill="#141414"/><path d="M17 29q3 2 6 0" stroke="#141414" stroke-width="1.5" fill="none"/><path d="M10 20c1-9 6-14 12-14 3 4 6 9 8 14z" fill="' + hat + '" stroke="#141414" stroke-width="2"/><path d="M12 13h14M11 17h17" stroke="' + hband + '" stroke-width="3"/><circle cx="22" cy="5" r="3.5" fill="' + pom + '" stroke="#141414" stroke-width="1.6"/></svg>';
+  }
+  var BUDDY = buddy(0);
   $("hatA").innerHTML = HAT; $("glassA").innerHTML = GLASSES;
   function svgUrl(s){ return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ')); }
 
@@ -118,12 +124,12 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   var SPOT = { porch: [14.1, 67.8], station: [23.5, 37], limo: [28.9, 47], van: [34.5, 56.5] };
   var OPEN = [[46, 49.5], [59.2, 29.5], [84.9, 29.5], [75.7, 61.3], [89.5, 75.5], [65.8, 89.6], [15.1, 82.5], [92.1, 50.7], [42.8, 70.8], [52, 62], [70, 45], [26, 63], [58.5, 79], [95, 31], [33, 73], [8.5, 92], [62, 52], [38, 40]];
   var EXTRA = [
-    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 4.4, spots: [[36, 24], [70, 23], [93, 68], [55, 18]] },
-    { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", size: 3.6, spots: [[80, 40], [49, 57], [20, 50], [66, 70]] },
-    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 3.6, spots: [[44, 30], [79, 72], [62, 35], [97, 58]] },
-    { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", size: 3.4, spots: [[7, 24], [41, 64], [56, 38], [88, 18]] },
-    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.6, spots: [[74, 9], [30, 84], [51, 74], [86, 46]] },
-    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.6, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] }
+    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 3, spots: [[37, 27], [67, 25], [94, 70], [52, 23]] },
+    { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", size: 2.8, spots: [[80, 40], [49, 57], [20, 50], [66, 70]] },
+    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 2.8, spots: [[44, 30], [79, 72], [62, 35], [97, 58]] },
+    { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", size: 2.8, spots: [[7, 24], [41, 64], [56, 38], [88, 18]] },
+    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.2, spots: [[74, 9], [30, 84], [51, 74], [86, 46]] },
+    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.2, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] }
   ];
   var NEAR = [["the white house", 14, 62], ["the fire station", 23, 30], ["the pink limo", 29, 50], ["the black van", 35, 60], ["the picnic", 45, 52], ["the marina", 60, 28], ["the church", 85, 26], ["Main Street", 82, 42], ["the market tents", 75, 58], ["the pontoon boat", 90, 78], ["the cookout", 78, 90], ["the duck pen", 16, 82], ["the cows", 46, 80], ["the bikes", 58, 76], ["the sailboat", 45, 20], ["the train bridge", 62, 12], ["the balloon", 74, 6], ["the trees", 8, 30]];
   function nearName(x, y){ var b = null, bd = 1e9; NEAR.forEach(function(n){ var d = (n[1] - x) * (n[1] - x) + (n[2] - y) * (n[2] - y) * 2.2; if (d < bd) { bd = d; b = n[0]; } }); return b; }
@@ -149,8 +155,8 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
         for (var i = 0; i < openOrder.length && !pt; i++) { var j = openOrder[(start + i) % openOrder.length]; if (!used["o" + j]) pt = take(OPEN[j], "o" + j); }
         if (!pt) pt = [20 + (hash(p.key) % 60), 40 + (hash(p.key + "y") % 40)];
       }
-      var size = p.kind === "vehicle" ? 6.2 : /fire-truck|house/.test(art) ? 5 : p.art ? 4.6 : 3.4;
-      out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: p.art ? artUrl(p.art) : svgUrl(BUDDY), person: true });
+      var size = p.kind === "vehicle" ? 6 : /fire-truck|house/.test(art) ? 4.8 : p.art ? 4.2 : 2.7;
+      out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b"))), person: true });
     });
     EXTRA.forEach(function(e){
       var s = e.spots[hash(e.id + ":" + hunt) % e.spots.length];
@@ -272,7 +278,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
     if (!map) return; var seen = {};
     people.forEach(function(p){
       seen[p.key] = 1; var w = p.kind === "vehicle" ? 56 : 36, h = p.kind === "vehicle" ? 34 : 40, W = Math.max(w, 64);
-      var ic = L.divIcon({ className: "pm", html: '<img src="' + esc(p.art ? artUrl(p.art) : svgUrl(BUDDY)) + '" alt="" style="width:' + w + "px;height:" + h + 'px"><span>' + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
+      var ic = L.divIcon({ className: "pm", html: '<img src="' + esc(p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b")))) + '" alt="" style="width:' + w + "px;height:" + h + 'px"><span>' + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
       var m = markers[p.key]; if (!m) m = markers[p.key] = L.marker([p.lat, p.lng], { icon: ic }).addTo(map); else { m.setLatLng([p.lat, p.lng]); m.setIcon(ic); }
       m.bindPopup("<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") + "<br>" + esc(p.src || "") + " · " + esc(ago(p.at)));
     });
