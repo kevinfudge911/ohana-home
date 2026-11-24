@@ -7,6 +7,7 @@
 import PAGE from "./page.html";
 import ROOM from "./room.html";
 import HOOK from "./hook.js.txt";
+const HOOK_V = (() => { let h = 0; for (let i = 0; i < HOOK.length; i++) h = (h * 31 + HOOK.charCodeAt(i)) | 0; return (h >>> 0).toString(36); })();
 import CHARS from "./chars.json";
 import SCHEMA from "./schema.sql";
 import ART_PINKEY from "./art/pinkey.webp";
@@ -385,7 +386,7 @@ export default {
     if ((url.pathname === "/" || url.pathname === "/index.html") && env.OHANA_HOME) {
       const res = await env.OHANA_HOME.fetch(req);
       if (req.method !== "GET" || !res.ok || !(res.headers.get("content-type") || "").includes("text/html")) return res;
-      return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js" defer></script>', { html: true }); } }).transform(res);
+      return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js?v=' + HOOK_V + '" defer></script>', { html: true }); } }).transform(res);
     }
     if (p === "/people/hook.js") return new Response(HOOK, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=300" } });
     if (p === "/people/api/hooktest" && env.OHANA_HOME) {
