@@ -1,0 +1,66 @@
+/* Where's Waldo room for Ohana Home. Served by the ohana-wheres-my-people worker at /people/hook.js
+   and added to the Ohana Home page by that worker (ohana-home itself is not changed).
+   Adds a plain-word "Where's Waldo" link at the bottom of Ohana Gathering; tapping it opens the
+   Where's Waldo room (same Bridge header as every room) with /people/room inside. */
+(function () {
+  if (window.__ohanaWaldoHook) return; window.__ohanaWaldoHook = 1;
+  var css = document.createElement("style");
+  css.textContent =
+    ".waldo-entry{display:block;margin:6px auto 18px;padding:2px 6px;background:none;border:0;cursor:pointer;" +
+    "font:700 17px/1.2 Fredoka,Nunito,sans-serif;color:#d7141d;text-shadow:0 0 2px #fff,0 0 3px #fff,0 1px 5px #fff}" +
+    ".waldo-entry:active{transform:scale(.96)}" +
+    "#waldoRoom{background:none !important;background-image:none !important;background-color:transparent !important}" +
+    "#waldoRoom iframe{display:block;width:100%;border:0;margin-top:137px;height:900px;background:transparent}";
+  (document.head || document.documentElement).appendChild(css);
+
+  var room = null, gathering = null;
+  function frame() { return room && room.querySelector("iframe"); }
+  window.addEventListener("message", function (e) {
+    if (e.origin !== location.origin || !e.data || e.data.type !== "ohana-waldo-height") return;
+    var f = frame(); if (f) f.style.height = Math.max(400, Math.round(e.data.h) + 4) + "px";
+  });
+  function clean() {
+    if (!room) return;
+    var cs = room.style;
+    if (cs.getPropertyValue("background-color") === "transparent" && cs.getPropertyPriority("background-color") === "important" &&
+        cs.getPropertyValue("background-image") === "none" && !cs.getPropertyValue("background-blend-mode")) return;
+    room.style.setProperty("background-color", "transparent", "important");
+    room.style.setProperty("background-image", "none", "important");
+    room.style.removeProperty("background-blend-mode");
+  }
+  function closeRoom(back) {
+    if (room) room.remove(); room = null;
+    if (gathering) { gathering.style.removeProperty("display"); if (back) { var l = gathering.querySelector(".waldo-entry"); if (l) l.scrollIntoView({ block: "center" }); } }
+    gathering = null;
+  }
+  function openRoom(panel) {
+    closeRoom(false);
+    gathering = panel;
+    room = document.createElement("section");
+    room.id = "waldoRoom"; room.setAttribute("data-private-ohana-room", ""); room.setAttribute("aria-label", "Where's Waldo");
+    room.innerHTML = '<header class="ohana-entrance-heading ohana-gathering-heading"><button class="soft room-home-control" data-close>Back</button>' +
+      '<h1 data-unified-title-source>Where’s Waldo</h1></header><iframe title="Where’s Waldo" scrolling="no" allowtransparency="true"></iframe>';
+    room.querySelector("[data-close]").addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); closeRoom(true); }, true);
+    room.querySelector("iframe").src = "/people/room";
+    panel.style.display = "none";
+    panel.parentNode.insertBefore(room, panel.nextSibling);
+    clean(); window.scrollTo(0, 0);
+    new MutationObserver(clean).observe(room, { attributes: true, attributeFilter: ["style"] });
+  }
+  function tick() {
+    // The Gathering room went away (left the room): take the Waldo room with it.
+    if (room && (!gathering || !gathering.isConnected)) { if (room) room.remove(); room = null; gathering = null; }
+    var st = document.querySelector("section[data-private-ohana-room] .gathering-station");
+    if (!st) return;
+    var panel = st.closest("section[data-private-ohana-room]");
+    if (!panel || panel.querySelector(".waldo-entry")) return;
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "waldo-entry"; b.textContent = "Where’s Waldo";
+    b.addEventListener("click", function () { openRoom(panel); });
+    st.parentNode.insertBefore(b, st.nextSibling);
+  }
+  var queued = false;
+  function soon() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; tick(); }); }
+  new MutationObserver(soon).observe(document.documentElement, { childList: true, subtree: true });
+  tick();
+})();

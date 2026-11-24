@@ -34,5 +34,10 @@ fallthrough = true
 
 [[rules]]
 type = "Text"
-globs = ["**/*.svg", "**/*.sql", "**/*.html"]
+globs = ["**/*.svg", "**/*.sql", "**/*.html", "**/*.txt"]
 fallthrough = true
+
+# Ohana Home's own worker, used to pass its main page through when the hook route is on.
+[[services]]
+binding = "OHANA_HOME"
+service = "ohana-home"

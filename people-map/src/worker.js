@@ -6,6 +6,7 @@
 // Everyone else shows as their Ohana character when they have one.
 import PAGE from "./page.html";
 import ROOM from "./room.html";
+import HOOK from "./hook.js.txt";
 import CHARS from "./chars.json";
 import SCHEMA from "./schema.sql";
 import ART_PINKEY from "./art/pinkey.webp";
@@ -379,6 +380,19 @@ export default {
   async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([pollLife360(env).catch((e) => console.error(String(e))), pollAllMembers(env).catch((e) => console.error(String(e)))])); },
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname.replace(/\/+$/, "") || "/";
+    // Ohana Home's main page: pass it through from the ohana-home worker untouched, then add the
+    // Where's Waldo hook script at the end of <body>. Nothing in ohana-home itself is changed.
+    if ((url.pathname === "/" || url.pathname === "/index.html") && env.OHANA_HOME) {
+      const res = await env.OHANA_HOME.fetch(req);
+      if (req.method !== "GET" || !res.ok || !(res.headers.get("content-type") || "").includes("text/html")) return res;
+      return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js" defer></script>', { html: true }); } }).transform(res);
+    }
+    if (p === "/people/hook.js") return new Response(HOOK, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=300" } });
+    if (p === "/people/api/hooktest" && env.OHANA_HOME) {
+      const r = await env.OHANA_HOME.fetch(new Request("https://ohanahome.app/", { headers: { "user-agent": "OhanaHome-people-map/1.0 (hook test)" } }));
+      const t = await r.text();
+      return json({ ok: r.ok, status: r.status, type: r.headers.get("content-type"), bytes: t.length, hasBody: t.includes("</body>") });
+    }
     if (p.startsWith("/people/api/family")) {
       const me = await ohanaMember(req, env);
       if (!me) return json({ ok: false, error: "sign in" }, 401);
