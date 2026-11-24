@@ -1,0 +1,615 @@
+{
+ "version": 1,
+ "width": 1440,
+ "height": 2579,
+ "waldo": false,
+ "art": {
+  "night": "town-night-v1.webp",
+  "day": ""
+ },
+ "spots": [
+  {
+   "id": "facebook",
+   "label": "Facebook",
+   "shape": "poly",
+   "pts": [
+    1222.5,
+    815.25,
+    1239,
+    815.25,
+    1239.25,
+    836.75,
+    1230.5,
+    843.5,
+    1222,
+    836.25
+   ],
+   "go": {
+    "place": "extra:FACEBOOK",
+    "web": "https://www.facebook.com/profile.php?id=61565368734327"
+   }
+  },
+  {
+   "id": "instagram",
+   "label": "Instagram",
+   "shape": "poly",
+   "pts": [
+    1290,
+    815.25,
+    1309.75,
+    815.25,
+    1310,
+    835.5,
+    1299.25,
+    844,
+    1289.25,
+    836.5
+   ],
+   "go": {
+    "place": "extra:INSTAGRAM",
+    "web": "https://www.instagram.com/uniqueridestransportation"
+   }
+  },
+  {
+   "id": "tiktok",
+   "label": "TikTok",
+   "shape": "poly",
+   "pts": [
+    1356,
+    815.25,
+    1375.5,
+    815.25,
+    1375.5,
+    836.5,
+    1365.75,
+    844,
+    1356,
+    836.5
+   ],
+   "go": {
+    "place": "extra:TIKTOK",
+    "web": "https://www.tiktok.com/@uniqueridestransport"
+   }
+  },
+  {
+   "id": "emergency",
+   "label": "Emergency box",
+   "shape": "rect",
+   "box": [
+    150,
+    1739,
+    191,
+    1797
+   ],
+   "go": {
+    "place": "extra:EMERGENCY"
+   }
+  },
+  {
+   "id": "crew",
+   "label": "Ohana Crew",
+   "shape": "oval",
+   "box": [
+    1165,
+    1298,
+    1335,
+    1345
+   ],
+   "go": {
+    "place": "extra:GROUP"
+   }
+  },
+  {
+   "id": "chatty",
+   "label": "Chatty",
+   "shape": "oval",
+   "box": [
+    926,
+    1465,
+    990,
+    1531
+   ],
+   "go": {
+    "place": "extra:CHATTY"
+   }
+  },
+  {
+   "id": "pinkey",
+   "label": "Pinkey",
+   "shape": "oval",
+   "box": [
+    1031,
+    1454,
+    1082,
+    1519
+   ],
+   "go": {
+    "place": "extra:PINKEY"
+   }
+  },
+  {
+   "id": "claudine",
+   "label": "Claudine",
+   "shape": "oval",
+   "box": [
+    1097,
+    1423,
+    1146,
+    1471
+   ],
+   "go": {
+    "place": "extra:CLAUDINE"
+   }
+  },
+  {
+   "id": "anti",
+   "label": "Anti",
+   "shape": "oval",
+   "box": [
+    1195,
+    1464,
+    1232,
+    1525
+   ],
+   "go": {
+    "place": "extra:ANTI"
+   }
+  },
+  {
+   "id": "do-it",
+   "label": "Do It",
+   "shape": "oval",
+   "box": [
+    1274,
+    1480,
+    1321,
+    1538
+   ],
+   "go": {
+    "place": "extra:DO_IT",
+    "web": "https://claude.ai/messages"
+   }
+  },
+  {
+   "id": "rhg-shirt",
+   "label": "Retired Hero Gear",
+   "shape": "poly",
+   "pts": [
+    155,
+    1095,
+    171,
+    1086,
+    199,
+    1086,
+    213,
+    1095,
+    207,
+    1104,
+    204,
+    1123,
+    165,
+    1123,
+    164,
+    1105
+   ],
+   "go": {
+    "place": "atlas:RETIRED_HERO_GEAR",
+    "web": "https://retiredherogear.com/"
+   }
+  },
+  {
+   "id": "ohana",
+   "label": "Ohana Home",
+   "shape": "poly",
+   "pts": [
+    629,
+    174,
+    815,
+    173,
+    824,
+    221,
+    626,
+    221
+   ],
+   "go": {
+    "place": "atlas:OHANA_HOME",
+    "web": "https://ohanahome.app/"
+   }
+  },
+  {
+   "id": "seven-brew",
+   "label": "7 Brew",
+   "shape": "oval",
+   "box": [
+    566,
+    1123,
+    634,
+    1191
+   ],
+   "go": {
+    "place": "town:SEVEN_BREW"
+   }
+  },
+  {
+   "id": "phone-booth",
+   "label": "Phone",
+   "shape": "rect",
+   "box": [
+    29,
+    1695,
+    98,
+    1825
+   ],
+   "go": {
+    "place": "atlas:PHONE"
+   }
+  },
+  {
+   "id": "rides-sign",
+   "label": "Unique Rides Transportation",
+   "shape": "oval",
+   "box": [
+    955,
+    1698,
+    1165,
+    1738
+   ],
+   "go": {
+    "place": "atlas:RIDES_SITE",
+    "web": "https://www.uniqueridestransportation.com/"
+   }
+  },
+  {
+   "id": "limo-dispatch",
+   "label": "Limo Dispatch",
+   "shape": "rect",
+   "box": [
+    953,
+    1748,
+    1152,
+    1790
+   ],
+   "go": {
+    "place": "atlas:LIMO_COMMAND",
+    "web": "https://limodispatch.app/"
+   }
+  },
+  {
+   "id": "limo",
+   "label": "Driver app",
+   "shape": "poly",
+   "pts": [
+    702,
+    1821,
+    759,
+    1821,
+    798,
+    1800,
+    871,
+    1805,
+    1033,
+    1818,
+    1194,
+    1831,
+    1261,
+    1848,
+    1282,
+    1896,
+    1299,
+    1921,
+    1286,
+    1950,
+    1201,
+    1951,
+    1169,
+    1978,
+    1119,
+    1967,
+    1095,
+    1939,
+    765,
+    1902,
+    735,
+    1910,
+    706,
+    1888
+   ],
+   "go": {
+    "place": "atlas:DRIVER"
+   }
+  },
+  {
+   "id": "games",
+   "label": "Games",
+   "shape": "oval",
+   "box": [
+    1250,
+    130,
+    1405,
+    262
+   ],
+   "go": {
+    "place": "town:GAMES",
+    "web": "https://ohanahome.app/"
+   }
+  },
+  {
+   "id": "games",
+   "label": "Games",
+   "shape": "oval",
+   "box": [
+    905,
+    110,
+    1130,
+    210
+   ],
+   "go": {
+    "place": "town:GAMES",
+    "web": "https://ohanahome.app/"
+   }
+  },
+  {
+   "id": "home-arrow",
+   "label": "Ohana Home",
+   "shape": "oval",
+   "box": [
+    35,
+    130,
+    190,
+    262
+   ],
+   "go": {
+    "place": "town:HOME_ARROW",
+    "web": "https://ohanahome.app/"
+   }
+  },
+  {
+   "id": "home-arrow",
+   "label": "Ohana Home",
+   "shape": "oval",
+   "box": [
+    325,
+    110,
+    555,
+    200
+   ],
+   "go": {
+    "place": "town:HOME_ARROW",
+    "web": "https://ohanahome.app/"
+   }
+  },
+  {
+   "id": "lighthouse",
+   "label": "Cameras",
+   "shape": "oval",
+   "box": [
+    718,
+    770,
+    756,
+    830
+   ],
+   "go": {
+    "place": "town:LIGHTHOUSE"
+   }
+  },
+  {
+   "id": "social",
+   "label": "Social Pi",
+   "shape": "oval",
+   "box": [
+    1258,
+    742,
+    1346,
+    772
+   ],
+   "go": {
+    "place": "town:SOCIAL",
+    "web": "https://lnk.bio/uniqueridestransportation"
+   }
+  },
+  {
+   "id": "jj-friends",
+   "label": "JJ Friends",
+   "shape": "oval",
+   "box": [
+    888,
+    826,
+    946,
+    850
+   ],
+   "go": {
+    "place": "town:JJ_FRIENDS",
+    "web": "https://pinkey-brain.kevin-fudge911.workers.dev/"
+   }
+  },
+  {
+   "id": "wrbc",
+   "label": "WRBC Life Group",
+   "shape": "oval",
+   "box": [
+    222,
+    804,
+    334,
+    854
+   ],
+   "go": {
+    "place": "town:WRBC",
+    "web": "https://wrbc-life-group.pages.dev/"
+   }
+  },
+  {
+   "id": "got-jesus",
+   "label": "Got Jesus",
+   "shape": "oval",
+   "box": [
+    416,
+    866,
+    510,
+    900
+   ],
+   "go": {
+    "place": "town:GOT_JESUS",
+    "web": "https://gotjesusministry.com/"
+   }
+  },
+  {
+   "id": "life360",
+   "label": "360",
+   "shape": "oval",
+   "box": [
+    540,
+    870,
+    602,
+    912
+   ],
+   "go": {
+    "place": "town:LIFE360"
+   }
+  },
+  {
+   "id": "storewell",
+   "label": "StoreWell",
+   "shape": "oval",
+   "box": [
+    660,
+    880,
+    742,
+    906
+   ],
+   "go": {
+    "place": "town:STOREWELL",
+    "web": "https://storewell-3d.pages.dev/"
+   }
+  },
+  {
+   "id": "weather",
+   "label": "Weather (duck pen)",
+   "shape": "oval",
+   "box": [
+    55,
+    964,
+    140,
+    998
+   ],
+   "go": {
+    "place": "town:WEATHER"
+   }
+  },
+  {
+   "id": "unique-market",
+   "label": "Unique Market",
+   "shape": "oval",
+   "box": [
+    282,
+    926,
+    342,
+    986
+   ],
+   "go": {
+    "place": "town:UNIQUE_LOGO",
+    "web": "https://unique-market.pages.dev/"
+   }
+  },
+  {
+   "id": "thrifty",
+   "label": "417 Thrifty",
+   "shape": "oval",
+   "box": [
+    366,
+    926,
+    428,
+    988
+   ],
+   "go": {
+    "place": "town:THRIFTY_LOGO",
+    "web": "https://417-thrifty.kevin-fudge911.workers.dev/"
+   }
+  },
+  {
+   "id": "todo",
+   "label": "To-Do",
+   "shape": "oval",
+   "box": [
+    480,
+    975,
+    565,
+    1004
+   ],
+   "go": {
+    "place": "town:TODO"
+   }
+  },
+  {
+   "id": "gallery",
+   "label": "Gallery",
+   "shape": "oval",
+   "box": [
+    935,
+    976,
+    1035,
+    1010
+   ],
+   "go": {
+    "place": "town:GALLERY"
+   }
+  },
+  {
+   "id": "bank",
+   "label": "Bank",
+   "shape": "oval",
+   "box": [
+    1085,
+    974,
+    1205,
+    1012
+   ],
+   "go": {
+    "place": "town:BANK"
+   }
+  },
+  {
+   "id": "firehouse",
+   "label": "Retired Hero Gear",
+   "shape": "oval",
+   "box": [
+    105,
+    1122,
+    268,
+    1164
+   ],
+   "go": {
+    "place": "town:FIREHOUSE",
+    "web": "https://retiredherogear.com/"
+   }
+  },
+  {
+   "id": "maps",
+   "label": "Maps",
+   "shape": "oval",
+   "box": [
+    538,
+    1346,
+    616,
+    1386
+   ],
+   "go": {
+    "place": "town:MAPS"
+   }
+  },
+  {
+   "id": "live-events",
+   "label": "Live Events",
+   "shape": "oval",
+   "box": [
+    232,
+    1402,
+    488,
+    1440
+   ],
+   "go": {
+    "place": "town:LIVE_EVENTS",
+    "web": "https://liveeventsmissouri.com/"
+   }
+  }
+ ]
+}
