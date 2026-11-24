@@ -354,11 +354,12 @@ async function placePeople(env, list) {
     p.maps = `https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
     p.dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
     const g = await geoInfo(env, p.lat, p.lng, budget).catch(() => null);
-    if (g) { p.addr = g.addr || ""; p.street = g.street || ""; p.town = g.town || ""; }
-    if (!p.addr && p.label && /\d|road|rd|st\b|hwy|ave/i.test(p.label)) p.addr = String(p.label).replace(/,\s*USA$/, "").replace(/,\s*MO \d{5}/, "");
+    if (g) { p.addr = String(g.addr || "").split(";")[0]; p.street = String(g.street || "").split(";")[0]; p.town = g.town || ""; }
+    const lab = String(p.label || "").replace(/,\s*USA$/, "").replace(/,\s*[A-Z]{2} \d{5}/, "");
+    if (/^\d+\s+\S/.test(lab) || (!p.addr && /road|rd\b|st\b|hwy|ave|ln\b|dr\b/i.test(lab))) p.addr = lab;
     const near = places.filter((x) => meters(p.lat, p.lng, x.lat, x.lng) <= (x.radius_m || 150)).sort((a, b) => meters(p.lat, p.lng, a.lat, a.lng) - meters(p.lat, p.lng, b.lat, b.lng))[0];
     if (p.kind === "vehicle" && !/fire-truck/.test(p.art || "")) p.zone = "road";
-    else if (meters(p.lat, p.lng, HOME_BASE.lat, HOME_BASE.lng) <= HOME_BASE.r) { p.zone = "home"; p.place = "Home"; }
+    else if (meters(p.lat, p.lng, HOME_BASE.lat, HOME_BASE.lng) <= HOME_BASE.r) { p.zone = "home"; p.place = "Home"; p.addr = "46331 State Hwy 413, Billings"; }
     else if (near && near.kind === "fire") { p.zone = "fire"; p.place = near.name || "Fire station"; }
     else if (near && (near.kind === "house" || near.kind === "home")) { p.zone = "house"; p.place = near.name; p.house = near.id; }
     else { p.zone = (p.art && /fire-truck/.test(p.art)) ? "fire" : zoneOf(g); if (p.zone === "fire") p.place = p.place || "Fire station"; }
