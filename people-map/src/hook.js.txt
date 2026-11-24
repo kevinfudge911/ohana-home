@@ -73,6 +73,23 @@
       if (Date.now() - t0 < 30000) setTimeout(step, 400);
     })();
   }
+  // Ohana Share: once someone turned Share on in the Waldo room, keep their spot fresh whenever Ohana Home is open,
+  // not only while the Waldo room is showing. Never asks for location here; it only runs when the phone already allowed it.
+  (function keepSharing() {
+    var tk = ""; try { tk = localStorage.getItem("ohana_token") || ""; } catch (e) {}
+    if (!tk || !navigator.geolocation) return;
+    var last = 0, wid = null;
+    function send(pos) {
+      if (Date.now() - last < 120000) return; last = Date.now();
+      fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tk, "content-type": "application/json" },
+        body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).catch(function(){});
+    }
+    function start() { if (wid == null) wid = navigator.geolocation.watchPosition(send, function(){}, { enableHighAccuracy: false, maximumAge: 120000, timeout: 30000 }); }
+    fetch("/people/api/family", { headers: { authorization: "Bearer " + tk }, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
+      if (!f || !f.me || !f.me.sharing) return;
+      if (navigator.permissions && navigator.permissions.query) navigator.permissions.query({ name: "geolocation" }).then(function(st){ if (st.state === "granted") start(); }).catch(function(){});
+    }).catch(function(){});
+  })();
   var queued = false;
   function soon() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; tick(); }); }
   new MutationObserver(soon).observe(document.documentElement, { childList: true, subtree: true });
