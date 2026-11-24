@@ -1,0 +1,22 @@
+#ohana-chat-v2-host,.ohana-delivery,#uc-preview,#pz-chat-pops,#om-game-bubble,#chat-head.ohana-docked-chat,#ohana-persistent-hub.ohana-workstation-chat{display:none!important}
+#oc1-bubble{all:unset;box-sizing:border-box;position:fixed;z-index:2147483600;width:42px;height:42px;border-radius:50% 50% 50% 8px;display:grid;place-items:center;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;color:#ffe2a3;background:radial-gradient(circle at 35% 30%,#7a4b22,#3f2712);box-shadow:0 2px 7px rgba(0,0,0,.4);transition:transform .15s}
+#oc1-bubble[hidden]{display:none!important}
+#oc1-bubble svg{width:22px;height:22px;pointer-events:none}
+#oc1-bubble b{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#d93025;color:#fff;font:700 12px/20px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center;pointer-events:none}
+#oc1-bubble b[hidden]{display:none}
+#oc1-bubble.oc1-drag{transform:scale(1.12);cursor:grabbing}
+#oc1-bubble.oc1-new{animation:oc1-pop 1.4s ease-in-out 3}
+@keyframes oc1-pop{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@media (prefers-reduced-motion:reduce){#oc1-bubble.oc1-new{animation:none}}
+#oc1-bubble:focus-visible{outline:3px solid #ffe2a3;outline-offset:2px}
+#oc1-gs,.oc1-gs{display:block;margin:6px 0 8px}
+.oc1-gs input{box-sizing:border-box;width:100%;height:36px;padding:0 12px;border:1px solid rgba(122,75,34,.35);border-radius:18px;background:#fffaf0;color:#3f2712;font:15px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;outline:none}
+.oc1-gs input:focus{border-color:#7a4b22}
+.oc1-gr{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-height:196px;overflow-y:auto;margin-top:6px}
+.oc1-gr:empty{display:none}
+.oc1-gi{all:unset;cursor:pointer;border-radius:8px;overflow:hidden;height:92px;background:rgba(122,75,34,.08)}
+.oc1-gi img{width:100%;height:100%;object-fit:cover;display:block}
+.oc1-gi:focus-visible{outline:3px solid #7a4b22}
+.oc1-gi.oc1-wait{opacity:.45}
+.oc1-gn{grid-column:1/-1;margin:6px 2px;color:#6b4a2b;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.oc1-gs small{display:block;text-align:right;margin-top:3px;color:#8a6a4a;font:11px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
