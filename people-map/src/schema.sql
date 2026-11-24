@@ -25,3 +25,5 @@ CREATE TABLE IF NOT EXISTS family_share (member_id INTEGER PRIMARY KEY, sharing 
 CREATE TABLE IF NOT EXISTS art (name TEXT NOT NULL, part INTEGER NOT NULL, type TEXT, data BLOB, at TEXT, PRIMARY KEY(name, part));
 CREATE TABLE IF NOT EXISTS member_life360 (member_id INTEGER PRIMARY KEY, key TEXT NOT NULL, status TEXT, at TEXT);
 CREATE TABLE IF NOT EXISTS member_feed (owner_id INTEGER NOT NULL, source TEXT NOT NULL, who TEXT NOT NULL, lat REAL NOT NULL, lng REAL NOT NULL, acc REAL, place TEXT, since TEXT, at TEXT NOT NULL, PRIMARY KEY(owner_id, source, who));
+CREATE TABLE IF NOT EXISTS geo (k TEXT PRIMARY KEY, addr TEXT, street TEXT, town TEXT, cls TEXT, typ TEXT, fire INTEGER DEFAULT 0, at TEXT);
+CREATE TABLE IF NOT EXISTS nights (who TEXT NOT NULL, cell TEXT NOT NULL, lat REAL, lng REAL, nights INTEGER DEFAULT 0, last_night TEXT, PRIMARY KEY(who, cell));

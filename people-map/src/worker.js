@@ -20,7 +20,7 @@ import ART_SIGN from "./art/waldo-sign.webp";
 import ART_TOWN from "./art/waldo-town.webp";
 import ART_PERSON from "./art/person.svg";
 
-const VERSION = "people-v5"; // schema version; per-person Life360 added Nov 24
+const VERSION = "people-v6"; // schema version; places (geo, nights) added Nov 24
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
@@ -287,6 +287,88 @@ async function myPeople(env, me) {
     .map((f) => ({ key: "mine-" + f.source + "-" + f.who.toLowerCase(), name: f.who, lat: f.lat, lng: f.lng, at: f.at, src: "Life360", kind: "pin", art: null, label: f.place || "" }));
 }
 
+
+// ---- Where each person really is, in plain words, and which spot of the Where's Waldo picture that is.
+const HOME_BASE = { lat: 36.99082, lng: -93.5744, r: 250 }; // home base (Kevin, Mike): State Highway 413, Billings
+const UA = { "user-agent": "OhanaHome-people-map/1.0 (family location room)", "accept-language": "en" };
+async function geoInfo(env, lat, lng, budget) {
+  const k = lat.toFixed(4) + "," + lng.toFixed(4);
+  const hit = await env.PEOPLE.prepare("SELECT * FROM geo WHERE k=?").bind(k).first();
+  if (hit || budget.n <= 0) return hit || null;
+  budget.n--;
+  let addr = "", street = "", town = "", cls = "", typ = "", fire = 0;
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: UA });
+    if (r.ok) {
+      const j = await r.json(), a = j.address || {};
+      street = a.road || a.pedestrian || a.footway || "";
+      town = a.city || a.town || a.village || a.hamlet || a.suburb || a.county || "";
+      addr = [[a.house_number, street].filter(Boolean).join(" "), town].filter(Boolean).join(", ");
+      cls = j.category || j.class || ""; typ = j.type || "";
+      if (j.name && cls !== "highway" && cls !== "place" && cls !== "building") addr = j.name + (addr ? ", " + addr : "");
+    }
+  } catch {}
+  try {
+    const q = `[out:json][timeout:8];nwr(around:220,${lat},${lng})["amenity"="fire_station"];out ids 1;`;
+    const r = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+    if (r.ok) fire = ((await r.json()).elements || []).length ? 1 : 0;
+  } catch {}
+  await env.PEOPLE.prepare("INSERT INTO geo(k,addr,street,town,cls,typ,fire,at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(k) DO UPDATE SET addr=excluded.addr,street=excluded.street,town=excluded.town,cls=excluded.cls,typ=excluded.typ,fire=excluded.fire,at=excluded.at")
+    .bind(k, addr, street, town, cls, typ, fire, new Date().toISOString()).run();
+  return { addr, street, town, cls, typ, fire };
+}
+function zoneOf(g) {
+  const c = (g && g.cls) || "", t = (g && g.typ) || "";
+  if (g && g.fire) return "fire";
+  if (t === "place_of_worship") return "church";
+  if (c === "shop" || t === "marketplace" || t === "mall") return "shop";
+  if (/restaurant|fast_food|cafe|bar|pub|ice_cream/.test(t)) return "food";
+  if (t === "marina" || c === "waterway" || t === "water" || t === "beach") return "water";
+  if (/school|college|university|kindergarten/.test(t)) return "school";
+  if (c === "leisure" || t === "park") return "park";
+  return "town";
+}
+// A spot someone sleeps at on 2 different nights becomes their house ("Ashley's house") and gets its own little house in the picture.
+async function learnHome(env, p) {
+  const min = ctMinutes(new Date(p.at || Date.now()));
+  if (!(min >= 22 * 60 || min < 6 * 60) || Date.now() - ms(p.at) > 2 * 3600e3) return;
+  if (meters(p.lat, p.lng, HOME_BASE.lat, HOME_BASE.lng) <= HOME_BASE.r) return;
+  const night = ctDate(new Date(ms(p.at) - 6 * 3600e3)), who = String(p.key);
+  const cell = (Math.round(p.lat * 500) / 500).toFixed(3) + "," + (Math.round(p.lng * 500) / 500).toFixed(3);
+  const row = await env.PEOPLE.prepare("SELECT * FROM nights WHERE who=? AND cell=?").bind(who, cell).first();
+  if (row && row.last_night === night) return;
+  const n = (row ? row.nights : 0) + 1;
+  await env.PEOPLE.prepare("INSERT INTO nights(who,cell,lat,lng,nights,last_night) VALUES(?,?,?,?,?,?) ON CONFLICT(who,cell) DO UPDATE SET nights=excluded.nights,last_night=excluded.last_night,lat=excluded.lat,lng=excluded.lng").bind(who, cell, p.lat, p.lng, n, night).run();
+  if (n >= 2) {
+    const first = String(p.name || "").split(" ")[0] || "Their";
+    await env.PEOPLE.prepare("INSERT INTO places(name,kind,lat,lng,radius_m,source,ext_id) VALUES(?,?,?,?,?,'learned',?) ON CONFLICT(ext_id) DO NOTHING")
+      .bind(first + "'s house", "house", p.lat, p.lng, 150, "house:" + who).run();
+  }
+}
+async function placePeople(env, list) {
+  const places = (await env.PEOPLE.prepare("SELECT id,name,kind,lat,lng,radius_m,ext_id FROM places").all()).results || [];
+  const budget = { n: 3 }, keys = new Set(list.map((p) => "house:" + p.key));
+  for (const p of list) {
+    if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
+    await learnHome(env, p).catch(() => null);
+    p.maps = `https://www.google.com/maps/search/?api=1&query=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
+    p.dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
+    const g = await geoInfo(env, p.lat, p.lng, budget).catch(() => null);
+    if (g) { p.addr = g.addr || ""; p.street = g.street || ""; p.town = g.town || ""; }
+    if (!p.addr && p.label && /\d|road|rd|st\b|hwy|ave/i.test(p.label)) p.addr = String(p.label).replace(/,\s*USA$/, "").replace(/,\s*MO \d{5}/, "");
+    const near = places.filter((x) => meters(p.lat, p.lng, x.lat, x.lng) <= (x.radius_m || 150)).sort((a, b) => meters(p.lat, p.lng, a.lat, a.lng) - meters(p.lat, p.lng, b.lat, b.lng))[0];
+    if (p.kind === "vehicle" && !/fire-truck/.test(p.art || "")) p.zone = "road";
+    else if (meters(p.lat, p.lng, HOME_BASE.lat, HOME_BASE.lng) <= HOME_BASE.r) { p.zone = "home"; p.place = "Home"; }
+    else if (near && near.kind === "fire") { p.zone = "fire"; p.place = near.name || "Fire station"; }
+    else if (near && (near.kind === "house" || near.kind === "home")) { p.zone = "house"; p.place = near.name; p.house = near.id; }
+    else { p.zone = (p.art && /fire-truck/.test(p.art)) ? "fire" : zoneOf(g); if (p.zone === "fire") p.place = p.place || "Fire station"; }
+  }
+  // Only houses that belong to, or hold, someone this person can already see.
+  const here = new Set(list.map((p) => p.house).filter(Boolean));
+  const houses = places.filter((x) => x.kind === "house" && (keys.has(x.ext_id) || here.has(x.id))).map((x) => ({ id: x.id, name: x.name }));
+  return { people: list, houses };
+}
+
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
 
 export default {
@@ -300,8 +382,9 @@ export default {
       if (p === "/people/api/family" && req.method === "GET") {
         const mine = await env.PEOPLE.prepare("SELECT sharing FROM family_share WHERE member_id=?").bind(me.id).first();
         const l = await env.PEOPLE.prepare("SELECT status FROM member_life360 WHERE member_id=?").bind(me.id).first();
-        return json({ ok: true, me: { id: me.id, name: me.name, sharing: !!(mine && mine.sharing) }, people: await familyPeople(env, me.id, false),
-          mine: await myPeople(env, me), life360: l ? JSON.parse(l.status || '{"connected":true}') : { connected: false } });
+        const fp = await familyPeople(env, me.id, false), mp = await myPeople(env, me), pl = await placePeople(env, fp.concat(mp));
+        return json({ ok: true, me: { id: me.id, name: me.name, sharing: !!(mine && mine.sharing) }, people: fp,
+          mine: mp, houses: pl.houses, life360: l ? JSON.parse(l.status || '{"connected":true}') : { connected: false } });
       }
       if (p === "/people/api/family/life360" && req.method === "POST") { // this person's OWN Life360 key
         const b = await readJson(req); const k = String((b && b.key) || "").trim().replace(/^Bearer\s+/i, "");
@@ -363,7 +446,7 @@ export default {
     if (p.startsWith("/people/api/")) {
       const me = await ohanaAdmin(req, env);
       if (!me) return json({ ok: false, error: "sign in" }, 401);
-      if (p === "/people/api/where" && req.method === "GET") return json(await buildWhere(env));
+      if (p === "/people/api/where" && req.method === "GET") { const w = await buildWhere(env); const pl = await placePeople(env, w.people); w.houses = pl.houses; return json(w); }
       if (p === "/people/api/art" && req.method === "POST") { // admin: save painted room art (from a Figma export link, or bytes sent from the page)
         await ensureSchema(env);
         const name = (url.searchParams.get("name") || "").replace(/[^a-z0-9.-]/gi, "");
