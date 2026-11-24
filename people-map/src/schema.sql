@@ -21,3 +21,5 @@ INSERT OR IGNORE INTO people (key,name,ohana_member_id,limo_driver_id,jj_member,
  ('jennifer','Jennifer',10046,NULL,NULL,'Jennifer','Jennifer',NULL,10);
 ;
 CREATE TABLE IF NOT EXISTS family_share (member_id INTEGER PRIMARY KEY, sharing INTEGER NOT NULL DEFAULT 0, lat REAL, lng REAL, acc REAL, at TEXT, changed TEXT);
+
+CREATE TABLE IF NOT EXISTS art (name TEXT NOT NULL, part INTEGER NOT NULL, type TEXT, data BLOB, at TEXT, PRIMARY KEY(name, part));

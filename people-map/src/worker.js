@@ -18,7 +18,7 @@ import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
 import ART_SIGN from "./art/waldo-sign.webp";
 
-const VERSION = "people-v2"; // schema version; room page added Nov 24
+const VERSION = "people-v3"; // schema version; room page added Nov 24
 const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
@@ -283,7 +283,15 @@ export default {
     if (req.method === "GET" && p === "/people/room") // Where's Waldo room, shown inside Ohana Gathering
       return new Response(ROOM, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
-      const a = ART[p.slice(12)]; if (!a) return new Response("Not found", { status: 404 });
+      const a = ART[p.slice(12)];
+      if (!a) { // painted art kept in D1 (too big for the bundle), split into parts
+        await ensureSchema(env);
+        const rows = (await env.PEOPLE.prepare("SELECT type,data FROM art WHERE name=? ORDER BY part").bind(p.slice(12)).all()).results || [];
+        if (!rows.length) return new Response("Not found", { status: 404 });
+        const parts = rows.map((r) => new Uint8Array(r.data)), out = new Uint8Array(parts.reduce((n, x) => n + x.length, 0));
+        let o = 0; for (const x of parts) { out.set(x, o); o += x.length; }
+        return new Response(out, { headers: { "content-type": rows[0].type, "cache-control": "public, max-age=86400" } });
+      }
       return new Response(a[0], { headers: { "content-type": a[1], "cache-control": "public, max-age=86400" } });
     }
     if (p === "/people/api/feed" && req.method === "POST") { // Home Assistant / other apps push positions here.
@@ -306,6 +314,25 @@ export default {
       const me = await ohanaAdmin(req, env);
       if (!me) return json({ ok: false, error: "sign in" }, 401);
       if (p === "/people/api/where" && req.method === "GET") return json(await buildWhere(env));
+      if (p === "/people/api/art" && req.method === "POST") { // admin: save painted room art (from a Figma export link, or bytes sent from the page)
+        await ensureSchema(env);
+        const name = (url.searchParams.get("name") || "").replace(/[^a-z0-9.-]/gi, "");
+        if (!/^[a-z0-9-]+\.(webp|jpe?g|png)$/i.test(name)) return json({ ok: false, error: "bad name" }, 400);
+        let buf, type;
+        const from = url.searchParams.get("from") || "";
+        if (from) {
+          const u = new URL(from);
+          if (u.hostname !== "www.figma.com" || !u.pathname.startsWith("/api/mcp/asset/")) return json({ ok: false, error: "bad source" }, 400);
+          const r = await fetch(u.toString()); if (!r.ok) return json({ ok: false, error: "fetch " + r.status }, 502);
+          buf = new Uint8Array(await r.arrayBuffer()); type = r.headers.get("content-type") || "image/png";
+        } else { buf = new Uint8Array(await req.arrayBuffer()); type = req.headers.get("content-type") || "image/webp"; }
+        if (!buf.length || buf.length > 8e6) return json({ ok: false, error: "size" }, 400);
+        await env.PEOPLE.prepare("DELETE FROM art WHERE name=?").bind(name).run();
+        const CH = 900000;
+        for (let i = 0, n = 0; i < buf.length; i += CH, n++)
+          await env.PEOPLE.prepare("INSERT INTO art(name,part,type,data,at) VALUES(?,?,?,?,?)").bind(name, n, type, buf.slice(i, i + CH), new Date().toISOString()).run();
+        return json({ ok: true, name, bytes: buf.length, type });
+      }
       if (p === "/people/api/life360" && req.method === "POST") {
         await ensureSchema(env);
         const b = await readJson(req); const k = String((b && b.key) || "").trim();
