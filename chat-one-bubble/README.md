@@ -5,7 +5,8 @@ Drag to move (spot saved separately for home and for rooms). Red count of waitin
 Tap opens the Messenger chat (straight to the one waiting chat when only one).
 Plus tray adds: Camera chip, and GIPHY GIF search ("Powered by GIPHY").
 
-## Not live yet (Nov 24 2026)
+## LIVE Nov 24 2026 about 1:09 PM CT (version c392bd94, rollback ebebf434)
+Steps used:
 To release, on a machine with Cloudflare access:
 1. Download the NEWEST live ohana-home worker.js (do not use an older copy).
 2. `node chat-one-bubble/apply-to-worker.cjs <live worker.js> <out worker.js>`
