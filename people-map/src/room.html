@@ -128,8 +128,8 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 
   // Spots in the painted town, in percent of the picture. Each real kind of place has its own spot.
   var ZONES = {
-    home: [[13.5, 71], [17.5, 72.5], [9.8, 72.5], [15.5, 77.5], [20.5, 76]],
-    fire: [[20.4, 42.5], [33.6, 41.5], [17.2, 44.5], [36.5, 44], [23.8, 45.5]],
+    home: [[11.5, 71.5], [18.5, 72.5], [25, 74.5], [7, 77.5], [15, 79]],
+    fire: [[20.4, 42.5], [34, 41.5], [16, 45], [38, 45], [26, 46.5]],
     road: [[28.9, 47], [34.5, 56.5], [41, 66], [24.5, 51]],
     church: [[83.5, 33.5], [88, 34], [79.5, 34.5]],
     shop: [[74.5, 62.5], [70, 61], [79.5, 63.5]],
@@ -200,7 +200,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   }
 
   function drawScene(){
-    var st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag,.who,.hname")).forEach(function(n){ n.remove(); });
+    var said = {}, st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag,.who,.hname")).forEach(function(n){ n.remove(); });
     var W = $("scene").clientWidth || 1000;
     items.forEach(function(it){
       it.size = Math.max(it.base || (it.base = it.size), (it.person || it.house ? 17 : 15) / W * 100);
@@ -208,7 +208,8 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
       d.innerHTML = '<img src="' + esc(it.src) + '" alt="" draggable="false">'; st.appendChild(d); it.el = d;
       if (it.person) {
         var w = document.createElement("div"); w.className = "who"; w.style.left = it.x + "%"; w.style.top = (it.y + 0.25) + "%";
-        w.innerHTML = '<span class="nm">' + esc(it.name) + '</span><span class="pl">' + esc(it.where) + "</span>"; st.appendChild(w);
+        var tagK = it.who.zone + "|" + it.where, again = said[tagK]; said[tagK] = 1;
+        w.innerHTML = '<span class="nm">' + esc(it.name) + "</span>" + (again ? "" : '<span class="pl">' + esc(it.where) + "</span>"); st.appendChild(w);
       } else if (it.house) {
         var hn = document.createElement("div"); hn.className = "hname"; hn.style.left = it.x + "%"; hn.style.top = (it.y + 0.3) + "%"; hn.textContent = it.name; st.appendChild(hn);
       } else if (found[it.id]) mark(it, false);
