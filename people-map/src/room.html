@@ -94,7 +94,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   <div class="l360" id="lp">
     <h4>Your Life360</h4>
     <p>It shows your people, and only you see them here. Everyone connects their own.</p>
-    <p>Sign in at life360.com, then paste your Life360 key here. Pasting the whole line is fine.</p>
+    <p>On life360.com press F12, then Application, Cookies, life360.com. Copy the value of LIFE360_AUTH_TOKEN and paste it here.</p>
     <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
     <p id="ls"></p>
     <div class="acts"><button class="go" id="lsave">Connect</button><button id="loff">Turn off</button><button id="lclose">Close</button></div>
@@ -409,7 +409,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   $("lsave").onclick = function(){
     var k = $("lk").value.trim(); if (!k) return;
     // Take whatever got copied: the bare key, "Bearer key", access_token=key, or the whole token reply.
-    var m = k.match(/"access_token"\s*:\s*"([^"]+)"/) || k.match(/access_token\s*[=:]\s*["']?([A-Za-z0-9._~+\/-]+)/i) || k.match(/Bearer\s+([A-Za-z0-9._~+\/-]+)/i);
+    var m = k.match(/"access_token"\s*:\s*"([^"]+)"/) || k.match(/(?:access_token|LIFE360_AUTH_TOKEN)\s*[=:]\s*["']?([A-Za-z0-9._~+\/-]+)/i) || k.match(/Bearer\s+([A-Za-z0-9._~+\/-]+)/i);
     if (m) k = m[1]; k = k.replace(/^["']|["';]$/g, "").trim();
     sendL360({ key: k }).then(function(d){
       $("lk").value = "";
