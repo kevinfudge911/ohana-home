@@ -64,12 +64,12 @@
   try { var ts = Number(sessionStorage.getItem("ohana-open-waldo") || 0); sessionStorage.removeItem("ohana-open-waldo"); if (ts && Date.now() - ts < 60000) want = true; } catch (e) {}
   if (want) {
     if (location.hash === "#waldo") { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
-    var t0 = Date.now(), asked = false;
+    var t0 = Date.now(), asked = 0;
     (function step() {
       var e = document.querySelector(".waldo-entry");
       if (e && !room) { e.click(); return; }
       var g = document.querySelector(".gathering-invite-go") || document.querySelector(".gathering-feature-scene");
-      if (g && !asked && !document.querySelector(".gathering-station")) { asked = true; g.click(); }
+      if (g && Date.now() - asked > 4000 && !document.querySelector(".gathering-station")) { asked = Date.now(); g.click(); }
       if (Date.now() - t0 < 30000) setTimeout(step, 400);
     })();
   }
