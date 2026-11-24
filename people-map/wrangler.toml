@@ -1,0 +1,38 @@
+name = "ohana-wheres-my-people"
+main = "src/worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = false
+routes = [ { pattern = "ohanahome.app/people*", zone_name = "ohanahome.app" } ]
+
+[triggers]
+crons = ["*/2 * * * *"]
+
+[[d1_databases]]
+binding = "PEOPLE"
+database_name = "ohana-wheres-my-people"
+database_id = "d4144eb7-3e97-4090-914c-92ce734848ab"
+
+[[d1_databases]]
+binding = "OHANA"
+database_name = "ohana-home"
+database_id = "73a51ea8-7a23-4dea-a2ce-d2be23831a76"
+
+[[d1_databases]]
+binding = "LIMO"
+database_name = "limo-for-you"
+database_id = "7a3a3faa-915a-4b27-bafd-64e0e4d0bf13"
+
+[[d1_databases]]
+binding = "JJ"
+database_name = "jj_friends_db"
+database_id = "836915aa-cbb1-489b-8fd8-daa745af7c8e"
+
+[[rules]]
+type = "Data"
+globs = ["**/*.webp"]
+fallthrough = true
+
+[[rules]]
+type = "Text"
+globs = ["**/*.svg", "**/*.sql", "**/*.html"]
+fallthrough = true

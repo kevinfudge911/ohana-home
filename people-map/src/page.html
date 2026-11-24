@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2b6f8f">
+<title>Where's My People?</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--ink:#22313a;--soft:#5d6d77;--bar:rgba(255,255,255,.94);--line:#dfe6ea;--red:#c8102e;--accent:#2b6f8f}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#e9eef1}
+#map{position:fixed;inset:0}
+.top{position:fixed;z-index:500;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));display:flex;align-items:center;gap:8px;
+  background:var(--bar);border-radius:14px;padding:6px 8px 6px 10px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.top h1{font-size:15px;margin:0;font-weight:800;white-space:nowrap}
+.top h1 b{color:var(--red)}
+.top .sp{flex:1}
+.top small{color:var(--soft);font-size:11px;white-space:nowrap}
+.btn{border:0;background:#eef3f6;color:var(--ink);border-radius:10px;padding:6px 9px;font-size:12px;font-weight:700;cursor:pointer}
+.btn.go{background:var(--accent);color:#fff}
+.home{text-decoration:none;font-size:18px;line-height:1}
+.dock{position:fixed;z-index:500;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));display:flex;gap:6px;overflow-x:auto;
+  scrollbar-width:none;padding:2px}
+.dock::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:var(--bar);border-radius:999px;padding:4px 10px 4px 4px;
+  box-shadow:0 1px 6px rgba(0,0,0,.15);font-size:12px;font-weight:700;cursor:pointer;border:0;color:var(--ink)}
+.chip img{width:28px;height:28px;object-fit:contain}
+.chip .dot{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px}
+.chip span{font-weight:500;color:var(--soft)}
+.pm{background:none;border:0}
+.pm .art{display:block;margin:0 auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.pm .who{display:block;width:max-content;margin:1px auto 0;transform:translateX(calc(-50% + 50%));background:rgba(255,255,255,.95);border-radius:8px;
+  padding:1px 6px;font:700 11px system-ui,sans-serif;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25);white-space:nowrap}
+.pm .pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--accent);margin:0 auto;border:2px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.35);display:grid;place-items:center}
+.pm .pin i{transform:rotate(45deg);color:#fff;font:800 12px system-ui;font-style:normal}
+.pm.old{opacity:.55}
+.leaflet-popup-content{margin:10px 12px;font-size:13px;line-height:1.35}
+.leaflet-popup-content b{font-size:14px}
+.leaflet-popup-content .s{color:var(--soft);font-size:12px}
+.panel{position:fixed;z-index:800;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center}
+.panel.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto}
+.sheet h2{font-size:16px;margin:0 0 6px}
+.sheet p,.sheet li{font-size:13px;color:var(--soft);line-height:1.45}
+.sheet ol{padding-left:18px;margin:6px 0}
+.sheet textarea{width:100%;height:64px;border:1px solid var(--line);border-radius:10px;padding:8px;font:12px ui-monospace,monospace}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.note{position:fixed;z-index:600;left:50%;top:64px;transform:translateX(-50%);background:#fff;border-radius:12px;padding:10px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);font-size:13px;max-width:90vw;display:none}
+.note.on{display:block}
+.signin{position:fixed;inset:0;display:none;place-items:center;z-index:900;background:#e9eef1;text-align:center;padding:20px}
+.signin.on{display:grid}
+.signin a{color:var(--accent);font-weight:800}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="top">
+  <a class="home" href="/" title="Back to Ohana Home">🏠</a>
+  <h1>Where's My <b>People</b>?</h1>
+  <div class="sp"></div>
+  <small id="when"></small>
+  <button class="btn" id="fit" title="Show everybody">All</button>
+  <button class="btn" id="l360btn">Life360</button>
+</div>
+<div class="dock" id="dock"></div>
+<div class="note" id="note"></div>
+<div class="signin" id="signin"><div><h2>Sign in to Ohana Home first</h2><p><a href="/">Open Ohana Home</a>, sign in, then come back here.</p></div></div>
+<div class="panel" id="l360"><div class="sheet">
+  <h2>Connect Life360</h2>
+  <p id="l360state"></p>
+  <ol>
+    <li>On a computer, open <b>life360.com</b> and sign in.</li>
+    <li>Press <b>F12</b>, open <b>Application</b> → <b>Cookies</b> → life360.com.</li>
+    <li>Copy the value of <b>LIFE360_AUTH_TOKEN</b> and paste it here.</li>
+  </ol>
+  <p>It stays private to your Ohana Home. Life360 keeps it good for a long time; if people stop moving, paste a fresh one.</p>
+  <textarea id="l360key" placeholder="Paste here" autocomplete="off" spellcheck="false"></textarea>
+  <div class="row"><button class="btn" id="l360off">Turn off</button><button class="btn" id="l360close">Close</button><button class="btn go" id="l360save">Connect</button></div>
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
+  var $ = function(id){ return document.getElementById(id); };
+  if (!tok) { $("signin").classList.add("on"); return; }
+  var map = L.map("map", { zoomControl: false, attributionControl: true }).setView([38.5, -95.5], 4);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    maxZoom: 19, subdomains: "abcd", attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+  var markers = {}, last = [], fitted = false;
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
+  function ago(iso){
+    var m = Math.round((Date.now() - Date.parse(iso)) / 60000);
+    if (!isFinite(m)) return ""; if (m < 1) return "just now"; if (m < 60) return m + " min ago";
+    var h = Math.round(m / 60); if (h < 24) return h + " hr ago"; return Math.round(h / 24) + " days ago";
+  }
+  function iconFor(p){
+    var old = Date.now() - Date.parse(p.at) > 2 * 3600e3, w, h, inner;
+    if (p.art) {
+      if (p.kind === "vehicle") { w = 64; h = 40; } else if (p.kind === "place") { w = 40; h = 36; } else { w = 40; h = 46; }
+      inner = '<img class="art" src="' + esc(artUrl(p.art)) + '" alt="" style="width:' + w + 'px;height:' + h + 'px;object-fit:contain">';
+    } else { w = 30; h = 30; inner = '<div class="pin"><i>' + esc((p.name || "?").charAt(0)) + '</i></div>'; }
+    var html = inner + '<span class="who">' + esc(p.name) + '</span>';
+    return L.divIcon({ className: "pm" + (old ? " old" : ""), html: html, iconSize: [Math.max(w, 70), h + 18], iconAnchor: [Math.max(w, 70) / 2, h] });
+  }
+  function popup(p){
+    return "<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") +
+      '<br><span class="s">' + esc(p.src) + " · " + esc(ago(p.at)) + "</span>";
+  }
+  function draw(list){
+    var seen = {};
+    list.forEach(function(p){
+      seen[p.key] = 1;
+      var m = markers[p.key];
+      if (!m) { m = markers[p.key] = L.marker([p.lat, p.lng], { icon: iconFor(p), riseOnHover: true }).addTo(map); }
+      else { m.setLatLng([p.lat, p.lng]); m.setIcon(iconFor(p)); }
+      m.bindPopup(popup(p));
+    });
+    Object.keys(markers).forEach(function(k){ if (!seen[k]) { map.removeLayer(markers[k]); delete markers[k]; } });
+    var dock = $("dock"); dock.innerHTML = "";
+    list.forEach(function(p){
+      var b = document.createElement("button"); b.className = "chip";
+      b.innerHTML = (p.art ? '<img src="' + esc(artUrl(p.art)) + '" alt="">' : '<div class="dot">' + esc((p.name || "?").charAt(0)) + "</div>") +
+        esc(p.name) + " <span>" + esc(ago(p.at)) + "</span>";
+      b.onclick = function(){ map.setView([p.lat, p.lng], Math.max(map.getZoom(), 14)); markers[p.key].openPopup(); };
+      dock.appendChild(b);
+    });
+    if (!list.length) dock.innerHTML = '<span class="chip">Nobody sharing right now</span>';
+  }
+  function fitAll(){
+    if (!last.length) return;
+    if (last.length === 1) { map.setView([last[0].lat, last[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(last.map(function(p){ return [p.lat, p.lng]; })), { padding: [60, 90], maxZoom: 13 });
+  }
+  var l360 = { connected: false };
+  function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 4000); }
+  function load(){
+    fetch("/people/api/where", { headers: { authorization: "Bearer " + tok }, cache: "no-store" }).then(function(r){
+      if (r.status === 401) { $("signin").classList.add("on"); throw 0; }
+      return r.json();
+    }).then(function(d){
+      last = (d.people || []).filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); });
+      draw(last); if (!fitted) { fitAll(); fitted = true; }
+      $("when").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      l360 = (d.sources && d.sources.life360) || { connected: false };
+      $("l360btn").textContent = l360.connected ? (l360.error ? "Life360 ⚠" : "Life360 ✓") : "Life360";
+    }).catch(function(e){ if (e !== 0) $("when").textContent = "offline"; });
+  }
+  $("fit").onclick = fitAll;
+  $("l360btn").onclick = function(){
+    $("l360state").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh one." : "Connected. " + (l360.members || 0) + " people coming in.") : "Not connected yet.";
+    $("l360").classList.add("on");
+  };
+  $("l360close").onclick = function(){ $("l360").classList.remove("on"); };
+  function sendL360(body){
+    return fetch("/people/api/life360", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json(); });
+  }
+  $("l360save").onclick = function(){
+    var k = $("l360key").value.trim(); if (!k) return;
+    sendL360({ key: k }).then(function(d){
+      $("l360key").value = "";
+      if (!d.ok) { note(d.error || "That didn't work."); return; }
+      $("l360").classList.remove("on");
+      note(d.status && d.status.error ? "Saved, but Life360 said no. Try a fresh one." : "Life360 connected.");
+      load();
+    });
+  };
+  $("l360off").onclick = function(){ sendL360({ off: true }).then(function(){ $("l360").classList.remove("on"); note("Life360 turned off."); load(); }); };
+  load(); setInterval(load, 30000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>

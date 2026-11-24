@@ -1,0 +1,262 @@
+// ohana-wheres-my-people: "Where's My People?" map for Ohana Home (ohanahome.app/people).
+// Kevin only (Ohana admin). One map of everyone who shares location with him:
+//  - Unique Rides Transportation limo app drivers on the clock (D1 limo-for-you) -> shown as the vehicle they're in
+//  - JJ Friends drivers (D1 jj_friends_db) -> vehicle picked for today's run, else their Ohana character
+//  - Life360 (polled here with Kevin's own Life360 key, or pushed in) and Google sharing (pushed in) -> feed_positions
+// Everyone else shows as their Ohana character when they have one.
+import PAGE from "./page.html";
+import CHARS from "./chars.json";
+import SCHEMA from "./schema.sql";
+import ART_PINKEY from "./art/pinkey.webp";
+import ART_EXECUTIVE from "./art/executive.webp";
+import ART_PEARL from "./art/majestic-pearl.webp";
+import ART_H2 from "./art/h2-thunder.webp";
+import ART_VAN from "./art/grand-van.webp";
+import ART_FIRETRUCK from "./art/fire-truck.svg";
+import ART_HOUSE from "./art/house.svg";
+import ART_CAR from "./art/car.svg";
+
+const VERSION = "people-v1";
+const ART = {
+  "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
+  "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
+  "grand-van.webp": [ART_VAN, "image/webp"],
+  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"],
+};
+const LIMO_FRESH_MS = 30 * 60e3, JJ_FRESH_MS = 30 * 60e3, FEED_KEEP_MS = 3 * 864e5;
+const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+
+export function vehicleArt(name) {
+  const n = String(name || "").toLowerCase();
+  if (/pink/.test(n)) return { art: "pinkey.webp", label: "Pinkey" };
+  if (/exec|chrysler|300/.test(n)) return { art: "executive.webp", label: "The Executive" };
+  if (/pearl|majestic|cadillac|dts/.test(n)) return { art: "majestic-pearl.webp", label: "Majestic Pearl" };
+  if (/h2|hummer|thunder/.test(n)) return { art: "h2-thunder.webp", label: "H2 Thunder" };
+  if (/grand van|caravan|\bvan\b/.test(n)) return { art: "grand-van.webp", label: "Grand Van" };
+  if (/beauty|excursion/.test(n)) return { art: "car.svg", label: "Black Beauty" };
+  return { art: "car.svg", label: name ? String(name).replace(/\s*\(.*\)\s*$/, "") : "On a run" };
+}
+function meters(aLat, aLng, bLat, bLng) {
+  const R = 6371000, r = Math.PI / 180, dLat = (bLat - aLat) * r, dLng = (bLng - aLng) * r;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(aLat * r) * Math.cos(bLat * r) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function ctMinutes(d = new Date()) { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: "America/Chicago", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(d).split(":"); return +h * 60 + +m; }
+function ctDate(d = new Date()) { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Chicago" }).format(d); }
+const ms = (s) => { const t = Date.parse(s); return Number.isFinite(t) ? t : 0; };
+
+async function ensureSchema(env) {
+  const r = await env.PEOPLE.prepare("SELECT value FROM settings WHERE key='schema'").first().catch(() => null);
+  if (r && r.value === VERSION) return;
+  for (const stmt of SCHEMA.split(/;\s*\n/).map((s) => s.trim()).filter(Boolean)) await env.PEOPLE.prepare(stmt).run();
+  await env.PEOPLE.prepare("INSERT INTO settings(key,value) VALUES('schema',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(VERSION).run();
+}
+async function getSetting(env, k) { const r = await env.PEOPLE.prepare("SELECT value FROM settings WHERE key=?").bind(k).first(); return r ? r.value : null; }
+async function setSetting(env, k, v) { await env.PEOPLE.prepare("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(k, v).run(); }
+
+// Ohana Home sign-in: same token the Ohana app keeps on the phone. Only Ohana admins (Kevin) may see the map.
+async function ohanaAdmin(req, env) {
+  const t = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+  if (!t || t.length < 8) return null;
+  const m = await env.OHANA.prepare("SELECT id,name,avatar,is_admin FROM members WHERE token=?").bind(t).first();
+  if (!m) return null;
+  const allow = String(env.ALLOWED_MEMBER_IDS || "5").split(",").map((s) => +s.trim());
+  return m.is_admin || allow.includes(m.id) ? m : null;
+}
+
+async function limoDrivers(env) {
+  const rows = (await env.LIMO.prepare(
+    `SELECT ce.driver_id, ce.booking_id, ce.clock_in, d.first_name, d.last_name, v.name AS vname, v.make, v.model, b.booking_number,
+       (SELECT lat||','||lng||','||recorded_at FROM driver_locations l WHERE l.booking_id=ce.booking_id AND l.driver_id=ce.driver_id ORDER BY recorded_at DESC LIMIT 1) AS lastpt
+     FROM driver_clock_entries ce LEFT JOIN bookings b ON b.id=ce.booking_id
+     LEFT JOIN vehicles v ON v.id=COALESCE(ce.vehicle_id,b.vehicle_id) LEFT JOIN drivers d ON d.id=ce.driver_id
+     WHERE ce.status='clocked_in'`).all()).results || [];
+  const out = [];
+  for (const r of rows) {
+    if (!r.lastpt) continue;
+    const [lat, lng, at] = r.lastpt.split(",");
+    if (Date.now() - ms(at) > LIMO_FRESH_MS) continue;
+    out.push({ src: "limo", driverId: r.driver_id, name: [r.first_name, r.last_name].filter(Boolean).join(" "), first: r.first_name,
+      lat: +lat, lng: +lng, at, vehicle: r.vname || [r.make, r.model].filter(Boolean).join(" "), run: r.booking_number || "" });
+  }
+  return out;
+}
+
+async function jjDrivers(env) {
+  const pts = (await env.JJ.prepare(
+    `SELECT p.member, p.lat, p.lng, p.accuracy, p.recordedAt FROM driver_positions p
+     JOIN (SELECT member, max(recordedAt) m FROM driver_positions GROUP BY member) x ON x.member=p.member AND x.m=p.recordedAt`).all()).results || [];
+  const today = ctDate();
+  const runs = (await env.JJ.prepare("SELECT driver, coDriver, vehicle, time, endTime, title FROM entries WHERE date=? AND status='new' AND kind='limo' ORDER BY time").bind(today).all().catch(() => ({ results: [] }))).results || [];
+  const nowMin = ctMinutes();
+  const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t || "")); return m ? +m[1] * 60 + +m[2] : null; };
+  const out = [];
+  for (const p of pts) {
+    if (Date.now() - ms(p.recordedAt) > JJ_FRESH_MS) continue;
+    const who = p.member; // 'Kevin' | 'Mike'
+    const names = who === "Mike" ? ["Mike", "Mike Hamm"] : [who];
+    const mine = runs.filter((e) => names.includes(e.driver) || names.includes(e.coDriver));
+    let trip = null;
+    try { const t = await env.JJ.prepare("SELECT value FROM meta WHERE key=?").bind("gps-trip:" + who).first(); trip = t && t.value ? JSON.parse(t.value) : null; } catch {}
+    const tripOn = !!(trip && trip.active && ms(trip.expiresAt) > Date.now());
+    // A run counts as "now" from 30 min before its start until its end (or 3 h after start when no end is set).
+    const live = mine.find((e) => { const a = toMin(e.time); if (a == null) return false; const b = toMin(e.endTime) ?? a + 180; return nowMin >= a - 30 && nowMin <= b + 15; });
+    const run = live || (tripOn ? mine.find((e) => e.vehicle) || mine[0] : null) || null;
+    out.push({ src: "jj", member: who, lat: p.lat, lng: p.lng, acc: p.accuracy, at: p.recordedAt,
+      vehicle: run && run.vehicle ? run.vehicle : null, onRun: !!(tripOn || live), runTitle: run ? run.title : "" });
+  }
+  return out;
+}
+
+function placeKind(name) {
+  const n = String(name || "").toLowerCase();
+  if (/fire|station|firehouse|ssc|work/.test(n)) return "fire";
+  if (/home|house/.test(n)) return "home";
+  return null;
+}
+
+async function buildWhere(env) {
+  await ensureSchema(env);
+  const people = (await env.PEOPLE.prepare("SELECT * FROM people WHERE hidden=0 ORDER BY sort").all()).results || [];
+  const members = (await env.OHANA.prepare("SELECT id,name,avatar FROM members").all()).results || [];
+  const memberById = Object.fromEntries(members.map((m) => [m.id, m]));
+  const feed = (await env.PEOPLE.prepare("SELECT * FROM feed_positions").all()).results || [];
+  const places = (await env.PEOPLE.prepare("SELECT * FROM places").all()).results || [];
+  const [limo, jj] = await Promise.all([limoDrivers(env).catch(() => []), jjDrivers(env).catch(() => [])]);
+  const lc = (s) => String(s || "").trim().toLowerCase();
+  const charFor = (memberId) => {
+    const m = memberById[memberId]; if (!m) return null;
+    const c = CHARS[m.avatar]; return c ? { art: c.f, character: c.n } : null;
+  };
+  const used = new Set();
+  const result = [];
+  const emit = (o) => result.push(o);
+  const pickFeed = (p) => feed.filter((f) => (f.source === "life360" && lc(f.who) === lc(p.life360_name)) || (f.source === "google" && lc(f.who) === lc(p.google_name)))
+    .sort((a, b) => ms(b.at) - ms(a.at))[0];
+
+  for (const p of people) {
+    const ch = charFor(p.ohana_member_id);
+    const l = limo.find((d) => d.driverId === p.limo_driver_id);
+    const j = jj.find((d) => d.member === p.jj_member);
+    const f = pickFeed(p);
+    if (l) { used.add("limo:" + l.driverId); const v = vehicleArt(l.vehicle);
+      emit({ key: p.key, name: p.name, lat: l.lat, lng: l.lng, at: l.at, src: "Limo app", kind: "vehicle", art: v.art, label: v.label + " · on the clock" + (l.run ? " · run " + l.run : "") }); }
+    else if (j && j.onRun) { const v = vehicleArt(j.vehicle);
+      emit({ key: p.key, name: p.name, lat: j.lat, lng: j.lng, at: j.at, src: "JJ Friends", kind: "vehicle", art: v.art, label: (j.vehicle ? v.label : "Driving") + " · JJ run" }); }
+    else {
+      const cands = [];
+      if (j) cands.push({ lat: j.lat, lng: j.lng, at: j.at, src: "JJ Friends", place: null });
+      if (f) cands.push({ lat: f.lat, lng: f.lng, at: f.at, src: f.source === "life360" ? "Life360" : "Google", place: f.place, since: f.since });
+      if (!cands.length) continue;
+      const c = cands.sort((a, b) => ms(b.at) - ms(a.at))[0];
+      let kind = ch ? "character" : "pin", art = ch ? ch.art : null, label = c.place || "";
+      if (p.rule === "firefighter") {
+        let k = placeKind(c.place);
+        if (!k) { const near = places.find((pl) => meters(c.lat, c.lng, pl.lat, pl.lng) <= (pl.radius_m || 200)); if (near) { k = near.kind; label = near.name; } }
+        if (k === "fire") { kind = "vehicle"; art = "fire-truck.svg"; label = (label || "Fire station") + " · on shift"; }
+        else if (k === "home") { kind = "place"; art = "house.svg"; label = label || "Home"; }
+      }
+      emit({ key: p.key, name: p.name, lat: c.lat, lng: c.lng, at: c.at, src: c.src, kind, art, label, character: ch ? ch.character : null });
+    }
+    if (f) used.add(f.source + ":" + lc(f.who));
+  }
+  // Drivers on the clock who aren't in the people list yet still show (as their vehicle).
+  for (const l of limo) {
+    if (used.has("limo:" + l.driverId) || people.some((p) => p.limo_driver_id === l.driverId)) continue;
+    const v = vehicleArt(l.vehicle);
+    emit({ key: "limo-" + l.driverId, name: l.first || l.name, lat: l.lat, lng: l.lng, at: l.at, src: "Limo app", kind: "vehicle", art: v.art, label: v.label + " · on the clock" });
+  }
+  // Anyone else sharing on Life360/Google shows by their own name.
+  for (const f of feed) {
+    if (used.has(f.source + ":" + lc(f.who)) || Date.now() - ms(f.at) > FEED_KEEP_MS) continue;
+    emit({ key: f.source + "-" + lc(f.who), name: f.who, lat: f.lat, lng: f.lng, at: f.at, src: f.source === "life360" ? "Life360" : "Google", kind: "pin", art: null, label: f.place || "" });
+  }
+  const l360 = await getSetting(env, "life360_status");
+  return { ok: true, version: VERSION, now: new Date().toISOString(), people: result,
+    sources: { limo: limo.length, jj: jj.length, life360: l360 ? JSON.parse(l360) : { connected: false }, google: feed.some((f) => f.source === "google") } };
+}
+
+// ---- Life360 (unofficial API, same calls the Home Assistant Life360 integration makes). Key is Kevin's own, typed by him on the map page.
+const L360 = "https://api-cloudfront.life360.com";
+const L360_HEADERS = (tok) => ({ authorization: "Bearer " + tok, accept: "application/json", "cache-control": "no-cache", "user-agent": "com.life360.android.safetymapd/KOKO/23.50.0 android/13" });
+export async function pollLife360(env) {
+  await ensureSchema(env);
+  const tok = await getSetting(env, "life360_key");
+  if (!tok) return { connected: false };
+  const status = { connected: true, at: new Date().toISOString(), members: 0, error: null };
+  try {
+    const cr = await fetch(L360 + "/v4/circles", { headers: L360_HEADERS(tok) });
+    if (!cr.ok) throw new Error("circles " + cr.status);
+    const circles = ((await cr.json()).circles) || [];
+    const lastPlaces = +(await getSetting(env, "life360_places_at") || 0);
+    for (const c of circles) {
+      const mr = await fetch(L360 + "/v3/circles/" + c.id + "/members", { headers: L360_HEADERS(tok) });
+      if (!mr.ok) throw new Error("members " + mr.status);
+      for (const m of ((await mr.json()).members) || []) {
+        const loc = m.location; if (!loc || loc.latitude == null) continue;
+        const at = new Date(1000 * +(loc.timestamp || 0) || Date.now()).toISOString();
+        const since = loc.since ? new Date(1000 * +loc.since).toISOString() : null;
+        await env.PEOPLE.prepare("INSERT INTO feed_positions(source,who,lat,lng,acc,place,since,at) VALUES('life360',?,?,?,?,?,?,?) ON CONFLICT(source,who) DO UPDATE SET lat=excluded.lat,lng=excluded.lng,acc=excluded.acc,place=excluded.place,since=excluded.since,at=excluded.at")
+          .bind(String(m.firstName || "").trim(), +loc.latitude, +loc.longitude, +loc.accuracy || null, loc.name || null, since, at).run();
+        status.members++;
+      }
+      if (Date.now() - lastPlaces > 6 * 3600e3) {
+        const pr = await fetch(L360 + "/v3/circles/" + c.id + "/places", { headers: L360_HEADERS(tok) });
+        if (pr.ok) for (const pl of ((await pr.json()).places) || []) {
+          const k = placeKind(pl.name); if (!k) continue;
+          await env.PEOPLE.prepare("INSERT INTO places(name,kind,lat,lng,radius_m,source,ext_id) VALUES(?,?,?,?,?,'life360',?) ON CONFLICT(ext_id) DO UPDATE SET name=excluded.name,kind=excluded.kind,lat=excluded.lat,lng=excluded.lng,radius_m=excluded.radius_m")
+            .bind(pl.name, k, +pl.latitude, +pl.longitude, Math.max(+pl.radius || 150, 120), "l360:" + pl.id).run();
+        }
+      }
+    }
+    await setSetting(env, "life360_places_at", String(Date.now()));
+  } catch (e) { status.error = String(e.message || e); }
+  await setSetting(env, "life360_status", JSON.stringify(status));
+  return status;
+}
+
+async function readJson(req) { try { return await req.json(); } catch { return null; } }
+
+export default {
+  async scheduled(event, env, ctx) { ctx.waitUntil(pollLife360(env).catch((e) => console.error(String(e)))); },
+  async fetch(req, env) {
+    const url = new URL(req.url), p = url.pathname.replace(/\/+$/, "") || "/";
+    if (req.method === "GET" && (p === "/people" || p === "/people/index.html"))
+      return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "same-origin" } });
+    if (req.method === "GET" && p.startsWith("/people/art/")) {
+      const a = ART[p.slice(12)]; if (!a) return new Response("Not found", { status: 404 });
+      return new Response(a[0], { headers: { "content-type": a[1], "cache-control": "public, max-age=86400" } });
+    }
+    if (p === "/people/api/feed" && req.method === "POST") { // Home Assistant / other apps push positions here.
+      await ensureSchema(env);
+      const key = await getSetting(env, "feed_key");
+      if (!key || req.headers.get("x-feed-key") !== key) return json({ ok: false, error: "not allowed" }, 403);
+      const body = await readJson(req); const list = Array.isArray(body) ? body : body && Array.isArray(body.people) ? body.people : [];
+      let n = 0;
+      for (const x of list.slice(0, 50)) {
+        const src = x.source === "google" ? "google" : x.source === "life360" ? "life360" : null;
+        const lat = +x.lat, lng = +(x.lng ?? x.lon);
+        if (!src || !x.name || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+        await env.PEOPLE.prepare("INSERT INTO feed_positions(source,who,lat,lng,acc,place,since,at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(source,who) DO UPDATE SET lat=excluded.lat,lng=excluded.lng,acc=excluded.acc,place=excluded.place,since=excluded.since,at=excluded.at")
+          .bind(src, String(x.name).slice(0, 40), lat, lng, +x.acc || null, x.place ? String(x.place).slice(0, 60) : null, x.since || null, x.at || new Date().toISOString()).run();
+        n++;
+      }
+      return json({ ok: true, saved: n });
+    }
+    if (p.startsWith("/people/api/")) {
+      const me = await ohanaAdmin(req, env);
+      if (!me) return json({ ok: false, error: "sign in" }, 401);
+      if (p === "/people/api/where" && req.method === "GET") return json(await buildWhere(env));
+      if (p === "/people/api/life360" && req.method === "POST") {
+        await ensureSchema(env);
+        const b = await readJson(req); const k = String((b && b.key) || "").trim();
+        if (b && b.off) { await env.PEOPLE.prepare("DELETE FROM settings WHERE key IN ('life360_key','life360_status')").run(); return json({ ok: true, connected: false }); }
+        if (k.length < 20 || k.length > 400 || /\s/.test(k)) return json({ ok: false, error: "That doesn't look like a Life360 key." }, 400);
+        await setSetting(env, "life360_key", k.replace(/^Bearer\s+/i, ""));
+        return json({ ok: true, status: await pollLife360(env) });
+      }
+      return json({ ok: false, error: "not found" }, 404);
+    }
+    return new Response("Not found", { status: 404 });
+  },
+};

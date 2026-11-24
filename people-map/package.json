@@ -1,0 +1,6 @@
+{
+  "name": "ohana-wheres-my-people",
+  "private": true,
+  "scripts": { "deploy": "wrangler deploy", "dev": "wrangler dev" },
+  "devDependencies": { "wrangler": "4.168.0" }
+}
