@@ -60,8 +60,10 @@
     st.parentNode.insertBefore(b, st.nextSibling);
   }
   // Deep link: ohanahome.app/#waldo (the town's Where's My People shop) opens Ohana Gathering, then this room.
-  if (location.hash === "#waldo") {
-    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  var want = location.hash === "#waldo";
+  try { var ts = Number(sessionStorage.getItem("ohana-open-waldo") || 0); sessionStorage.removeItem("ohana-open-waldo"); if (ts && Date.now() - ts < 60000) want = true; } catch (e) {}
+  if (want) {
+    if (location.hash === "#waldo") { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     var t0 = Date.now(), asked = false;
     (function step() {
       var e = document.querySelector(".waldo-entry");
