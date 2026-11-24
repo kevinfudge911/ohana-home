@@ -1,5 +1,5 @@
 {
- "version": 8,
+ "version": 9,
  "width": 1440,
  "height": 2579,
  "waldo": false,
@@ -454,7 +454,7 @@
   },
   {
    "id": "life360",
-   "label": "360",
+   "label": "Where's Waldo",
    "shape": "oval",
    "box": [
     540,
@@ -463,7 +463,7 @@
     912
    ],
    "go": {
-    "place": "town:LIFE360"
+    "web": "https://ohanahome.app/people/room"
    }
   },
   {
@@ -555,7 +555,7 @@
   },
   {
    "id": "bank",
-   "label": "Bank",
+   "label": "Bank of Billings",
    "shape": "oval",
    "box": [
     1085,
@@ -564,7 +564,45 @@
     1012
    ],
    "go": {
-    "place": "town:BANK"
+    "app": [
+     "com.bankofbillings.mobile",
+     "com.thebankofbillings.grip"
+    ],
+    "web": "https://play.google.com/store/apps/details?id=com.bankofbillings.mobile"
+   }
+  },
+  {
+   "id": "cashapp",
+   "label": "Cash App",
+   "shape": "oval",
+   "box": [
+    1063,
+    1032,
+    1098,
+    1104
+   ],
+   "go": {
+    "app": [
+     "com.squareup.cash"
+    ],
+    "web": "https://cash.app/"
+   }
+  },
+  {
+   "id": "venmo",
+   "label": "Venmo",
+   "shape": "oval",
+   "box": [
+    1202,
+    1035,
+    1235,
+    1111
+   ],
+   "go": {
+    "app": [
+     "com.venmo"
+    ],
+    "web": "https://venmo.com/"
    }
   },
   {
