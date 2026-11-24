@@ -167,7 +167,9 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 
   function drawScene(){
     var st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag")).forEach(function(n){ n.remove(); });
+    var W = $("scene").clientWidth || 1000;
     items.forEach(function(it){
+      it.size = Math.max(it.base || (it.base = it.size), (it.person ? 17 : 15) / W * 100);
       var d = document.createElement("div"); d.className = "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
       d.innerHTML = '<img src="' + esc(it.src) + '" alt="" draggable="false">'; st.appendChild(d); it.el = d;
       if (found[it.id]) mark(it, false);
@@ -263,7 +265,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
     });
     return best;
   }
-  window.addEventListener("resize", function(){ apply(); tellHeight(); if (map) map.invalidateSize(); });
+  var lastW = 0; window.addEventListener("resize", function(){ apply(); var w = sc.clientWidth; if (Math.abs(w - lastW) > 40 && items.length) { lastW = w; drawScene(); } tellHeight(); if (map) map.invalidateSize(); });
 
   // The real map, for anyone who wants the street view after they find someone.
   var map = null, markers = {};
@@ -299,7 +301,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
     Z = { s: 1, x: 0, y: 0 }; apply(true); place(); drawScene(); drawLists(); say("Everybody hid somewhere new. Go find them!", true);
   };
 
-  function tellHeight(){ try { window.parent.postMessage({ type: "ohana-waldo-height", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
+  function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
   function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.className = sharing ? "go" : ""; }
   function send(pos){
     if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
