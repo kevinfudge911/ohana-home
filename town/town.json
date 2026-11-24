@@ -1,5 +1,5 @@
 {
- "version": 4,
+ "version": 5,
  "width": 1440,
  "height": 2579,
  "waldo": false,
@@ -626,6 +626,23 @@
      "com.facebook.orca"
     ],
     "web": "https://www.messenger.com/"
+   }
+  },
+  {
+   "id": "texts",
+   "label": "Text messages",
+   "shape": "oval",
+   "box": [
+    550,
+    1507,
+    642,
+    1622
+   ],
+   "go": {
+    "app": [
+     "com.google.android.apps.messaging",
+     "com.samsung.android.messaging"
+    ]
    }
   }
  ]
