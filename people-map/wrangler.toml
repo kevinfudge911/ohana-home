@@ -2,7 +2,12 @@ name = "ohana-wheres-my-people"
 main = "src/worker.js"
 compatibility_date = "2026-11-01"
 workers_dev = false
-routes = [ { pattern = "ohanahome.app/people*", zone_name = "ohanahome.app" } ]
+routes = [
+  { pattern = "ohanahome.app/people*", zone_name = "ohanahome.app" },
+  # Main page only: passed through from ohana-home with the Where's Waldo hook script added.
+  { pattern = "ohanahome.app/", zone_name = "ohanahome.app" },
+  { pattern = "ohanahome.app/index.html", zone_name = "ohanahome.app" }
+]
 
 [triggers]
 crons = ["*/2 * * * *"]
