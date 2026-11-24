@@ -96,9 +96,22 @@ body.solo{background:#d4d6dc}
     });
     if (!last.length) who.innerHTML = '<div class="empty">Nobody is sharing yet</div>';
     if (!fitted && last.length) { fitAll(); fitted = true; }
+    setTimeout(spread, 0);
     $("tag").textContent = last.length ? (DEMO ? "Sample spots · " : "") + last.length + " showing · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
     tellHeight();
   }
+  function spread(){ // fan out people who sit on top of each other so every face shows
+    var placed = [];
+    last.forEach(function(p){
+      var m = markers[p.key]; if (!m || !m._icon) return;
+      var pt = map.latLngToLayerPoint(m.getLatLng()), dx = 0, tries = 0;
+      while (tries++ < 8 && placed.some(function(q){ return Math.abs(q.x - (pt.x + dx)) < 58 && Math.abs(q.y - pt.y) < 48; }))
+        dx = dx <= 0 ? -dx + 60 : -dx;
+      m._icon.style.marginLeft = (parseFloat(m.options.icon.options.iconAnchor[0]) * -1 + dx) + "px";
+      placed.push({ x: pt.x + dx, y: pt.y });
+    });
+  }
+  map.on("zoomend viewreset", spread);
   function tellHeight(){ try { window.parent.postMessage({ type: "ohana-waldo-height", h: document.documentElement.scrollHeight }, location.origin); } catch (e) {} }
   window.addEventListener("resize", function(){ map.invalidateSize(); tellHeight(); });
   function note(t){ var n = $("note"); n.textContent = t; n.classList.add("on"); setTimeout(function(){ n.classList.remove("on"); }, 3500); }
