@@ -25,9 +25,10 @@ body.solo{background:#6b4a2b}
 .ctl button{border:0;background:none;padding:2px 2px;cursor:pointer;font:800 15px Fredoka,Nunito,sans-serif;color:#ffd77a}
 .ctl button.go,.l360 .acts button.go{color:#fff!important;text-shadow:0 0 2px #d7141d,0 0 3px #d7141d,0 0 5px #d7141d,0 1px 8px #0008}
 .map-wrap{position:relative;width:100%;max-width:980px;margin:0 auto;aspect-ratio:16/10;min-height:300px;
- -webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 72% 70% at 50% 50%,#000 62%,transparent 100%)}
+ -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 11%,#000 89%,transparent);-webkit-mask-composite:source-in;
+ mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 11%,#000 89%,transparent);mask-composite:intersect}
 #map{position:absolute;inset:0;background:transparent}
-#map .leaflet-tile-pane{filter:sepia(.3) saturate(1.3) hue-rotate(-6deg) contrast(1.05)}
+#map .leaflet-tile-pane{filter:saturate(1.15) contrast(1.04) brightness(1.04)}
 .leaflet-container{background:transparent!important}
 .leaflet-control-attribution{background:none!important;color:#fff3c6!important;text-shadow:0 1px 2px #000;font-size:9px!important}
 .leaflet-control-attribution a{color:#fff3c6!important}
@@ -72,7 +73,10 @@ body.solo{background:#6b4a2b}
   if (window.parent === window) document.body.classList.add("solo");
   var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
   var map = L.map("map", { zoomControl: false, attributionControl: true, zoomSnap: 0.5 }).setView([37.2, -93.3], 7);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
+  // Real-world picture of the land (satellite) with town and road names on top: rich, and it blends with the painted world.
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar" }).addTo(map);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, opacity: 0.55 }).addTo(map);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }).addTo(map);
   var markers = {}, last = [], fitted = false, sharing = false, watchId = null, lastSent = 0, admin = false, l360 = { connected: false };
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
   function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
@@ -111,15 +115,17 @@ body.solo{background:#6b4a2b}
     setTimeout(spread, 0);
     tellHeight();
   }
-  function spread(){ // fan out people who sit on top of each other so every face shows
+  function spread(){ // fan out people who sit on top of each other so every face and name shows
     var placed = [];
     last.forEach(function(p){
       var m = markers[p.key]; if (!m || !m._icon) return;
-      var pt = map.latLngToLayerPoint(m.getLatLng()), dx = 0, tries = 0;
-      while (tries++ < 8 && placed.some(function(q){ return Math.abs(q.x - (pt.x + dx)) < 58 && Math.abs(q.y - pt.y) < 48; }))
-        dx = dx <= 0 ? -dx + 60 : -dx;
-      m._icon.style.marginLeft = (parseFloat(m.options.icon.options.iconAnchor[0]) * -1 + dx) + "px";
-      placed.push({ x: pt.x + dx, y: pt.y });
+      var span = m._icon.querySelector("span"), w = Math.max(56, span ? span.offsetWidth + 10 : 56), h = 48;
+      var pt = map.latLngToLayerPoint(m.getLatLng()), dx = 0, dy = 0, tries = 0;
+      var hit = function(){ return placed.some(function(q){ return Math.abs(q.x - (pt.x + dx)) < (q.w + w) / 2 && Math.abs(q.y - (pt.y + dy)) < h; }); };
+      while (tries++ < 10 && hit()) { if (tries % 2) dy += 30; else { dy = 0; dx = dx <= 0 ? -dx + w : -dx; } }
+      m._icon.style.marginLeft = (-m.options.icon.options.iconAnchor[0] + dx) + "px";
+      m._icon.style.marginTop = (-m.options.icon.options.iconAnchor[1] + dy) + "px";
+      placed.push({ x: pt.x + dx, y: pt.y + dy, w: w });
     });
   }
   map.on("zoomend viewreset", spread);
