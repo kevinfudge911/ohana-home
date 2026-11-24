@@ -1,11 +1,11 @@
 {
- "version": 5,
+ "version": 6,
  "width": 1440,
  "height": 2579,
  "waldo": false,
  "art": {
-  "night": "town-night-v1.webp",
-  "day": "town-day-v2.webp"
+  "night": "town-night-v2.webp",
+  "day": "town-day-v3.webp"
  },
  "spots": [
   {
@@ -616,10 +616,10 @@
    "label": "Messenger",
    "shape": "oval",
    "box": [
-    85,
-    2385,
-    180,
-    2535
+    478,
+    2225,
+    640,
+    2460
    ],
    "go": {
     "app": [
