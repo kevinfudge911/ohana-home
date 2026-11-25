@@ -77,12 +77,12 @@ window.OhanaMap = (function(){
     });
   }
   // People standing in the same spot step apart a little, so every face and name shows.
-  var SPREAD = [[0, 0], [38, 4], [-38, 4], [0, -46], [40, -44], [-40, -44], [0, 50]];
+  var SPREAD = [[0, 0], [60, 0], [-60, 0], [0, -64], [60, -64], [-60, -64], [0, 64]];
   function unclash(){
     if (!ready) return; var placed = [];
     Object.keys(marks).sort().forEach(function(k){
       var m = marks[k], pt = map.project(m.mk.getLngLat());
-      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 44 && Math.abs(q.y - pt.y) < 50; }).length, o = SPREAD[n % SPREAD.length];
+      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 60 && Math.abs(q.y - pt.y) < 60; }).length, o = SPREAD[n % SPREAD.length];
       if (m.o !== n) { m.o = n; m.mk.setOffset(o); }
       placed.push(pt);
     });
@@ -93,8 +93,8 @@ window.OhanaMap = (function(){
       stopSpin(); if (!people.length) return map.flyTo({ center: [-93.3, 37.0], zoom: 6, pitch: 45, duration: 3500 });
       if (people.length === 1) return map.flyTo({ center: [people[0].lng, people[0].lat], zoom: 14.5, pitch: 58, bearing: -20, duration: 4500, essential: true });
       var b = new maplibregl.LngLatBounds(); people.forEach(function(p){ b.extend([p.lng, p.lat]); });
-      var cam = map.cameraForBounds(b, { padding: { top: 70, bottom: 190, left: 60, right: 60 }, maxZoom: 13 }); // tilted, the near edge comes closer, so leave more room at the bottom
-      map.flyTo({ center: cam.center, zoom: Math.max(2, cam.zoom - 0.3), pitch: 52, bearing: -18, duration: 4500, essential: true });
+      var cam = map.cameraForBounds(b, { padding: { top: 80, bottom: 130, left: 70, right: 70 }, maxZoom: 13 }); // tilted, the near edge comes closer, so leave more room at the bottom
+      map.flyTo({ center: cam.center, zoom: Math.max(2, cam.zoom - 0.1), pitch: 52, bearing: -18, duration: 4500, essential: true });
     });
   }
   function fly(p){
