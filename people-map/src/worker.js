@@ -381,8 +381,8 @@ async function placePeople(env, list) {
 // The room page gets Ohana Home's own Bridge (copied live from Ohana Home's page, so it always matches
 // every other room) and the Gathering's painted world behind it. Nothing in ohana-home is changed.
 const BRIDGE_STYLE_ID = "ohana-arched-bridge-header-style-v1", BRIDGE_SCRIPT_ID = "ohana-arched-bridge-header-v1";
-const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v1";
-let liveMemo = null;
+const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v2";
+let liveMemo = null; // parts copied from Ohana Home's page
 // Keep only the CSS rules (with their @media) whose body matches re.
 function pickRules(css, re) {
   const out = []; let i = 0;
@@ -392,6 +392,7 @@ function pickRules(css, re) {
     while (j < css.length && d) { const c = css[j]; if (c === "{") d++; else if (c === "}") d--; j++; }
     const sel = css.slice(i, b).replace(/\/\*[\s\S]*?\*\//g, "").trim(), body = css.slice(b + 1, j - 1);
     if (/^@(media|supports)/.test(sel)) { const inner = pickRules(body, re); if (inner.length) out.push(sel + "{" + inner.join("") + "}"); }
+    else if (/^@layer/.test(sel)) out.push(...pickRules(body, re)); // this page has no layers of its own, so the rules go in plain
     else if (sel && !sel.startsWith("@") && re.test(body)) out.push(sel + "{" + body + "}");
     i = j;
   }
