@@ -1,18 +1,26 @@
-# Ohana Memories: easy add, edit, delete and albums (Nov 25 2026)
+# Ohana Memories: clean album and sharp photos (Nov 25 2026)
 
 Not live yet. Goes live only after the owner says Yes.
 
-## What changes for him
-- Top bar on /memories: **＋ Add photos**, 📷, **✎ Edit photos**, and album chips (tap to show an album, ＋ New album).
-- **Add sheet:** big previews with check marks. Only checked photos go in. Photos left over from before, and the same picture twice, come in unchecked. Words per photo or for all. Pick the album. Unchecked leftovers are cleared after adding.
-- **✎ on every photo** (book and viewer): change words, date, album, or delete. ‹ › save and go to the next photo.
-- **Edit photos:** grid of every photo; tap to pick many; Move to album or Delete.
-- **Undo** after every delete and move (12 seconds). Delete only hides, like before.
+## What he sees
+- Only the book and the photos. Nothing under the book (no Back/Next, no pickers, no buttons).
+- The album name sits above the book with a small gold arrow. Tap it for the album list: All memories, Unfiled photos, each album, then New album, Pick photos, Share.
+- Small leather tabs on the book's left and right edges turn the page. Swiping and the arrow keys turn it too. A tab hides when there's no page that way.
+- Tap a photo to see it big. Hold a photo about half a second to change it (words, date, album, delete). Works in the book, the big view and Pick photos.
+- One small camera with a plus by the book's lower corner adds photos. A gold number shows if photos are waiting.
+- Big view: close, back and forward arrows, and small heart, share and save marks in one row. No words.
 
-## Files
-- `memories-easy.js`, `memories-easy.css`: the add-on, injected before `</body>` of the live MEMORIES_HTML. Reuses the page's own functions; keeps every live feature.
-- `api-routes.js`: `POST /api/memories/photo/:id/edit` (caption, created_at, album) and `/unhide`. Same permission as the old hide route.
-- `apply-to-worker.cjs`: patches only worker.js of the newest live worker. Guest/senior memories page is not changed.
+## Photo quality
+- New photos keep a full-size copy (up to 4096 px, JPEG 95) in R2 (`memories/original/<room>/<id>.jpg`, binding MUSIC_FILES).
+- The album copy is 2560 px at JPEG 92 (up to 1.5 MB, server limit raised to 1.6 MB). The small picture is 640 px.
+- Resizing is done in halves with high smoothing, so nothing goes soft.
+- The big view swaps in the full-size copy when it has one.
+- Older photos stay as they were stored. A few were saved small back then, so they can't get sharper.
+
+## Files (kept as separate sections)
+- `memories-easy.js`, `memories-easy.css`: the add-on, injected before `</body>` of the live MEMORIES_HTML.
+- `api-routes.js`: edit, unhide and full-size routes (`GET`/`POST /api/memories/photo/:id/original`).
+- `apply-to-worker.cjs`: patches only worker.js of the newest live worker.
 - `test-mock.js`: test only (pretend server). Never ship it.
 
 ## Release
