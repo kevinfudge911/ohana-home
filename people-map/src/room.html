@@ -12,7 +12,14 @@
 :root{--red:#d7141d;--blk:#141414;--wht:#fff}
 *{box-sizing:border-box}
 html,body{margin:0;background:transparent;font:700 13px/1.25 Nunito,system-ui,sans-serif;color:var(--blk);-webkit-tap-highlight-color:transparent}
-body.solo{background:#6b4a2b}
+body.solo{background:transparent}
+html.framed{background:transparent!important;background-image:none!important}
+/* Opened by itself: the Bridge sits on top, then the room, all on the Gathering's painted world */
+#soloHead{max-width:1120px;margin:0 auto}
+#soloHead:not(.ohana-arched-bridge-header){display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 6px 4px}
+#soloHead:not(.ohana-arched-bridge-header) h1{margin:0;font:700 26px Fredoka,Nunito,sans-serif;color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
+#soloHead:not(.ohana-arched-bridge-header) button{font:700 16px Fredoka,Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c}
+body.solo .room{padding-top:6px}
 button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:inherit}
 .room{max-width:1120px;margin:0 auto;padding:2px 6px 14px;display:grid;gap:4px}
 /* red words: white halo, black edge */
@@ -79,8 +86,18 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .l360 input{width:min(100%,360px);margin:5px auto 2px;display:block;padding:6px 10px;border-radius:10px;border:1.5px solid var(--red);background:#fffffff0;font:700 12px Nunito,sans-serif;color:var(--blk)}
 .l360 .acts{display:flex;justify-content:center;gap:18px;font:700 16px Fredoka,Nunito,sans-serif}
 </style>
+<!--SOLO_HEAD-->
 </head>
 <body>
+<!--SOLO_BODY-->
+<script>
+// Opened by itself (the town's Where's Waldo shop): the room shows right here, with its own Bridge on top.
+// Only when this phone isn't signed in to Ohana Home yet does it go to Ohana Home first, so the sign-in shows.
+if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){var t="";try{t=localStorage.getItem("ohana_token")||"";}catch(e){}
+ if(!t){try{sessionStorage.setItem("ohana-open-waldo",String(Date.now()));}catch(e){}location.replace("/#waldo");}}
+// Shown inside Ohana Home (Gathering): Ohana Home already draws the Bridge, so drop this page's own.
+if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
+</script>
 <div class="room">
   <div class="title"><span id="hatA"></span><span class="r">Where’s everybody?</span><span id="glassA"></span></div>
   <div class="find" id="find"></div>
@@ -100,7 +117,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){try{sessionStorage.setItem("ohana-open-waldo",String(Date.now()));}catch(e){}location.replace("/#waldo");}</script>
+
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };

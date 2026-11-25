@@ -18,7 +18,8 @@ INSERT OR IGNORE INTO people (key,name,ohana_member_id,limo_driver_id,jj_member,
  ('mom','Mom',9,NULL,NULL,'Barbara','Barbara',NULL,7),
  ('amber','Amber',13,NULL,NULL,'Amber','Amber',NULL,8),
  ('jeremy','Jeremy',10045,NULL,NULL,'Jeremy','Jeremy',NULL,9),
- ('jennifer','Jennifer',10046,NULL,NULL,'Jennifer','Jennifer',NULL,10);
+ ('jennifer','Jennifer',10046,NULL,NULL,'Jennifer','Jennifer',NULL,10),
+ ('ashley','Ash',NULL,NULL,NULL,'Ashley Forrester|Ashley|Ash','Ashley Forrester|Ashley|Ash',NULL,11);
 ;
 CREATE TABLE IF NOT EXISTS family_share (member_id INTEGER PRIMARY KEY, sharing INTEGER NOT NULL DEFAULT 0, lat REAL, lng REAL, acc REAL, at TEXT, changed TEXT);
 

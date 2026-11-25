@@ -377,11 +377,82 @@ async function placePeople(env, list) {
   return { people: list, houses };
 }
 
+// ---- Where's Waldo opened by itself (the town's shop): one step, no trip through Ohana Home's screens.
+// The room page gets Ohana Home's own Bridge (copied live from Ohana Home's page, so it always matches
+// every other room) and the Gathering's painted world behind it. Nothing in ohana-home is changed.
+const BRIDGE_STYLE_ID = "ohana-arched-bridge-header-style-v1", BRIDGE_SCRIPT_ID = "ohana-arched-bridge-header-v1";
+const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v1";
+let liveMemo = null;
+// Keep only the CSS rules (with their @media) whose body matches re.
+function pickRules(css, re) {
+  const out = []; let i = 0;
+  while (i < css.length) {
+    const b = css.indexOf("{", i); if (b < 0) break;
+    let d = 1, j = b + 1;
+    while (j < css.length && d) { const c = css[j]; if (c === "{") d++; else if (c === "}") d--; j++; }
+    const sel = css.slice(i, b).replace(/\/\*[\s\S]*?\*\//g, "").trim(), body = css.slice(b + 1, j - 1);
+    if (/^@(media|supports)/.test(sel)) { const inner = pickRules(body, re); if (inner.length) out.push(sel + "{" + inner.join("") + "}"); }
+    else if (sel && !sel.startsWith("@") && re.test(body)) out.push(sel + "{" + body + "}");
+    i = j;
+  }
+  return out;
+}
+async function readLive(env) {
+  const res = await env.OHANA_HOME.fetch(new Request("https://ohanahome.app/", { headers: { "user-agent": "OhanaHome-people-map/1.0 (bridge copy)" } }));
+  if (!res.ok) throw new Error("ohana-home " + res.status);
+  const got = { bridgeCss: "", bridgeJs: "", seasonJs: [], worldCss: [] };
+  let css = null, js = null;
+  const rw = new HTMLRewriter()
+    .on("style", { element(e) { css = { id: e.getAttribute("id") || "", t: "" }; }, text(t) { if (!css) return; css.t += t.text; if (t.lastInTextNode) {
+      if (css.id === BRIDGE_STYLE_ID) got.bridgeCss = css.t;
+      else if (/-gathering-(wide|portrait)/.test(css.t)) got.worldCss.push(...pickRules(css.t, /-gathering-(wide|portrait)/));
+      css = null; } } })
+    .on("script", { element(e) { const id = e.getAttribute("id") || ""; js = (id === BRIDGE_SCRIPT_ID || /^ohana-[a-z]+-preference$/.test(id)) ? { id, t: "" } : null; },
+      text(t) { if (!js) return; js.t += t.text; if (t.lastInTextNode) { if (js.id === BRIDGE_SCRIPT_ID) got.bridgeJs = js.t; else if (js.t.length < 20000) got.seasonJs.push(js.t); js = null; } } });
+  await rw.transform(res).arrayBuffer();
+  // A bare file name in the copied CSS means the site root, not /people/.
+  got.worldCss = got.worldCss.map((r) => r.replace(/url\((['"]?)(?![a-z]+:|\/)/gi, "url($1/"));
+  if (!got.bridgeCss || !got.bridgeJs) throw new Error("bridge not found");
+  return got;
+}
+async function liveParts(env, ctx) {
+  if (liveMemo && Date.now() - liveMemo.at < LIVE_KEEP_MS) return liveMemo.parts;
+  const cache = caches.default, key = new Request(LIVE_CACHE_URL);
+  const hit = await cache.match(key).catch(() => null);
+  if (hit) { const parts = await hit.json().catch(() => null); if (parts) { liveMemo = { at: Date.now(), parts }; return parts; } }
+  try {
+    const parts = await readLive(env);
+    liveMemo = { at: Date.now(), parts };
+    const put = cache.put(key, new Response(JSON.stringify(parts), { headers: { "content-type": "application/json", "cache-control": "max-age=600" } })).catch(() => null);
+    if (ctx) ctx.waitUntil(put);
+    return parts;
+  } catch (e) { console.error("bridge copy: " + e); return liveMemo ? liveMemo.parts : null; }
+}
+const scriptSafe = (t) => String(t).replace(/<\/script/gi, "<\\/script");
+const styleSafe = (t) => String(t).replace(/<\/style/gi, "<\\/style");
+async function roomPage(req, env, ctx) {
+  const framed = /^(iframe|frame|embed|object)$/.test(req.headers.get("sec-fetch-dest") || "");
+  if (framed) return ROOM.replace("<!--SOLO_HEAD-->", "").replace("<!--SOLO_BODY-->", "");
+  const live = await liveParts(env, ctx);
+  const head = live ? "<style>" + styleSafe(live.bridgeCss) + "</style>\n<style>html{background-color:#6b4a2b}" + styleSafe(live.worldCss.join("\n")) + "</style>" : "<style>html{background-color:#6b4a2b}</style>";
+  // The Gathering's painted world follows the season Ohana Home is showing (its art rules name the season).
+  const seasons = live ? [...new Set(live.worldCss.join(" ").match(/data-ohana-season="?([a-z-]+)/g) || [])].map((x) => x.replace(/.*=\"?/, "")) : [];
+  const season = seasons.length === 1 ? seasons[0] : "";
+  const body = '<div id="app"><header id="soloHead" class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close>Back</button>' +
+    '<h1 data-unified-title-source>Where’s Waldo</h1></header></div>\n' +
+    "<script>(function(){var r=document.documentElement;if(!r.dataset.ohanaSeason&&" + JSON.stringify(season) + ")r.dataset.ohanaSeason=" + JSON.stringify(season) + ";" +
+    "function home(){location.href='/';}window.ohanaOpenBridge=home;" +
+    "document.addEventListener('click',function(e){var t=e.target&&e.target.closest&&e.target.closest('[data-ohana-home],#soloHead [data-close]');if(!t)return;e.preventDefault();e.stopPropagation();" +
+    "if(t.hasAttribute('data-close')&&document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1)history.back();else home();},true);})();</script>\n" +
+    (live ? live.seasonJs.map((t) => "<script>try{" + scriptSafe(t) + "\n}catch(e){}</script>").join("\n") + "\n<script>" + scriptSafe(live.bridgeJs) + "</script>" : "");
+  return ROOM.replace("<!--SOLO_HEAD-->", () => head).replace("<!--SOLO_BODY-->", () => body);
+}
+
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
 
 export default {
   async scheduled(event, env, ctx) { ctx.waitUntil(Promise.all([pollLife360(env).catch((e) => console.error(String(e))), pollAllMembers(env).catch((e) => console.error(String(e)))])); },
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url), p = url.pathname.replace(/\/+$/, "") || "/";
     // Ohana Home's main page: pass it through from the ohana-home worker untouched, then add the
     // Where's Waldo hook script at the end of <body>. Nothing in ohana-home itself is changed.
@@ -434,8 +505,8 @@ export default {
     }
     if (req.method === "GET" && (p === "/people" || p === "/people/index.html" || p === "/people/family"))
       return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
-    if (req.method === "GET" && p === "/people/room") // Where's Waldo room, shown inside Ohana Gathering
-      return new Response(ROOM, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
+    if (req.method === "GET" && (p === "/people/room" || p === "/people/waldo")) // Where's Waldo room: inside Ohana Gathering, or opened straight from the town
+      return new Response(await roomPage(req, env, ctx), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
       const a = ART[p.slice(12)];
       if (!a) { // painted art kept in D1 (too big for the bundle), split into parts
