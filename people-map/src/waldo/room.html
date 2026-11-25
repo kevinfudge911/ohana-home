@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Where's Waldo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap">
+<style>/*ROOM_CSS*/</style>
+<!--SOLO_HEAD-->
+</head>
+<body>
+<!--SOLO_BODY-->
+<script>
+// Opened by itself (the town's Where's Waldo shop): the room shows right here, with its own Bridge on top.
+// Only when this phone isn't signed in to Ohana Home yet does it go to Ohana Home first, so the sign-in shows.
+if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){var t="";try{t=localStorage.getItem("ohana_token")||"";}catch(e){}
+ if(!t){try{sessionStorage.setItem("ohana-open-waldo",String(Date.now()));}catch(e){}location.replace("/#waldo");}}
+// Shown inside Ohana Home (Gathering): Ohana Home already draws the Bridge, so drop this page's own.
+var OWN=window.top===window||/[?&]own=/.test(location.search);
+if(OWN)document.documentElement.classList.add("own");
+else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
+</script>
+<div class="room">
+  <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-hd.webp" alt="" draggable="false"><div class="tiles" id="tiles"></div></div></div>
+  <div class="check pics gameonly" id="also"></div>
+  <div class="mapw realonly" id="mapw"><div id="map"></div></div>
+  <div class="line w" id="line"></div>
+  <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Where’s my people?</button><button id="share" class="realonly">Share: off</button></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>/*ROOM_JS*/</script>
+</body>
+</html>

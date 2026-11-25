@@ -6,7 +6,11 @@
 // Everyone else shows as their Ohana character when they have one.
 import PAGE from "./page.html";
 import ROOM from "./room.html";
-import ROOM_NEXT from "./room-next.html";
+import WALDO_HTML from "./waldo/room.html";
+import WALDO_CSS from "./waldo/room.css.txt";
+import WALDO_JS from "./waldo/game.js.txt";
+// Where's Waldo room (preview), kept in three parts: page, look, and game.
+const ROOM_NEXT = WALDO_HTML.replace("/*ROOM_CSS*/", () => WALDO_CSS).replace("/*ROOM_JS*/", () => WALDO_JS);
 import HOOK from "./hook.js.txt";
 const HOOK_V = (() => { let h = 0; for (let i = 0; i < HOOK.length; i++) h = (h * 31 + HOOK.charCodeAt(i)) | 0; return (h >>> 0).toString(36); })();
 import CHARS from "./chars.json";
