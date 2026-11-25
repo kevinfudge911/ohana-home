@@ -158,7 +158,7 @@ function hook(name,{before,after,now}={}){const orig=window[name];if(typeof orig
 build();
 const origQueueFiles=window.queueFiles;window.queueFiles=async function(files){const t0=Date.now()-1;E.quiet++;try{await origQueueFiles.call(this,files);for(const x of M.queue)if((x.created||0)>=t0)E.fresh.add(x.id);openAddSheet();}catch(e){toast(e.message);throw e;}finally{E.quiet--;}};
 hook('renderQueue',{before:()=>q('#memory-management')?.open,after:wasOpen=>{const mm=q('#memory-management');if(mm)mm.open=!!wasOpen;if(!sessionOk()){if(q('#me-addsheet').open)q('#me-addsheet').close();renderWaiting();return;}if(q('#me-addsheet').open||E.adding)renderAddSheet();else if(M.queue.length&&M.queue.some(x=>!E.known.has(x.id))){openAddSheet();}else renderWaiting();}});
-function shortBylines(){if(!matchMedia('(max-width:700px)').matches)return;for(const b of document.querySelectorAll('#gallery figure.memory .byline'))b.textContent=b.textContent.replace(/^Shared by /,'');}
+function shortBylines(){if(!matchMedia('(max-width:1100px)').matches)return;for(const b of document.querySelectorAll('#gallery figure.memory .byline'))b.textContent=b.textContent.replace(/^Shared by /,'');}
 hook('appendPhotos',{after:()=>{addPencils();shortBylines();}});
 hook('openPhoto',{now:()=>viewerTools(),after:()=>{if(!q('#me-vtools'))viewerTools();}});
 hook('loadAlbums',{after:()=>{renderChips();const a=q('#me-add-album');if(a)fillAlbumSelect(a,a.value&&a.value!=='__new'?a.value:(M.album||'0'));}});
