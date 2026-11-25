@@ -406,7 +406,7 @@ else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.docum
   }
   function fitAll(){
     if (!map) return;
-    if (!people.length) return map.setView([37.2, -93.3], 7);
+    if (!people.length) return setTimeout(function(){ if (!map._loaded) map.setView([37.2, -93.3], 7); }, 4000);
     if (people.length === 1) return map.setView([people[0].lat, people[0].lng], 12);
     map.fitBounds(L.latLngBounds(people.map(function(p){ return [p.lat, p.lng]; })), { padding: [40, 40], maxZoom: 12 });
   }
