@@ -82,7 +82,9 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .ctl{display:flex;justify-content:center;gap:4px 20px;flex-wrap:wrap;font:700 16px Fredoka,Nunito,sans-serif}
 .ctl button.go{color:#fff!important;text-shadow:0 0 2px var(--red),0 0 3px var(--red),0 0 5px var(--red),0 1px 8px #000a}
 /* the real map, shown when asked, also melts into the world */
-.mapw{display:none;position:relative;width:100%;max-width:1000px;margin:0 auto;aspect-ratio:16/10;min-height:280px;
+.room>*{min-width:0}
+@media (max-width:600px){.mapw{aspect-ratio:4/5!important}}
+.mapw{display:none;position:relative;width:100%;max-width:1000px;margin:0 auto;aspect-ratio:16/10;
  -webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);-webkit-mask-composite:source-in;
  mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);mask-composite:intersect}
 .mapw.on{display:block}
