@@ -155,7 +155,7 @@ function build(){
   el('dialog',{id:'me-name',class:'me-small','aria-label':'Name a new album'},el('form',{id:'me-name-form'},el('label',{for:'me-name-input',text:'New album'}),el('input',{id:'me-name-input',maxlength:'80',placeholder:'CHRISTmas 2026, Beach trip…',autocomplete:'off'}),el('p',{id:'me-name-status',class:'me-status',role:'status'}),el('div',{class:'me-row'},el('button',{type:'submit',class:'me-btn me-primary',text:'Make'}),el('button',{type:'button',id:'me-name-cancel',class:'me-btn',text:'Cancel'})))),
   el('dialog',{id:'me-albums',class:'me-small me-menu','aria-label':'Albums'},el('div',{id:'me-albums-list'})),
   el('dialog',{id:'me-addpick',class:'me-small me-menu me-pick','aria-label':'Add photos'},
-   el('button',{type:'button',class:'me-item',text:'Camera','aria-label':'Take a photo',onclick:()=>{q('#me-addpick').close();q('#camera-file').click();}}),
+   el('button',{type:'button',class:'me-item',text:'Camera','aria-label':'Take a photo',onclick:()=>{q('#me-addpick').close();(q('#camera-file')||q('#photo-file'))?.click();}}),
    el('button',{type:'button',class:'me-item',text:'Photos','aria-label':'Pick photos or videos from this phone',onclick:()=>{q('#me-addpick').close();q('#photo-file').click();}})),
   el('dialog',{id:'me-help',class:'me-small me-help','aria-labelledby':'me-help-title'},
    el('div',{class:'me-head'},el('h2',{id:'me-help-title',text:'Help'}),el('button',{type:'button',class:'me-btn','aria-label':'Close help',text:'Close',onclick:()=>q('#me-help').close()})),
