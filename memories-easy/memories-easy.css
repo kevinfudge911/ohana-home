@@ -119,3 +119,5 @@ dialog.me-sheet :is(select,textarea,input):focus-visible,dialog.me-small input:f
  #album-pages{margin:-4% 0 0;padding:0 7%}
 }
 @media(max-width:540px){.photo-journal .gallery{aspect-ratio:1/1!important}}
+/* phone turned sideways: the open album fits the screen side by side, no scrolling to see it all */
+@media(max-width:1100px) and (orientation:landscape){.photo-journal .gallery{aspect-ratio:3/2!important}.photo-journal{max-width:min(100%,calc((100dvh - 24px)*1.5))}}
