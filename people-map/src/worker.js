@@ -381,7 +381,7 @@ async function placePeople(env, list) {
 // The room page gets Ohana Home's own Bridge (copied live from Ohana Home's page, so it always matches
 // every other room) and the Gathering's painted world behind it. Nothing in ohana-home is changed.
 const BRIDGE_STYLE_ID = "ohana-arched-bridge-header-style-v1", BRIDGE_SCRIPT_ID = "ohana-arched-bridge-header-v1";
-const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v3";
+const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v4";
 let liveMemo = null; // parts copied from Ohana Home's page
 // Keep only the CSS rules (with their @media) whose body matches re.
 function pickRules(css, re) {
@@ -412,7 +412,7 @@ async function readLive(env) {
       text(t) { if (!js) return; js.t += t.text; if (t.lastInTextNode) { got.bridgeJs = js.t; js = null; } } });
   await rw.transform(res).arrayBuffer();
   // A bare file name in the copied CSS means the site root, not /people/.
-  got.worldCss = got.worldCss.map((r) => r.replace(/url\((['"]?)(?![a-z]+:|\/)/gi, "url($1/"));
+  got.worldCss = got.worldCss.map((r) => r.replace(/url\(\s*(['"]?)([^'")]*)/gi, (m, q, u) => /^([a-z][a-z0-9+.-]*:|\/)/i.test(u) ? m : "url(" + q + "/" + u));
   if (!got.bridgeCss || !got.bridgeJs) throw new Error("bridge not found");
   return got;
 }
