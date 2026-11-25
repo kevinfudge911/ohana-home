@@ -47,7 +47,7 @@ function renderAddSheet(){const d=q('#me-addsheet');if(!M.queue.length&&!E.addin
   if(!video)media.onerror=()=>{media.replaceWith(el('span',{class:'me-noprev',text:(item.file.name||'Photo')+' (no preview)'}));};
   const tag=item.meDupe?'Same picture twice':(isOld(item)?'From before':(video?'Video':''));
   const pic=el('button',{type:'button',class:'me-pic','aria-pressed':String(on),'aria-label':(on?'Will be added: ':'Not adding: ')+(item.file.name||'photo')+'. Tap to change.',onclick:()=>{E.keep.set(item.id,!E.keep.get(item.id));renderAddSheet();}},media,el('span',{class:'me-tick','aria-hidden':'true',text:on?'✓':''}),tag?el('span',{class:'me-tag',text:tag}):null);
-  const words=el('input',{class:'me-words',type:'text',maxlength:'500',placeholder:'Words for this one (optional)','aria-label':'Words for '+(item.file.name||'this photo')});words.value=E.words.get(item.id)||'';words.oninput=()=>E.words.set(item.id,words.value);words.disabled=!on||E.adding;
+  const words=el('input',{class:'me-words',type:'text',maxlength:'500',placeholder:'Words (optional)','aria-label':'Words for '+(item.file.name||'this photo')});words.value=E.words.get(item.id)||'';words.oninput=()=>E.words.set(item.id,words.value);words.disabled=!on||E.adding;
   const x=el('button',{type:'button',class:'me-x','aria-label':'Take '+(item.file.name||'this photo')+' off the list',text:'✕',onclick:async()=>{if(E.adding)return;await inbox('delete',item.id);E.keep.delete(item.id);await loadQueue();}});
   grid.append(el('div',{class:'me-tile'+(on?'':' off')},pic,x,words));}
  const n=kept.length,save=q('#me-add-save');save.disabled=E.adding||!n||!sessionOk();if(!E.adding)save.textContent=n?'Add '+plural(n,isVideo(kept[0]?.file)&&n===1?'video':'photo')+' to '+albumName(q('#me-add-album').value):'Check a photo to add it';
@@ -105,8 +105,8 @@ function build(){
   el('div',{class:'me-row',role:'toolbar','aria-label':'Photo tools'},
    el('button',{type:'button',id:'me-add',class:'me-btn me-primary',text:'＋ Add photos',onclick:()=>q('#photo-file').click()}),
    el('button',{type:'button',id:'me-cam',class:'me-btn','aria-label':'Take a photo',text:'📷',onclick:()=>q('#camera-file').click()}),
-   el('button',{type:'button',id:'me-org-open',class:'me-btn',text:'✎ Edit photos',onclick:openOrganizer}),
-   el('button',{type:'button',id:'me-waiting',class:'me-btn me-wait',hidden:true,onclick:openAddSheet})),
+   el('button',{type:'button',id:'me-org-open',class:'me-btn',text:'✎ Edit photos',onclick:openOrganizer})),
+  el('button',{type:'button',id:'me-waiting',class:'me-btn me-wait',hidden:true,onclick:openAddSheet}),
   el('div',{id:'me-chips',class:'me-chips',role:'group','aria-label':'Albums'}));
  q('.photo-journal').before(top);
  const summary=q('#memory-management>summary');if(summary)summary.textContent='More: share album, journey memories, refresh';

@@ -7,7 +7,7 @@
 #memory-management>summary{font-size:18px!important}
 #me-top{position:relative;z-index:2;margin:0 0 12px;display:grid;gap:6px;padding:8px;border-radius:18px;background:#2b1a0ee0;box-shadow:0 4px 12px #0006}
 .me-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.me-btn{font:700 17px/1.2 Fredoka,Nunito,sans-serif;min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid #ead48e;background:#2b1a0ecc;color:#fff4cf;text-decoration:none;cursor:pointer}
+.me-btn{font:700 16px/1.2 Fredoka,Nunito,sans-serif;min-height:44px;padding:7px 12px;border-radius:999px;border:2px solid #ead48e;background:#2b1a0ecc;color:#fff4cf;text-decoration:none;cursor:pointer}
 .me-btn:disabled{opacity:.5;cursor:default}
 .me-primary{background:#f2c14e;border-color:#f2c14e;color:#3a2410}
 .me-danger{border-color:#ffb3a7;color:#ffd9d2}
@@ -74,3 +74,5 @@ dialog.me-small input{width:100%}
 .me-add-tools{margin:4px 0}.me-add-tools .me-count{flex:1}
 .me-small-btn{min-height:40px;padding:6px 12px;font-size:15px}
 .me-head h2:focus,.me-head .me-count:focus{outline:none}
+#me-top>.me-row{flex-wrap:nowrap}#me-top>.me-row .me-btn{white-space:nowrap}#me-add{flex:1 1 auto}#me-org-open{flex:1 1 auto}
+#me-cam{padding:7px 10px;font-size:19px}
