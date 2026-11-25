@@ -381,7 +381,7 @@ async function placePeople(env, list) {
 // The room page gets Ohana Home's own Bridge (copied live from Ohana Home's page, so it always matches
 // every other room) and the Gathering's painted world behind it. Nothing in ohana-home is changed.
 const BRIDGE_STYLE_ID = "ohana-arched-bridge-header-style-v1", BRIDGE_SCRIPT_ID = "ohana-arched-bridge-header-v1";
-const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v2";
+const LIVE_KEEP_MS = 10 * 60e3, LIVE_CACHE_URL = "https://ohanahome.app/people/_live-bridge-v3";
 let liveMemo = null; // parts copied from Ohana Home's page
 // Keep only the CSS rules (with their @media) whose body matches re.
 function pickRules(css, re) {
@@ -401,15 +401,15 @@ function pickRules(css, re) {
 async function readLive(env) {
   const res = await env.OHANA_HOME.fetch(new Request("https://ohanahome.app/", { headers: { "user-agent": "OhanaHome-people-map/1.0 (bridge copy)" } }));
   if (!res.ok) throw new Error("ohana-home " + res.status);
-  const got = { bridgeCss: "", bridgeJs: "", seasonJs: [], worldCss: [] };
+  const got = { bridgeCss: "", bridgeJs: "", worldCss: [] };
   let css = null, js = null;
   const rw = new HTMLRewriter()
     .on("style", { element(e) { css = { id: e.getAttribute("id") || "", t: "" }; }, text(t) { if (!css) return; css.t += t.text; if (t.lastInTextNode) {
       if (css.id === BRIDGE_STYLE_ID) got.bridgeCss = css.t;
       else if (/-gathering-(wide|portrait)/.test(css.t)) got.worldCss.push(...pickRules(css.t, /-gathering-(wide|portrait)/));
       css = null; } } })
-    .on("script", { element(e) { const id = e.getAttribute("id") || ""; js = (id === BRIDGE_SCRIPT_ID || /^ohana-[a-z]+-preference$/.test(id)) ? { id, t: "" } : null; },
-      text(t) { if (!js) return; js.t += t.text; if (t.lastInTextNode) { if (js.id === BRIDGE_SCRIPT_ID) got.bridgeJs = js.t; else if (js.t.length < 20000) got.seasonJs.push(js.t); js = null; } } });
+    .on("script", { element(e) { js = (e.getAttribute("id") || "") === BRIDGE_SCRIPT_ID ? { t: "" } : null; },
+      text(t) { if (!js) return; js.t += t.text; if (t.lastInTextNode) { got.bridgeJs = js.t; js = null; } } });
   await rw.transform(res).arrayBuffer();
   // A bare file name in the copied CSS means the site root, not /people/.
   got.worldCss = got.worldCss.map((r) => r.replace(/url\((['"]?)(?![a-z]+:|\/)/gi, "url($1/"));
@@ -435,17 +435,20 @@ async function roomPage(req, env, ctx) {
   const framed = /^(iframe|frame|embed|object)$/.test(req.headers.get("sec-fetch-dest") || "");
   if (framed) return ROOM.replace("<!--SOLO_HEAD-->", "").replace("<!--SOLO_BODY-->", "");
   const live = await liveParts(env, ctx);
-  const head = live ? "<style>" + styleSafe(live.bridgeCss) + "</style>\n<style>html{background-color:#6b4a2b}" + styleSafe(live.worldCss.join("\n")) + "</style>" : "<style>html{background-color:#6b4a2b}</style>";
+  const head = live ? "<style>" + styleSafe(live.bridgeCss) + "</style>\n<style>html{background-color:#6b4a2b}" + styleSafe(live.worldCss.join("\n")) +
+    "\n:root[data-ohana-season]{background-color:#173c36;background-image:var(--harvest-scene,none);background-position:50% 0;background-size:cover;background-attachment:fixed}</style>" : "<style>html{background-color:#6b4a2b}</style>";
   // The Gathering's painted world follows the season Ohana Home is showing (its art rules name the season).
   const seasons = live ? [...new Set(live.worldCss.join(" ").match(/data-ohana-season="?([a-z-]+)/g) || [])].map((x) => x.replace(/.*=\"?/, "")) : [];
   const season = seasons.length === 1 ? seasons[0] : "";
   const body = '<div id="app"><header id="soloHead" class="ohana-entrance-heading ohana-gathering-heading"><button type="button" class="soft room-home-control" data-close>Back</button>' +
     '<h1 data-unified-title-source>Where’s Waldo</h1></header></div>\n' +
     "<script>(function(){var r=document.documentElement;if(!r.dataset.ohanaSeason&&" + JSON.stringify(season) + ")r.dataset.ohanaSeason=" + JSON.stringify(season) + ";" +
+    "try{var tk=localStorage.getItem('ohana_token');if(tk&&r.dataset.ohanaSeason)fetch('/people/api/family',{headers:{authorization:'Bearer '+tk}}).then(function(x){return x.ok?x.json():null}).then(function(f){" +
+    "if(f&&f.me&&localStorage.getItem('ohana_seasonal_appearance_v1_'+f.me.id)==='normal')delete r.dataset.ohanaSeason;}).catch(function(){});}catch(e){}" +
     "function home(){location.href='/';}window.ohanaOpenBridge=home;" +
     "document.addEventListener('click',function(e){var t=e.target&&e.target.closest&&e.target.closest('[data-ohana-home],#soloHead [data-close]');if(!t)return;e.preventDefault();e.stopPropagation();" +
     "if(t.hasAttribute('data-close')&&document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1)history.back();else home();},true);})();</script>\n" +
-    (live ? live.seasonJs.map((t) => "<script>try{" + scriptSafe(t) + "\n}catch(e){}</script>").join("\n") + "\n<script>" + scriptSafe(live.bridgeJs) + "</script>" : "");
+    (live ? "<script>" + scriptSafe(live.bridgeJs) + "</script>" : "");
   return ROOM.replace("<!--SOLO_HEAD-->", () => head).replace("<!--SOLO_BODY-->", () => body);
 }
 
