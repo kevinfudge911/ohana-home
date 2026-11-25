@@ -50,7 +50,7 @@
     Array.prototype.slice.call(b.attributes).forEach(function (a) { if (/^data-/.test(a.name) && a.name !== "data-tone") b.removeAttribute(a.name); });
     b.setAttribute("aria-label", "Go to Where’s Waldo. Granny, Kanga Sue and Cherish with the Where’s Waldo town picture; find Scout and the hidden things");
     Array.prototype.slice.call(b.querySelectorAll(".gr-ohana-phrase")).forEach(function (x) { x.remove(); });
-    var img = b.querySelector(".gr-choice-scene"); if (img) { img.removeAttribute("srcset"); img.src = "/people/art/granny-waldo.webp"; }
+    var img = b.querySelector(".gr-choice-scene"); if (img) { img.removeAttribute("srcset"); img.src = "/people/art/granny-waldo-v2.webp"; }
     b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); location.href = "/people/waldo"; }, true);
     gc.appendChild(sec);
   }
