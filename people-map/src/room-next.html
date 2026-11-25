@@ -336,7 +336,7 @@ else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.docum
   var SW = 0, SH = 0;
   function fitStage(){ var W = sc.clientWidth, H = sc.clientHeight, k = Math.max(W / 1520, H / 848); SW = 1520 * k; SH = 848 * k; stg.style.width = SW + "px"; stg.style.height = SH + "px"; }
   function home(){ fitStage(); Z = { s: 1, x: (sc.clientWidth - SW) / 2, y: (sc.clientHeight - SH) / 2 }; }
-  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(6, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - SW * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - SH * Z.s, Z.y)); }
+  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(4.5, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - SW * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - SH * Z.s, Z.y)); }
   function apply(anim){ moving(); clamp(); stg.style.transition = anim ? "transform .3s ease" : "none"; stg.style.transform = "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")"; stg.style.setProperty("--s", Z.s); sc.classList.toggle("zoomed", Z.s > 1.01 || SW > sc.clientWidth + 2); }
   function zoomAt(ns, cx, cy, anim){ var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
   // Only hint the browser while moving; once still, it redraws the picture sharp at the new size.
