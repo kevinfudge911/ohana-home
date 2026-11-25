@@ -40,17 +40,18 @@ function openAddSheet(){const d=q('#me-addsheet');renderAddSheet();if(!d.open)d.
 function renderAddSheet(){const d=q('#me-addsheet');if(!M.queue.length&&!E.adding){if(d.open)d.close();renderWaiting();return;}sortQueue();releasePreviews();const grid=q('#me-add-grid');grid.replaceChildren();
  const kept=M.queue.filter(x=>E.keep.get(x.id)),old=M.queue.some(x=>!E.fresh.has(x.id)&&Date.now()-(x.created||0)>=FRESH_MS);
  q('#me-add-title').textContent=kept.length||!old?'Add photos':'Photos still waiting';
- q('#me-add-hint').textContent=old?'Some of these were picked earlier and never added. Only the ones with a check go in. Tap a picture to check or uncheck it.':'Only the ones with a check go in. Tap a picture to uncheck it. Tap ✕ to take it off this list.';
- for(const item of M.queue){const on=!!E.keep.get(item.id),video=isVideo(item.file),url=URL.createObjectURL(item.file);E.previews.push(url);
+ q('#me-add-hint').textContent='Only photos with a ✓ get added. Tap a photo to change it.'+(old?' Gray ones were picked earlier and never added.':'');
+ const isOld=x=>!E.fresh.has(x.id)&&Date.now()-(x.created||0)>=FRESH_MS,rank=x=>x.meDupe?1:isOld(x)?2:0;
+ for(const item of [...M.queue].sort((a,b)=>rank(a)-rank(b)||(a.created||0)-(b.created||0))){const on=!!E.keep.get(item.id),video=isVideo(item.file),url=URL.createObjectURL(item.file);E.previews.push(url);
   const media=video?el('video',{src:url+'#t=0.1',muted:true,playsinline:true,preload:'metadata','aria-hidden':'true'}):el('img',{src:url,alt:item.file.name||'Picked photo'});
   if(!video)media.onerror=()=>{media.replaceWith(el('span',{class:'me-noprev',text:(item.file.name||'Photo')+' (no preview)'}));};
-  const tag=item.meDupe?'Same picture twice':(!E.fresh.has(item.id)&&Date.now()-(item.created||0)>=FRESH_MS?'From before':(video?'Video':''));
+  const tag=item.meDupe?'Same picture twice':(isOld(item)?'From before':(video?'Video':''));
   const pic=el('button',{type:'button',class:'me-pic','aria-pressed':String(on),'aria-label':(on?'Will be added: ':'Not adding: ')+(item.file.name||'photo')+'. Tap to change.',onclick:()=>{E.keep.set(item.id,!E.keep.get(item.id));renderAddSheet();}},media,el('span',{class:'me-tick','aria-hidden':'true',text:on?'✓':''}),tag?el('span',{class:'me-tag',text:tag}):null);
   const words=el('input',{class:'me-words',type:'text',maxlength:'500',placeholder:'Words for this one (optional)','aria-label':'Words for '+(item.file.name||'this photo')});words.value=E.words.get(item.id)||'';words.oninput=()=>E.words.set(item.id,words.value);words.disabled=!on||E.adding;
   const x=el('button',{type:'button',class:'me-x','aria-label':'Take '+(item.file.name||'this photo')+' off the list',text:'✕',onclick:async()=>{if(E.adding)return;await inbox('delete',item.id);E.keep.delete(item.id);await loadQueue();}});
   grid.append(el('div',{class:'me-tile'+(on?'':' off')},pic,x,words));}
  const n=kept.length,save=q('#me-add-save');save.disabled=E.adding||!n||!sessionOk();if(!E.adding)save.textContent=n?'Add '+plural(n,isVideo(kept[0]?.file)&&n===1?'video':'photo')+' to '+albumName(q('#me-add-album').value):'Check a photo to add it';
- q('#me-add-count').textContent=n+' of '+M.queue.length+' will be added';
+ q('#me-add-count').textContent=n+' of '+M.queue.length+' checked';
  for(const b of [q('#me-add-more'),q('#me-add-cancel'),q('#me-add-album'),q('#me-add-allwords')])b.disabled=E.adding;
  renderWaiting();}
 function renderWaiting(){const b=q('#me-waiting');const n=M.queue.length;b.hidden=!n||q('#me-addsheet').open;b.textContent='📥 '+plural(n,'photo')+' waiting';}
@@ -112,23 +113,23 @@ function build(){
  const mm=q('#memory-management');if(mm)mm.open=false;
  document.body.append(
   el('dialog',{id:'me-addsheet',class:'me-sheet','aria-labelledby':'me-add-title'},
-   el('div',{class:'me-head'},el('h2',{id:'me-add-title',text:'Add photos'}),el('button',{type:'button',class:'me-close','aria-label':'Close (keeps them waiting)',text:'✕',onclick:()=>q('#me-addsheet').close()})),
+   el('div',{class:'me-head'},el('h2',{id:'me-add-title',text:'Add photos',tabindex:'-1',autofocus:true}),el('button',{type:'button',class:'me-close','aria-label':'Close (keeps them waiting)',text:'✕',onclick:()=>q('#me-addsheet').close()})),
    el('p',{id:'me-add-hint',class:'me-hint'}),
    el('div',{class:'me-row'},el('label',{for:'me-add-album',text:'Put them in'}),el('select',{id:'me-add-album'})),
    el('textarea',{id:'me-add-allwords',maxlength:'500',rows:'2',placeholder:'Words for all of them (optional)','aria-label':'Words for all of them'}),
+   el('div',{class:'me-row me-add-tools'},el('span',{id:'me-add-count',class:'me-count'}),el('button',{type:'button',id:'me-add-more',class:'me-btn me-small-btn',text:'＋ Pick more',onclick:()=>q('#photo-file').click()}),el('button',{type:'button',id:'me-add-cancel',class:'me-btn me-small-btn',text:'Clear all',onclick:clearWaiting})),
    el('div',{id:'me-add-grid',class:'me-grid me-grid-add'}),
    el('p',{id:'me-add-status',class:'me-status',role:'status','aria-live':'polite'}),
-   el('div',{class:'me-foot'},el('progress',{id:'me-add-progress',hidden:true}),el('span',{id:'me-add-count',class:'me-count'}),
-    el('button',{type:'button',id:'me-add-save',class:'me-btn me-primary',onclick:addKept}),
-    el('div',{class:'me-row'},el('button',{type:'button',id:'me-add-more',class:'me-btn',text:'＋ Pick more',onclick:()=>q('#photo-file').click()}),el('button',{type:'button',id:'me-add-cancel',class:'me-btn',text:'Clear all, add nothing',onclick:clearWaiting})))),
+   el('div',{class:'me-foot'},el('progress',{id:'me-add-progress',hidden:true}),
+    el('button',{type:'button',id:'me-add-save',class:'me-btn me-primary',onclick:addKept}))),
   el('dialog',{id:'me-edit',class:'me-sheet','aria-label':'Change this photo'},
-   el('div',{class:'me-head'},el('button',{type:'button',id:'me-edit-prev',class:'me-btn','aria-label':'Save and go to the previous photo',text:'‹',onclick:()=>stepEdit(-1)}),el('span',{id:'me-edit-count',class:'me-count'}),el('button',{type:'button',id:'me-edit-next',class:'me-btn','aria-label':'Save and go to the next photo',text:'›',onclick:()=>stepEdit(1)}),el('button',{type:'button',class:'me-btn me-done',text:'Done',onclick:()=>closeEdit(true)})),
+   el('div',{class:'me-head'},el('button',{type:'button',id:'me-edit-prev',class:'me-btn','aria-label':'Save and go to the previous photo',text:'‹',onclick:()=>stepEdit(-1)}),el('span',{id:'me-edit-count',class:'me-count',tabindex:'-1',autofocus:true}),el('button',{type:'button',id:'me-edit-next',class:'me-btn','aria-label':'Save and go to the next photo',text:'›',onclick:()=>stepEdit(1)}),el('button',{type:'button',class:'me-btn me-done',text:'Done',onclick:()=>closeEdit(true)})),
    el('img',{id:'me-edit-img',class:'me-edit-img',alt:''}),el('p',{id:'me-edit-by',class:'me-hint'}),
    el('label',{for:'me-edit-words',text:'Words'}),el('textarea',{id:'me-edit-words',maxlength:'500',rows:'2',placeholder:'A name, a place, a little story'}),
    el('div',{class:'me-two'},el('div',{},el('label',{for:'me-edit-date',text:'Date'}),el('input',{id:'me-edit-date',type:'date'})),el('div',{},el('label',{for:'me-edit-album',text:'Album'}),el('select',{id:'me-edit-album'}))),
    el('div',{class:'me-row me-edit-actions'},el('button',{type:'button',class:'me-btn me-primary',text:'Save',onclick:saveEdit}),el('span',{id:'me-edit-status',class:'me-status',role:'status','aria-live':'polite'}),el('button',{type:'button',class:'me-btn me-danger',text:'🗑 Delete',onclick:deleteEdit}))),
   el('dialog',{id:'me-org',class:'me-sheet','aria-labelledby':'me-org-title'},
-   el('div',{class:'me-head'},el('h2',{id:'me-org-title',text:'Edit photos'}),el('button',{type:'button',id:'me-org-all',class:'me-btn',text:'Pick all',onclick:()=>{if(E.sel.size===E.orgRows.length)E.sel.clear();else for(const p of E.orgRows)E.sel.add(p.id);renderOrg();}}),el('button',{type:'button',class:'me-btn me-done',text:'Done',onclick:closeOrg})),
+   el('div',{class:'me-head'},el('h2',{id:'me-org-title',text:'Edit photos',tabindex:'-1',autofocus:true}),el('button',{type:'button',id:'me-org-all',class:'me-btn',text:'Pick all',onclick:()=>{if(E.sel.size===E.orgRows.length)E.sel.clear();else for(const p of E.orgRows)E.sel.add(p.id);renderOrg();}}),el('button',{type:'button',class:'me-btn me-done',text:'Done',onclick:closeOrg})),
    el('div',{id:'me-org-chips',class:'me-chips',role:'group','aria-label':'Show album'}),
    el('p',{class:'me-hint',text:'Tap photos to pick them, then move or delete. Tap ✎ to change words, date or album.'}),
    el('p',{id:'me-org-status',class:'me-status',role:'status','aria-live':'polite'}),
@@ -147,7 +148,7 @@ function build(){
 /* ---------- hook into the page's own steps ---------- */
 function hook(name,{before,after}={}){const orig=window[name];if(typeof orig!=='function')return;const isAsync=orig.constructor&&orig.constructor.name==='AsyncFunction';window[name]=isAsync?async function(...a){const s=before?.(...a);const r=await orig.apply(this,a);try{after?.(s,...a);}catch(e){console.warn('memories-easy',e);}return r;}:function(...a){const s=before?.(...a);const r=orig.apply(this,a);try{after?.(s,...a);}catch(e){console.warn('memories-easy',e);}return r;};}
 build();
-const origQueueFiles=window.queueFiles;window.queueFiles=async function(files){const t0=Date.now()-1;E.quiet++;try{await origQueueFiles.call(this,files);for(const x of M.queue)if((x.created||0)>=t0){E.fresh.add(x.id);E.keep.set(x.id,true);}openAddSheet();}catch(e){toast(e.message);throw e;}finally{E.quiet--;}};
+const origQueueFiles=window.queueFiles;window.queueFiles=async function(files){const t0=Date.now()-1;E.quiet++;try{await origQueueFiles.call(this,files);for(const x of M.queue)if((x.created||0)>=t0)E.fresh.add(x.id);openAddSheet();}catch(e){toast(e.message);throw e;}finally{E.quiet--;}};
 hook('renderQueue',{before:()=>q('#memory-management')?.open,after:wasOpen=>{const mm=q('#memory-management');if(mm)mm.open=!!wasOpen;if(!sessionOk()){if(q('#me-addsheet').open)q('#me-addsheet').close();renderWaiting();return;}if(q('#me-addsheet').open||E.adding)renderAddSheet();else if(M.queue.length&&M.queue.some(x=>!E.known.has(x.id))){openAddSheet();}else renderWaiting();}});
 hook('appendPhotos',{after:()=>addPencils()});
 hook('openPhoto',{after:()=>viewerTools()});
