@@ -96,6 +96,20 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
 .pm span{display:block;width:max-content;margin:0 auto;font:700 12px/1.2 Fredoka,Nunito,sans-serif;color:var(--red);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff,0 0 6px #fff,0 1px 8px #0008}
 .leaflet-popup-content{margin:8px 10px;font:700 12px/1.35 Nunito,sans-serif}
+/* Its own room (opened by itself): the whole screen is the game, on a red, white and blue explorer's table */
+html.own,html.own:root[data-ohana-season]{background:#14244c url(/people/art/waldo-edges.webp) 50% 0/cover no-repeat fixed!important}
+html.own body{min-height:100vh;min-height:100dvh;height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;background:transparent!important}
+html.own #app{flex:none}
+html.own .room{flex:1 1 auto;min-height:0;width:100%;max-width:1120px;display:flex;flex-direction:column;gap:6px;padding:4px 14px max(10px,env(safe-area-inset-bottom))}
+html.own .scene{flex:1 1 0;min-height:300px;aspect-ratio:auto;border-radius:18px;
+ -webkit-mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 97%,transparent);
+ mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 97%,transparent)}
+html.own .mapw{flex:1 1 0;min-height:300px;aspect-ratio:auto!important;max-width:none}
+html.own .line,html.own .line:empty{display:block;min-height:19px}
+html.own .check.pics{flex:none}
+html.own .check.pics b.got::after{text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff}
+html.own .ctl{flex:none;padding-bottom:2px}
+html.own .ctl button{font-size:18px}
 </style>
 <!--SOLO_HEAD-->
 </head>
@@ -107,7 +121,9 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){var t="";try{t=localStorage.getItem("ohana_token")||"";}catch(e){}
  if(!t){try{sessionStorage.setItem("ohana-open-waldo",String(Date.now()));}catch(e){}location.replace("/#waldo");}}
 // Shown inside Ohana Home (Gathering): Ohana Home already draws the Bridge, so drop this page's own.
-if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
+var OWN=window.top===window||/[?&]own=/.test(location.search);
+if(OWN)document.documentElement.classList.add("own");
+else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
 </script>
 <div class="room">
   <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-2x.webp" alt="" draggable="false"></div></div>
@@ -234,7 +250,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
 
   function drawScene(){
     var said = {}, st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag,.who,.hname")).forEach(function(n){ n.remove(); });
-    var W = $("scene").clientWidth || 1000;
+    var W = SW || $("stage").clientWidth || 1000;
     items.forEach(function(it){
       it.size = Math.max(it.base || (it.base = it.size), 13 / W * 100);
       var d = document.createElement("div"); d.className = "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
@@ -310,8 +326,12 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
 
   // Look closer: pinch, drag, or double-tap.
   var sc = $("scene"), stg = $("stage"), Z = { s: 1, x: 0, y: 0 };
-  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(6, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - W * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - H * Z.s, Z.y)); }
-  function apply(anim){ moving(); clamp(); stg.style.transition = anim ? "transform .3s ease" : "none"; stg.style.transform = "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")"; stg.style.setProperty("--s", Z.s); sc.classList.toggle("zoomed", Z.s > 1.01); }
+  // The picture always covers the whole scene; on a tall phone it is wider than the screen, so drag to look around.
+  var SW = 0, SH = 0;
+  function fitStage(){ var W = sc.clientWidth, H = sc.clientHeight, k = Math.max(W / 1520, H / 848); SW = 1520 * k; SH = 848 * k; stg.style.width = SW + "px"; stg.style.height = SH + "px"; }
+  function home(){ fitStage(); Z = { s: 1, x: (sc.clientWidth - SW) / 2, y: (sc.clientHeight - SH) / 2 }; }
+  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(6, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - SW * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - SH * Z.s, Z.y)); }
+  function apply(anim){ moving(); clamp(); stg.style.transition = anim ? "transform .3s ease" : "none"; stg.style.transform = "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")"; stg.style.setProperty("--s", Z.s); sc.classList.toggle("zoomed", Z.s > 1.01 || SW > sc.clientWidth + 2); }
   function zoomAt(ns, cx, cy, anim){ var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
   // Only hint the browser while moving; once still, it redraws the picture sharp at the new size.
   var stillT = null;
@@ -322,12 +342,12 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
     ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
     if (ids.length === 1) start = { p: local(e), x: Z.x, y: Z.y, t: Date.now(), moved: 0 };
     if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: Z.s }; start && (start.moved = 99); }
-    if (Z.s > 1.01 || ids.length === 2) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} }
+    if (Z.s > 1.01 || SW > sc.clientWidth + 2 || ids.length === 2) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} }
   });
   sc.addEventListener("pointermove", function(e){
     if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
     if (ids.length === 2 && pinch) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y); zoomAt(pinch.s * d / pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2); e.preventDefault(); return; }
-    if (start && ids.length === 1) { var p = local(e), dx = p.x - start.p.x, dy = p.y - start.p.y; start.moved = Math.max(start.moved, Math.hypot(dx, dy)); if (Z.s > 1.01) { Z.x = start.x + dx; Z.y = start.y + dy; apply(); e.preventDefault(); } }
+    if (start && ids.length === 1) { var p = local(e), dx = p.x - start.p.x, dy = p.y - start.p.y; start.moved = Math.max(start.moved, Math.hypot(dx, dy)); if (Z.s > 1.01 || SW > sc.clientWidth + 2) { Z.x = start.x + dx; Z.y = start.y + dy; apply(); e.preventDefault(); } }
   });
   function up(e){
     var had = ptrs[e.pointerId]; delete ptrs[e.pointerId]; if (Object.keys(ptrs).length < 2) pinch = null;
@@ -339,14 +359,14 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   }
   sc.addEventListener("pointerup", up); sc.addEventListener("pointercancel", function(e){ delete ptrs[e.pointerId]; start = null; pinch = null; });
   function hitAt(p){
-    var W = sc.clientWidth, H = sc.clientHeight, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
+    var W = SW, H = SH, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
     items.forEach(function(it){
       var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W, d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Z.s;
       if (d < r && d < bd) { bd = d; best = it; }
     });
     return best;
   }
-  var lastW = 0; window.addEventListener("resize", function(){ apply(); var w = sc.clientWidth; if (Math.abs(w - lastW) > 40 && items.length) { lastW = w; drawScene(); } tellHeight(); if (map) map.invalidateSize(); });
+  var lastW = 0; window.addEventListener("resize", function(){ var cx = (sc.clientWidth / 2 - Z.x) / (SW * Z.s || 1), cy = (sc.clientHeight / 2 - Z.y) / (SH * Z.s || 1); fitStage(); Z.x = sc.clientWidth / 2 - cx * SW * Z.s; Z.y = sc.clientHeight / 2 - cy * SH * Z.s; apply(); var w = sc.clientWidth; if (Math.abs(w - lastW) > 40 && items.length) { lastW = w; drawScene(); } tellHeight(); if (map) map.invalidateSize(); });
 
   // The real map, for anyone who wants the street view after they find someone.
   var map = null, markers = {};
@@ -380,13 +400,13 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
     LINE = "";
     $("line").textContent = LINE; $("line").className = "line w";
     if (real) { initMap(); setTimeout(function(){ map.invalidateSize(); drawMap(); fitAll(); }, 30); }
-    else setTimeout(function(){ if (items.length) drawScene(); }, 30);
+    else setTimeout(function(){ home(); apply(); if (items.length) drawScene(); }, 30);
     tellHeight();
   }
   $("real").onclick = function(){ setMode(mode === "real" ? "game" : "real"); };
   $("hunt").onclick = function(){
     hunt++; found = {}; try { localStorage.setItem("waldo_hunt", String(hunt)); } catch (e) {}
-    Z = { s: 1, x: 0, y: 0 }; apply(true); place(); drawScene(); drawLists(); say("The hidden things moved. Go find them!", true);
+    home(); apply(true); place(); drawScene(); drawLists(); say("The hidden things moved. Go find them!", true);
   };
 
   function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
@@ -441,7 +461,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
       });
   };
   $("stage").querySelector("img.town").addEventListener("load", tellHeight);
-  place(); drawScene(); drawLists(); setMode(mode);
+  home(); apply(); place(); drawScene(); drawLists(); setMode(mode);
   load(); if (!DEMO) setInterval(load, 30000);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && !DEMO) load(); });
 })();

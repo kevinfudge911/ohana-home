@@ -435,7 +435,7 @@ const scriptSafe = (t) => String(t).replace(/<\/script/gi, "<\\/script");
 const styleSafe = (t) => String(t).replace(/<\/style/gi, "<\\/style");
 async function roomPage(req, env, ctx, ROOM_HTML = ROOM) {
   // Inside Ohana Home's Gathering the hook asks for ?framed=1 (Ohana Home's own service worker can hide the iframe header).
-  const framed = new URL(req.url).searchParams.has("framed") || /^(iframe|frame|embed|object)$/.test(req.headers.get("sec-fetch-dest") || "");
+  const sp = new URL(req.url).searchParams, framed = !sp.has("own") && (sp.has("framed") || /^(iframe|frame|embed|object)$/.test(req.headers.get("sec-fetch-dest") || ""));
   if (framed) return ROOM_HTML.replace("<!--SOLO_HEAD-->", "").replace("<!--SOLO_BODY-->", "");
   const live = await liveParts(env, ctx);
   const head = live ? "<style>" + styleSafe(live.bridgeCss) + "</style>\n<style>html{background-color:#6b4a2b}" + styleSafe(live.worldCss.join("\n")) +
