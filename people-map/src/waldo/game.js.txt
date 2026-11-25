@@ -211,15 +211,24 @@
     setTimeout(function(){ say("Level " + level + " done in " + mmss(t) + "! " + "★★★".slice(0, st) + (st < 3 ? " Under " + mmss(LV.par * 1000) + " gets three stars." : ""), true); for (var k = 0; k < 5; k++) setTimeout(function(){ burst(15 + Math.random() * 70, 20 + Math.random() * 55); }, k * 220); }, 700);
   }
 
-  // Look closer: pinch, drag, or double-tap.
-  var sc = $("scene"), stg = $("stage"), Z = { s: 1, x: 0, y: 0 };
-  // The picture always covers the whole scene; on a tall phone it is wider than the screen, so drag to look around.
+  // Look closer: works like the puzzle room. One finger moves the picture, two fingers pinch to zoom
+  // (and move it while pinching), double-tap zooms in where you tap, mouse wheel zooms on a computer.
+  var sc = $("scene"), stg = $("stage"), Z = { s: 1, x: 0, y: 0 }, MAXS = 5;
+  // At the start the picture covers the whole scene; you can zoom out until all of it shows, and in to 5 times.
   var SW = 0, SH = 0;
   function fitStage(){ var W = sc.clientWidth, H = sc.clientHeight, k = Math.max(W / 1520, H / 848); SW = 1520 * k; SH = 848 * k; stg.style.width = SW + "px"; stg.style.height = SH + "px"; }
   function home(){ fitStage(); Z = { s: 1, x: (sc.clientWidth - SW) / 2, y: (sc.clientHeight - SH) / 2 }; }
-  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(4.5, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - SW * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - SH * Z.s, Z.y)); }
+  function minS(){ return Math.min(1, sc.clientWidth / (SW || 1), sc.clientHeight / (SH || 1)); }
+  function clampS(v){ return Math.min(MAXS, Math.max(minS(), v)); }
+  // Never lose the picture: it can't be pulled off an edge, and when it's smaller than the screen it sits in the middle.
+  function clamp(){
+    var W = sc.clientWidth, H = sc.clientHeight; Z.s = clampS(Z.s);
+    var w = SW * Z.s, h = SH * Z.s;
+    Z.x = w <= W ? (W - w) / 2 : Math.min(0, Math.max(W - w, Z.x));
+    Z.y = h <= H ? (H - h) / 2 : Math.min(0, Math.max(H - h, Z.y));
+  }
   function apply(anim){ moving(); clamp(); stg.style.transition = anim ? "transform .3s ease" : "none"; stg.style.transform = "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")"; stg.style.setProperty("--s", Z.s); sc.classList.toggle("zoomed", Z.s > 1.01 || SW > sc.clientWidth + 2); }
-  function zoomAt(ns, cx, cy, anim){ var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
+  function zoomAt(ns, cx, cy, anim){ ns = clampS(ns); var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
   // Only hint the browser while moving; once still, it redraws the picture sharp at the new size.
   var stillT = null;
   function moving(){ stg.classList.add("moving"); clearTimeout(stillT); stillT = setTimeout(function(){ stg.classList.remove("moving"); tiles(); }, 400); }
@@ -234,32 +243,58 @@
       im.onload = function(){ this.classList.add("on"); }; im.src = "/people/art/waldo-t" + r + c + ".webp"; box.appendChild(im);
     }
   }
+  // Draw at most once per screen refresh, so moving stays smooth on slower phones.
+  var frameQ = false;
+  function applySoon(){ if (frameQ) return; frameQ = true; requestAnimationFrame(function(){ frameQ = false; apply(); }); }
   var ptrs = {}, start = null, lastTap = 0, pinch = null;
   function local(e){ var r = sc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function two(){ var ids = Object.keys(ptrs); return ids.length >= 2 ? [ptrs[ids[0]], ptrs[ids[1]]] : null; }
+  function beginPinch(){ var t = two(); if (!t) return; pinch = { d: Math.hypot(t[0].x - t[1].x, t[0].y - t[1].y) || 1, s: Z.s, cx: (t[0].x + t[1].x) / 2, cy: (t[0].y + t[1].y) / 2, vx: Z.x, vy: Z.y }; start = null; }
   sc.addEventListener("pointerdown", function(e){
-    run(true); ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
-    if (ids.length === 1) start = { p: local(e), x: Z.x, y: Z.y, t: Date.now(), moved: 0 };
-    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: Z.s }; start && (start.moved = 99); }
-    if (Z.s > 1.01 || SW > sc.clientWidth + 2 || ids.length === 2) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} }
+    if (e.button > 0) return;
+    e.preventDefault(); run(true); try { sc.setPointerCapture(e.pointerId); } catch (x) {}
+    ptrs[e.pointerId] = local(e); var n = Object.keys(ptrs).length;
+    if (n === 1) start = { p: local(e), x: Z.x, y: Z.y, t: Date.now(), moved: 0 };
+    else beginPinch();
   });
   sc.addEventListener("pointermove", function(e){
-    if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
-    if (ids.length === 2 && pinch) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y); zoomAt(pinch.s * d / pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2); e.preventDefault(); return; }
-    if (start && ids.length === 1) { var p = local(e), dx = p.x - start.p.x, dy = p.y - start.p.y; start.moved = Math.max(start.moved, Math.hypot(dx, dy)); if (Z.s > 1.01 || SW > sc.clientWidth + 2) { Z.x = start.x + dx; Z.y = start.y + dy; apply(); e.preventDefault(); } }
+    if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = local(e); e.preventDefault();
+    var t = two();
+    if (t && pinch) {
+      var d = Math.hypot(t[0].x - t[1].x, t[0].y - t[1].y), ns = clampS(pinch.s * d / pinch.d), cx = (t[0].x + t[1].x) / 2, cy = (t[0].y + t[1].y) / 2;
+      Z.x = cx - (pinch.cx - pinch.vx) * (ns / pinch.s); Z.y = cy - (pinch.cy - pinch.vy) * (ns / pinch.s); Z.s = ns; applySoon(); return;
+    }
+    if (start) {
+      var p = local(e), dx = p.x - start.p.x, dy = p.y - start.p.y; start.moved = Math.max(start.moved, Math.hypot(dx, dy));
+      if (start.moved > 6) { Z.x = start.x + dx; Z.y = start.y + dy; applySoon(); }
+    }
   });
   function up(e){
-    var had = ptrs[e.pointerId]; delete ptrs[e.pointerId]; if (Object.keys(ptrs).length < 2) pinch = null;
-    if (!had || !start || Object.keys(ptrs).length) { if (!Object.keys(ptrs).length) start = null; return; }
-    var tap = start.moved < 9 && Date.now() - start.t < 600, p = local(e); start = null; if (!tap) return;
+    var had = ptrs[e.pointerId]; delete ptrs[e.pointerId]; var n = Object.keys(ptrs).length;
+    if (pinch) {
+      if (n < 2) pinch = null;
+      // One finger still down after a pinch: keep moving the picture with it, no tap.
+      if (n === 1) { var rest = ptrs[Object.keys(ptrs)[0]]; start = { p: rest, x: Z.x, y: Z.y, t: 0, moved: 99 }; }
+      if (n >= 2) beginPinch();
+      return;
+    }
+    if (!had || !start || n) { if (!n) start = null; return; }
+    var tap = start.moved <= 9 && Date.now() - start.t < 600, p = local(e); start = null; if (!tap) return;
     var it = hitAt(p);
     if (it) { got(it); lastTap = 0; return; }
-    if (Date.now() - lastTap < 320) { misses.pop(); zoomAt(Z.s > 1.6 ? 1 : 2.4, p.x, p.y, true); lastTap = 0; return; }
+    // Double-tap: zoom in where you tapped; once all the way in, double-tap goes back to the whole view.
+    if (Date.now() - lastTap < 320) { misses.pop(); zoomAt(Z.s >= MAXS - 0.05 ? 1 : Z.s * 1.8, p.x, p.y, true); lastTap = 0; return; }
     lastTap = Date.now(); if (done) return;
     // Tapping all over to guess costs time: three misses close together add 5 seconds.
     var tn = Date.now(); misses = misses.filter(function(m){ return tn - m < 4000; }); misses.push(tn);
     if (misses.length >= 3) { misses = []; setTimeout(function(){ if (lastTap === tn) { addTime(5); say("No guessing! +5 seconds.", false); } }, 340); }
   }
-  sc.addEventListener("pointerup", up); sc.addEventListener("pointercancel", function(e){ delete ptrs[e.pointerId]; start = null; pinch = null; });
+  sc.addEventListener("pointerup", up);
+  sc.addEventListener("pointercancel", function(e){ delete ptrs[e.pointerId]; var n = Object.keys(ptrs).length; if (n < 2) pinch = null; if (!n) start = null; });
+  sc.addEventListener("wheel", function(e){ e.preventDefault(); var p = local(e); zoomAt(Z.s * (e.deltaY < 0 ? 1.12 : 0.89), p.x, p.y); }, { passive: false });
+  // Keep the phone's own page zoom and scrolling out of the picture.
+  ["gesturestart", "gesturechange", "touchmove"].forEach(function(t){ sc.addEventListener(t, function(e){ e.preventDefault(); }, { passive: false }); });
+  sc.addEventListener("contextmenu", function(e){ e.preventDefault(); });
   function hitAt(p){
     var W = SW, H = SH, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
     items.forEach(function(it){

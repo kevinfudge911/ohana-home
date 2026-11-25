@@ -95,7 +95,7 @@ html.own,html.own:root[data-ohana-season]{background:#14244c url(/people/art/wal
 html.own body{min-height:100vh;min-height:100dvh;height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;background:transparent!important}
 html.own #app{flex:none}
 html.own .room{flex:1 1 auto;min-height:0;width:100%;max-width:1120px;display:flex;flex-direction:column;gap:6px;padding:4px 14px max(10px,env(safe-area-inset-bottom))}
-html.own .scene{flex:1 1 0;min-height:300px;aspect-ratio:auto;border-radius:18px;
+html.own .scene{flex:1 1 0;min-height:300px;aspect-ratio:auto;border-radius:18px;touch-action:none;overscroll-behavior:contain;-webkit-touch-callout:none;
  -webkit-mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 97%,transparent);
  mask-image:linear-gradient(to right,transparent,#000 3%,#000 97%,transparent),linear-gradient(to bottom,transparent,#000 3%,#000 97%,transparent)}
 html.own .mapw{flex:1 1 0;min-height:300px;aspect-ratio:auto!important;max-width:none}
