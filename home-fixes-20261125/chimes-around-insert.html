@@ -1,0 +1,211 @@
+<!-- OHANA CHIMES ALL AROUND START (2026-11-25 v3.1: dead calm hangs still) -->
+<style id="ohana-chimes-around-v1-css">
+#oc-chimes{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden;contain:layout style;--lean:0deg;--amp:1deg;--ta:2deg;--dur:4s}
+#oc-chimes[hidden]{display:none!important}
+#oc-chimes .oc-hang{position:absolute;width:0;height:0;pointer-events:none;transform-origin:0 0;transform:rotate(var(--lean));transition:opacity .6s ease;opacity:0}
+#oc-chimes .oc-hang.oc-on{opacity:1}
+#oc-chimes .oc-cord{position:absolute;left:-.75px;top:0;width:1.5px;background:linear-gradient(#3b2a17,#5a4224);border-radius:1px;box-shadow:0 0 1px rgba(255,236,190,.35)}
+#oc-chimes .oc-knot{position:absolute;left:-3.5px;top:-2px;width:7px;height:4px;border-radius:2px;background:#4a3520;box-shadow:inset 0 1px 0 rgba(255,220,160,.35)}
+#oc-chimes .oc-rig{position:absolute;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(40,22,8,.35))}
+#oc-chimes.oc-move .oc-hang{animation:oc-sway var(--dur) ease-in-out infinite}
+#oc-chimes.oc-move .oc-part{animation:oc-tube calc(var(--dur) * var(--k,.6)) ease-in-out infinite;animation-delay:var(--d,0s)}
+#oc-chimes .oc-part{transform-box:view-box}
+@keyframes oc-sway{0%,100%{transform:rotate(calc(var(--lean) - var(--amp)))}50%{transform:rotate(calc(var(--lean) + var(--amp)))}}
+@keyframes oc-tube{0%,100%{transform:rotate(calc(var(--ta) * -1))}50%{transform:rotate(var(--ta))}}
+@media (prefers-reduced-motion:reduce){#oc-chimes.oc-move .oc-hang,#oc-chimes.oc-move .oc-part{animation:none}}
+</style>
+<script id="ohana-chimes-around-v1">
+(()=>{
+if(window.ohanaChimesAround)return;
+// V3 (Kevin, Nov 20): every chime HANGS from something overhead (the sign, a beam, the roof line) on a
+// cord, up high by the flowers and lanterns, never resting on the deck, floor or table. One chime per
+// area; the cardinal "In Memory of Daddy" chime only at the main entrance. It sways with the live wind
+// where the viewer is (Ohana Live Sky feed, same /api/wind as the Gathering): calm barely moves, breezy
+// sways, windy swings, and it leans downwind. CSS animation only (no per-frame script). Visual only.
+const ENTRANCE='memorial-study';
+const TABS={faith:'crystal-cascade',family:'garden-bells',rooms:'bell-quartet',settings:'crystal-duet'};
+const GAMES={spades:'crystal-cascade',handfoot:'garden-bells',words:'crystal-arc',domino:'floral-trio',ohana10:'bell-quartet',flip:'crystal-trio',shuffle:'crystal-duet',mahjong:'crystal-arc',chess:'crystal-trio',checkers:'bell-quartet',tictac:'floral-trio',memory:'garden-bells'};
+const SPREAD=['garden-bells','floral-trio','bell-quartet','crystal-cascade','crystal-arc','crystal-trio','crystal-duet'];
+const FAMILY={'memorial-study':'p','garden-bells':'u','floral-trio':'u','bell-quartet':'u','crystal-cascade':'c','crystal-arc':'c','crystal-trio':'c','crystal-duet':'c'};
+const ASPECT={p:250/1000,u:400/950,c:500/1100};
+const CLICK='button,a,input,select,textarea,label,summary,[role="button"],[role="link"],[role="tab"],[onclick],[tabindex]:not([tabindex="-1"])';
+const lessMotion=()=>{try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return true}catch(e){}try{const v=localStorage.getItem('ohana_less_motion');return v==='1'||v==='true'||v==='on'}catch(e){return false}};
+let mod=null,loading=null,layer=null,place='',rig=null,failed=false,spot='';
+const st=()=>{try{return typeof S==='object'&&S?S:null}catch(e){return null}};
+const hash=k=>{let h=7;for(const ch of k)h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+function placeKey(){
+ const s=st();if(!s||!s.me)return'';
+ if(document.querySelector('#om-chat:not([hidden])'))return'';
+ // The Puzzle Room needs the whole screen for the puzzle (Kevin): no chime there, lobby or board.
+ try{if(typeof PZ==='object'&&PZ&&(PZ.lobby||PZ.id))return''}catch(e){}
+ if(s.game){const gs=s.gstate,t=String((gs&&(gs.type||gs.game&&gs.game.type))||'game');return'game:'+t;}
+ const open=[...document.querySelectorAll('dialog[open]')].filter(d=>d.getClientRects().length);
+ const room=open.find(d=>d.classList.contains('ohana-category-room'));
+ if(open.some(d=>d!==room))return'';
+ if(room)return'room:'+(room.dataset.ohanaCategory||room.getAttribute('aria-label')||'room');
+ return'tab:'+(TABS[s.tab]?s.tab:'games');
+}
+function styleFor(key){
+ if(key==='tab:games')return ENTRANCE;
+ if(key.startsWith('tab:'))return TABS[key.slice(4)];
+ if(key.startsWith('game:')&&GAMES[key.slice(5)])return GAMES[key.slice(5)];
+ return SPREAD[hash(key)%SPREAD.length];
+}
+function ensureLayer(){
+ if(layer&&layer.isConnected)return layer;
+ layer=document.createElement('div');layer.id='oc-chimes';layer.setAttribute('aria-hidden','true');layer.inert=true;
+ document.body.append(layer);applyWind();return layer;
+}
+function load(){
+ if(mod)return Promise.resolve(mod);
+ if(!loading)loading=import('/wind-chimes/renderer-v6.js').then(m=>(mod=m)).catch(()=>{failed=true;return null;});
+ return loading;
+}
+function clear(){if(rig){try{rig.view.destroy()}catch(e){}rig.hang.remove();rig=null;}spot='';}
+function sizeFor(style,inGame){
+ const f=FAMILY[style],vh=innerHeight,vw=innerWidth;
+ let h=f==='p'?Math.min(200,vh*.27):Math.min(inGame?110:150,vh*(inGame?.17:.22));
+ let w=h*ASPECT[f];const maxW=Math.max(26,vw*(inGame?.085:.11));if(w>maxW){w=maxW;h=w/ASPECT[f];}
+ return{w:Math.round(w),h:Math.round(h)};
+}
+// A point is open scene art when, looking down through the page there, we reach a big background before
+// any button, any words or any picture/panel of its own. 'solid' = a picture or panel (a sign, a beam):
+// something a cord can hang from. 'hook' = a tappable sign or arrow: the cord may end at its bottom edge
+// but never cross it. 'bad' = words or a small control: the cord must never cross it.
+const CLEAR=/rgba\(0, 0, 0, 0\)|transparent/;
+const PLAY=/(^|[\s_-])(board|chain|felt|grid|tiles|rack|deck|pile|puzzle|canvas)([\s_-]|$)/i;
+function glyphAt(e,x,y){
+ for(const n of e.childNodes){
+  if(n.nodeType!==3||!n.textContent.trim())continue;
+  const rg=document.createRange();rg.selectNodeContents(n);
+  for(const r of rg.getClientRects())if(x>=r.left-6&&x<=r.right+6&&y>=r.top-6&&y<=r.bottom+6)return true;
+ }
+ return false;
+}
+let sceneEl=null;
+function kind(x,y){
+ const area=innerWidth*innerHeight;sceneEl=null;
+ for(const e of document.elementsFromPoint(x,y)){
+  if(e===document.documentElement||e===document.body)return'open';
+  if(layer&&layer.contains(e))continue;
+  const cs=getComputedStyle(e);
+  if(glyphAt(e,x,y))return'bad';
+  const r=e.getBoundingClientRect(),a=r.width*r.height;
+  // A tappable sign or arrow: never covered, but its bottom edge is a fine hook for the cord.
+  // (A screen-sized scroll box that only takes keyboard focus is not a button.)
+  const cl=e.closest(CLICK),cr=cl&&cl.getBoundingClientRect();
+  if((cl&&cr.width*cr.height<area*.45)||(cs.cursor==='pointer'&&a<area*.45))return(r.width>=36&&r.height>=24&&a<area*.2)?'hook':'bad';
+  const pic=/^(img|svg|canvas|video|picture)$/i.test(e.tagName)||cs.backgroundImage.indexOf('url(')>=0;
+  // A game's own play surface (a domino board, a felt, a tile grid) is never a window to hang in.
+  if(/^(grab|grabbing|move|crosshair)$/.test(cs.cursor))return'bad';
+  if(pic&&e.id!=='game'&&PLAY.test(String(e.className&&e.className.baseVal!=null?e.className.baseVal:e.className)))return'bad';
+  if(a>=area*.45){if(pic)sceneEl=e;return'open';}
+  // A big painted scene picture (the porch, a room) counts as a window too; its top edge is its roof.
+  if(pic&&a>=area*.18&&r.width>=innerWidth*.6){sceneEl=e;return'open';}
+  if(pic||e.tagName==='IFRAME'||cs.backgroundImage!=='none'||!CLEAR.test(cs.backgroundColor)||parseFloat(cs.borderTopWidth)>0||cs.boxShadow!=='none')return'solid';
+ }
+ return'open';
+}
+function fits(x,y,w,h){
+ if(x<2||y<0||x+w>innerWidth-2||y+h>innerHeight*.66)return false;
+ for(let i=0;i<=4;i++)for(let j=0;j<=6;j++){
+  if(kind(x+w*(.1+.8*i/4),y+h*(.04+.92*j/6))!=='open')return false;
+ }
+ return true;
+}
+// Walk up from the top of the chime to what it hangs from: a beam or sign above it, or the top edge (roof) of
+// the scene picture it hangs in. Fails if the cord would cross a button or words.
+function support(cx,top){
+ kind(cx,top+2);const pic=sceneEl,roof=pic?Math.max(0,Math.round(pic.getBoundingClientRect().top)):-1;
+ for(let y=top-3;y>0;y-=5){
+  if(pic&&y<=roof+1)return roof;
+  const k=kind(cx,y);
+  if(k==='bad')return -1;
+  if(k==='solid'||k==='hook')return y+2;
+ }
+ return pic?roof:0;
+}
+function layout(){
+ if(!rig)return;
+ const inGame=place.startsWith('game:'),vw=innerWidth,vh=innerHeight;
+ if(spot){const p=spot.split(',').map(Number);if(fits(p[0],p[1],p[2],p[3])&&support(p[0]+p[2]/2,p[1])===p[4])return;}
+ const base=sizeFor(rig.style,inGame);
+ // Up high first, by the flowers, lanterns and arrows: left side first (Kevin), then the right.
+ const ys=[.11,.14,.17,.2,.23,.26,.3,.34,.38,.42];
+ const xs=[.05,.09,.13,.17,.21,.26];
+ for(const k of[1,.85,.7]){
+  const w=Math.round(base.w*k),h=Math.round(base.h*k);
+  for(const side of[0,1]){
+   for(const fy of ys){
+    const y=Math.round(vh*fy);
+    for(const fx of xs){
+     const x=side===0?Math.round(vw*fx):Math.round(vw*(1-fx)-w);
+     if(!fits(x,y,w,h))continue;
+     const top=support(x+w/2,y);
+     if(top<0||y-top>vh*.3)continue;
+     const key=[x,y,w,h,top].join(',');
+     if(key!==spot)place1(x,y,w,h,top,key);
+     return;
+    }
+   }
+  }
+ }
+ rig.hang.style.display='none';spot='';
+}
+function place1(x,y,w,h,top,key){
+ const len=Math.max(4,y-top);
+ Object.assign(rig.hang.style,{left:Math.round(x+w/2)+'px',top:top+'px',display:''});
+ rig.cord.style.height=len+'px';
+ Object.assign(rig.el.style,{left:-Math.round(w/2)+'px',top:len+'px',width:w+'px',height:h+'px'});
+ spot=key;
+}
+// Wind -> sway. Strength only changes when the feed changes (every 10 minutes), never per frame.
+let wind=null;
+function applyWind(){
+ if(!layer)return;
+ const w=wind||{},mph=Math.max(Number(w.windMph)||0,(Number(w.gustMph)||0)*.6);
+ // v3.1 (Kevin, Nov 25): real wind only. Dead calm (under 1 mph, or no reading yet) = the chime hangs still.
+ const calm=!wind||mph<1;
+ let amp=.35,ta=.6,dur=6.5;
+ if(mph>=18){amp=5.5;ta=8;dur=2.3;}else if(mph>=10){amp=3.2;ta=5.5;dur=3.1;}else if(mph>=4){amp=1.5;ta=3;dur=4.4;}
+ const dir=Number(w.directionDeg);let lean=0;
+ if(Number.isFinite(dir)){const toward=(dir+180)*Math.PI/180;lean=-Math.max(0,Math.min(1,mph/25))*7*Math.sin(toward);}
+ const ls=layer.style;ls.setProperty('--lean',lean.toFixed(2)+'deg');ls.setProperty('--amp',amp+'deg');ls.setProperty('--ta',ta+'deg');ls.setProperty('--dur',dur+'s');
+ layer.classList.toggle('oc-move',!calm&&!lessMotion());
+ layer.dataset.windMph=String(Math.round(mph));
+}
+addEventListener('ohana-live-sky',e=>{wind=e.detail||null;applyWind();});
+try{if(window.ohanaLiveSky&&window.ohanaLiveSky.weather)wind=window.ohanaLiveSky.weather;}catch(e){}
+function decorate(view){
+ // Each tube/bell/crystal swings about its own pivot with CSS, each at its own pace.
+ let i=0;
+ for(const g of view.svg.querySelectorAll('[data-pivot]')){
+  const p=(g.getAttribute('data-pivot')||'0,0').split(',').map(Number);
+  g.classList.add('oc-part');g.style.transformOrigin=p[0]+'px '+p[1]+'px';
+  g.style.setProperty('--k',(.52+((i*37)%23)/100).toFixed(2));g.style.setProperty('--d',(-(i*.73)%3).toFixed(2)+'s');i++;
+ }
+}
+async function apply(key){
+ place=key;
+ if(!key){clear();if(layer)layer.hidden=true;return;}
+ const m=await load();if(!m||place!==key)return;
+ const L=ensureLayer();L.hidden=true;L.style.zIndex=key.startsWith('room:')?'76':'';clear();
+ const style=styleFor(key);
+ const hang=document.createElement('div');hang.className='oc-hang';hang.style.display='none';
+ const cord=document.createElement('div');cord.className='oc-cord';const knot=document.createElement('div');knot.className='oc-knot';
+ const el=document.createElement('div');el.className='oc-rig';el.dataset.style=style;hang.append(cord,knot,el);L.append(hang);
+ try{const view=m.mountRig(el,style);try{view.paint({angle:0,tubes:[],striker:0,sail:0})}catch(e){}decorate(view);rig={hang,cord,el,view,style};}catch(e){hang.remove();return;}
+ L.hidden=false;applyWind();layout();requestAnimationFrame(()=>rig&&rig.hang.classList.add('oc-on'));
+}
+function tick(){
+ if(failed)return;
+ const key=placeKey();
+ if(key!==place)apply(key);else if(rig)layout();
+}
+setInterval(tick,1500);
+addEventListener('resize',()=>{if(rig){spot='';layout();}},{passive:true});
+window.ohanaChimesAround={refresh:tick,get place(){return place},get wind(){return layer?layer.dataset.windMph:null},get rigs(){if(!rig)return[];const hs=rig.hang.style,es=rig.el.style;return[{style:rig.style,shown:hs.display!=='none',anchorX:hs.left,anchorY:hs.top,cord:rig.cord.style.height,left:(parseFloat(hs.left)+parseFloat(es.left))+'px',top:(parseFloat(hs.top)+parseFloat(es.top))+'px',width:es.width,height:es.height}]}};
+setTimeout(tick,600);
+})();
+</script>
+<!-- OHANA CHIMES ALL AROUND END -->

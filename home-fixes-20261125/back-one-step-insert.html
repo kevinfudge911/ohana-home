@@ -1,0 +1,36 @@
+<!-- OHANA BACK ONE STEP START (2026-11-25 v1). Part A goes right BEFORE <script id="ohana-screen-history">. -->
+<script id="ohana-back-one-step-a">(()=>{'use strict';
+// Kevin, Nov 25: Back (Android's button and every in-app back arrow) goes one step back, never "start over".
+// Every in-app history entry gets a step number (ohanaIdx) so a back arrow knows if there is a step behind it.
+// The screen the page was on before a reload/build refresh is kept so it can be reopened (Part B).
+try{const s=history.state;window.__ohanaBootState=s&&typeof s==='object'?s:null;}catch(e){window.__ohanaBootState=null;}
+const push=history.pushState.bind(history),swap=history.replaceState.bind(history);
+const idx=()=>{const s=history.state;return s&&typeof s==='object'&&Number.isSafeInteger(s.ohanaIdx)?s.ohanaIdx:0;};
+const tag=(st,n)=>st&&typeof st==='object'&&!Array.isArray(st)?{...st,ohanaIdx:n}:st==null?{ohanaIdx:n}:st;
+history.pushState=function(st,t,u){return push(tag(st,idx()+1),t,u);};
+history.replaceState=function(st,t,u){return swap(tag(st,idx()),t,u);};
+window.OhanaBackStep={depth:idx};
+})();</script>
+<!-- Part B goes right AFTER the </script> that closes <script id="ohana-screen-history">. -->
+<script id="ohana-back-one-step-b">(()=>{'use strict';
+if(!window.OhanaBackStep||!window.OhanaScreenHistory)return;
+// In-app back arrows: one step back when there is an Ohana step behind us; otherwise their old action (Home).
+const ARROWS='#ohana-game-home,#wback';
+document.addEventListener('click',e=>{
+ const b=e.target.closest&&e.target.closest(ARROWS);if(!b||b.disabled)return;
+ if(window.OhanaBackStep.depth()<1)return;
+ e.preventDefault();e.stopImmediatePropagation();history.back();
+},true);
+// After a reload (new build, phone woke the page) reopen the screen he was on instead of starting at Home.
+const boot=window.__ohanaBootState;
+if(boot&&boot.ohanaScreen&&!boot.ohanaOverlayNav&&!boot.ohanaMemories&&!location.search&&(boot.game||boot.puzzle||boot.granny||boot.color||boot.puzzleLobby||(boot.tab&&boot.tab!=='games'))){
+ let tries=0;const t=setInterval(()=>{
+  tries++;let ready=false;try{ready=!!(S&&S.me&&S.sync)}catch(e){}
+  if(!ready){if(tries>30)clearInterval(t);return;}
+  clearInterval(t);
+  history.replaceState(boot,'',location.href);
+  dispatchEvent(new PopStateEvent('popstate',{state:history.state}));
+ },500);
+}
+})();</script>
+<!-- OHANA BACK ONE STEP END -->

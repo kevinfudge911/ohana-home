@@ -1,0 +1,147 @@
+<!-- OHANA LIVE SKY START (2026-11-25 v2: home hall always evenly lit) -->
+<style id="ohana-live-sky-css">
+[data-oc-sky]{transition:background-color 2s ease}
+#oc-sky-fall{position:fixed;inset:0;z-index:59;pointer-events:none;overflow:hidden;contain:strict;opacity:var(--oc-fall-op,.4);-webkit-mask-image:linear-gradient(#000 0,#000 52%,transparent 82%);mask-image:linear-gradient(#000 0,#000 52%,transparent 82%)}
+#oc-sky-fall[hidden],html.oc-no-fall #oc-sky-fall{display:none!important}
+#oc-sky-fall .oc-tilt{position:absolute;left:-30%;right:-30%;top:-30%;bottom:-30%;transform:rotate(var(--oc-fall-tilt,0deg))}
+#oc-sky-fall .oc-sheet{position:absolute;left:0;right:0;top:-260px;bottom:0;background-repeat:repeat;will-change:transform;animation:oc-fall var(--oc-fall-dur,.6s) linear infinite}
+#oc-sky-fall .oc-sheet.oc-far{animation-duration:calc(var(--oc-fall-dur,.6s) * 1.6);opacity:.65}
+#oc-sky-fall.oc-snow .oc-sheet{animation-name:oc-fall-snow}
+@keyframes oc-fall{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,260px,0)}}
+@keyframes oc-fall-snow{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(9px,130px,0)}100%{transform:translate3d(0,260px,0)}}
+@media (prefers-reduced-motion:reduce){#oc-sky-fall .oc-sheet{animation:none}}
+</style>
+<script id="ohana-live-sky">
+(()=>{
+if(window.ohanaLiveSky)return;
+// Ohana Live Sky (Kevin, Nov 20): every screen, card games included, shows the sky where the VIEWER is:
+// night, dusk and dawn light, clouds, rain and snow. Same feed as the Ohana Gathering and the game
+// weather (/api/wind: the member's own city, Kevin's home base Billings, MO when no location is known).
+// Read every 10 minutes. Light and decorative: it never takes a tap, and rain stays off the hand/buttons.
+// It also hands the wind to the wind chimes (event 'ohana-live-sky').
+const TEN=10*60*1000;
+let wx=null,at=0,busy=false,preview=null,fallKey='',fall=null;
+const lessMotion=()=>{try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return true}catch(e){}try{const v=localStorage.getItem('ohana_less_motion');return v==='1'||v==='true'||v==='on'}catch(e){return false}};
+const signedIn=()=>{try{return typeof S==='object'&&S&&S.me&&typeof api==='function'}catch(e){return false}};
+const naive=s=>{const m=/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/.exec(String(s||''));return m?Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5]):NaN;};
+function phase(w){
+ if(!w)return'day';
+ const obs=naive(w.observed),up=Number(w.updatedAt)||at||Date.now();
+ const rise=naive(w.sunrise),set=naive(w.sunset);
+ if(!Number.isFinite(obs)||!Number.isFinite(rise)||!Number.isFinite(set))return w.isDay===false?'night':'day';
+ // The place's clock: observed is the place's local time of the last reading (up to 15 minutes old).
+ const half=30*60*1000,off=Math.ceil((obs-up)/half)*half,now=Date.now()+off;
+ const m=t=>(now-t)/60000;
+ if(m(rise)>=-40&&m(rise)<25)return'dawn';
+ if(m(set)>=-35&&m(set)<30)return'dusk';
+ if(m(rise)>=25&&m(set)<-35)return'day';
+ return'night';
+}
+function sky(w){
+ const c=Number(w&&w.weatherCode),clouds=Number(w&&w.cloudPct)||0;
+ if([71,73,75,77,85,86].includes(c))return'snow';
+ if([95,96,99].includes(c))return'storm';
+ if([61,63,65,66,67,80,81,82].includes(c))return'rain';
+ if([51,53,55,56,57].includes(c))return'drizzle';
+ if([45,48].includes(c))return'fog';
+ if(c===3||clouds>=75)return'overcast';
+ return'clear';
+}
+const TINTS={
+ day:{clear:'',overcast:'#d3d5da',fog:'#d8dade',drizzle:'#c8ccd4',rain:'#bcc2cd',storm:'#a9afbd',snow:'#dfe4ec'},
+ dawn:{clear:'#f6d9c8',overcast:'#d9cfcf',fog:'#ddd4d2',drizzle:'#cfc6c8',rain:'#c4bdc3',storm:'#b0aab6',snow:'#e3dde2'},
+ dusk:{clear:'#f4c9a2',overcast:'#d4c2b3',fog:'#d8c9bc',drizzle:'#c9b8ad',rain:'#bdafa8',storm:'#a99d9e',snow:'#dcd2cf'},
+ night:{clear:'#7482b4',overcast:'#6c7598',fog:'#727a98',drizzle:'#68708f',rain:'#626a89',storm:'#5a6180',snow:'#7d87ab'}
+};
+// The scene art = big elements painted with a picture background (porch, rooms, game tables).
+function markScenes(){
+ const area=innerWidth*innerHeight,seen=new Set();
+ const pts=[[.5,.12],[.08,.3],[.92,.3],[.5,.45],[.1,.62],[.9,.62]];
+ for(const[px,py]of pts){
+  for(const e of document.elementsFromPoint(innerWidth*px,innerHeight*py)){
+   if(seen.has(e))continue;seen.add(e);
+   if(e.id==='oc-sky-fall'||e.closest('#oc-chimes,#oc-sky-fall'))continue;
+   const r=e.getBoundingClientRect();if(r.width*r.height<area*.45)continue;
+   const bi=getComputedStyle(e).backgroundImage;
+   if(bi&&bi.indexOf('url(')>=0&&!e.hasAttribute('data-oc-sky')){e.setAttribute('data-oc-sky','');paint(e);}
+  }
+ }
+ const root=document.documentElement;const rb=getComputedStyle(root).backgroundImage;
+ if(rb&&rb.indexOf('url(')>=0&&!root.hasAttribute('data-oc-sky')){root.setAttribute('data-oc-sky','');paint(root);}
+}
+// Inline !important so the light wins over the scene's own background rules; only the background is tinted,
+// never the cards, words or buttons on top of it.
+let tintNow='',hallWas=null;
+// v2 (Kevin, Nov 25): the home hall is indoors and lantern-lit. It stays evenly lit day and night: no night,
+// dusk or cloud tint on any of its art. (v1 only tinted pictures bigger than 45% of the screen, so the big hall
+// went dark at night while the smaller header band over it stayed bright = a hard seam.)
+function onHall(){try{if(S&&(S.game||S.granny))return false}catch(e){}if(document.querySelector('dialog[open]'))return false;const f=document.querySelector('#app #main .world-home-foyer');return !!(f&&f.getClientRects().length)}
+function paint(e){const t=onHall()?'':tintNow;if(t){e.style.setProperty('background-color',t,'important');e.style.setProperty('background-blend-mode','multiply','important');e.dataset.ocTinted='1';}else if(e.dataset.ocTinted){e.style.removeProperty('background-color');e.style.removeProperty('background-blend-mode');delete e.dataset.ocTinted;}}
+function tile(kind){
+ // A seamless 260px tile of thin rain streaks or soft snow, made once.
+ let s='<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260">';let r=7;
+ const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647;};
+ if(kind==='snow'){for(let i=0;i<26;i++){const x=rnd()*260,y=rnd()*260,d=1.2+rnd()*2.2;s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+d.toFixed(1)+'" fill="#fff" fill-opacity="'+(0.55+rnd()*.4).toFixed(2)+'"/>';}}
+ else{const n=kind==='drizzle'?16:30;for(let i=0;i<n;i++){const x=rnd()*260,y=rnd()*260,l=(kind==='drizzle'?9:14)+rnd()*12;s+='<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+(y+l).toFixed(1)+'" stroke="#dfe9ff" stroke-opacity="'+(0.45+rnd()*.45).toFixed(2)+'" stroke-width="'+(kind==='drizzle'?1:1.3)+'" stroke-linecap="round"/>';}}
+ s+='</svg>';return 'url("data:image/svg+xml,'+encodeURIComponent(s)+'")';
+}
+function inGame(){try{return !!(typeof S==='object'&&S&&S.game)}catch(e){return false}}
+function render(){
+ const w=preview||wx,root=document.documentElement;
+ const ph=phase(w),k=sky(w),tint=(TINTS[ph]||TINTS.day)[k]||'';
+ if(tint)root.setAttribute('data-oc-tint',ph+'-'+k);else root.removeAttribute('data-oc-tint');
+ if(tint!==tintNow){tintNow=tint;document.querySelectorAll('[data-oc-sky]').forEach(paint);}
+ root.dataset.ocPhase=ph;root.dataset.ocSky=k;
+ markScenes();
+ // Rain/snow. Card games already have their own fine rain (game weather); this adds the visible streaks.
+ const falls=(k==='rain'||k==='storm'||k==='drizzle'||k==='snow')&&!lessMotion()&&signedIn();
+ const key=falls?k:'';
+ if(key!==fallKey){
+  fallKey=key;
+  if(!key){if(fall)fall.hidden=true;}
+  else{
+   if(!fall){fall=document.createElement('div');fall.id='oc-sky-fall';fall.setAttribute('aria-hidden','true');fall.inert=true;document.body.append(fall);}
+   const t=tile(key==='storm'?'rain':key),far=tile(key==='snow'?'snow':'drizzle');
+   fall.className=key==='snow'?'oc-snow':'';
+   fall.innerHTML='<div class="oc-tilt"><div class="oc-sheet oc-far"></div><div class="oc-sheet"></div></div>';
+   const sh=fall.querySelectorAll('.oc-sheet');sh[0].style.backgroundImage=far;sh[1].style.backgroundImage=t;
+   fall.hidden=false;
+  }
+ }
+ if(fall&&key){
+  const mph=Math.max(Number(w.windMph)||0,(Number(w.gustMph)||0)*.6),dir=Number(w.directionDeg);
+  let tilt=0;if(Number.isFinite(dir)){tilt=-Math.max(0,Math.min(1,mph/30))*24*Math.sin((dir+180)*Math.PI/180);}
+  const fs=fall.style;fs.setProperty('--oc-fall-tilt',tilt.toFixed(1)+'deg');
+  fs.setProperty('--oc-fall-dur',key==='snow'?'7s':key==='drizzle'?'.9s':key==='storm'?'.42s':'.55s');
+  fs.setProperty('--oc-fall-op',key==='snow'?'.75':key==='drizzle'?'.32':key==='storm'?'.5':'.42');
+ }
+}
+async function load(force){
+ if(preview){render();return;}
+ if(busy||!signedIn())return;
+ if(!force&&wx&&Date.now()-at<TEN){render();return;}
+ busy=true;
+ try{const j=await api('/api/wind');if(j&&j.available!==false&&!j.error){wx=j;at=Date.now();dispatchEvent(new CustomEvent('ohana-live-sky',{detail:wx}));}}catch(e){}
+ busy=false;render();
+}
+setInterval(()=>load(false),60*1000);
+setInterval(render,5*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(false);});
+// Screens draw a moment after they open (and some redraw), so look every 2s for a few seconds after each
+// change of screen, then every 10s. Six hit-tests, nothing per frame.
+let lastKey='',fresh=0,slow=0;
+setInterval(()=>{if(document.hidden)return;
+ // The puzzle board needs the whole screen: no rain or snow over it.
+ try{document.documentElement.classList.toggle('oc-no-fall',typeof PZ==='object'&&!!PZ&&!!PZ.id)}catch(e){}
+ let k='';try{k=(S&&S.game?'g'+S.game:'t'+(S&&S.tab))+'|'+document.querySelectorAll('dialog[open]').length+'|'+innerWidth+'x'+innerHeight}catch(e){}if(k!==lastKey){lastKey=k;fresh=6;}const h=onHall();if(h!==hallWas){hallWas=h;document.querySelectorAll('[data-oc-sky]').forEach(paint);}if(fresh>0){fresh--;markScenes();}else if(++slow>=5){slow=0;markScenes();}},2000);
+window.ohanaLiveSky={
+ get weather(){return preview||wx},
+ get phase(){return phase(preview||wx)},get sky(){return sky(preview||wx)},
+ refresh(){return load(true)},
+ // Visual check only (nothing saved): ohanaLiveSky.preview({weatherCode:63,windMph:15,directionDeg:270,isDay:false})
+ preview(o){preview=o?Object.assign({},wx||{},o):null;if(preview&&o.phase){const p=o.phase;const base=Date.now();const iso=t=>new Date(t).toISOString().slice(0,16);preview.observed=iso(base);preview.updatedAt=base;preview.sunrise=iso(base+(p==='dawn'?0:p==='day'?-5*36e5:p==='dusk'?-10*36e5:-14*36e5));preview.sunset=iso(base+(p==='dusk'?0:p==='day'?5*36e5:p==='dawn'?10*36e5:-3*36e5));}dispatchEvent(new CustomEvent('ohana-live-sky',{detail:preview||wx}));render();}
+};
+setTimeout(()=>load(true),900);
+})();
+</script>
+<!-- OHANA LIVE SKY END -->
