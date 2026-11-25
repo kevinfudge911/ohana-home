@@ -46,7 +46,11 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .scene.zoomed{touch-action:none;cursor:grab}
 .stage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0}
 .stage.moving{will-change:transform}
-.stage>img.town{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;filter:brightness(1.07) contrast(1.06) saturate(1.12)}
+.stage>img.town{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+/* Up close, the picture swaps in sharp pieces (like a map), only the pieces on screen */
+.tiles{position:absolute;inset:0;pointer-events:none}
+.tiles img{position:absolute;width:25.05%;height:50.1%;display:block;opacity:0;transition:opacity .25s}
+.tiles img.on{opacity:1}
 .hid{position:absolute;transform:translate(-50%,-85%);pointer-events:none}
 .hid img,.hid svg{display:block;width:100%;height:auto;filter:sepia(.14) saturate(.82) brightness(.95) drop-shadow(0 1px 1px #0005);-webkit-mask-image:linear-gradient(to bottom,#000 84%,#0000 100%);mask-image:linear-gradient(to bottom,#000 84%,#0000 100%)}
 .ring{position:absolute;border-radius:50%;border:calc(3px / var(--s,1)) solid var(--red);box-shadow:0 0 0 calc(2px / var(--s,1)) #fff,0 0 6px 2px #fff8;transform:translate(-50%,-50%) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none}
@@ -128,7 +132,7 @@ if(OWN)document.documentElement.classList.add("own");
 else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
 </script>
 <div class="room">
-  <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-2x.webp" alt="" draggable="false"></div></div>
+  <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-hd.webp" alt="" draggable="false"><div class="tiles" id="tiles"></div></div></div>
   <div class="check pics gameonly" id="also"></div>
   <div class="mapw realonly" id="mapw"><div id="map"></div></div>
   <div class="line w" id="line"></div>
@@ -337,7 +341,18 @@ else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.docum
   function zoomAt(ns, cx, cy, anim){ var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
   // Only hint the browser while moving; once still, it redraws the picture sharp at the new size.
   var stillT = null;
-  function moving(){ stg.classList.add("moving"); clearTimeout(stillT); stillT = setTimeout(function(){ stg.classList.remove("moving"); }, 400); }
+  function moving(){ stg.classList.add("moving"); clearTimeout(stillT); stillT = setTimeout(function(){ stg.classList.remove("moving"); tiles(); }, 400); }
+  function tiles(){
+    if (!SW || SW * Z.s * (window.devicePixelRatio || 1) < 3300) return;
+    var W = sc.clientWidth, H = sc.clientHeight, tw = SW * Z.s / 4, th = SH * Z.s / 2, box = $("tiles");
+    for (var r = 0; r < 2; r++) for (var c = 0; c < 4; c++) {
+      var x0 = Z.x + c * tw, y0 = Z.y + r * th;
+      if (x0 > W || y0 > H || x0 + tw < 0 || y0 + th < 0 || box.querySelector('[data-t="' + r + c + '"]')) continue;
+      var im = new Image(); im.dataset.t = "" + r + c; im.alt = ""; im.draggable = false; im.decoding = "async";
+      im.style.left = (c * 25) + "%"; im.style.top = (r * 50) + "%";
+      im.onload = function(){ this.classList.add("on"); }; im.src = "/people/art/waldo-t" + r + c + ".webp"; box.appendChild(im);
+    }
+  }
   var ptrs = {}, start = null, lastTap = 0, pinch = null;
   function local(e){ var r = sc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   sc.addEventListener("pointerdown", function(e){
