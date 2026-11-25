@@ -267,8 +267,8 @@
     if (!map || !map._loaded) return; var placed = [];
     Object.keys(markers).sort().forEach(function(k){
       var m = markers[k], el = m.getElement(); if (!el) return; var pt = map.latLngToContainerPoint(m.getLatLng());
-      var near = placed.some(function(q){ return Math.abs(q.x - pt.x) < 70 && Math.abs(q.y - pt.y) < 30; });
-      el.classList.toggle("up", near); placed.push(pt);
+      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 70 && Math.abs(q.y - pt.y) < 40; }).length, spot = ["", "up", "lf", "rt"][n % 4];
+      el.classList.remove("up", "lf", "rt"); if (spot) el.classList.add(spot); placed.push(pt);
     });
   }
   function fitAll(){
