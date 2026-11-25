@@ -151,3 +151,4 @@ dialog.me-menu .me-menu-h{margin:8px 4px 0;font:800 13px/1.2 Nunito,sans-serif;l
 #viewer .viewer-top #close{order:-1;margin-right:auto}
 #viewer .viewer-top .viewer-nav{margin-right:auto}
 .me-mark svg{display:block;width:24px;height:24px}
+#viewer #photo-number{display:none}
