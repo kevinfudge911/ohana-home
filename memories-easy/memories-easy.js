@@ -120,7 +120,7 @@ function showAlbum(id){const c=q('#collection');if(!c)return;if(![...c.options].
 /* ---------- build the screens ---------- */
 function build(){
  const pj=q('.photo-journal');
- pj.before(el('button',{type:'button',id:'me-title','aria-haspopup':'dialog','aria-label':'Choose an album',onclick:openAlbumMenu},el('span',{id:'me-title-text',text:albumTitle()}),el('span',{class:'me-caret','aria-hidden':'true',text:'▾'})));
+ pj.before(el('button',{type:'button',id:'me-title','aria-haspopup':'dialog','aria-label':'Choose an album',onclick:openAlbumMenu},el('span',{id:'me-title-text',text:albumTitle()}),el('span',{class:'me-caret','aria-hidden':'true'})));
  pj.append(el('button',{type:'button',id:'me-prev',class:'me-tab me-tab-l','aria-label':'Turn back a page',hidden:true,onclick:()=>turnPage(-1)},el('span',{'aria-hidden':'true',text:'‹'})),
   el('button',{type:'button',id:'me-next',class:'me-tab me-tab-r','aria-label':'Turn the page',hidden:true,onclick:()=>turnPage(1)},el('span',{'aria-hidden':'true',text:'›'})));
  const cam=el('button',{type:'button',id:'me-cam',class:'me-cam','aria-label':'Add photos',onclick:()=>{if(M.queue.length)openAddSheet();else q('#photo-file').click();}});
