@@ -118,7 +118,7 @@ html.own .clock{font-size:17px}
 .maplibregl-ctrl-attrib{background:#14244cb3!important;color:#fff!important;font-size:9px!important}
 .maplibregl-ctrl-attrib a{color:#fff!important}
 .maplibregl-ctrl-attrib-button{filter:invert(1)}
-.pm.gl{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.pm.gl{cursor:pointer;display:flex;flex-direction:column;align-items:center}
 .pm.gl img{position:relative;z-index:1}
 .pm.gl .ring{position:absolute;left:50%;top:calc(100% - 26px);width:46px;height:16px;transform:translateX(-50%);border-radius:50%;
   background:radial-gradient(closest-side,#fff 0 38%,#d7141d 40% 62%,#1d4fa3 64% 88%,#1d4fa300);box-shadow:0 0 10px 3px #fff8;animation:pmglow 2.4s ease-in-out infinite}
