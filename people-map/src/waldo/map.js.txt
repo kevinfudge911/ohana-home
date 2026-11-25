@@ -106,5 +106,5 @@ window.OhanaMap = (function(){
     later(function(){ stopSpin(); map.flyTo({ center: [p.lng, p.lat], zoom: 16.3, pitch: 62, bearing: map.getBearing() - 30, duration: 3200, essential: true }); want = true; map.once("moveend", function(){ if (want) orbit(); }); });
   }
   function resize(){ if (ready) map.resize(); }
-  return { init: init, draw: draw, all: all, fly: fly, resize: resize, stop: stopSpin };
+  return { init: init, draw: draw, all: all, fly: fly, resize: resize, stop: stopSpin, get: function(){ return map; } };
 })();
