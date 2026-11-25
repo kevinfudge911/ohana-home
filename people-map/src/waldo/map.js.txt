@@ -1,0 +1,102 @@
+// "Where's my people?" map: a 3D satellite globe with Ohana colors.
+// Free pictures from the sky (Esri World Imagery), free hills (Mapterhorn), drawn by MapLibre. No keys, no bills.
+window.OhanaMap = (function(){
+  var LIB = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.9.0/";
+  var ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+  var map = null, ready = false, marks = {}, onPick = null, spin = null, waiting = [], want = false;
+  function loadLib(cb){
+    if (window.maplibregl) return cb();
+    var css = document.createElement("link"); css.rel = "stylesheet"; css.href = LIB + "maplibre-gl.min.css"; document.head.appendChild(css);
+    var s = document.createElement("script"); s.src = LIB + "maplibre-gl.min.js"; s.onload = cb; s.onerror = function(){ cb(new Error("map")); }; document.head.appendChild(s);
+  }
+  function style(){
+    var r = function(path, extra){ var o = { type: "raster", tiles: [ESRI + path + "/MapServer/tile/{z}/{y}/{x}"], tileSize: 256, maxzoom: 19 }; for (var k in extra) o[k] = extra[k]; return o; };
+    return {
+      version: 8,
+      projection: { type: "globe" },
+      sources: {
+        sat: r("World_Imagery", { attribution: "Esri, Maxar, Earthstar" }),
+        roads: r("Reference/World_Transportation"),
+        names: r("Reference/World_Boundaries_and_Places"),
+        hills: { type: "raster-dem", url: "https://tiles.mapterhorn.com/tilejson.json", tileSize: 512, attribution: "Mapterhorn" },
+        shade: { type: "raster-dem", url: "https://tiles.mapterhorn.com/tilejson.json", tileSize: 512 }
+      },
+      layers: [
+        { id: "sat", type: "raster", source: "sat", paint: { "raster-saturation": 0.22, "raster-contrast": 0.08, "raster-brightness-max": 1, "raster-fade-duration": 200 } },
+        { id: "shade", type: "hillshade", source: "shade", paint: { "hillshade-exaggeration": 0.28, "hillshade-shadow-color": "#2a1f12", "hillshade-highlight-color": "#fff6e0" } },
+        { id: "roads", type: "raster", source: "roads", minzoom: 9, paint: { "raster-opacity": 0.6 } },
+        { id: "names", type: "raster", source: "names", paint: { "raster-opacity": 0.95 } }
+      ],
+      terrain: { source: "hills", exaggeration: 1.35 },
+      // Ohana sky: deep navy up high, warm white at the edge of the world, and a soft glow around the globe.
+      sky: {
+        "sky-color": "#1d4fa3", "horizon-color": "#fde9d6", "fog-color": "#eef4ff",
+        "sky-horizon-blend": 0.55, "horizon-fog-blend": 0.7, "fog-ground-blend": 0.85,
+        "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 5, 1, 8, 0]
+      },
+      light: { anchor: "map", position: [1.5, 90, 80] }
+    };
+  }
+  function stopSpin(){ want = false; if (spin) { cancelAnimationFrame(spin); spin = null; } }
+  // After flying to someone, the camera slowly circles them, like a drone.
+  function orbit(){
+    stopSpin(); var last = performance.now();
+    (function go(t){ if (!map) return; var dt = t - last; last = t; map.setBearing(map.getBearing() + dt * 0.006); spin = requestAnimationFrame(go); })(last);
+  }
+  function init(el, pick){
+    onPick = pick;
+    if (map) return;
+    map = "loading";
+    loadLib(function(err){
+      if (err || !window.maplibregl) { map = null; el.innerHTML = '<p class="w" style="text-align:center;padding:40px 10px">The map did not load. Tap Game, then try again.</p>'; return; }
+      map = new maplibregl.Map({ container: el, style: style(), center: [-93.3, 37.0], zoom: 1.4, pitch: 0, maxPitch: 80, attributionControl: { compact: true }, fadeDuration: 150 });
+      map.on("load", function(){ ready = true; var w = waiting; waiting = []; w.forEach(function(f){ f(); }); });
+      ["mousedown", "touchstart", "wheel"].forEach(function(e){ map.on(e, stopSpin); });
+      map.on("move", unclash);
+    });
+  }
+  function later(f){ if (ready) f(); else waiting.push(f); }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  // One marker per person: their Ohana character standing on a red, white and blue ring, name in red.
+  function draw(people, pic){
+    later(function(){
+      var seen = {};
+      people.forEach(function(p){
+        seen[p.key] = 1; var m = marks[p.key], car = p.kind === "vehicle";
+        var html = '<i class="ring"></i><img src="' + esc(pic(p)) + '" alt="" style="width:' + (car ? 60 : 40) + "px;height:" + (car ? 36 : 44) + 'px"><span>' + esc(p.name) + "</span>";
+        if (!m) {
+          var el = document.createElement("div"); el.className = "pm gl";
+          el.addEventListener("click", function(ev){ ev.stopPropagation(); fly(el._p); if (onPick) onPick(el._p); });
+          m = marks[p.key] = { el: el, mk: new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([p.lng, p.lat]).addTo(map) };
+        } else m.mk.setLngLat([p.lng, p.lat]);
+        if (m.el._h !== html) { m.el.innerHTML = html; m.el._h = html; }
+        m.el._p = p;
+      });
+      Object.keys(marks).forEach(function(k){ if (!seen[k]) { marks[k].mk.remove(); delete marks[k]; } });
+      unclash();
+    });
+  }
+  function unclash(){
+    if (!ready) return; var placed = [];
+    Object.keys(marks).sort().forEach(function(k){
+      var m = marks[k], pt = map.project(m.mk.getLngLat());
+      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 70 && Math.abs(q.y - pt.y) < 40; }).length, spot = ["", "up", "lf", "rt"][n % 4];
+      m.el.classList.remove("up", "lf", "rt"); if (spot) m.el.classList.add(spot); placed.push(pt);
+    });
+  }
+  // From space down to the family: the whole globe first, then a swoop in, tilted like Google Earth.
+  function all(people){
+    later(function(){
+      stopSpin(); if (!people.length) return map.flyTo({ center: [-93.3, 37.0], zoom: 6, pitch: 45, duration: 3500 });
+      if (people.length === 1) return map.flyTo({ center: [people[0].lng, people[0].lat], zoom: 14.5, pitch: 58, bearing: -20, duration: 4500, essential: true });
+      var b = new maplibregl.LngLatBounds(); people.forEach(function(p){ b.extend([p.lng, p.lat]); });
+      var cam = map.cameraForBounds(b, { padding: { top: 90, bottom: 60, left: 50, right: 50 }, maxZoom: 13 });
+      map.flyTo({ center: cam.center, zoom: Math.max(2, cam.zoom - 0.3), pitch: 52, bearing: -18, duration: 4500, essential: true });
+    });
+  }
+  function fly(p){
+    later(function(){ stopSpin(); map.flyTo({ center: [p.lng, p.lat], zoom: 16.3, pitch: 62, bearing: map.getBearing() - 30, duration: 3200, essential: true }); want = true; map.once("moveend", function(){ if (want) orbit(); }); });
+  }
+  function resize(){ if (ready) map.resize(); }
+  return { init: init, draw: draw, all: all, fly: fly, resize: resize, stop: stopSpin };
+})();

@@ -84,16 +84,12 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
  mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);mask-composite:intersect}
 .mapw.on{display:block}
 #map{position:absolute;inset:0;background:transparent}
-.leaflet-container{background:transparent!important}
-.leaflet-control-attribution{background:none!important;color:#fff!important;text-shadow:0 1px 2px #000;font-size:9px!important}
-.leaflet-control-attribution a{color:#fff!important}
 .pm{background:none;border:0}
 .pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
 .pm.up span{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:1px}
 .pm.lf span{position:absolute;right:62%;top:30%;margin:0}
 .pm.rt span{position:absolute;left:62%;top:30%;margin:0}
 .pm span{display:block;width:max-content;margin:0 auto;font:700 12px/1.2 Fredoka,Nunito,sans-serif;color:var(--red);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff,0 0 6px #fff,0 1px 8px #0008}
-.leaflet-popup-content{margin:8px 10px;font:700 12px/1.35 Nunito,sans-serif}
 /* Its own room (opened by itself): the whole screen is the game, on a red, white and blue explorer's table */
 html.own,html.own:root[data-ohana-season]{background:#14244c url(/people/art/waldo-edges.webp) 50% 0/cover no-repeat fixed!important}
 html.own body{min-height:100vh;min-height:100dvh;height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;background:transparent!important}
@@ -110,3 +106,21 @@ html.own .line,html.own .ctl{background:radial-gradient(closest-side,#14244ce6 6
 html.own .check.pics b.got::after{text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff}
 html.own .ctl{flex:none;padding-bottom:2px}
 html.own .ctl button{font-size:18px}
+/* Scout, the explorer to find first: partly hidden in the crowd, glowing first in the hunt bar. */
+.hid.scout{transform:translate(-50%,-85%)}
+.hid.scout img{filter:saturate(.95) drop-shadow(0 1px 1px #0006);-webkit-mask-image:linear-gradient(to bottom,#000 58%,#0000 86%);mask-image:linear-gradient(to bottom,#000 58%,#0000 86%)}
+.check.pics b.scout{grid-row:span 2;align-self:center}
+.check.pics b.scout img,html.own .check.pics b.scout img{width:auto;height:58px;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #d7141d) drop-shadow(0 0 6px #d7141d)}
+.clock{align-self:center;font:800 15px Fredoka,Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c;white-space:nowrap}
+html.own .clock{font-size:17px}
+/* 3D satellite map: rounded like the game picture, soft edges, Ohana markers. */
+#map{border-radius:18px;overflow:hidden;background:#0b1633}
+.maplibregl-ctrl-attrib{background:#14244cb3!important;color:#fff!important;font-size:9px!important}
+.maplibregl-ctrl-attrib a{color:#fff!important}
+.maplibregl-ctrl-attrib-button{filter:invert(1)}
+.pm.gl{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.pm.gl img{position:relative;z-index:1}
+.pm.gl .ring{position:absolute;left:50%;top:calc(100% - 26px);width:46px;height:16px;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side,#fff 0 38%,#d7141d 40% 62%,#1d4fa3 64% 88%,#1d4fa300);box-shadow:0 0 10px 3px #fff8;animation:pmglow 2.4s ease-in-out infinite}
+.pm.gl span{position:relative;z-index:2}
+@keyframes pmglow{50%{box-shadow:0 0 16px 6px #fffc}}

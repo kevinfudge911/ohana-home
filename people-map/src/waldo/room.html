@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Where's Waldo</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap">
 <style>/*ROOM_CSS*/</style>
 <!--SOLO_HEAD-->
@@ -26,10 +25,9 @@ else{var sh=document.getElementById("soloHead");if(sh)sh.remove();document.docum
   <div class="check pics gameonly" id="also"></div>
   <div class="mapw realonly" id="mapw"><div id="map"></div></div>
   <div class="line w" id="line"></div>
-  <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Where’s my people?</button><button id="share" class="realonly">Share: off</button></div>
+  <div class="ctl"><span id="clock" class="clock gameonly"></span><button id="hunt" class="gameonly">New hunt</button><button id="real">Where’s my people?</button><button id="everyone" class="realonly">Everyone</button><button id="share" class="realonly">Share: off</button></div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-
+<script>/*MAP_JS*/</script>
 <script>/*ROOM_JS*/</script>
 </body>
 </html>

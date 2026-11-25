@@ -71,9 +71,15 @@
 
   var NEAR = [["the white house", 14, 62], ["the fire station", 23, 30], ["the pink limo", 29, 50], ["the black van", 35, 60], ["the picnic", 45, 52], ["the marina", 60, 28], ["the church", 85, 26], ["Main Street", 82, 42], ["the market tents", 75, 58], ["the pontoon boat", 90, 78], ["the cookout", 78, 90], ["the duck pen", 16, 82], ["the cows", 46, 80], ["the bikes", 58, 76], ["the sailboat", 45, 20], ["the train bridge", 62, 12], ["the balloon", 74, 6], ["the trees", 8, 30]];
   function nearName(x, y){ var b = null, bd = 1e9; NEAR.forEach(function(n){ var d = (n[1] - x) * (n[1] - x) + (n[2] - y) * (n[2] - y) * 2.2; if (d < bd) { bd = d; b = n[0]; } }); return b; }
-  var hunt = 1; try { hunt = +localStorage.getItem("waldo_hunt") || 1; } catch (e) {}
-  var found = {}; try { found = JSON.parse(localStorage.getItem("waldo_found_" + hunt) || "{}") || {}; } catch (e) { found = {}; }
-  function saveFound(){ try { localStorage.setItem("waldo_found_" + hunt, JSON.stringify(found)); } catch (e) {} }
+  // Levels: each one hides more things, smaller, with less time for three stars.
+  var LEVELS = [{ n: 8, par: 90, k: 1.25 }, { n: 12, par: 150, k: 1.1 }, { n: 16, par: 210, k: 1 }, { n: 20, par: 270, k: 0.9 }, { n: 20, par: 240, k: 0.8 }];
+  function ls(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+  var hunt = +ls("waldo_hunt") || 1, level = Math.min(LEVELS.length, Math.max(1, +ls("waldo_level") || 1)), LV = LEVELS[level - 1];
+  function key(){ return hunt + "_L" + level; }
+  var found = {}; try { found = JSON.parse(ls("waldo_found_" + key()) || "{}") || {}; } catch (e) { found = {}; }
+  function saveFound(){ ls("waldo_found_" + key(), JSON.stringify(found)); }
+  // Scout: our own Ohana explorer, the one to find first on every level. Feet spots in the crowds.
+  var SCOUT_SPOTS = [[73, 66], [80, 55], [45, 54], [66, 77], [35, 41], [86, 34], [72, 93], [58, 75], [27, 86], [61, 61]];
 
   var people = [], houses = [], items = [], admin = false, sharing = false, watchId = null, lastSent = 0;
 
@@ -101,12 +107,13 @@
       var size = p.kind === "vehicle" && z === "road" ? 6 : showArt ? 4.2 : 2.9;
       out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: showArt || svgUrl(buddy(hash(p.key + "b"))), person: true, where: shortPlace(p) });
     });
-    var taken = [];
-    EXTRA.forEach(function(e){
-      var k0 = hash(e.id + ":" + hunt), s = null;
+    var taken = [], sc0 = SCOUT_SPOTS[hash("scout:" + key()) % SCOUT_SPOTS.length]; taken.push(sc0);
+    out.push({ id: "x-scout", name: "Scout", x: sc0[0], y: sc0[1], size: +(1.9 * LV.k * (0.72 + 0.5 * sc0[1] / 100)).toFixed(2), ar: 2.07, src: "/people/art/scout.webp", scout: true, person: false });
+    EXTRA.slice().sort(function(a, b){ return hash(a.id + ":" + key()) - hash(b.id + ":" + key()); }).slice(0, LV.n).forEach(function(e){
+      var k0 = hash(e.id + ":" + key()), s = null;
       for (var j = 0; j < e.spots.length && !s; j++) { var c = e.spots[(k0 + j) % e.spots.length]; if (!taken.some(function(t){ return Math.abs(t[0] - c[0]) < 3.5 && Math.abs(t[1] - c[1]) < 5; })) s = c; }
       if (!s) s = e.spots[k0 % e.spots.length]; taken.push(s);
-      out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: +(e.size * (0.72 + 0.5 * s[1] / 100)).toFixed(2), src: e.svg ? svgUrl(e.svg) : e.art, person: false });
+      out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: +(e.size * LV.k * (0.72 + 0.5 * s[1] / 100)).toFixed(2), src: e.svg ? svgUrl(e.svg) : e.art, person: false });
     });
     items = out.filter(function(i){ return !i.person && !i.house; });
   }
@@ -116,7 +123,7 @@
     var W = SW || $("stage").clientWidth || 1000;
     items.forEach(function(it){
       it.size = Math.max(it.base || (it.base = it.size), 13 / W * 100);
-      var d = document.createElement("div"); d.className = "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
+      var d = document.createElement("div"); d.className = it.scout ? "hid scout" : "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
       d.innerHTML = '<img src="' + esc(it.src) + '" alt="" draggable="false">'; st.appendChild(d); it.el = d;
       if (it.person) {
         var w = document.createElement("div"); w.className = "who"; w.style.left = it.x + "%"; w.style.top = (it.y + 0.25) + "%";
@@ -132,14 +139,14 @@
   function drawLists(){
     var a = $("also"); a.innerHTML = "";
     items.forEach(function(it){
-      var b = document.createElement("b"); b.className = found[it.id] ? "r got" : "r";
+      var b = document.createElement("b"); b.className = (found[it.id] ? "r got" : "r") + (it.scout ? " scout" : "");
       b.innerHTML = pic(it.src, it.id === "x-glasses"); b.title = it.name; b.setAttribute("aria-label", it.name);
       b.onclick = function(){ found[it.id] ? tell(it) : hint(it); };
       a.appendChild(b);
     });
     tellHeight();
   }
-  function midY(it){ return it.y - 0.35 * it.size * (1520 / 848); }
+  function midY(it){ return it.y - 0.35 * it.size * (it.ar || 1) * (1520 / 848); }
   function mark(it, fx){
     var st = $("stage"), r = document.createElement("div"), s = Math.max(it.size * 1.8, 5);
     r.className = "ring"; r.style.left = it.x + "%"; r.style.top = midY(it) + "%";
@@ -178,13 +185,30 @@
     var st = $("stage"), h = document.createElement("div"), jx = ((hash(it.id + "j") % 9) - 4) * 1.1, jy = ((hash(it.id + "k") % 9) - 4) * 1.6;
     h.className = "hint"; h.style.left = (it.x + jx) + "%"; h.style.top = (midY(it) + jy) + "%"; h.style.width = "17%"; h.style.aspectRatio = "1";
     st.appendChild(h); setTimeout(function(){ h.remove(); }, 1900);
-    say("Look near " + nearName(it.x, it.y) + ".", false);
+    addTime(10); say("Look near " + nearName(it.x, it.y) + ". (+10 seconds)", false);
   }
   function got(it){
     if (found[it.id]) { tell(it); return; }
     found[it.id] = 1; saveFound(); mark(it, true); drawLists(); tell(it);
-    var ex = items;
-    if (ex.every(function(i){ return found[i.id]; })) setTimeout(function(){ say("You found every hidden thing!", true); for (var k = 0; k < 4; k++) setTimeout(function(){ burst(15 + Math.random() * 70, 20 + Math.random() * 55); }, k * 220); }, 900);
+    if (it.scout) for (var q = 0; q < 2; q++) setTimeout(function(){ burst(it.x + (Math.random() - 0.5) * 6, midY(it)); }, q * 200);
+    if (items.every(function(i){ return found[i.id]; })) levelDone();
+  }
+
+  // The clock: starts on the first touch, stops while the map is open or the phone is put away.
+  var T = { ms: +ls("waldo_time_" + key()) || 0, at: 0 }, misses = [], done = !!ls("waldo_done_" + key());
+  function now(){ return T.ms + (T.at ? Date.now() - T.at : 0); }
+  function run(on){ if (on && !T.at && !done && mode === "game" && !document.hidden) T.at = Date.now(); if (!on && T.at) { T.ms = now(); T.at = 0; ls("waldo_time_" + key(), String(Math.round(T.ms))); } }
+  function addTime(sec){ if (done) return; T.ms += sec * 1000; ls("waldo_time_" + key(), String(Math.round(now()))); tick(); }
+  function mmss(ms){ var t = Math.floor(ms / 1000); return Math.floor(t / 60) + ":" + ("0" + t % 60).slice(-2); }
+  function stars(ms){ var t = ms / 1000; return t <= LV.par ? 3 : t <= LV.par * 1.5 ? 2 : 1; }
+  function tick(){ var c = $("clock"); if (!c) return; var left = items.filter(function(i){ return !found[i.id]; }).length; c.textContent = "Level " + level + " · " + mmss(now()) + (done ? " · " + "★★★".slice(0, stars(now())) : " · " + left + " left"); }
+  setInterval(tick, 500);
+  function goal(){ return done ? "Level " + level + " done in " + mmss(now()) + " " + "★★★".slice(0, stars(now())) : "Find Scout and " + (items.length - 1) + " hidden things. Three stars under " + mmss(LV.par * 1000) + "."; }
+  function levelDone(){
+    run(false); done = true; ls("waldo_done_" + key(), "1");
+    var t = now(), st = stars(t), best = +ls("waldo_best_" + level) || 0; if (st > best) ls("waldo_best_" + level, String(st));
+    LINE = goal(); $("hunt").textContent = level < LEVELS.length ? "Next level" : "Play again"; tick();
+    setTimeout(function(){ say("Level " + level + " done in " + mmss(t) + "! " + "★★★".slice(0, st) + (st < 3 ? " Under " + mmss(LV.par * 1000) + " gets three stars." : ""), true); for (var k = 0; k < 5; k++) setTimeout(function(){ burst(15 + Math.random() * 70, 20 + Math.random() * 55); }, k * 220); }, 700);
   }
 
   // Look closer: pinch, drag, or double-tap.
@@ -213,7 +237,7 @@
   var ptrs = {}, start = null, lastTap = 0, pinch = null;
   function local(e){ var r = sc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   sc.addEventListener("pointerdown", function(e){
-    ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
+    run(true); ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
     if (ids.length === 1) start = { p: local(e), x: Z.x, y: Z.y, t: Date.now(), moved: 0 };
     if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: Z.s }; start && (start.moved = 99); }
     if (Z.s > 1.01 || SW > sc.clientWidth + 2 || ids.length === 2) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} }
@@ -229,70 +253,54 @@
     var tap = start.moved < 9 && Date.now() - start.t < 600, p = local(e); start = null; if (!tap) return;
     var it = hitAt(p);
     if (it) { got(it); lastTap = 0; return; }
-    if (Date.now() - lastTap < 320) { zoomAt(Z.s > 1.6 ? 1 : 2.4, p.x, p.y, true); lastTap = 0; } else lastTap = Date.now();
+    if (Date.now() - lastTap < 320) { misses.pop(); zoomAt(Z.s > 1.6 ? 1 : 2.4, p.x, p.y, true); lastTap = 0; return; }
+    lastTap = Date.now(); if (done) return;
+    // Tapping all over to guess costs time: three misses close together add 5 seconds.
+    var tn = Date.now(); misses = misses.filter(function(m){ return tn - m < 4000; }); misses.push(tn);
+    if (misses.length >= 3) { misses = []; setTimeout(function(){ if (lastTap === tn) { addTime(5); say("No guessing! +5 seconds.", false); } }, 340); }
   }
   sc.addEventListener("pointerup", up); sc.addEventListener("pointercancel", function(e){ delete ptrs[e.pointerId]; start = null; pinch = null; });
   function hitAt(p){
     var W = SW, H = SH, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
     items.forEach(function(it){
-      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W, d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Z.s;
+      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W / (it.ar ? 1.6 : 1), d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Z.s;
       if (d < r && d < bd) { bd = d; best = it; }
     });
     return best;
   }
   var lastW = 0; window.addEventListener("resize", function(){ var cx = (sc.clientWidth / 2 - Z.x) / (SW * Z.s || 1), cy = (sc.clientHeight / 2 - Z.y) / (SH * Z.s || 1); fitStage(); Z.x = sc.clientWidth / 2 - cx * SW * Z.s; Z.y = sc.clientHeight / 2 - cy * SH * Z.s; apply(); var w = sc.clientWidth; if (Math.abs(w - lastW) > 40 && items.length) { lastW = w; drawScene(); } tellHeight(); if (map) map.invalidateSize(); });
 
-  // The real map, for anyone who wants the street view after they find someone.
-  var map = null, markers = {};
-  function initMap(){
-    if (map) return;
-    map = L.map("map", { zoomControl: false, zoomSnap: 0.5 }); map.on("zoomend moveend", unclash); // the view is set once, straight to everyone, so no stretched tiles are left behind
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar" }).addTo(map);
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, opacity: 0.55 }).addTo(map);
-    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }).addTo(map);
-  }
-  function drawMap(){
-    if (!map) return; var seen = {};
-    people.forEach(function(p){
-      seen[p.key] = 1; var w = p.kind === "vehicle" ? 56 : 36, h = p.kind === "vehicle" ? 34 : 40, W = Math.max(w, 64);
-      var ic = L.divIcon({ className: "pm", html: '<img src="' + esc(p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b")))) + '" alt="" style="width:' + w + "px;height:" + h + 'px"><span>' + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
-      var m = markers[p.key]; if (!m) m = markers[p.key] = L.marker([p.lat, p.lng], { icon: ic }).addTo(map); else { m.setLatLng([p.lat, p.lng]); m.setIcon(ic); }
-      m.bindPopup("<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") + "<br>" + esc(p.src || "") + " · " + esc(ago(p.at)));
-    });
-    Object.keys(markers).forEach(function(k){ if (!seen[k]) { map.removeLayer(markers[k]); delete markers[k]; } });
-    unclash();
-  }
-  // Two people close together: one name goes above the picture so the names never sit on each other.
-  function unclash(){
-    if (!map || !map._loaded) return; var placed = [];
-    Object.keys(markers).sort().forEach(function(k){
-      var m = markers[k], el = m.getElement(); if (!el) return; var pt = map.latLngToContainerPoint(m.getLatLng());
-      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 70 && Math.abs(q.y - pt.y) < 40; }).length, spot = ["", "up", "lf", "rt"][n % 4];
-      el.classList.remove("up", "lf", "rt"); if (spot) el.classList.add(spot); placed.push(pt);
-    });
-  }
-  function fitAll(){
-    if (!map) return;
-    if (!people.length) return setTimeout(function(){ if (!map._loaded) map.setView([37.2, -93.3], 7); }, 4000);
-    if (people.length === 1) return map.setView([people[0].lat, people[0].lng], 12);
-    map.fitBounds(L.latLngBounds(people.map(function(p){ return [p.lat, p.lng]; })), { padding: [40, 40], maxZoom: 12 });
-  }
+  // The real map, for anyone who wants the street view after they find someone (its own part: map.js).
+  var mapOn = false;
+  function personPic(p){ return p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b"))); }
+  function initMap(){ if (mapOn) return; mapOn = true; OhanaMap.init($("map"), function(p){ tell({ person: true, who: p, name: p.name, where: shortPlace(p) }); }); }
+  function drawMap(){ if (mapOn) OhanaMap.draw(people, personPic); }
+  function fitAll(){ if (mapOn) OhanaMap.all(people); }
   var mode = "game"; try { if (localStorage.getItem("waldo_mode") === "real") mode = "real"; } catch (e) {}
   function setMode(m){
     mode = m; try { localStorage.setItem("waldo_mode", m); } catch (e) {}
     var real = m === "real"; document.querySelector(".room").classList.toggle("real", real);
     $("real").textContent = real ? "Game" : "Where’s my people?";
-    LINE = "";
+    run(!real); LINE = real ? "" : goal();
     $("line").textContent = LINE; $("line").className = "line w";
-    if (real) { initMap(); setTimeout(function(){ map.invalidateSize(); drawMap(); fitAll(); }, 30); }
+    if (real) { initMap(); setTimeout(function(){ OhanaMap.resize(); drawMap(); fitAll(); }, 30); } else if (mapOn) OhanaMap.stop();
     else setTimeout(function(){ home(); apply(); if (items.length) drawScene(); }, 30);
     tellHeight();
   }
+  $("everyone").onclick = function(){ fitAll(); };
   $("real").onclick = function(){ setMode(mode === "real" ? "game" : "real"); };
+  // After a level: the next one. Before that: the same level with everything moved and the clock back to zero.
   $("hunt").onclick = function(){
-    hunt++; found = {}; try { localStorage.setItem("waldo_hunt", String(hunt)); } catch (e) {}
-    home(); apply(true); place(); drawScene(); drawLists(); say("The hidden things moved. Go find them!", true);
+    var next = done;
+    if (next && level === LEVELS.length) { level = 1; hunt++; } else if (next) level++; else hunt++;
+    LV = LEVELS[level - 1]; ls("waldo_hunt", String(hunt)); ls("waldo_level", String(level));
+    found = {}; saveFound(); T = { ms: 0, at: 0 }; ls("waldo_time_" + key(), "0"); done = false; misses = [];
+    try { localStorage.removeItem("waldo_done_" + key()); } catch (e) {}
+    $("hunt").textContent = "New hunt";
+    home(); apply(true); place(); drawScene(); drawLists(); LINE = goal(); tick(); run(true);
+    say(next ? "Level " + level + ": " + (items.length - 1) + " things and Scout. Go!" : "Everything moved. The clock starts over. Go!", true);
   };
+  document.addEventListener("visibilitychange", function(){ run(!document.hidden); });
 
   function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
   function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.classList.toggle("go", sharing); }
@@ -308,7 +316,7 @@
   function show(list, hs){
     people = list.filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); }); houses = hs || [];
     var s = people.map(function(p){ return p.key + "|" + p.art + "|" + p.kind + "|" + p.zone + "|" + p.house + "|" + p.town + "|" + p.addr + "|" + p.place; }).join(",") + "#" + houses.map(function(h){ return h.id + h.name; }).join(",");
-    if (s !== sig) { sig = s; drawMap(); if (mode === "real" && map && !fitted) { fitted = true; fitAll(); } }
+    if (s !== sig) { sig = s; drawMap(); if (mode === "real" && mapOn && !fitted && people.length) { fitted = true; fitAll(); } }
     drawLists(); drawMap();
   }
   function demo(){
@@ -346,7 +354,7 @@
       });
   };
   $("stage").querySelector("img.town").addEventListener("load", tellHeight);
-  home(); apply(); place(); drawScene(); drawLists(); setMode(mode);
+  home(); apply(); place(); drawScene(); drawLists(); if (done) $("hunt").textContent = level < LEVELS.length ? "Next level" : "Play again"; setMode(mode); tick();
   load(); if (!DEMO) setInterval(load, 30000);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && !DEMO) load(); });
 })();
