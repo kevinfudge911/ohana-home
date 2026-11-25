@@ -20,6 +20,7 @@ const shape=p=>({id:p.id,member_id:p.member_id,author:p.author,caption:p.caption
 async function handle(path,opts={}){
  const u=new URL(path,location.origin),m=(opts.method||'GET').toUpperCase(),p=u.pathname;let mt;
  await new Promise(r=>setTimeout(r,60));
+ if(m==='GET'&&W.__meBlobs&&W.__meBlobs[p])return new Response(W.__meBlobs[p],{headers:{'content-type':W.__meBlobs[p].type||'image/jpeg'}});
  if(p==='/api/memories/rooms')return json({rooms:db.rooms,me:db.me});
  if(p==='/api/memories/albums'&&m==='GET')return json({albums:db.albums.map(a=>({...a,photos:visible().filter(x=>x.album_id===a.id).length}))});
  if(p==='/api/memories/albums'&&m==='POST'){const name=JSON.parse(opts.body).name.trim();if(db.albums.some(a=>a.name.toLowerCase()===name.toLowerCase()))return json({error:'There is already an album with that name.'},409);const a={id:uuid(),name};db.albums.push(a);return json({album:{...a,photos:0}},201);}
