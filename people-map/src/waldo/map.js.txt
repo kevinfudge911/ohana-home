@@ -82,10 +82,14 @@ window.OhanaMap = (function(){
   function unclash(){
     if (!ready) return; var placed = [];
     Object.keys(marks).sort().forEach(function(k){
-      var m = marks[k], pt = map.project(m.mk.getLngLat());
-      var n = placed.filter(function(q){ return Math.abs(q.x - pt.x) < 60 && Math.abs(q.y - pt.y) < 60; }).length, o = SPREAD[n % SPREAD.length];
-      if (m.o !== n) { m.o = n; m.mk.setOffset(o); }
-      placed.push(pt);
+      var m = marks[k], pt = map.project(m.mk.getLngLat()), o = SPREAD[0];
+      // Take the first spot near their real place where no one else's picture and name already are.
+      for (var n = 0; n < SPREAD.length; n++) {
+        var c = SPREAD[n], x = pt.x + c[0], y = pt.y + c[1];
+        if (!placed.some(function(q){ return Math.abs(q.x - x) < 58 && Math.abs(q.y - y) < 60; })) { o = c; break; }
+      }
+      if (m.o !== o) { m.o = o; m.mk.setOffset(o); }
+      placed.push({ x: pt.x + o[0], y: pt.y + o[1] });
     });
   }
   // From space down to the family: the whole globe first, then a swoop in, tilted like Google Earth.
