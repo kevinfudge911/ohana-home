@@ -28,7 +28,7 @@ async function pickAlbum(sel){if(sel.value!=='__new'){sel.dataset.last=sel.value
 /* ---------- thumbnails for our grids ---------- */
 const lazy=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){lazy.unobserve(e.target);loadThumbInto(e.target);}},{rootMargin:'250px'});
 async function loadThumbInto(img){const id=img.dataset.meId;if(!id)return;if(E.thumbs.has(id)){img.src=E.thumbs.get(id);return;}const p=findPhoto(id);if(!p)return;try{const r=await call(isVideo(p)?p.thumbnail_url:(p.thumbnail_url||p.image_url));const url=URL.createObjectURL(await r.blob());E.thumbs.set(id,url);if(img.isConnected&&img.dataset.meId===id)img.src=url;}catch{img.alt='Picture not available right now';}}
-function setShape(media){const w=media.naturalWidth||media.videoWidth,h=media.naturalHeight||media.videoHeight;if(w&&h)media.closest('.me-tile')?.style.setProperty('--r',Math.min(2.2,Math.max(.45,w/h)).toFixed(3));}
+function setShape(media){const w=media.naturalWidth||media.videoWidth,h=media.naturalHeight||media.videoHeight;if(w&&h)media.closest('.me-tile')?.style.setProperty('--r',Math.min(2.2,Math.max(.55,w/h)).toFixed(3));}
 function thumbImg(p){const img=el('img',{alt:p.caption||'Family photo',loading:'lazy',decoding:'async'});img.addEventListener('load',()=>setShape(img));img.dataset.meId=p.id;if(E.thumbs.has(p.id))img.src=E.thumbs.get(p.id);else lazy.observe(img);return img;}
 function findPhoto(id){return E.orgRows.find(p=>p.id===id)||M.photos.find(p=>p.id===id)||E.edit?.list.find(p=>p.id===id);}
 function dropThumbs(){for(const u of E.thumbs.values())URL.revokeObjectURL(u);E.thumbs.clear();}
