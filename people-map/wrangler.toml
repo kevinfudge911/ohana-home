@@ -6,7 +6,10 @@ routes = [
   { pattern = "ohanahome.app/people*", zone_name = "ohanahome.app" },
   # Main page only: passed through from ohana-home with the Where's Waldo hook script added.
   { pattern = "ohanahome.app/", zone_name = "ohanahome.app" },
-  { pattern = "ohanahome.app/index.html", zone_name = "ohanahome.app" }
+  { pattern = "ohanahome.app/index.html", zone_name = "ohanahome.app" },
+  # Ohana Gathering porch pictures only: lighter copies, same look (family check still done by ohana-home).
+  { pattern = "ohanahome.app/api/duckville/rooms/1/files/assets/porch-sign.png", zone_name = "ohanahome.app" },
+  { pattern = "ohanahome.app/api/duckville/rooms/1/files/assets/fudge-family-plaque.png", zone_name = "ohanahome.app" }
 ]
 
 [triggers]

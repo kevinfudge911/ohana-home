@@ -498,6 +498,34 @@ async function slimHome(res) {
   return new Response(body, { status: res.status, headers: h });
 }
 
+// Same size and same look, far fewer bytes: the porch photo as a 256-colour PNG (2.9 MB -> 0.66 MB) and the little
+// family plaque at 256 px (2.6 MB -> 0.13 MB; it shows under 60 px wide). Only used when the original is byte-for-byte unchanged.
+const PORCH = {
+  "porch-sign.png": ["private-porch-sign.png", "b6545321c80f2a6b109c43ec90bec5e5c6583dd4b9593c3928973ae960b70d5e"],
+  "fudge-family-plaque.png": ["private-fudge-family-plaque.png", "d068a0e264d5c8197a5a4a3b66ffe2f8c891bbce40b8fc4182d739530995a430"],
+};
+const porchMem = {};
+async function porchPicture(req, env, [small, sha]) {
+  const res = await env.OHANA_HOME.fetch(req);
+  if (req.method !== "GET" || res.status !== 200 || res.headers.get("content-type") !== "image/png") return res;
+  const buf = await res.arrayBuffer();
+  try {
+    const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((v) => v.toString(16).padStart(2, "0")).join("");
+    if (h === sha) {
+      let out = porchMem[small];
+      if (!out) {
+        const rows = (await env.PEOPLE.prepare("SELECT data FROM art WHERE name=? ORDER BY part").bind(small).all()).results || [];
+        if (rows.length) { const parts = rows.map((r) => new Uint8Array(r.data)); out = new Uint8Array(parts.reduce((n, x) => n + x.length, 0)); let o = 0; for (const x of parts) { out.set(x, o); o += x.length; } porchMem[small] = out; }
+      }
+      if (out) {
+        const hd = new Headers(res.headers); hd.delete("content-length"); hd.delete("content-encoding"); hd.delete("etag"); hd.set("x-ohana-small", "1");
+        return new Response(out, { status: 200, headers: hd });
+      }
+    }
+  } catch (e) { console.error("porch", String(e)); }
+  return new Response(buf, { status: res.status, headers: res.headers });
+}
+
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
 
 export default {
@@ -512,6 +540,10 @@ export default {
       try { return await slimHome(res); } catch (e) { console.error("slimHome", String(e)); }
       return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js?v=' + HOOK_V + '" defer></script>', { html: true }); } }).transform(await env.OHANA_HOME.fetch(req));
     }
+    // Ohana Gathering porch: the family-only room still checks who is asking (the request goes to ohana-home
+    // as is). When ohana-home answers with the exact same big picture, send the lighter copy that looks the same.
+    const pm = /^\/api\/duckville\/rooms\/1\/files\/assets\/([a-z-]+\.png)$/.exec(url.pathname);
+    if (pm && PORCH[pm[1]] && env.OHANA_HOME) return porchPicture(req, env, PORCH[pm[1]]);
     // A picture that was packed inside the main page, now at its own address (named by what's in it, so it never changes).
     if (req.method === "GET" && p.startsWith("/people/inline/")) {
       const hit = await caches.default.match(new Request(INLINE_BASE + p.slice(15)));
@@ -571,6 +603,7 @@ export default {
     if (req.method === "GET" && p === "/people/room-next") // preview of the next Where's Waldo room (Game + Real Life), not linked anywhere
       return new Response(await roomPage(req, env, ctx, ROOM_NEXT), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
+      if (p.startsWith("/people/art/private-")) return new Response("Not found", { status: 404 }); // family-only pictures: never public
       const a = ART[p.slice(12)];
       if (!a) { // painted art kept in D1 (too big for the bundle), split into parts
         await ensureSchema(env);
