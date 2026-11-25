@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Where's Waldo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap">
+<style>
+/* Where's Waldo room: a look-and-find picture. Red, white and black, like the striped Where's My People shop in Ohana Town.
+   Plain words only. No boxes, no frames, no panels. Everything sits on the painted world. */
+:root{--red:#d7141d;--blk:#141414;--wht:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;background:transparent;font:700 13px/1.25 Nunito,system-ui,sans-serif;color:var(--blk);-webkit-tap-highlight-color:transparent}
+body.solo{background:transparent}
+html.framed{background:transparent!important;background-image:none!important}
+/* Opened by itself: the Bridge sits on top, then the room, all on the Gathering's painted world */
+#soloHead{max-width:1120px;margin:0 auto}
+#soloHead:not(.ohana-arched-bridge-header){display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 6px 4px}
+#soloHead:not(.ohana-arched-bridge-header) h1{margin:0;font:700 26px Fredoka,Nunito,sans-serif;color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
+#soloHead:not(.ohana-arched-bridge-header) button{font:700 16px Fredoka,Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c}
+body.solo .room{padding-top:6px}
+button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:inherit}
+.room{max-width:1120px;margin:0 auto;padding:2px 6px 14px;display:grid;gap:4px}
+/* red words: white halo, black edge */
+.r,.find b,.ctl button,.l360 h4,.l360 .acts button{color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
+/* black words: white halo */
+.k{color:var(--blk);text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 0 8px #fff}
+/* white words: black edge */
+.w,.l360 p,.line{color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c}
+.title{display:flex;align-items:center;justify-content:center;gap:8px;font:700 clamp(19px,4.6vw,30px)/1.05 Fredoka,Nunito,sans-serif;text-align:center;margin-top:2px}
+.title svg{flex:none;width:clamp(26px,6vw,40px);height:auto;filter:drop-shadow(0 2px 2px #0007)}
+.find{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:1px 12px;font:600 clamp(14px,3.6vw,18px)/1.25 Fredoka,Nunito,sans-serif}
+.find .lbl{font-weight:700}
+.find b{font-weight:700;cursor:pointer;position:relative;white-space:nowrap}
+.find b.got,.check b.got{color:var(--blk);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:3px;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 6px #fff}
+.find b.got::after,.check b.got::after{content:"\2713";margin-left:3px;color:var(--red);text-decoration:none;display:inline-block}
+.find.also{font-size:clamp(12px,3vw,15px)}
+.find.also b{font-weight:600}
+.count{text-align:center;font:700 clamp(13px,3.2vw,16px) Fredoka,Nunito,sans-serif}
+.count .r{font-weight:700}
+/* the picture: soft edges melt into the painted world */
+.scene{position:relative;width:100%;aspect-ratio:1520/848;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:zoom-in;
+ -webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);-webkit-mask-composite:source-in;
+ mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
+.scene.zoomed{touch-action:none;cursor:grab}
+.stage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0}
+.stage.moving{will-change:transform}
+.stage>img.town{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;filter:brightness(1.07) contrast(1.06) saturate(1.12)}
+.hid{position:absolute;transform:translate(-50%,-85%);pointer-events:none}
+.hid img,.hid svg{display:block;width:100%;height:auto;filter:saturate(.85) brightness(.97) drop-shadow(0 1px 1px #0005)}
+.ring{position:absolute;border-radius:50%;border:calc(3px / var(--s,1)) solid var(--red);box-shadow:0 0 0 calc(2px / var(--s,1)) #fff,0 0 6px 2px #fff8;transform:translate(-50%,-50%) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none}
+.ring.on{transform:translate(-50%,-50%) scale(1);opacity:1}
+.tag{position:absolute;transform:translate(-50%,0);font:700 calc(13px / var(--s,1))/1 Fredoka,Nunito,sans-serif;white-space:nowrap;pointer-events:none}
+.who{position:absolute;transform:translate(-50%,0);text-align:center;white-space:nowrap;pointer-events:none;line-height:1.05}
+.who .nm{display:block;font:700 calc(12px / var(--s,1)) Fredoka,Nunito,sans-serif;color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 1px 3px #000a}
+.who .pl{display:block;font:800 calc(10px / var(--s,1)) Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 4px #000}
+.hname{position:absolute;transform:translate(-50%,0);white-space:nowrap;pointer-events:none;font:700 calc(11px / var(--s,1)) Fredoka,Nunito,sans-serif;color:var(--blk);text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff}
+.line a{color:var(--red);font:700 15px Fredoka,Nunito,sans-serif;text-decoration:none;margin:0 7px;text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a;white-space:nowrap}
+.line .nmx{color:var(--red)}
+.hint{position:absolute;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;border:3px dashed var(--red);box-shadow:0 0 0 2px #fff8;animation:hint 1.8s ease-out forwards}
+@keyframes hint{0%{opacity:0;scale:1.6}20%{opacity:1;scale:1}80%{opacity:1}100%{opacity:0;scale:.9}}
+.bit{position:absolute;width:7px;height:11px;pointer-events:none;border-radius:1px;animation:pop .9s ease-out forwards}
+@keyframes pop{from{transform:translate(-50%,-50%) rotate(0);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rt));opacity:0}}
+/* Checklist under the picture: a small picture of each thing, its name, a check when found */
+.check{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font:700 clamp(15px,4vw,19px)/1.2 Fredoka,Nunito,sans-serif}
+.check b{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
+.check img{width:30px;height:30px;object-fit:contain;flex:none;filter:drop-shadow(0 1px 2px #0009)}
+.check .pl{font:800 12px Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 4px #000}
+.room.real .gameonly,.room:not(.real) .realonly{display:none!important}
+.room.real .mapw{display:block}
+.line{text-align:center;font:800 13px/1.35 Nunito,sans-serif;min-height:18px}
+.line.hot{font:700 15px/1.45 Fredoka,Nunito,sans-serif;color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
+.ctl{display:flex;justify-content:center;gap:4px 20px;flex-wrap:wrap;font:700 16px Fredoka,Nunito,sans-serif}
+.ctl button.go,.l360 .acts button.go{color:#fff!important;text-shadow:0 0 2px var(--red),0 0 3px var(--red),0 0 5px var(--red),0 1px 8px #000a}
+/* the real map, shown when asked, also melts into the world */
+.mapw{display:none;position:relative;width:100%;max-width:1000px;margin:0 auto;aspect-ratio:16/10;min-height:280px;
+ -webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);-webkit-mask-composite:source-in;
+ mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);mask-composite:intersect}
+.mapw.on{display:block}
+#map{position:absolute;inset:0;background:transparent}
+.leaflet-container{background:transparent!important}
+.leaflet-control-attribution{background:none!important;color:#fff!important;text-shadow:0 1px 2px #000;font-size:9px!important}
+.leaflet-control-attribution a{color:#fff!important}
+.pm{background:none;border:0}
+.pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
+.pm span{display:block;width:max-content;margin:0 auto;font:700 12px/1.2 Fredoka,Nunito,sans-serif;color:var(--red);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff,0 0 6px #fff,0 1px 8px #0008}
+.leaflet-popup-content{margin:8px 10px;font:700 12px/1.35 Nunito,sans-serif}
+.l360{display:none;max-width:520px;margin:0 auto;text-align:center;font:800 12px/1.4 Nunito,sans-serif}
+.l360.on{display:block}
+.l360 h4{margin:0;font:700 17px Fredoka,Nunito,sans-serif}
+.l360 p{margin:2px 0}
+.l360 input{width:min(100%,360px);margin:5px auto 2px;display:block;padding:6px 10px;border-radius:10px;border:1.5px solid var(--red);background:#fffffff0;font:700 12px Nunito,sans-serif;color:var(--blk)}
+.l360 .acts{display:flex;justify-content:center;gap:18px;font:700 16px Fredoka,Nunito,sans-serif}
+</style>
+<!--SOLO_HEAD-->
+</head>
+<body>
+<!--SOLO_BODY-->
+<script>
+// Opened by itself (the town's Where's Waldo shop): the room shows right here, with its own Bridge on top.
+// Only when this phone isn't signed in to Ohana Home yet does it go to Ohana Home first, so the sign-in shows.
+if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){var t="";try{t=localStorage.getItem("ohana_token")||"";}catch(e){}
+ if(!t){try{sessionStorage.setItem("ohana-open-waldo",String(Date.now()));}catch(e){}location.replace("/#waldo");}}
+// Shown inside Ohana Home (Gathering): Ohana Home already draws the Bridge, so drop this page's own.
+if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
+</script>
+<div class="room">
+  <div class="title"><span id="hatA"></span><span class="r" id="ttl">Can you find them all?</span><span id="glassA"></span></div>
+  <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-2x.webp" alt="" draggable="false"></div></div>
+  <div class="check gameonly" id="also"></div>
+  <div class="count gameonly" id="count"></div>
+  <div class="mapw realonly" id="mapw"><div id="map"></div></div>
+  <div class="check realonly" id="find"></div>
+  <div class="line w" id="line">Pinch to look closer. Tap a thing when you find it.</div>
+  <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Real Life</button><button id="l360" class="realonly">Life360</button><button id="share" class="realonly">Share: off</button></div>
+  <div class="l360" id="lp">
+    <h4>Your Life360</h4>
+    <p>It shows your people, and only you see them here. Everyone connects their own.</p>
+        <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
+    <p id="ls"></p>
+    <div class="acts"><button class="go" id="lsave">Connect</button><button id="loff">Turn off</button><button id="lclose">Close</button></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  if (window.parent === window) document.body.classList.add("solo");
+  var tok = ""; try { tok = localStorage.getItem("ohana_token") || ""; } catch (e) {}
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function artUrl(a){ return !a ? "" : a.charAt(0) === "/" ? a : "/people/art/" + a; }
+  function ago(iso){ var m = Math.round((Date.now() - Date.parse(iso)) / 60000); if (!isFinite(m)) return ""; if (m < 1) return "just now"; if (m < 60) return m + " min ago"; var h = Math.round(m / 60); if (h < 24) return h + " hr ago"; return Math.round(h / 24) + " days ago"; }
+  function hash(s){ var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+  // Little red, white and black art, drawn here (no outside pictures).
+  var HAT = '<svg viewBox="0 0 40 40"><defs><clipPath id="hc"><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z"/></clipPath></defs><g clip-path="url(#hc)"><rect width="40" height="40" fill="#fff"/><g fill="#d7141d"><rect y="8" width="40" height="5"/><rect y="18" width="40" height="5"/><rect y="28" width="40" height="5"/></g></g><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z" fill="none" stroke="#141414" stroke-width="2"/><rect x="3" y="31" width="32" height="6" rx="3" fill="#d7141d" stroke="#141414" stroke-width="2"/><circle cx="25" cy="6" r="4.5" fill="#fff" stroke="#141414" stroke-width="2"/></svg>';
+  var GLASSES = '<svg viewBox="0 0 48 22"><path d="M3 9 0 5M45 9l3-4" stroke="#3a2a1c" stroke-width="2.4" fill="none" stroke-linecap="round"/><g fill="#bfe3ff99" stroke="#3a2a1c" stroke-width="2.6"><circle cx="12" cy="12" r="8.5"/><circle cx="36" cy="12" r="8.5"/></g><path d="M20.5 10.5q3.5-3 7 0" stroke="#3a2a1c" stroke-width="2.4" fill="none"/><path d="M7 9q2-3 5-3M31 9q2-3 5-3" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".9"/></svg>';
+  // A little person in a striped hat, for anyone without their own Ohana character yet.
+  function buddy(seed){
+    var v = seed % 4, skin = ["#f2c29b", "#c98e62", "#8d5a3b", "#f7d7b8"][(seed >> 3) % 4];
+    var shirt = ["#d7141d", "#141414", "#fff", "#d7141d"][v], band = ["#fff", "#d7141d", "#d7141d", "#141414"][v];
+    var hat = ["#fff", "#d7141d", "#141414", "#141414"][v], hband = ["#d7141d", "#fff", "#d7141d", "#fff"][v], pom = ["#d7141d", "#fff", "#fff", "#d7141d"][v];
+    return '<svg viewBox="0 0 40 52"><path d="M7 51c0-11 6-17 13-17s13 6 13 17z" fill="' + shirt + '" stroke="#141414" stroke-width="2"/><path d="M12 40h16M10 46h20" stroke="' + band + '" stroke-width="3"/><circle cx="20" cy="25" r="9" fill="' + skin + '" stroke="#141414" stroke-width="2"/><circle cx="17" cy="25" r="1.3" fill="#141414"/><circle cx="23" cy="25" r="1.3" fill="#141414"/><path d="M17 29q3 2 6 0" stroke="#141414" stroke-width="1.5" fill="none"/><path d="M10 20c1-9 6-14 12-14 3 4 6 9 8 14z" fill="' + hat + '" stroke="#141414" stroke-width="2"/><path d="M12 13h14M11 17h17" stroke="' + hband + '" stroke-width="3"/><circle cx="22" cy="5" r="3.5" fill="' + pom + '" stroke="#141414" stroke-width="1.6"/></svg>';
+  }
+  var BUDDY = buddy(0);
+  $("hatA").innerHTML = HAT; $("glassA").innerHTML = GLASSES;
+  function svgUrl(s){ return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ')); }
+
+  // Spots in the painted town, in percent of the picture. Each real kind of place has its own spot.
+  var ZONES = {
+    home: [[10, 71], [19, 76.5], [28, 71.5], [6, 80], [14, 84]],
+    fire: [[20.4, 42.5], [34, 41.5], [16, 45], [38, 45], [26, 46.5]],
+    road: [[28.9, 47], [34.5, 56.5], [41, 66], [24.5, 51]],
+    church: [[83.5, 33.5], [88, 34], [79.5, 34.5]],
+    shop: [[74.5, 62.5], [70, 61], [79.5, 63.5]],
+    food: [[92.5, 50.5], [73, 92], [79, 93]],
+    water: [[61, 32.5], [57, 31], [88.5, 77]],
+    school: [[46, 52], [50, 54], [42, 54]],
+    park: [[46, 52], [50, 54], [42, 54]]
+  };
+  var TOWNS = [
+    [/^branson$/i, [[81.5, 46], [77.5, 47.5], [86, 46.5]]],
+    [/branson west/i, [[71.5, 58], [76, 59], [67.5, 60]]],
+    [/kimberling|table rock/i, [[61, 32.5], [57, 31], [64.5, 33.5]]],
+    [/reeds spring|cape fair/i, [[45, 51], [49.5, 53], [41, 52.5]]],
+    [/springfield|nixa|ozark|republic|battlefield/i, [[85, 33.5], [80, 35], [89.5, 35]]],
+    [/billings|marionville|clever|aurora|crane|halltown/i, [[44.5, 78], [49, 81], [39.5, 80]]],
+    [/galena|hurley|spokane|blue eye|shell knob/i, [[16, 85], [20.5, 86], [11.5, 86]]]
+  ];
+  var OUT = [[58.5, 79], [52, 64], [63, 53], [26, 63], [33, 73], [95, 31]];
+  var HOUSE_SLOTS = [[40.5, 87], [27, 88], [57, 89], [62.5, 67], [96, 40], [6.5, 93]];
+  var EXTRA = [
+    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 3, spots: [[37, 27], [67, 25], [94, 70], [52, 23]] },
+    { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", size: 2.8, spots: [[80, 40], [49, 57], [20, 50], [66, 70]] },
+    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 2.8, spots: [[44, 30], [79, 72], [62, 35], [97, 58]] },
+    { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", size: 2.8, spots: [[7, 24], [41, 64], [56, 38], [88, 18]] },
+    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.2, spots: [[74, 9], [30, 84], [51, 74], [86, 46]] },
+    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.2, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] }
+  ];
+  // A little cottage, painted for each saved house ("Ashley's house").
+  var COTTAGE = '<svg viewBox="0 0 64 58"><ellipse cx="32" cy="55" rx="28" ry="3" fill="#0003"/><rect x="44" y="6" width="7" height="14" fill="#7a3b2c" stroke="#141414" stroke-width="1.5"/><path d="M4 27 32 6l28 21z" fill="#d7141d" stroke="#141414" stroke-width="2" stroke-linejoin="round"/><path d="M11 22h42M17 17.5h30M23 13h18" stroke="#fff" stroke-width="2.4"/><rect x="9" y="26" width="46" height="27" fill="#fff" stroke="#141414" stroke-width="2"/><rect x="27" y="35" width="10" height="18" rx="1" fill="#141414"/><circle cx="35" cy="44" r="1" fill="#f2c94c"/><g fill="#ffe7a1" stroke="#141414" stroke-width="1.6"><rect x="13" y="32" width="9" height="8"/><rect x="42" y="32" width="9" height="8"/></g><path d="M13 36h9M17.5 32v8M42 36h9M46.5 32v8" stroke="#141414" stroke-width="1"/><path d="M8 53c2-5 5-6 7-6s4 2 5 6zM44 53c2-5 5-6 7-6s4 2 5 6z" fill="#3f8f45"/></svg>';
+
+  var NEAR = [["the white house", 14, 62], ["the fire station", 23, 30], ["the pink limo", 29, 50], ["the black van", 35, 60], ["the picnic", 45, 52], ["the marina", 60, 28], ["the church", 85, 26], ["Main Street", 82, 42], ["the market tents", 75, 58], ["the pontoon boat", 90, 78], ["the cookout", 78, 90], ["the duck pen", 16, 82], ["the cows", 46, 80], ["the bikes", 58, 76], ["the sailboat", 45, 20], ["the train bridge", 62, 12], ["the balloon", 74, 6], ["the trees", 8, 30]];
+  function nearName(x, y){ var b = null, bd = 1e9; NEAR.forEach(function(n){ var d = (n[1] - x) * (n[1] - x) + (n[2] - y) * (n[2] - y) * 2.2; if (d < bd) { bd = d; b = n[0]; } }); return b; }
+  var hunt = 1; try { hunt = +localStorage.getItem("waldo_hunt") || 1; } catch (e) {}
+  var found = {}; try { found = JSON.parse(localStorage.getItem("waldo_found_" + hunt) || "{}") || {}; } catch (e) { found = {}; }
+  function saveFound(){ try { localStorage.setItem("waldo_found_" + hunt, JSON.stringify(found)); } catch (e) {} }
+
+  var people = [], houses = [], items = [], admin = false, sharing = false, watchId = null, lastSent = 0, l360 = { connected: false };
+
+  function shortPlace(p){
+    if (p.place) return p.place;
+    if (p.zone === "road") return p.label || "On the road";
+    if (p.addr) return String(p.addr).replace(/,\s*USA$/, "").replace(/\s+\d{5}$/, "");
+    if (p.street || p.town) return [p.street, p.town].filter(Boolean).join(", ");
+    return p.label || "Out and about";
+  }
+  function place(){
+    var used = {}, out = [], hs = {};
+    houses.forEach(function(h, i){ var s = HOUSE_SLOTS[i % HOUSE_SLOTS.length]; hs[h.id] = s; out.push({ id: "h-" + h.id, name: h.name, x: s[0], y: s[1], size: 4.6, src: svgUrl(COTTAGE), house: true }); });
+    function free(list, tag){ for (var i = 0; i < list.length; i++) { var k = tag + i; if (!used[k]) { used[k] = 1; return list[i]; } } var b = list[0]; var n = (used[tag + "x"] = (used[tag + "x"] || 0) + 1); return [b[0] + n * 3, b[1] + (n % 2 ? 2 : -2)]; }
+    people.forEach(function(p){
+      var art = String(p.art || ""), z = p.zone || "town", pt;
+      if (z === "road") pt = (/van/i.test(art) && !used.road1) ? (used.road1 = 1, ZONES.road[1]) : free(ZONES.road, "road");
+      else if (z === "house" && hs[p.house]) { var h = hs[p.house], n = (used["h" + p.house] = (used["h" + p.house] || 0) + 1); pt = [h[0] + (n % 2 ? 3.2 : -3.2) * Math.ceil(n / 2), h[1] + 1.5]; }
+      else if (ZONES[z]) pt = free(ZONES[z], z);
+      else {
+        var t = null; TOWNS.forEach(function(e){ if (!t && e[0].test(p.town || "")) t = e; });
+        pt = t ? free(t[1], "t" + TOWNS.indexOf(t)) : free(OUT, "out");
+      }
+      var showArt = p.art && !/fire-truck|house\.svg/.test(art) ? artUrl(p.art) : "";
+      var size = p.kind === "vehicle" && z === "road" ? 6 : showArt ? 4.2 : 2.9;
+      out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: showArt || svgUrl(buddy(hash(p.key + "b"))), person: true, where: shortPlace(p) });
+    });
+    EXTRA.forEach(function(e){
+      var s = e.spots[hash(e.id + ":" + hunt) % e.spots.length];
+      out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: e.size, src: e.svg ? svgUrl(e.svg) : e.art, person: false });
+    });
+    items = out.filter(function(i){ return !i.person && !i.house; });
+  }
+
+  function drawScene(){
+    var said = {}, st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag,.who,.hname")).forEach(function(n){ n.remove(); });
+    var W = $("scene").clientWidth || 1000;
+    items.forEach(function(it){
+      it.size = Math.max(it.base || (it.base = it.size), 13 / W * 100);
+      var d = document.createElement("div"); d.className = "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
+      d.innerHTML = '<img src="' + esc(it.src) + '" alt="" draggable="false">'; st.appendChild(d); it.el = d;
+      if (it.person) {
+        var w = document.createElement("div"); w.className = "who"; w.style.left = it.x + "%"; w.style.top = (it.y + 0.25) + "%";
+        var tagK = it.who.zone + "|" + it.where, again = said[tagK]; said[tagK] = 1;
+        w.innerHTML = '<span class="nm">' + esc(it.name) + "</span>" + (again ? "" : '<span class="pl">' + esc(it.where) + "</span>"); st.appendChild(w);
+      } else if (it.house) {
+        if (people.some(function(p){ return p.zone === "house" && "h-" + p.house === it.id; })) return;
+        var hn = document.createElement("div"); hn.className = "hname"; hn.style.left = it.x + "%"; hn.style.top = (it.y + 0.3) + "%"; hn.textContent = it.name; st.appendChild(hn);
+      } else if (found[it.id]) mark(it, false);
+    });
+  }
+  function pic(src){ return '<img src="' + esc(src) + '" alt="">'; }
+  function drawLists(){
+    var f = $("find"), a = $("also"); f.innerHTML = ""; a.innerHTML = "";
+    items.forEach(function(it){
+      var b = document.createElement("b"); b.className = found[it.id] ? "r got" : "r";
+      b.innerHTML = pic(it.src) + "<span>" + esc(it.name) + "</span>";
+      b.onclick = function(){ found[it.id] ? tell(it) : hint(it); };
+      a.appendChild(b);
+    });
+    people.forEach(function(p){
+      var it = { person: true, who: p, name: p.name, where: shortPlace(p) };
+      var b = document.createElement("b"); b.className = "r";
+      b.innerHTML = pic(p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b")))) + "<span>" + esc(p.name) + '<span class="pl">' + esc(it.where) + "</span></span>";
+      b.onclick = function(){ tell(it); if (map) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 15)); };
+      f.appendChild(b);
+    });
+    if (!people.length) f.innerHTML = '<span class="w">' + (tok || DEMO ? "Nobody is sharing with you yet." : "Sign in to Ohana Home to see your people.") + "</span>";
+    var n = items.filter(function(i){ return found[i.id]; }).length;
+    $("count").innerHTML = '<span class="k">Found </span><span class="r">' + n + '</span><span class="k"> of ' + items.length + " hidden things</span>";
+    tellHeight();
+  }
+  function midY(it){ return it.y - 0.35 * it.size * (1520 / 848); }
+  function mark(it, fx){
+    var st = $("stage"), r = document.createElement("div"), s = Math.max(it.size * 1.8, 5);
+    r.className = "ring"; r.style.left = it.x + "%"; r.style.top = midY(it) + "%";
+    r.style.width = s + "%"; r.style.aspectRatio = "1"; st.appendChild(r); requestAnimationFrame(function(){ r.classList.add("on"); });
+    var t = document.createElement("div"); t.className = "tag r"; t.textContent = it.name; t.style.left = it.x + "%";
+    t.style.top = (it.y + 0.2 * it.size * (1520 / 848) + 0.6) + "%"; st.appendChild(t);
+    if (fx) burst(it.x, midY(it));
+  }
+  function burst(x, y){
+    var st = $("stage"), cols = ["#d7141d", "#fff", "#141414", "#d7141d", "#fff"];
+    for (var i = 0; i < 22; i++) {
+      var b = document.createElement("i"), ang = Math.random() * 6.283, dist = 30 + Math.random() * 50;
+      b.className = "bit"; b.style.left = x + "%"; b.style.top = y + "%"; b.style.background = cols[i % cols.length];
+      b.style.boxShadow = "0 0 0 1px #0004";
+      b.style.setProperty("--dx", Math.cos(ang) * dist + "px"); b.style.setProperty("--dy", Math.sin(ang) * dist + "px"); b.style.setProperty("--rt", (Math.random() * 720 - 360) + "deg");
+      st.appendChild(b); setTimeout(function(n){ n.remove(); }.bind(null, b), 950);
+    }
+  }
+  var lineT = null, LINE = "Tap anyone for where they are and directions.";
+  function say(t, hot, html){ var n = $("line"); if (html) n.innerHTML = html; else n.textContent = t; n.className = "line " + (hot ? "hot" : "w"); clearTimeout(lineT); lineT = setTimeout(function(){ n.textContent = LINE; n.className = "line w"; tellHeight(); }, html ? 30000 : 9000); tellHeight(); }
+  function tell(it){
+    if (!it.person) return say("You found " + it.name + "!", true);
+    var p = it.who, bits = [];
+    if (p.src) bits.push(p.src); if (p.at) bits.push(ago(p.at));
+    var where = p.addr && p.place ? p.place + ", " + String(p.addr).replace(/,\s*USA$/, "") : it.where;
+    var html = '<span class="nmx">' + esc(it.name) + "</span>: " + esc(where) + (bits.length ? ". " + esc(bits.join(", ")) + "." : ".") +
+      (p.maps ? '<br><a href="' + esc(p.maps) + '" target="_blank" rel="noopener">Google Maps</a><a href="' + esc(p.dir) + '" target="_blank" rel="noopener">Directions</a>' : "");
+    say("", true, html);
+  }
+  function spot(it){
+    var st = $("stage"), h = document.createElement("div");
+    h.className = "hint"; h.style.left = it.x + "%"; h.style.top = midY(it) + "%"; h.style.width = Math.max(it.size * 2.2, 6) + "%"; h.style.aspectRatio = "1";
+    st.appendChild(h); setTimeout(function(){ h.remove(); }, 1900); tell(it);
+  }
+  function hint(it){
+    var st = $("stage"), h = document.createElement("div"), jx = ((hash(it.id + "j") % 9) - 4) * 1.1, jy = ((hash(it.id + "k") % 9) - 4) * 1.6;
+    h.className = "hint"; h.style.left = (it.x + jx) + "%"; h.style.top = (midY(it) + jy) + "%"; h.style.width = "17%"; h.style.aspectRatio = "1";
+    st.appendChild(h); setTimeout(function(){ h.remove(); }, 1900);
+    say("Look near " + nearName(it.x, it.y) + ".", false);
+  }
+  function got(it){
+    if (found[it.id]) { tell(it); return; }
+    found[it.id] = 1; saveFound(); mark(it, true); drawLists(); tell(it);
+    var ex = items;
+    if (ex.every(function(i){ return found[i.id]; })) setTimeout(function(){ say("You found every hidden thing!", true); for (var k = 0; k < 4; k++) setTimeout(function(){ burst(15 + Math.random() * 70, 20 + Math.random() * 55); }, k * 220); }, 900);
+  }
+
+  // Look closer: pinch, drag, or double-tap.
+  var sc = $("scene"), stg = $("stage"), Z = { s: 1, x: 0, y: 0 };
+  function clamp(){ var W = sc.clientWidth, H = sc.clientHeight; Z.s = Math.min(6, Math.max(1, Z.s)); Z.x = Math.min(0, Math.max(W - W * Z.s, Z.x)); Z.y = Math.min(0, Math.max(H - H * Z.s, Z.y)); }
+  function apply(anim){ moving(); clamp(); stg.style.transition = anim ? "transform .3s ease" : "none"; stg.style.transform = "translate(" + Z.x + "px," + Z.y + "px) scale(" + Z.s + ")"; stg.style.setProperty("--s", Z.s); sc.classList.toggle("zoomed", Z.s > 1.01); }
+  function zoomAt(ns, cx, cy, anim){ var k = ns / Z.s; Z.x = cx - (cx - Z.x) * k; Z.y = cy - (cy - Z.y) * k; Z.s = ns; apply(anim); }
+  // Only hint the browser while moving; once still, it redraws the picture sharp at the new size.
+  var stillT = null;
+  function moving(){ stg.classList.add("moving"); clearTimeout(stillT); stillT = setTimeout(function(){ stg.classList.remove("moving"); }, 400); }
+  var ptrs = {}, start = null, lastTap = 0, pinch = null;
+  function local(e){ var r = sc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  sc.addEventListener("pointerdown", function(e){
+    ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
+    if (ids.length === 1) start = { p: local(e), x: Z.x, y: Z.y, t: Date.now(), moved: 0 };
+    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: Z.s }; start && (start.moved = 99); }
+    if (Z.s > 1.01 || ids.length === 2) { try { sc.setPointerCapture(e.pointerId); } catch (x) {} }
+  });
+  sc.addEventListener("pointermove", function(e){
+    if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = local(e); var ids = Object.keys(ptrs);
+    if (ids.length === 2 && pinch) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y); zoomAt(pinch.s * d / pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2); e.preventDefault(); return; }
+    if (start && ids.length === 1) { var p = local(e), dx = p.x - start.p.x, dy = p.y - start.p.y; start.moved = Math.max(start.moved, Math.hypot(dx, dy)); if (Z.s > 1.01) { Z.x = start.x + dx; Z.y = start.y + dy; apply(); e.preventDefault(); } }
+  });
+  function up(e){
+    var had = ptrs[e.pointerId]; delete ptrs[e.pointerId]; if (Object.keys(ptrs).length < 2) pinch = null;
+    if (!had || !start || Object.keys(ptrs).length) { if (!Object.keys(ptrs).length) start = null; return; }
+    var tap = start.moved < 9 && Date.now() - start.t < 600, p = local(e); start = null; if (!tap) return;
+    var it = hitAt(p);
+    if (it) { got(it); lastTap = 0; return; }
+    if (Date.now() - lastTap < 320) { zoomAt(Z.s > 1.6 ? 1 : 2.4, p.x, p.y, true); lastTap = 0; } else lastTap = Date.now();
+  }
+  sc.addEventListener("pointerup", up); sc.addEventListener("pointercancel", function(e){ delete ptrs[e.pointerId]; start = null; pinch = null; });
+  function hitAt(p){
+    var W = sc.clientWidth, H = sc.clientHeight, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
+    items.forEach(function(it){
+      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W, d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Z.s;
+      if (d < r && d < bd) { bd = d; best = it; }
+    });
+    return best;
+  }
+  var lastW = 0; window.addEventListener("resize", function(){ apply(); var w = sc.clientWidth; if (Math.abs(w - lastW) > 40 && items.length) { lastW = w; drawScene(); } tellHeight(); if (map) map.invalidateSize(); });
+
+  // The real map, for anyone who wants the street view after they find someone.
+  var map = null, markers = {};
+  function initMap(){
+    if (map) return;
+    map = L.map("map", { zoomControl: false, zoomSnap: 0.5 }).setView([37.2, -93.3], 7);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar" }).addTo(map);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, opacity: 0.55 }).addTo(map);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }).addTo(map);
+  }
+  function drawMap(){
+    if (!map) return; var seen = {};
+    people.forEach(function(p){
+      seen[p.key] = 1; var w = p.kind === "vehicle" ? 56 : 36, h = p.kind === "vehicle" ? 34 : 40, W = Math.max(w, 64);
+      var ic = L.divIcon({ className: "pm", html: '<img src="' + esc(p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b")))) + '" alt="" style="width:' + w + "px;height:" + h + 'px"><span>' + esc(p.name) + "</span>", iconSize: [W, h + 16], iconAnchor: [W / 2, h] });
+      var m = markers[p.key]; if (!m) m = markers[p.key] = L.marker([p.lat, p.lng], { icon: ic }).addTo(map); else { m.setLatLng([p.lat, p.lng]); m.setIcon(ic); }
+      m.bindPopup("<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") + "<br>" + esc(p.src || "") + " · " + esc(ago(p.at)));
+    });
+    Object.keys(markers).forEach(function(k){ if (!seen[k]) { map.removeLayer(markers[k]); delete markers[k]; } });
+  }
+  function fitAll(){
+    if (!map || !people.length) return;
+    if (people.length === 1) return map.setView([people[0].lat, people[0].lng], 12);
+    map.fitBounds(L.latLngBounds(people.map(function(p){ return [p.lat, p.lng]; })), { padding: [40, 40], maxZoom: 12 });
+  }
+  var mode = "game"; try { if (localStorage.getItem("waldo_mode") === "real") mode = "real"; } catch (e) {}
+  function setMode(m){
+    mode = m; try { localStorage.setItem("waldo_mode", m); } catch (e) {}
+    var real = m === "real"; document.querySelector(".room").classList.toggle("real", real);
+    $("ttl").textContent = real ? "Where’s everybody?" : "Can you find them all?";
+    $("real").textContent = real ? "Game" : "Real Life";
+    LINE = real ? "Tap anyone for where they are and directions." : "Pinch to look closer. Tap a thing when you find it.";
+    $("line").textContent = LINE; $("line").className = "line w";
+    if (real) { initMap(); setTimeout(function(){ map.invalidateSize(); drawMap(); fitAll(); }, 30); }
+    else setTimeout(function(){ if (items.length) drawScene(); }, 30);
+    tellHeight();
+  }
+  $("real").onclick = function(){ setMode(mode === "real" ? "game" : "real"); };
+  $("hunt").onclick = function(){
+    hunt++; found = {}; try { localStorage.setItem("waldo_hunt", String(hunt)); } catch (e) {}
+    Z = { s: 1, x: 0, y: 0 }; apply(true); place(); drawScene(); drawLists(); say("The hidden things moved. Go find them!", true);
+  };
+
+  function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
+  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.className = sharing ? "go" : ""; }
+  function send(pos){
+    if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
+    fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).then(load);
+  }
+  function watch(on){
+    if (on && navigator.geolocation && watchId == null) watchId = navigator.geolocation.watchPosition(send, function(e){ if (e.code === 1) say("Location is blocked for Ohana on this phone."); }, { enableHighAccuracy: true, maximumAge: 60000, timeout: 30000 });
+    if (!on && watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  }
+  var sig = "", fitted = false;
+  function show(list, hs){
+    people = list.filter(function(p){ return isFinite(p.lat) && isFinite(p.lng); }); houses = hs || [];
+    var s = people.map(function(p){ return p.key + "|" + p.art + "|" + p.kind + "|" + p.zone + "|" + p.house + "|" + p.town + "|" + p.addr + "|" + p.place; }).join(",") + "#" + houses.map(function(h){ return h.id + h.name; }).join(",");
+    if (s !== sig) { sig = s; drawMap(); if (mode === "real" && map && !fitted) { fitted = true; fitAll(); } }
+    drawLists(); drawMap();
+  }
+  function demo(){
+    var now = Date.now(), t = function(m){ return new Date(now - m * 60000).toISOString(); };
+    function g(o){ o.maps = "https://www.google.com/maps/search/?api=1&query=" + o.lat + "," + o.lng; o.dir = "https://www.google.com/maps/dir/?api=1&destination=" + o.lat + "," + o.lng; return o; }
+    show([
+      g({ key: "a", name: "Kevin", lat: 36.99082, lng: -93.5744, at: t(1), src: "JJ Friends", kind: "character", art: "/wardrobe-otto-firefighter-v92.webp", zone: "home", place: "Home" }),
+      g({ key: "m", name: "Mike", lat: 36.99083, lng: -93.5745, at: t(4), src: "Google", kind: "pin", zone: "home", place: "Home" }),
+      g({ key: "c", name: "Ethan", lat: 36.7051, lng: -93.4101, at: t(3), src: "Google", kind: "pin", zone: "fire", place: "Fire station", addr: "Southern Stone County Fire, Branson West" }),
+      g({ key: "e", name: "Ashley", lat: 36.99676, lng: -93.63029, at: t(25), src: "Google", kind: "pin", zone: "house", house: 1, place: "Ashley's house" }),
+      g({ key: "b", name: "Memaw", lat: 36.6437, lng: -93.2185, at: t(6), src: "Life360", kind: "character", art: "/buddy-pebble.webp", zone: "town", town: "Branson", addr: "Marty St, Branson" }),
+      g({ key: "d", name: "Eagle", lat: 36.65, lng: -93.25, at: t(2), src: "Limo app", kind: "vehicle", art: "pinkey.webp", zone: "road", label: "Pinkey, on a run" })
+    ], [{ id: 1, name: "Ashley's house" }, { id: 2, name: "Logan's house" }]);
+  }
+  function load(){
+    if (DEMO) return demo();
+    if (!tok) { show([]); return; }
+    var h = { authorization: "Bearer " + tok };
+    fetch("/people/api/family", { headers: h, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
+      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); l360 = f.life360 || { connected: false }; }
+      return fetch("/people/api/where", { headers: h, cache: "no-store" }).then(function(r){
+        if (r.ok) { admin = true; return r.json().then(function(d){ l360 = (d.sources && d.sources.life360) || { connected: false }; return d; }); }
+        return f ? { people: (f.people || []).concat(f.mine || []), houses: f.houses } : null;
+      });
+    }).then(function(d){ show((d && d.people) || [], (d && d.houses) || []); setL360(); }).catch(function(){ say("Can't reach your people right now. Trying again."); });
+  }
+  function setL360(){
+    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 needs a new key" : "Life360 on") : "Life360"; b.className = l360.connected && !l360.error ? "go" : "";
+    $("ls").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh key." : "Connected. " + (l360.members || 0) + " of your people coming in.") : "Not connected yet.";
+    $("loff").style.display = l360.connected ? "" : "none";
+  }
+  function sendL360(body){
+    if (DEMO) { l360 = body.off ? { connected: false } : { connected: true, members: 4 }; setL360(); return Promise.resolve({ ok: true }); }
+    return fetch(admin ? "/people/api/life360" : "/people/api/family/life360", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify(body) }).then(function(r){ return r.json(); });
+  }
+  $("l360").onclick = function(){ setL360(); $("lp").classList.toggle("on"); tellHeight(); };
+  $("lclose").onclick = function(){ $("lp").classList.remove("on"); tellHeight(); };
+  $("lsave").onclick = function(){
+    var k = $("lk").value.trim(); if (!k) return;
+    if (/%[0-9A-F]{2}/i.test(k)) { try { k = decodeURIComponent(k); } catch (e) {} }
+    // Take whatever got copied: the bare key, "Bearer key", access_token=key, or the whole token reply.
+    var m = k.match(/"access_token"\s*:\s*"([^"]+)"/) || k.match(/(?:access_token|LIFE360_AUTH_TOKEN)\s*[=:]\s*["']?([A-Za-z0-9._~+\/-]+)/i) || k.match(/Bearer\s+([A-Za-z0-9._~+\/-]+)/i);
+    if (m) k = m[1]; k = k.replace(/^["']|["';]$/g, "").trim();
+    sendL360({ key: k }).then(function(d){
+      $("lk").value = "";
+      if (!d.ok) { $("ls").textContent = d.error || "That didn't work."; return; }
+      if (d.status) l360 = d.status; setL360();
+      say(d.status && d.status.error ? "Saved, but Life360 said no. Try a fresh key." : "Life360 connected. Your people are coming to town.", true); load();
+    });
+  };
+  $("loff").onclick = function(){ sendL360({ off: true }).then(function(){ l360 = { connected: false }; setL360(); $("lp").classList.remove("on"); say("Your Life360 is turned off here."); load(); }); };
+  $("share").onclick = function(){
+    if (DEMO) { sharing = !sharing; setShare(); return say(sharing ? "Your family can find you while Ohana is open." : "Sharing is off. You left town."); }
+    if (!tok) return;
+    var on = !sharing;
+    fetch("/people/api/family/share", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ on: on }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (!d.ok) return; sharing = on; setShare(); lastSent = 0; watch(on);
+        say(on ? "Your family can find you while Ohana is open." : "Sharing is off. You left town."); load();
+      });
+  };
+  $("stage").querySelector("img.town").addEventListener("load", tellHeight);
+  place(); drawScene(); drawLists(); setMode(mode);
+  load(); if (!DEMO) setInterval(load, 30000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden && !DEMO) load(); });
+})();
+</script>
+</body>
+</html>

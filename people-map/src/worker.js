@@ -6,6 +6,7 @@
 // Everyone else shows as their Ohana character when they have one.
 import PAGE from "./page.html";
 import ROOM from "./room.html";
+import ROOM_NEXT from "./room-next.html";
 import HOOK from "./hook.js.txt";
 const HOOK_V = (() => { let h = 0; for (let i = 0; i < HOOK.length; i++) h = (h * 31 + HOOK.charCodeAt(i)) | 0; return (h >>> 0).toString(36); })();
 import CHARS from "./chars.json";
@@ -20,6 +21,7 @@ import ART_HOUSE from "./art/house.svg";
 import ART_CAR from "./art/car.svg";
 import ART_SIGN from "./art/waldo-sign.webp";
 import ART_TOWN from "./art/waldo-town.webp";
+import ART_TOWN2X from "./art/waldo-town-2x.webp";
 import ART_PERSON from "./art/person.svg";
 
 const VERSION = "people-v6"; // schema version; places (geo, nights) added Nov 24
@@ -27,7 +29,7 @@ const ART = {
   "pinkey.webp": [ART_PINKEY, "image/webp"], "executive.webp": [ART_EXECUTIVE, "image/webp"],
   "majestic-pearl.webp": [ART_PEARL, "image/webp"], "h2-thunder.webp": [ART_H2, "image/webp"],
   "grand-van.webp": [ART_VAN, "image/webp"],
-  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"], "waldo-town.webp": [ART_TOWN, "image/webp"], "person.svg": [ART_PERSON, "image/svg+xml"],
+  "fire-truck.svg": [ART_FIRETRUCK, "image/svg+xml"], "house.svg": [ART_HOUSE, "image/svg+xml"], "car.svg": [ART_CAR, "image/svg+xml"], "waldo-sign.webp": [ART_SIGN, "image/webp"], "waldo-town.webp": [ART_TOWN, "image/webp"], "waldo-town-2x.webp": [ART_TOWN2X, "image/webp"], "person.svg": [ART_PERSON, "image/svg+xml"],
 };
 const LIMO_FRESH_MS = 30 * 60e3, JJ_FRESH_MS = 30 * 60e3, FEED_KEEP_MS = 3 * 864e5;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -431,9 +433,9 @@ async function liveParts(env, ctx) {
 }
 const scriptSafe = (t) => String(t).replace(/<\/script/gi, "<\\/script");
 const styleSafe = (t) => String(t).replace(/<\/style/gi, "<\\/style");
-async function roomPage(req, env, ctx) {
+async function roomPage(req, env, ctx, ROOM_HTML = ROOM) {
   const framed = /^(iframe|frame|embed|object)$/.test(req.headers.get("sec-fetch-dest") || "");
-  if (framed) return ROOM.replace("<!--SOLO_HEAD-->", "").replace("<!--SOLO_BODY-->", "");
+  if (framed) return ROOM_HTML.replace("<!--SOLO_HEAD-->", "").replace("<!--SOLO_BODY-->", "");
   const live = await liveParts(env, ctx);
   const head = live ? "<style>" + styleSafe(live.bridgeCss) + "</style>\n<style>html{background-color:#6b4a2b}" + styleSafe(live.worldCss.join("\n")) +
     "\n:root[data-ohana-season]{background-color:#173c36;background-image:var(--harvest-scene,none);background-position:50% 0;background-size:cover;background-attachment:fixed}</style>" : "<style>html{background-color:#6b4a2b}</style>";
@@ -449,7 +451,7 @@ async function roomPage(req, env, ctx) {
     "document.addEventListener('click',function(e){var t=e.target&&e.target.closest&&e.target.closest('[data-ohana-home],#soloHead [data-close]');if(!t)return;e.preventDefault();e.stopPropagation();" +
     "if(t.hasAttribute('data-close')&&document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1)history.back();else home();},true);})();</script>\n" +
     (live ? "<script>" + scriptSafe(live.bridgeJs) + "</script>" : "");
-  return ROOM.replace("<!--SOLO_HEAD-->", () => head).replace("<!--SOLO_BODY-->", () => body);
+  return ROOM_HTML.replace("<!--SOLO_HEAD-->", () => head).replace("<!--SOLO_BODY-->", () => body);
 }
 
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
@@ -511,6 +513,8 @@ export default {
       return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && (p === "/people/room" || p === "/people/waldo")) // Where's Waldo room: inside Ohana Gathering, or opened straight from the town
       return new Response(await roomPage(req, env, ctx), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
+    if (req.method === "GET" && p === "/people/room-next") // preview of the next Where's Waldo room (Game + Real Life), not linked anywhere
+      return new Response(await roomPage(req, env, ctx, ROOM_NEXT), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {
       const a = ART[p.slice(12)];
       if (!a) { // painted art kept in D1 (too big for the bundle), split into parts
