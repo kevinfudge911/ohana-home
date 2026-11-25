@@ -169,7 +169,7 @@ function canTurn(d){const size=2;return d<0?M.page>0:(M.page+1)*size<M.photos.le
 let turnNext=0;function turnPage(d){if(typeof pageTurning!=='undefined'&&pageTurning){turnNext=d;return;}if(!canTurn(d)||typeof turnAlbum!=='function')return;turnAlbum(d).finally?.(()=>{placeTabs();const n=turnNext;turnNext=0;if(n)setTimeout(()=>turnPage(n),0);});}
 function placeTabs(){const g=q('#gallery'),pv=q('#me-prev'),nx=q('#me-next'),cam=q('#me-cam');if(!g||!pv||!nx)return;const show=!!M.photos.length;pv.hidden=!show||!canTurn(-1);nx.hidden=!show||!canTurn(1);
  const mid=g.offsetTop+g.offsetHeight*.47;pv.style.top=nx.style.top=mid+'px';const pw=(nx.offsetParent||document.documentElement).clientWidth;pv.style.left=Math.max(40,g.offsetLeft+g.offsetWidth*.03+18)+'px';nx.style.left=Math.min(pw-40,g.offsetLeft+g.offsetWidth*.97-18)+'px';
- if(cam){cam.style.top=(g.offsetTop+g.offsetHeight*.9)+'px';cam.style.left=(g.offsetLeft+g.offsetWidth*.93)+'px';}}
+ if(cam){const room=pw-(g.offsetLeft+g.offsetWidth);if(room>=80&&innerHeight<innerWidth){cam.style.top=(g.offsetTop+g.offsetHeight*.8)+'px';cam.style.left=(g.offsetLeft+g.offsetWidth+Math.min(room/2,56))+'px';}else{cam.style.top=(g.offsetTop+g.offsetHeight*.9)+'px';cam.style.left=(g.offsetLeft+g.offsetWidth*.93)+'px';}}}
 addEventListener('resize',()=>placeTabs());
 /* hold about half a second: works on photos in the book, in the full-size view and in Pick photos */
 function onHold(node,fire,{ms=500}={}){let t=0,x=0,y=0,held=0;const stop=()=>{clearTimeout(t);t=0;node.classList.remove('me-pressing');};
