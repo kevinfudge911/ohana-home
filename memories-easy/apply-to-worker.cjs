@@ -1,6 +1,6 @@
 // Adds easy Memories (add, edit, delete with Undo, albums) to the live Ohana Home worker.js.
 // Usage: node apply-to-worker.cjs <live worker.js> <out worker.js>
-// Changes only worker.js: two new photo routes (edit, unhide) and the /memories page served with the add-on.
+// Changes only worker.js: photo routes (edit, unhide, full-size original in R2), a larger album-copy limit, and the /memories page served with the add-on.
 const fs=require('fs'),path=require('path');
 const [src,out]=process.argv.slice(2);
 if(!src||!out)throw Error('Usage: node apply-to-worker.cjs <live worker.js> <out worker.js>');
@@ -9,7 +9,13 @@ if(w.includes('ohana-memories-easy-v1'))throw Error('Already has easy Memories')
 const once=(a,what)=>{if(w.split(a).length!==2)throw Error(what+' anchor not found exactly once');};
 const hideAnchor='const hide=path.match(/^\\/api\\/memories\\/photo\\/([a-f0-9-]{36})\\/hide$/);';
 once(hideAnchor,'Memories hide route');
-const routes=fs.readFileSync(path.join(__dirname,'api-routes.js'),'utf8').trim();
+const envMatch=w.match(/async function memoriesApi\(req,(\w+),url\)/);
+if(!envMatch)throw Error('memoriesApi signature not found');
+const routes=fs.readFileSync(path.join(__dirname,'api-routes.js'),'utf8').trim().split('__ENV__').join(envMatch[1]);
+// album copy of each photo may now be up to 1.6 MB (sharper); the full-size original goes to R2 by its own route
+const sizeCheck='image.size>(video?limit:9e5)';
+once(sizeCheck,'Photo size check');
+w=w.replace(sizeCheck,'image.size>(video?limit:16e5)');
 w=w.replace(hideAnchor,routes+hideAnchor);
 const page='if(p==="/memories"&&req.method==="GET")return new Response(MEMORIES_HTML,';
 once(page,'/memories page');
