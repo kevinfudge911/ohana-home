@@ -50,7 +50,8 @@ window.OhanaMap = (function(){
     loadLib(function(err){
       if (err || !window.maplibregl) { map = null; el.innerHTML = '<p class="w" style="text-align:center;padding:40px 10px">The map did not load. Tap Game, then try again.</p>'; return; }
       map = new maplibregl.Map({ container: el, style: style(), center: [-93.3, 37.0], zoom: 1.4, pitch: 0, maxPitch: 80, attributionControl: { compact: true }, fadeDuration: 150 });
-      map.on("load", function(){ ready = true; var w = waiting; waiting = []; w.forEach(function(f){ f(); }); });
+      // Markers and the camera work right away; no need to wait for every picture tile to finish loading.
+      ready = true; var w = waiting; waiting = []; w.forEach(function(f){ f(); });
       ["mousedown", "touchstart", "wheel"].forEach(function(e){ map.on(e, stopSpin); });
       map.on("move", unclash);
     });
