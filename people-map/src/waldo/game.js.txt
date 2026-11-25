@@ -246,7 +246,7 @@
   var map = null, markers = {};
   function initMap(){
     if (map) return;
-    map = L.map("map", { zoomControl: false, zoomSnap: 0.5 }); // the view is set once, straight to everyone, so no stretched tiles are left behind
+    map = L.map("map", { zoomControl: false, zoomSnap: 0.5 }); map.on("zoomend moveend", unclash); // the view is set once, straight to everyone, so no stretched tiles are left behind
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Esri, Maxar" }).addTo(map);
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, opacity: 0.55 }).addTo(map);
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }).addTo(map);
@@ -260,6 +260,16 @@
       m.bindPopup("<b>" + esc(p.name) + "</b>" + (p.label ? "<br>" + esc(p.label) : "") + "<br>" + esc(p.src || "") + " · " + esc(ago(p.at)));
     });
     Object.keys(markers).forEach(function(k){ if (!seen[k]) { map.removeLayer(markers[k]); delete markers[k]; } });
+    unclash();
+  }
+  // Two people close together: one name goes above the picture so the names never sit on each other.
+  function unclash(){
+    if (!map || !map._loaded) return; var placed = [];
+    Object.keys(markers).sort().forEach(function(k){
+      var m = markers[k], el = m.getElement(); if (!el) return; var pt = map.latLngToContainerPoint(m.getLatLng());
+      var near = placed.some(function(q){ return Math.abs(q.x - pt.x) < 70 && Math.abs(q.y - pt.y) < 30; });
+      el.classList.toggle("up", near); placed.push(pt);
+    });
   }
   function fitAll(){
     if (!map) return;
