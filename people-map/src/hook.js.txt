@@ -1,7 +1,8 @@
 /* Where's Waldo room for Ohana Home. Served by the ohana-wheres-my-people worker at /people/hook.js
    and added to the Ohana Home page by that worker (ohana-home itself is not changed).
-   Adds a plain-word "Where's Waldo" link at the bottom of Ohana Gathering; tapping it opens the
-   full-screen Where's Waldo room at /people/waldo. */
+   Adds a plain-word "Where's Waldo" link at the bottom of Ohana Gathering, and a Where's Waldo picture
+   card in Granny's room next to her crossword, word find and word connect. Both open the full-screen
+   Where's Waldo room at /people/waldo. */
 (function () {
   if (window.__ohanaWaldoHook) return; window.__ohanaWaldoHook = 1;
   var css = document.createElement("style");
@@ -9,6 +10,8 @@
     ".waldo-entry{display:block;margin:6px auto 18px;padding:2px 6px;background:none;border:0;cursor:pointer;" +
     "font:700 17px/1.2 Fredoka,Nunito,sans-serif;color:#d7141d;text-shadow:0 0 2px #fff,0 0 3px #fff,0 1px 5px #fff}" +
     ".waldo-entry:active{transform:scale(.96)}" +
+    // Granny's card is the last one; give it room so the bar at the bottom of her room doesn't cover it.
+    ".gr-game-choices > .waldo-granny{margin-bottom:132px}" +
     "#waldoRoom{background:none !important;background-image:none !important;background-color:transparent !important}" +
     "#waldoRoom iframe{display:block;width:100%;border:0;margin-top:137px;height:900px;background:transparent}";
   (document.head || document.documentElement).appendChild(css);
@@ -35,7 +38,24 @@
   }
   // The Waldo room is its own full-screen page now (red, white and blue edges, Scout, levels, 3D map).
   function openRoom(panel) { location.href = "/people/waldo"; }
+  // Granny's room: a fourth picture card after her crossword, word find and word connect, made the same way
+  // (a copy of her own card, so it matches), with Granny, Kanga Sue and Cherish over the Where's Waldo town page.
+  function grannyCard() {
+    var gc = document.querySelector(".gr-game-choices");
+    if (!gc || gc.querySelector(".waldo-granny")) return;
+    var first = gc.querySelector(".gr-start-choice"), home = first && first.parentElement;
+    if (!home || home.parentElement !== gc) return;
+    var sec = home.cloneNode(true); sec.classList.add("waldo-granny");
+    var b = sec.querySelector(".gr-start-choice"); if (!b) return;
+    Array.prototype.slice.call(b.attributes).forEach(function (a) { if (/^data-/.test(a.name) && a.name !== "data-tone") b.removeAttribute(a.name); });
+    b.setAttribute("aria-label", "Go to Where’s Waldo. Granny, Kanga Sue and Cherish with the Where’s Waldo town picture; find Scout and the hidden things");
+    Array.prototype.slice.call(b.querySelectorAll(".gr-ohana-phrase")).forEach(function (x) { x.remove(); });
+    var img = b.querySelector(".gr-choice-scene"); if (img) { img.removeAttribute("srcset"); img.src = "/people/art/granny-waldo.webp"; }
+    b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); location.href = "/people/waldo"; }, true);
+    gc.appendChild(sec);
+  }
   function tick() {
+    grannyCard();
     // The Gathering room went away (left the room): take the Waldo room with it.
     if (room && (!gathering || !gathering.isConnected)) { if (room) room.remove(); room = null; gathering = null; }
     var st = document.querySelector("section[data-private-ohana-room] .gathering-station");
