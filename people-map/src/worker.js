@@ -312,7 +312,7 @@ async function geoInfo(env, lat, lng, budget) {
   budget.n--;
   let addr = "", street = "", town = "", cls = "", typ = "", fire = 0;
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: UA });
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: UA, signal: AbortSignal.timeout(2000) }); // never let a slow lookup hold up the map
     if (r.ok) {
       const j = await r.json(), a = j.address || {};
       street = a.road || a.pedestrian || a.footway || "";
@@ -324,9 +324,10 @@ async function geoInfo(env, lat, lng, budget) {
   } catch {}
   try {
     const q = `[out:json][timeout:8];nwr(around:220,${lat},${lng})["amenity"="fire_station"];out ids 1;`;
-    const r = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+    const r = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", headers: { ...UA, "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(2000) });
     if (r.ok) fire = ((await r.json()).elements || []).length ? 1 : 0;
   } catch {}
+  if (!addr && !town) return null; // lookup failed or timed out: try again next time instead of saving a blank
   await env.PEOPLE.prepare("INSERT INTO geo(k,addr,street,town,cls,typ,fire,at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(k) DO UPDATE SET addr=excluded.addr,street=excluded.street,town=excluded.town,cls=excluded.cls,typ=excluded.typ,fire=excluded.fire,at=excluded.at")
     .bind(k, addr, street, town, cls, typ, fire, new Date().toISOString()).run();
   return { addr, street, town, cls, typ, fire };
