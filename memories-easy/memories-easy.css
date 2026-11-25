@@ -145,5 +145,8 @@ dialog.me-menu .me-menu-h{margin:8px 4px 0;font:800 13px/1.2 Nunito,sans-serif;l
 .me-menu-more{display:flex;flex-wrap:wrap;gap:0 16px;margin-top:6px;border-top:1px solid #e9c97a66}
 .me-menu-more .me-item{width:auto;font-size:17px;color:#fbe9c0}
 /* full-size view: small marks, not words */
-.viewer-top .me-mark{display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;padding:9px;font-size:0;text-decoration:none}
+.viewer-top .me-mark{display:inline-grid;place-items:center;width:42px;height:44px;min-height:44px;min-width:0;padding:9px 8px;font-size:0;text-decoration:none}
+#viewer .viewer-top{flex-wrap:nowrap!important;align-items:center;gap:2px}
+#viewer .viewer-top #close{order:-1;margin-right:auto}
+#viewer .viewer-top .viewer-nav{margin-right:auto}
 .me-mark svg{display:block;width:24px;height:24px}

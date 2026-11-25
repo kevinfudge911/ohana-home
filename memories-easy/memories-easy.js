@@ -166,7 +166,7 @@ function build(){
 
 /* ---------- the album itself: page tabs, swipe, hold a photo to change it ---------- */
 function canTurn(d){const size=2;return d<0?M.page>0:(M.page+1)*size<M.photos.length||!!M.more;}
-function turnPage(d){if(!canTurn(d)||typeof turnAlbum!=='function')return;turnAlbum(d).finally?.(()=>placeTabs());}
+let turnNext=0;function turnPage(d){if(typeof pageTurning!=='undefined'&&pageTurning){turnNext=d;return;}if(!canTurn(d)||typeof turnAlbum!=='function')return;turnAlbum(d).finally?.(()=>{placeTabs();const n=turnNext;turnNext=0;if(n)setTimeout(()=>turnPage(n),0);});}
 function placeTabs(){const g=q('#gallery'),pv=q('#me-prev'),nx=q('#me-next'),cam=q('#me-cam');if(!g||!pv||!nx)return;const show=!!M.photos.length;pv.hidden=!show||!canTurn(-1);nx.hidden=!show||!canTurn(1);
  const mid=g.offsetTop+g.offsetHeight*.47;pv.style.top=nx.style.top=mid+'px';pv.style.left=(g.offsetLeft+g.offsetWidth*.03+18)+'px';nx.style.left=(g.offsetLeft+g.offsetWidth*.97-18)+'px';
  if(cam){cam.style.top=(g.offsetTop+g.offsetHeight*.9)+'px';cam.style.left=(g.offsetLeft+g.offsetWidth*.93)+'px';}}
@@ -192,7 +192,7 @@ function setupBook(){const g=q('#gallery');if(!g||g.dataset.meBook)return;g.data
  const vi=q('#viewer-image');if(vi)onHold(vi,()=>{const p=M.photos[M.index];if(!canManage(p))return;q('#viewer').close();editFromBook(p);});
  document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||document.querySelector('dialog[open]')||e.target.closest?.('input,textarea,select,[contenteditable]'))return;if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}else if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}});
  /* the viewer's top row: small marks instead of words */
- const mark=(sel,label,svg)=>{const b=q(sel);if(!b)return;b.setAttribute('aria-label',label);b.title=label;b.classList.add('me-mark');b.innerHTML=svg;};
+ const mark=(sel,label,svg)=>{const b=q(sel);if(!b)return;b.classList.add('me-mark');const put=()=>{if(!b.querySelector('svg'))b.innerHTML=svg;b.setAttribute('aria-label',label);b.title=label;};put();new MutationObserver(put).observe(b,{childList:true,characterData:true,subtree:true});};
  mark('#close','Close','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>');
  mark('#share-photo','Share photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 12.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
  mark('#download','Save photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
