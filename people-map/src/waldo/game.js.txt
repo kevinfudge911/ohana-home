@@ -44,35 +44,42 @@
   ];
   var OUT = [[58.5, 79], [52, 64], [63, 53], [26, 63], [33, 73], [95, 31]];
   var HOUSE_SLOTS = [[40.5, 87], [27, 88], [57, 89], [62.5, 67], [96, 40], [6.5, 93]];
+  // Each hidden thing is drawn at the crowd's own scale: f is its height next to a grown-up standing at the same
+  // spot (a pup is about knee high, a calf about chest high), ar is its picture's height over width.
+  // Spots are on the ground, in water or in trees where that thing would really be, never on a wall or in the air.
   var EXTRA = [
-    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 3, spots: [[37, 27], [34, 19], [94, 70], [52, 23]] },
-    { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", size: 2.8, spots: [[80, 40], [49, 57], [20, 50], [66, 70]] },
-    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 2.8, spots: [[44, 30], [79, 72], [58, 30], [96, 72]] },
-    { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", size: 2.8, spots: [[7, 24], [41, 64], [56, 38], [88, 18]] },
-    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.2, spots: [[34, 92], [30, 84], [53, 96], [86, 46]] },
-    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.2, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] },
-    { id: "x-eddie", name: "Eddie the eagle", art: "/buddy-eddie.webp", size: 2.8, spots: [[33.5, 43], [87, 31], [63, 73], [22, 39]] },
-    { id: "x-bandit", name: "Bandit the pug", art: "/buddy-bandit-v1.webp", size: 2.5, spots: [[24, 80], [57, 93], [12, 76], [47, 58]] },
-    { id: "x-pippa", name: "Pippa the puffin", art: "/buddy-pippa.webp", size: 2.3, spots: [[64, 79], [53, 35], [74, 38], [87, 33]] },
-    { id: "x-lulu", name: "Lulu the bunny", art: "/buddy-lulu.webp", size: 2.3, spots: [[37, 52], [27, 64], [55, 84], [18, 95]] },
-    { id: "x-flutter", name: "Flutter the butterfly", art: "/buddy-flutter.webp", size: 2.2, spots: [[8, 92], [61, 97], [15, 73], [92, 88]] },
-    { id: "x-rosie", name: "Rosie the pig", art: "/buddy-rosie.webp", size: 2.6, spots: [[30, 88], [49, 91], [71, 56], [12, 95]] },
-    { id: "x-koa", name: "Koa the puppy", art: "/buddy-koa.webp", size: 2.5, spots: [[55, 50], [24, 93], [66, 62], [86, 56]] },
-    { id: "x-milo", name: "Milo the kitten", art: "/buddy-milo.webp", size: 2.3, spots: [[17, 66], [58, 49], [79, 52], [38, 79]] },
-    { id: "x-bamboo", name: "Bamboo the panda", art: "/buddy-bamboo.webp", size: 2.6, spots: [[70, 63], [45, 47], [91, 53], [29, 79]] },
-    { id: "x-maple", name: "Maple the fox", art: "/buddy-maple-v1.webp", size: 2.6, spots: [[4, 60], [45, 70], [97, 26], [26, 57]] },
-    { id: "x-biscuit", name: "Biscuit the raccoon", art: "/buddy-biscuit-v1.webp", size: 2.6, spots: [[93, 94], [83, 56], [36, 68], [60, 57]] },
-    { id: "x-lemon", name: "Lemon the duck", art: "/buddy-lemon-v1.webp", size: 2.2, spots: [[13, 84], [22, 89], [68, 81], [86, 73]] },
-    { id: "x-daisy", name: "Daisy the cow", art: "/buddy-daisy-v1.webp", size: 3.4, spots: [[46, 87], [55, 80], [40, 94], [62, 78]] },
-    { id: "x-otto", name: "Otto the otter", art: "/buddy-otto.webp", size: 2.4, spots: [[72, 85], [58, 36], [90, 82], [48, 29]] }
+    { id: "x-honu", name: "Honu", art: "/honu.webp", f: 0.45, ar: 1, spots: [[37, 27], [34, 19], [94, 70], [52, 23]] },
+    { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", f: 0.5, ar: 1, spots: [[49, 57], [20, 50], [66, 70]] },
+    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", f: 0.5, ar: 1, spots: [[44, 30], [58, 30], [96, 72]] },
+    { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", f: 0.4, ar: 1.33, spots: [[7, 24], [56, 38], [88, 18]] },
+    { id: "x-hat", name: "the lost striped hat", svg: HAT, f: 0.22, ar: 1, spots: [[34, 92], [30, 84], [53, 96], [86, 46]] },
+    { id: "x-glasses", name: "the round glasses", svg: GLASSES, f: 0.2, ar: 0.46, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] },
+    { id: "x-eddie", name: "Eddie the eagle", art: "/buddy-eddie.webp", f: 0.5, ar: 1, spots: [[33.5, 43], [87, 31], [63, 73], [22, 39]] },
+    { id: "x-bandit", name: "Bandit the pug", art: "/buddy-bandit-v1.webp", f: 0.4, ar: 1.05, spots: [[24, 80], [57, 93], [12, 76], [47, 58]] },
+    { id: "x-pippa", name: "Pippa the puffin", art: "/buddy-pippa.webp", f: 0.35, ar: 1.33, spots: [[64, 79], [53, 35], [74, 38], [87, 33]] },
+    { id: "x-lulu", name: "Lulu the bunny", art: "/buddy-lulu.webp", f: 0.35, ar: 1.33, spots: [[37, 52], [55, 84], [18, 95]] },
+    { id: "x-flutter", name: "Flutter the butterfly", art: "/buddy-flutter.webp", f: 0.28, ar: 1.33, spots: [[8, 92], [61, 97], [15, 73], [92, 88]] },
+    { id: "x-rosie", name: "Rosie the pig", art: "/buddy-rosie.webp", f: 0.45, ar: 1.33, spots: [[30, 88], [49, 91], [12, 95]] },
+    { id: "x-koa", name: "Koa the puppy", art: "/buddy-koa.webp", f: 0.4, ar: 1.33, spots: [[55, 50], [24, 93], [66, 62], [86, 56]] },
+    { id: "x-milo", name: "Milo the kitten", art: "/buddy-milo.webp", f: 0.35, ar: 1.33, spots: [[17, 66], [58, 49], [79, 52], [38, 79]] },
+    { id: "x-bamboo", name: "Bamboo the panda", art: "/buddy-bamboo.webp", f: 0.6, ar: 1.33, spots: [[70, 63], [45, 47], [91, 53], [29, 79]] },
+    { id: "x-maple", name: "Maple the fox", art: "/buddy-maple-v1.webp", f: 0.45, ar: 1.2, spots: [[97, 26], [26, 57]] },
+    { id: "x-biscuit", name: "Biscuit the raccoon", art: "/buddy-biscuit-v1.webp", f: 0.45, ar: 1.08, spots: [[93, 94], [83, 56], [36, 68], [60, 57]] },
+    { id: "x-lemon", name: "Lemon the duck", art: "/buddy-lemon-v1.webp", f: 0.3, ar: 1.2, spots: [[13, 84], [22, 89], [68, 81], [86, 73]] },
+    { id: "x-daisy", name: "Daisy the cow", art: "/buddy-daisy-v1.webp", f: 0.65, ar: 1.02, spots: [[46, 87], [55, 80], [40, 94], [62, 78]] },
+    { id: "x-otto", name: "Otto the otter", art: "/buddy-otto.webp", f: 0.4, ar: 1.33, spots: [[72, 85], [58, 36], [90, 82], [48, 29]] }
   ];
+  // How tall a grown-up in the painted crowd is at a spot, as a share of the picture's width (people further back are smaller).
+  function crowdH(y){ return Math.max(0.7, 0.0456 * y - 0.72); }
+  // Picture width (in % of the town's width) for something f times a grown-up's height standing at row y.
+  function sizeAt(f, ar, y){ return +(Math.max(0.55, crowdH(y) * f * LV.k) / ar).toFixed(3); }
   // A little cottage, painted for each saved house ("Ashley's house").
   var COTTAGE = '<svg viewBox="0 0 64 58"><ellipse cx="32" cy="55" rx="28" ry="3" fill="#0003"/><rect x="44" y="6" width="7" height="14" fill="#7a3b2c" stroke="#141414" stroke-width="1.5"/><path d="M4 27 32 6l28 21z" fill="#d7141d" stroke="#141414" stroke-width="2" stroke-linejoin="round"/><path d="M11 22h42M17 17.5h30M23 13h18" stroke="#fff" stroke-width="2.4"/><rect x="9" y="26" width="46" height="27" fill="#fff" stroke="#141414" stroke-width="2"/><rect x="27" y="35" width="10" height="18" rx="1" fill="#141414"/><circle cx="35" cy="44" r="1" fill="#f2c94c"/><g fill="#ffe7a1" stroke="#141414" stroke-width="1.6"><rect x="13" y="32" width="9" height="8"/><rect x="42" y="32" width="9" height="8"/></g><path d="M13 36h9M17.5 32v8M42 36h9M46.5 32v8" stroke="#141414" stroke-width="1"/><path d="M8 53c2-5 5-6 7-6s4 2 5 6zM44 53c2-5 5-6 7-6s4 2 5 6z" fill="#3f8f45"/></svg>';
 
   var NEAR = [["the white house", 14, 62], ["the fire station", 23, 30], ["the pink limo", 29, 50], ["the black van", 35, 60], ["the picnic", 45, 52], ["the marina", 60, 28], ["the church", 85, 26], ["Main Street", 82, 42], ["the market tents", 75, 58], ["the pontoon boat", 90, 78], ["the cookout", 78, 90], ["the duck pen", 16, 82], ["the cows", 46, 80], ["the bikes", 58, 76], ["the sailboat", 45, 20], ["the train bridge", 62, 12], ["the balloon", 74, 6], ["the trees", 8, 30]];
   function nearName(x, y){ var b = null, bd = 1e9; NEAR.forEach(function(n){ var d = (n[1] - x) * (n[1] - x) + (n[2] - y) * (n[2] - y) * 2.2; if (d < bd) { bd = d; b = n[0]; } }); return b; }
   // Levels: each one hides more things, smaller, with less time for three stars.
-  var LEVELS = [{ n: 8, par: 90, k: 1.25 }, { n: 12, par: 150, k: 1.1 }, { n: 16, par: 210, k: 1 }, { n: 20, par: 270, k: 0.9 }, { n: 20, par: 240, k: 0.8 }];
+  var LEVELS = [{ n: 8, par: 90, k: 1.15 }, { n: 12, par: 150, k: 1.05 }, { n: 16, par: 210, k: 1 }, { n: 20, par: 270, k: 0.95 }, { n: 20, par: 240, k: 0.9 }];
   function ls(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
   var hunt = +ls("waldo_hunt") || 1, level = Math.min(LEVELS.length, Math.max(1, +ls("waldo_level") || 1)), LV = LEVELS[level - 1];
   function key(){ return hunt + "_L" + level; }
@@ -108,12 +115,12 @@
       out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: showArt || svgUrl(buddy(hash(p.key + "b"))), person: true, where: shortPlace(p) });
     });
     var taken = [], sc0 = SCOUT_SPOTS[hash("scout:" + key()) % SCOUT_SPOTS.length]; taken.push(sc0);
-    out.push({ id: "x-scout", name: "Scout", x: sc0[0], y: sc0[1], size: +(1.9 * LV.k * (0.72 + 0.5 * sc0[1] / 100)).toFixed(2), ar: 2.07, src: "/people/art/scout.webp", scout: true, person: false });
+    out.push({ id: "x-scout", name: "Scout", x: sc0[0], y: sc0[1], size: sizeAt(1, 2.17, sc0[1]), ar: 2.17, src: "/people/art/scout-v2.webp", scout: true, person: false });
     EXTRA.slice().sort(function(a, b){ return hash(a.id + ":" + key()) - hash(b.id + ":" + key()); }).slice(0, LV.n).forEach(function(e){
       var k0 = hash(e.id + ":" + key()), s = null;
       for (var j = 0; j < e.spots.length && !s; j++) { var c = e.spots[(k0 + j) % e.spots.length]; if (!taken.some(function(t){ return Math.abs(t[0] - c[0]) < 3.5 && Math.abs(t[1] - c[1]) < 5; })) s = c; }
       if (!s) s = e.spots[k0 % e.spots.length]; taken.push(s);
-      out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: +(e.size * LV.k * (0.72 + 0.5 * s[1] / 100)).toFixed(2), src: e.svg ? svgUrl(e.svg) : e.art, person: false });
+      out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: sizeAt(e.f, e.ar, s[1]), ar: e.ar, src: e.svg ? svgUrl(e.svg) : e.art, person: false });
     });
     items = out.filter(function(i){ return !i.person && !i.house; });
   }
@@ -122,7 +129,7 @@
     var said = {}, st = $("stage"); Array.prototype.slice.call(st.querySelectorAll(".hid,.ring,.tag,.who,.hname")).forEach(function(n){ n.remove(); });
     var W = SW || $("stage").clientWidth || 1000;
     items.forEach(function(it){
-      it.size = Math.max(it.base || (it.base = it.size), 13 / W * 100);
+      it.size = Math.max(it.base || (it.base = it.size), 4 / W * 100);
       var d = document.createElement("div"); d.className = it.scout ? "hid scout" : "hid"; d.style.left = it.x + "%"; d.style.top = it.y + "%"; d.style.width = it.size + "%";
       d.innerHTML = '<img src="' + esc(it.src) + '" alt="" draggable="false">'; st.appendChild(d); it.el = d;
       if (it.person) {
@@ -298,7 +305,7 @@
   function hitAt(p){
     var W = SW, H = SH, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
     items.forEach(function(it){
-      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W / (it.ar ? 1.6 : 1), d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Math.max(Z.s, 0.75);
+      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W / (it.ar > 1.5 ? 1.6 : 1), d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Math.max(Z.s, 0.75);
       if (d < r && d < bd) { bd = d; best = it; }
     });
     return best;
@@ -388,7 +395,13 @@
         say(on ? "Your family can find you while Ohana is open." : "Sharing is off. You left town."); load();
       });
   };
-  $("stage").querySelector("img.town").addEventListener("load", tellHeight);
+  // Show the hunt only once the town picture is fully painted, so the hidden things never show on a blank page first.
+  (function(){
+    var town = $("stage").querySelector("img.town"), shown = false;
+    function show(){ if (shown) return; shown = true; sc.classList.add("ready"); tellHeight(); }
+    function ready(){ if (town.decode) town.decode().then(show, show); else show(); }
+    if (town.complete && town.naturalWidth) ready(); else { town.addEventListener("load", ready); town.addEventListener("error", show); }
+  })();
   home(); apply(); place(); drawScene(); drawLists(); if (done) $("hunt").textContent = level < LEVELS.length ? "Next level" : "Play again"; setMode(mode); tick();
   load(); if (!DEMO) setInterval(load, 30000);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden && !DEMO) load(); });

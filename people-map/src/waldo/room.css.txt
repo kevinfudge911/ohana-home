@@ -35,6 +35,11 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
  -webkit-mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);-webkit-mask-composite:source-in;
  mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
 .scene.zoomed{touch-action:none;cursor:grab}
+/* Nothing of the hunt shows until the town picture is painted: no hidden things on a blank page first. */
+.scene:not(.ready) .stage{visibility:hidden}
+.scene .stage{transition:opacity .25s ease}
+.scene:not(.ready){background:radial-gradient(circle at 50% 50%,#1c2f63,#0e1838)}
+.scene:not(.ready)::after{content:"Getting the town ready…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 15px Nunito,system-ui,sans-serif;color:#f3e9d2;letter-spacing:.02em;white-space:nowrap}
 .stage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0}
 .stage.moving{will-change:transform}
 .stage>img.town{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
@@ -43,7 +48,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .tiles img{position:absolute;width:25.05%;height:50.1%;display:block;opacity:0;transition:opacity .25s}
 .tiles img.on{opacity:1}
 .hid{position:absolute;transform:translate(-50%,-85%);pointer-events:none}
-.hid img,.hid svg{display:block;width:100%;height:auto;filter:sepia(.14) saturate(.82) brightness(.95) drop-shadow(0 1px 1px #0005);-webkit-mask-image:linear-gradient(to bottom,#000 84%,#0000 100%);mask-image:linear-gradient(to bottom,#000 84%,#0000 100%)}
+.hid img,.hid svg{display:block;width:100%;height:auto;filter:saturate(.9) contrast(.93) brightness(.97) blur(.35px) drop-shadow(.5px .7px .4px #3a201066);-webkit-mask-image:linear-gradient(to bottom,#000 90%,#0000 100%);mask-image:linear-gradient(to bottom,#000 90%,#0000 100%)}
 .ring{position:absolute;border-radius:50%;border:calc(3px / var(--s,1)) solid var(--red);box-shadow:0 0 0 calc(2px / var(--s,1)) #fff,0 0 6px 2px #fff8;transform:translate(-50%,-50%) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none}
 .ring.on{transform:translate(-50%,-50%) scale(1);opacity:1}
 .tag{position:absolute;transform:translate(-50%,0);font:700 calc(13px / var(--s,1))/1 Fredoka,Nunito,sans-serif;white-space:nowrap;pointer-events:none}
@@ -108,7 +113,7 @@ html.own .ctl{flex:none;padding-bottom:2px}
 html.own .ctl button{font-size:18px}
 /* Scout, the explorer to find first: partly hidden in the crowd, glowing first in the hunt bar. */
 .hid.scout{transform:translate(-50%,-85%)}
-.hid.scout img{filter:saturate(.95) drop-shadow(0 1px 1px #0006);-webkit-mask-image:linear-gradient(to bottom,#000 58%,#0000 86%);mask-image:linear-gradient(to bottom,#000 58%,#0000 86%)}
+.hid.scout img{filter:saturate(.95) contrast(.95) blur(.3px) drop-shadow(.5px .7px .4px #3a201066);-webkit-mask-image:linear-gradient(to bottom,#000 88%,#0000 100%);mask-image:linear-gradient(to bottom,#000 88%,#0000 100%)}
 .check.pics b.scout{grid-row:span 2;align-self:center}
 .check.pics b.scout img,html.own .check.pics b.scout img{width:auto;height:58px;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #d7141d) drop-shadow(0 0 6px #d7141d)}
 .clock{align-self:center;font:800 15px Fredoka,Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c;white-space:nowrap}

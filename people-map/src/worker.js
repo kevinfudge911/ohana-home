@@ -461,6 +461,43 @@ async function roomPage(req, env, ctx, ROOM_HTML = ROOM) {
   return ROOM_HTML.replace("<!--SOLO_HEAD-->", () => head).replace("<!--SOLO_BODY-->", () => body);
 }
 
+// Ohana Home's main page carries about 4.5 MB of pictures packed inside it as text. Every open, and every
+// automatic refresh after an update, downloaded all of them again (4.7 MB). Here each big packed picture
+// moves to its own address under /people/inline/, named by its contents, so the phone keeps it for good and
+// only the page itself (about 1.3 MB) comes down again. ohana-home itself is not changed; if anything here
+// fails, the page goes out exactly as before.
+const INLINE_BASE = "https://ohanahome.app/people/inline/", SLIM_BASE = "https://ohanahome.app/people/_slim/";
+const INLINE_RE = /data:image\/(webp|png|jpeg|gif|avif);base64,([A-Za-z0-9+\/]{20000,}={0,2})/g;
+const INLINE_EXT = { webp: "webp", png: "png", jpeg: "jpg", gif: "gif", avif: "avif" };
+const INLINE_TYPE = { webp: "image/webp", png: "image/png", jpg: "image/jpeg", gif: "image/gif", avif: "image/avif" };
+const hex = (buf, n) => [...new Uint8Array(buf)].slice(0, n).map((b) => b.toString(16).padStart(2, "0")).join("");
+async function slimText(html) {
+  const cache = caches.default, enc = new TextEncoder(), parts = [], puts = [], seen = {};
+  let last = 0, m; INLINE_RE.lastIndex = 0;
+  while ((m = INLINE_RE.exec(html))) {
+    const ext = INLINE_EXT[m[1]], name = hex(await crypto.subtle.digest("SHA-256", enc.encode(m[2])), 12) + "." + ext;
+    parts.push(html.slice(last, m.index), "/people/inline/" + name); last = INLINE_RE.lastIndex;
+    if (seen[name]) continue; seen[name] = 1;
+    const bin = atob(m[2]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    puts.push(cache.put(new Request(INLINE_BASE + name), new Response(u, { headers: { "content-type": INLINE_TYPE[ext], "cache-control": "public, max-age=31536000, immutable" } })));
+  }
+  parts.push(html.slice(last)); await Promise.all(puts);
+  return { html: parts.join(""), n: Object.keys(seen).length };
+}
+async function slimHome(res) {
+  const html = await res.text(), id = hex(await crypto.subtle.digest("SHA-1", new TextEncoder().encode(html)), 16);
+  const key = new Request(SLIM_BASE + id + "-" + HOOK_V), cache = caches.default;
+  let body = null; const hit = await cache.match(key); if (hit) body = await hit.text();
+  if (body === null) {
+    const s = await slimText(html);
+    const tag = '<script src="/people/hook.js?v=' + HOOK_V + '" defer></script>', at = s.html.lastIndexOf("</body>");
+    body = at < 0 ? s.html + tag : s.html.slice(0, at) + tag + s.html.slice(at);
+    await cache.put(key, new Response(body, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=86400" } }));
+  }
+  const h = new Headers(res.headers); h.delete("content-length"); h.delete("content-encoding"); h.delete("etag"); h.set("x-ohana-slim", id);
+  return new Response(body, { status: res.status, headers: h });
+}
+
 async function readJson(req) { try { return await req.json(); } catch { return null; } }
 
 export default {
@@ -472,7 +509,18 @@ export default {
     if ((url.pathname === "/" || url.pathname === "/index.html") && env.OHANA_HOME) {
       const res = await env.OHANA_HOME.fetch(req);
       if (req.method !== "GET" || !res.ok || !(res.headers.get("content-type") || "").includes("text/html")) return res;
-      return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js?v=' + HOOK_V + '" defer></script>', { html: true }); } }).transform(res);
+      try { return await slimHome(res); } catch (e) { console.error("slimHome", String(e)); }
+      return new HTMLRewriter().on("body", { element(e) { e.append('<script src="/people/hook.js?v=' + HOOK_V + '" defer></script>', { html: true }); } }).transform(await env.OHANA_HOME.fetch(req));
+    }
+    // A picture that was packed inside the main page, now at its own address (named by what's in it, so it never changes).
+    if (req.method === "GET" && p.startsWith("/people/inline/")) {
+      const hit = await caches.default.match(new Request(INLINE_BASE + p.slice(15)));
+      if (hit) return hit;
+      if (env.OHANA_HOME) { // not kept at this data center yet: unpack the main page again, then look once more
+        const r = await env.OHANA_HOME.fetch(new Request("https://ohanahome.app/", { headers: { accept: "text/html" } }));
+        if (r.ok) { await slimText(await r.text()); const again = await caches.default.match(new Request(INLINE_BASE + p.slice(15))); if (again) return again; }
+      }
+      return new Response("not found", { status: 404, headers: { "cache-control": "no-store" } });
     }
     if (p === "/people/hook.js") return new Response(HOOK, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "public, max-age=300" } });
     if (p === "/people/api/hooktest" && env.OHANA_HOME) {
