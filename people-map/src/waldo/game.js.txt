@@ -281,7 +281,7 @@
     mode = m; try { localStorage.setItem("waldo_mode", m); } catch (e) {}
     var real = m === "real"; document.querySelector(".room").classList.toggle("real", real);
     $("real").textContent = real ? "Game" : "Where’s my people?";
-    run(!real); LINE = real ? "" : goal();
+    if (real) run(false); LINE = real ? "" : goal();
     $("line").textContent = LINE; $("line").className = "line w";
     if (real) { initMap(); setTimeout(function(){ OhanaMap.resize(); drawMap(); fitAll(); }, 30); } else if (mapOn) OhanaMap.stop();
     else setTimeout(function(){ home(); apply(); if (items.length) drawScene(); }, 30);
@@ -297,10 +297,10 @@
     found = {}; saveFound(); T = { ms: 0, at: 0 }; ls("waldo_time_" + key(), "0"); done = false; misses = [];
     try { localStorage.removeItem("waldo_done_" + key()); } catch (e) {}
     $("hunt").textContent = "New hunt";
-    home(); apply(true); place(); drawScene(); drawLists(); LINE = goal(); tick(); run(true);
+    home(); apply(true); place(); drawScene(); drawLists(); LINE = goal(); tick();
     say(next ? "Level " + level + ": " + (items.length - 1) + " things and Scout. Go!" : "Everything moved. The clock starts over. Go!", true);
   };
-  document.addEventListener("visibilitychange", function(){ run(!document.hidden); });
+  document.addEventListener("visibilitychange", function(){ if (document.hidden) run(false); });
 
   function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
   function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.classList.toggle("go", sharing); }

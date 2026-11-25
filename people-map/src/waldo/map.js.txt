@@ -7,7 +7,7 @@ window.OhanaMap = (function(){
   function loadLib(cb){
     if (window.maplibregl) return cb();
     var css = document.createElement("link"); css.rel = "stylesheet"; css.href = LIB + "maplibre-gl.min.css"; document.head.appendChild(css);
-    var s = document.createElement("script"); s.src = LIB + "maplibre-gl.min.js"; s.onload = cb; s.onerror = function(){ cb(new Error("map")); }; document.head.appendChild(s);
+    var s = document.createElement("script"); s.src = LIB + "maplibre-gl.min.js"; s.onload = function(){ cb(); }; s.onerror = function(){ cb(new Error("map")); }; document.head.appendChild(s);
   }
   function style(){
     var r = function(path, extra){ var o = { type: "raster", tiles: [ESRI + path + "/MapServer/tile/{z}/{y}/{x}"], tileSize: 256, maxzoom: 19 }; for (var k in extra) o[k] = extra[k]; return o; };
