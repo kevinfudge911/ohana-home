@@ -114,7 +114,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   <div class="check realonly" id="find"></div>
   <div class="line w" id="line">Pinch to look closer. Tap a thing when you find it.</div>
   <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Real Life</button><button id="l360" class="realonly">Life360</button><button id="share" class="realonly">Share: off</button></div>
-  <div class="l360" id="lp">
+  <div class="l360 realonly" id="lp">
     <h4>Your Life360</h4>
     <p>It shows your people, and only you see them here. Everyone connects their own.</p>
         <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
@@ -391,7 +391,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   };
 
   function tellHeight(){ try { var r = document.querySelector(".room"); window.parent.postMessage({ type: "ohana-waldo-height", h: Math.ceil(r.getBoundingClientRect().bottom + window.scrollY + 4) }, location.origin); } catch (e) {} }
-  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.className = sharing ? "go" : ""; }
+  function setShare(){ var b = $("share"); b.textContent = sharing ? "Sharing" : "Share: off"; b.classList.toggle("go", sharing); }
   function send(pos){
     if (!sharing || Date.now() - lastSent < 60000) return; lastSent = Date.now();
     fetch("/people/api/family/spot", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }) }).then(load);
@@ -432,7 +432,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
     }).then(function(d){ show((d && d.people) || [], (d && d.houses) || []); setL360(); }).catch(function(){ say("Can't reach your people right now. Trying again."); });
   }
   function setL360(){
-    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 needs a new key" : "Life360 on") : "Life360"; b.className = l360.connected && !l360.error ? "go" : "";
+    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 needs a new key" : "Life360 on") : "Life360"; b.classList.toggle("go", !!(l360.connected && !l360.error));
     $("ls").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh key." : "Connected. " + (l360.members || 0) + " of your people coming in.") : "Not connected yet.";
     $("loff").style.display = l360.connected ? "" : "none";
   }
