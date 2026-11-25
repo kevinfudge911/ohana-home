@@ -10,7 +10,7 @@ import WALDO_HTML from "./waldo/room.html";
 import WALDO_CSS from "./waldo/room.css.txt";
 import WALDO_JS from "./waldo/game.js.txt";
 import WALDO_MAP from "./waldo/map.js.txt";
-// Where's Waldo room (preview), kept in four parts: page, look, game, and the 3D map.
+// Where's Waldo room, kept in four parts: page, look, game, and the 3D map.
 const ROOM_NEXT = WALDO_HTML.replace("/*ROOM_CSS*/", () => WALDO_CSS).replace("/*MAP_JS*/", () => WALDO_MAP).replace("/*ROOM_JS*/", () => WALDO_JS);
 import HOOK from "./hook.js.txt";
 const HOOK_V = (() => { let h = 0; for (let i = 0; i < HOOK.length; i++) h = (h * 31 + HOOK.charCodeAt(i)) | 0; return (h >>> 0).toString(36); })();
@@ -517,8 +517,8 @@ export default {
     }
     if (req.method === "GET" && (p === "/people" || p === "/people/index.html" || p === "/people/family"))
       return new Response(PAGE, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
-    if (req.method === "GET" && (p === "/people/room" || p === "/people/waldo")) // Where's Waldo room: inside Ohana Gathering, or opened straight from the town
-      return new Response(await roomPage(req, env, ctx), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
+    if (req.method === "GET" && (p === "/people/room" || p === "/people/waldo")) // Where's Waldo room (Scout, levels, 3D map): its own full-screen page
+      return new Response(await roomPage(req, env, ctx, ROOM_NEXT), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p === "/people/room-next") // preview of the next Where's Waldo room (Game + Real Life), not linked anywhere
       return new Response(await roomPage(req, env, ctx, ROOM_NEXT), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", vary: "sec-fetch-dest", "x-frame-options": "SAMEORIGIN", "referrer-policy": "strict-origin-when-cross-origin" } });
     if (req.method === "GET" && p.startsWith("/people/art/")) {

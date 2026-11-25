@@ -1,7 +1,7 @@
 /* Where's Waldo room for Ohana Home. Served by the ohana-wheres-my-people worker at /people/hook.js
    and added to the Ohana Home page by that worker (ohana-home itself is not changed).
    Adds a plain-word "Where's Waldo" link at the bottom of Ohana Gathering; tapping it opens the
-   Where's Waldo room (same Bridge header as every room) with /people/room inside. */
+   full-screen Where's Waldo room at /people/waldo. */
 (function () {
   if (window.__ohanaWaldoHook) return; window.__ohanaWaldoHook = 1;
   var css = document.createElement("style");
@@ -33,20 +33,8 @@
     if (gathering) { gathering.style.removeProperty("display"); if (back) { var l = gathering.querySelector(".waldo-entry"); if (l) l.scrollIntoView({ block: "center" }); } }
     gathering = null;
   }
-  function openRoom(panel) {
-    closeRoom(false);
-    gathering = panel;
-    room = document.createElement("section");
-    room.id = "waldoRoom"; room.setAttribute("data-private-ohana-room", ""); room.setAttribute("aria-label", "Where's Waldo");
-    room.innerHTML = '<header class="ohana-entrance-heading ohana-gathering-heading"><button class="soft room-home-control" data-close>Back</button>' +
-      '<h1 data-unified-title-source>Where’s Waldo</h1></header><iframe title="Where’s Waldo" scrolling="no" allowtransparency="true"></iframe>';
-    room.querySelector("[data-close]").addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); closeRoom(true); }, true);
-    room.querySelector("iframe").src = "/people/room?framed=1"; // room only: Ohana Home draws the Bridge here
-    panel.style.display = "none";
-    panel.parentNode.insertBefore(room, panel.nextSibling);
-    clean(); window.scrollTo(0, 0);
-    new MutationObserver(clean).observe(room, { attributes: true, attributeFilter: ["style"] });
-  }
+  // The Waldo room is its own full-screen page now (red, white and blue edges, Scout, levels, 3D map).
+  function openRoom(panel) { location.href = "/people/waldo"; }
   function tick() {
     // The Gathering room went away (left the room): take the Waldo room with it.
     if (room && (!gathering || !gathering.isConnected)) { if (room) room.remove(); room = null; gathering = null; }
@@ -64,13 +52,12 @@
   try { var ts = Number(sessionStorage.getItem("ohana-open-waldo") || 0); sessionStorage.removeItem("ohana-open-waldo"); if (ts && Date.now() - ts < 60000) want = true; } catch (e) {}
   if (want) {
     if (location.hash === "#waldo") { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
-    var t0 = Date.now(), asked = 0;
+    // Go straight to the room once this phone is signed in to Ohana Home (waits while they sign in).
+    var t0 = Date.now();
     (function step() {
-      var e = document.querySelector(".waldo-entry");
-      if (e && !room) { e.click(); return; }
-      var g = document.querySelector(".gathering-invite-go") || document.querySelector(".gathering-feature-scene");
-      if (g && Date.now() - asked > 4000 && !document.querySelector(".gathering-station")) { asked = Date.now(); g.click(); }
-      if (Date.now() - t0 < 30000) setTimeout(step, 400);
+      var tk = ""; try { tk = localStorage.getItem("ohana_token") || ""; } catch (e) {}
+      if (tk) { location.replace("/people/waldo"); return; }
+      if (Date.now() - t0 < 600000) setTimeout(step, 1000);
     })();
   }
   // Ohana Share: once someone turned Share on in the Waldo room, keep their spot fresh whenever Ohana Home is open,
