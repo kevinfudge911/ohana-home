@@ -58,7 +58,7 @@ dialog.me-sheet textarea{width:100%;resize:vertical}
 .me-foot .me-primary{width:100%;min-height:52px;font-size:19px}
 .me-foot progress{width:100%;height:10px;accent-color:#8effbc}
 #me-org-move{flex:1;min-width:150px}
-.me-edit-img{display:block;width:100%;max-height:46dvh;object-fit:contain;background:#0b2a24;border-radius:10px;margin-top:10px}
+.me-edit-img{display:block;width:100%;max-height:36dvh;object-fit:contain;background:#0b2a24;border-radius:10px;margin-top:10px}
 .me-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .me-two select,.me-two input{width:100%}
 .me-edit-actions{margin:14px 0 18px}
@@ -76,3 +76,5 @@ dialog.me-small input{width:100%}
 .me-head h2:focus,.me-head .me-count:focus{outline:none}
 #me-top>.me-row{flex-wrap:nowrap}#me-top>.me-row .me-btn{white-space:nowrap}#me-add{flex:1 1 auto}#me-org-open{flex:1 1 auto}
 #me-cam{padding:7px 10px;font-size:19px}
+.me-status:empty{display:none}
+dialog.me-sheet .me-head,dialog.me-sheet .me-foot{z-index:6}
