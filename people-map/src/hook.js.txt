@@ -41,7 +41,7 @@
     room.innerHTML = '<header class="ohana-entrance-heading ohana-gathering-heading"><button class="soft room-home-control" data-close>Back</button>' +
       '<h1 data-unified-title-source>Where’s Waldo</h1></header><iframe title="Where’s Waldo" scrolling="no" allowtransparency="true"></iframe>';
     room.querySelector("[data-close]").addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); closeRoom(true); }, true);
-    room.querySelector("iframe").src = "/people/room";
+    room.querySelector("iframe").src = "/people/room?framed=1"; // room only: Ohana Home draws the Bridge here
     panel.style.display = "none";
     panel.parentNode.insertBefore(room, panel.nextSibling);
     clean(); window.scrollTo(0, 0);
