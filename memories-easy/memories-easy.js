@@ -162,6 +162,9 @@ function emptyHint(){const g=q('#gallery');if(!g||M.photos.length||g.querySelect
 hook('loadPhotos',{after:()=>{renderChips();addPencils();emptyHint();}});
 hook('say',{after:(s,text)=>{if(text&&!E.quiet&&!q('#memory-management')?.open&&!q('#me-addsheet')?.open)toast(text);}});
 hook('invalidateMemoriesSession',{after:()=>{for(const id of ['#me-addsheet','#me-edit','#me-org','#me-name'])if(q(id)?.open)q(id).close();E.edit=null;E.orgRows=[];E.sel.clear();dropThumbs();renderWaiting();}});
+/* the whole open album on every screen: two pages, one photo on each */
+window.bookPageSize=()=>2;try{lastBookSize=2;}catch{}
+if(M.photos.length&&typeof renderBook==='function'){M.page=Math.floor(M.page/2);renderBook();}
 if(M.queue.length&&sessionOk())openAddSheet();
 addPencils();
 })();
