@@ -123,7 +123,7 @@ function build(){
  pj.before(el('button',{type:'button',id:'me-title','aria-haspopup':'dialog','aria-label':'Choose an album',onclick:openAlbumMenu},el('span',{id:'me-title-text',text:albumTitle()}),el('span',{class:'me-caret','aria-hidden':'true'})));
  pj.append(el('button',{type:'button',id:'me-prev',class:'me-tab me-tab-l','aria-label':'Turn back a page',hidden:true,onclick:()=>turnPage(-1)},el('span',{'aria-hidden':'true',text:'‹'})),
   el('button',{type:'button',id:'me-next',class:'me-tab me-tab-r','aria-label':'Turn the page',hidden:true,onclick:()=>turnPage(1)},el('span',{'aria-hidden':'true',text:'›'})));
- const cam=el('button',{type:'button',id:'me-cam',class:'me-cam','aria-label':'Add photos',onclick:()=>{if(M.queue.length)openAddSheet();else q('#photo-file').click();}});
+ const cam=el('button',{type:'button',id:'me-cam',class:'me-cam','aria-label':'Add photos','aria-haspopup':'dialog',onclick:()=>{if(M.queue.length)openAddSheet();else openAddPick();}});
  cam.innerHTML='<svg viewBox="0 0 48 40" aria-hidden="true" focusable="false"><path d="M6 12h8l3.5-5h13L34 12h8a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V15a3 3 0 0 1 3-3z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="24" cy="24.5" r="7.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M38.5 3v9M34 7.5h9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
  cam.append(el('span',{id:'me-cam-n',class:'me-cam-n',hidden:true}));
  pj.append(cam);
@@ -154,8 +154,24 @@ function build(){
    el('div',{id:'me-org-bar',class:'me-foot',hidden:true},el('span',{id:'me-org-count',class:'me-count'}),el('select',{id:'me-org-move','aria-label':'Move picked photos to album'}),el('button',{type:'button',class:'me-btn me-danger',text:'Delete',onclick:orgDelete}),el('button',{type:'button',class:'me-btn',text:'Clear',onclick:()=>{E.sel.clear();renderOrg();}}))),
   el('dialog',{id:'me-name',class:'me-small','aria-label':'Name a new album'},el('form',{id:'me-name-form'},el('label',{for:'me-name-input',text:'New album'}),el('input',{id:'me-name-input',maxlength:'80',placeholder:'CHRISTmas 2026, Beach trip…',autocomplete:'off'}),el('p',{id:'me-name-status',class:'me-status',role:'status'}),el('div',{class:'me-row'},el('button',{type:'submit',class:'me-btn me-primary',text:'Make'}),el('button',{type:'button',id:'me-name-cancel',class:'me-btn',text:'Cancel'})))),
   el('dialog',{id:'me-albums',class:'me-small me-menu','aria-label':'Albums'},el('div',{id:'me-albums-list'})),
+  el('dialog',{id:'me-addpick',class:'me-small me-menu me-pick','aria-label':'Add photos'},
+   el('button',{type:'button',class:'me-item',text:'Camera','aria-label':'Take a photo',onclick:()=>{q('#me-addpick').close();q('#camera-file').click();}}),
+   el('button',{type:'button',class:'me-item',text:'Photos','aria-label':'Pick photos or videos from this phone',onclick:()=>{q('#me-addpick').close();q('#photo-file').click();}})),
+  el('dialog',{id:'me-help',class:'me-small me-help','aria-labelledby':'me-help-title'},
+   el('div',{class:'me-head'},el('h2',{id:'me-help-title',text:'Help'}),el('button',{type:'button',class:'me-btn','aria-label':'Close help',text:'Close',onclick:()=>q('#me-help').close()})),
+   el('ul',{class:'me-help-list'},
+    el('li',{},el('b',{text:'Add photos: '}),'tap the camera by the book, then Camera or Photos.'),
+    el('li',{},el('b',{text:'From your Gallery: '}),'pick pictures, tap Share and choose Ohana. Install Ohana from Chrome’s menu first.'),
+    el('li',{},el('b',{text:'Turn pages: '}),'tap the tabs on the side of the book, or swipe.'),
+    el('li',{},el('b',{text:'See one big: '}),'tap it. React, comment, share it or save it to your phone there.'),
+    el('li',{},el('b',{text:'Change one: '}),'hold it. Fix the words, date or album, or delete it. Undo brings it back.'),
+    el('li',{},el('b',{text:'Albums and more: '}),'tap the album name above the book.'),
+    el('li',{},el('b',{text:'Who sees them: '}),'only people in your family room. A few built-in photos are public. Videos can be up to 20 MB.')),
+   el('div',{id:'me-help-btns',class:'me-row'})),
   el('div',{id:'me-toast',role:'status','aria-live':'polite',popover:'manual',hidden:true}));
- q('#me-albums').addEventListener('click',e=>{if(e.target===q('#me-albums'))q('#me-albums').close();});
+ for(const id of ['#me-albums','#me-addpick','#me-help'])q(id).addEventListener('click',e=>{if(e.target===q(id))q(id).close();});
+ for(const id of ['#copy-link','#install']){const b=q(id);if(b){b.classList.add('me-btn');q('#me-help-btns').append(b);}}
+ const cl=q('#copy-link');if(cl)cl.textContent='Copy album link';
  q('#me-add-album').onchange=async()=>{await pickAlbum(q('#me-add-album'));renderAddSheet();};
  q('#me-edit-album').onchange=()=>pickAlbum(q('#me-edit-album'));
  q('#me-org-move').onchange=orgMove;
@@ -196,18 +212,34 @@ function setupBook(){const g=q('#gallery');if(!g||g.dataset.meBook)return;g.data
  mark('#close','Close','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>');
  mark('#share-photo','Share photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 12.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
  mark('#download','Save photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+ mark('#previous','Previous photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+ mark('#next','Next photo','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+ const fs=q('#full-size'),dl=q('#download');if(fs&&dl&&!q('#me-zoom')){const z=el('button',{type:'button',id:'me-zoom',hidden:true,onclick:()=>{if(fs.getAttribute('href'))fs.click();}});dl.before(z);mark('#me-zoom','Open larger','<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>');const sync=()=>{z.hidden=!fs.getAttribute('href')||fs.hidden;};new MutationObserver(sync).observe(fs,{attributes:true,attributeFilter:['href','hidden']});sync();}
  mark('#viewer-feedback-jump','Reactions and comments','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>');}
 /* the full-size view swaps in the full original once it arrives, so it stays sharp when pinched */
 async function viewerOriginal(){const p=M.photos[M.index];if(!p||p.read_only||isVideo(p)||!q('#viewer').open)return;const id=p.id;try{const r=await call('/api/memories/photo/'+id+'/original');const b=await r.blob();if(!b.type.startsWith('image/')||M.photos[M.index]?.id!==id||!q('#viewer').open)return;const u=URL.createObjectURL(b);const im=new Image();im.src=u;await im.decode();if(M.photos[M.index]?.id!==id||!q('#viewer').open){URL.revokeObjectURL(u);return;}const old=M.fullUrl;M.fullUrl=u;q('#viewer-image').src=u;q('#full-size')?.setAttribute('href',u);if(old&&old!==u)URL.revokeObjectURL(old);}catch{}}
+/* add photos: Camera or Photos, right by the camera */
+function openAddPick(){if(!ensureMemoriesSession())return;const d=q('#me-addpick'),c=q('#me-cam');d.showModal();const r=c.getBoundingClientRect(),w=d.offsetWidth,h=d.offsetHeight;d.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';d.style.top=Math.max(8,r.top-h-4)+'px';}
 /* albums: tap the album's name above the book */
 function menuItem(text,on,fn){return el('button',{type:'button',class:'me-item'+(on?' on':''),'aria-current':on?'true':null,onclick:fn},text);}
 function openAlbumMenu(){if(!ensureMemoriesSession())return;const d=q('#me-albums'),list=q('#me-albums-list');list.replaceChildren();
  const rooms=M.rooms||[];if(rooms.length>1){list.append(el('p',{class:'me-menu-h',text:'Family'}));for(const r of rooms)list.append(menuItem(r.name,r.id===M.room,()=>{d.close();const s=q('#room');if(!s||r.id===M.room)return;s.value=String(r.id);s.onchange&&s.onchange();}));}
  list.append(el('p',{class:'me-menu-h',text:'Albums'}));
  for(const a of [{id:'',name:'All memories'},{id:'0',name:'Unfiled photos'},...M.albums])list.append(menuItem(a.name,(M.album||'')===a.id,()=>{d.close();if((M.album||'')!==a.id)showAlbum(a.id);}));
- list.append(el('div',{class:'me-menu-more'},menuItem('＋ New album',false,async()=>{d.close();const id=await newAlbumFlow();if(id)showAlbum(id);}),menuItem('Pick photos',false,()=>{d.close();openOrganizer();}),q('#share-album')?menuItem('Share',false,()=>{d.close();q('#share-album').click();}):null));
+ list.append(el('div',{class:'me-menu-more'},menuItem('＋ New album',false,async()=>{d.close();const id=await newAlbumFlow();if(id)showAlbum(id);}),menuItem('Pick photos',false,()=>{d.close();openOrganizer();}),q('#share-album')?menuItem('Share',false,()=>{d.close();q('#share-album').click();}):null,
+  q('#journey-memories')?menuItem('Journey memories',false,()=>{d.close();q('#journey-memories').click();}):null,
+  menuItem('Refresh',false,async()=>{d.close();try{await loadAlbums(M.album);await loadPhotos();toast('Up to date.');}catch(e){toast(e.message);}}),
+  menuItem('Help',false,()=>{d.close();q('#me-help').showModal();})));
  d.showModal();list.querySelector('.me-item.on')?.focus();}
 
+/* love on the book: the old panel under the book is gone, so each photo shows its reactions and comments in one small line */
+const LOVE=new Map();
+async function loadLove(photo){if(typeof photoSupportsFeedback!=='function'||!photoSupportsFeedback(photo))return;const ctx=photoFeedbackContext();try{const d=await(await call('/api/memories/photo/'+encodeURIComponent(photo.id)+'/feedback',{headers:{authorization:'Bearer '+ctx.token,'x-ohana-room':String(ctx.room)}})).json();if(!photoFeedbackCurrent(ctx))return;LOVE.set(photo.id,d);paintLove(photo.id);}catch{}}
+function paintLove(id){const img=[...document.querySelectorAll('#gallery img[data-id]')].find(i=>i.dataset.id===id),fig=img?.closest('figure.memory');if(!fig)return;fig.querySelector('.me-love')?.remove();const d=LOVE.get(id);if(!d)return;
+ const r=(d.reactions||[]).filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,3),c=(d.comments||[]).length;if(!r.length&&!c)return;
+ const parts=r.map(x=>x.emoji+'\u2009'+x.count);if(c)parts.push('💬\u2009'+c);const n=r.reduce((t,x)=>t+x.count,0);
+ fig.querySelector('figcaption')?.append(el('button',{type:'button',class:'me-love','aria-label':(n?plural(n,'reaction'):'')+(n&&c?' and ':'')+(c?plural(c,'comment'):''),text:parts.join('  '),onclick:e=>{e.stopPropagation();openLove(id);}}));}
+async function openLove(id){const i=M.photos.findIndex(p=>p.id===id);if(i<0)return;await openPhoto(i);await q('#viewer-image')?.decode?.().catch(()=>{});q('#viewer-feedback-jump')?.click();}
 /* ---------- hook into the page's own steps ---------- */
 function hook(name,{before,after,now}={}){const orig=window[name];if(typeof orig!=='function')return;const isAsync=orig.constructor&&orig.constructor.name==='AsyncFunction';window[name]=isAsync?async function(...a){const s=before?.(...a);const pending=orig.apply(this,a);try{now?.(...a);}catch(e){console.warn('memories-easy',e);}const r=await pending;try{after?.(s,...a);}catch(e){console.warn('memories-easy',e);}return r;}:function(...a){const s=before?.(...a);const r=orig.apply(this,a);try{after?.(s,...a);}catch(e){console.warn('memories-easy',e);}return r;};}
 build();
@@ -217,11 +249,14 @@ function shortBylines(){if(!matchMedia('(max-width:1100px)').matches)return;for(
 hook('appendPhotos',{after:()=>{shortBylines();}});
 hook('renderBook',{after:()=>placeTabs()});
 hook('openPhoto',{after:()=>viewerOriginal()});
+if(typeof window.appendPhotoFeedbackPanel==='function')window.appendPhotoFeedbackPanel=photo=>{if(LOVE.has(photo?.id))paintLove(photo.id);else loadLove(photo);};
+hook('loadPhotos',{before:more=>{if(!more)LOVE.clear();}});
+q('#viewer')?.addEventListener('close',()=>{const p=M.photos[M.index];if(p&&LOVE.has(p.id))loadLove(p);});
 hook('loadAlbums',{after:()=>{renderChips();const a=q('#me-add-album');if(a)fillAlbumSelect(a,a.value&&a.value!=='__new'?a.value:(M.album||'0'));}});
 function emptyHint(){const g=q('#gallery');if(!g||M.photos.length||g.querySelector('.me-empty'))return;g.append(el('p',{class:'me-empty',text:M.album?'Nothing in '+albumTitle()+' yet.':'No photos yet.'}));}
 hook('loadPhotos',{after:()=>{renderChips();emptyHint();placeTabs();}});
 hook('say',{after:(s,text)=>{if(text&&!E.quiet&&!q('#memory-management')?.open&&!q('#me-addsheet')?.open)toast(text);}});
-hook('invalidateMemoriesSession',{after:()=>{for(const id of ['#me-addsheet','#me-edit','#me-org','#me-name','#me-albums'])if(q(id)?.open)q(id).close();E.edit=null;E.orgRows=[];E.sel.clear();dropThumbs();renderWaiting();}});
+hook('invalidateMemoriesSession',{after:()=>{for(const id of ['#me-addsheet','#me-edit','#me-org','#me-name','#me-albums','#me-addpick','#me-help'])if(q(id)?.open)q(id).close();E.edit=null;E.orgRows=[];E.sel.clear();dropThumbs();renderWaiting();}});
 /* the whole open album on every screen: two pages, one photo on each */
 window.bookPageSize=()=>2;try{lastBookSize=2;}catch{}
 if(M.photos.length&&typeof renderBook==='function'){M.page=Math.floor(M.page/2);renderBook();}

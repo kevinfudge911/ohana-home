@@ -4,12 +4,13 @@
 const W=window;if(W.__meMock)return;W.__meMock=true;
 const colors=['#d94f3d','#3d8bd9','#4caf50','#f2c14e','#9c27b0','#ff7043','#26a69a','#8d6e63','#5c6bc0','#ec407a','#7cb342','#29b6f6'];
 const now=Date.now(),day=864e5;
-const db={me:{id:5,name:'Pe-paw',is_admin:true},rooms:[{id:1,name:'Ohana Family',owner_id:5}],albums:[{id:'95a5fcbd-f122-458c-85ee-339381d99eb3',name:'Momma Fudge'}],photos:[]};
+const db={me:{id:5,name:'Pe-paw',is_admin:true},rooms:Array.isArray(W.__meRooms)&&W.__meRooms.length?W.__meRooms.map(r=>({...r,owner_id:5})):[{id:1,name:'Ohana Family',owner_id:5}],albums:[{id:'95a5fcbd-f122-458c-85ee-339381d99eb3',name:'Momma Fudge'}],photos:[]};
 const uuid=()=>crypto.randomUUID();
+const ALL_EMOJI=['👍','❤️','😂','😮','😢','🙏','🎉'];
 const names=['CHRISTmas morning','Pumpkin patch','Grandma with baby','Tummy time','Duck pond','First snow','Thanksgiving table','Beach day','Lake trip','Birthday cake','Snow day','Porch swing'];
 /* W.__meSeed (optional): [{caption,created_at,blob}] copies of photos already in the book, so the test looks real. Never changes the real ones. */
 const seed=Array.isArray(W.__meSeed)?W.__meSeed.filter(x=>x&&x.blob):[];
-if(seed.length)seed.forEach((x,i)=>db.photos.push({id:uuid(),member_id:5,author:'Pe-paw',caption:x.caption||'',created_at:x.created_at||now-i*3*day,album_id:i<3?db.albums[0].id:'0',mime:x.blob.type||'image/jpeg',hidden:0,blob:x.blob}));
+if(seed.length)seed.forEach((x,i)=>db.photos.push({id:uuid(),member_id:5,author:'Pe-paw',caption:x.caption||'',created_at:x.created_at||now-i*3*day,album_id:i<3?db.albums[0].id:'0',mime:x.blob.type||'image/jpeg',hidden:0,blob:x.blob,feedback:x.feedback||null}));
 else for(let i=0;i<12;i++)db.photos.push({id:uuid(),member_id:5,author:'Pe-paw',caption:names[i],created_at:now-i*3*day,album_id:i<3?db.albums[0].id:'0',mime:'image/jpeg',hidden:0,color:colors[i]});
 W.__meMockDb=db;
 function picture(p,size){const c=document.createElement('canvas');c.width=size;c.height=Math.round(size*.75);const g=c.getContext('2d');g.fillStyle=p.color||'#888';g.fillRect(0,0,c.width,c.height);g.fillStyle='#fff';g.font='bold '+Math.round(size/9)+'px sans-serif';g.textAlign='center';g.fillText(p.caption.slice(0,14),c.width/2,c.height/2);g.font=Math.round(size/14)+'px sans-serif';g.fillText(new Date(p.created_at).toLocaleDateString(),c.width/2,c.height/2+size/8);return new Promise(r=>c.toBlob(r,'image/jpeg',.8));}
@@ -30,9 +31,15 @@ async function handle(path,opts={}){
   if('caption' in body)x.caption=body.caption;if('created_at' in body)x.created_at=body.created_at;if('album' in body)x.album_id=body.album;W.__meLastEdit=body;return json({saved:true});}
  if(p==='/api/memories'&&m==='POST'){const f=opts.body;const x={id:f.get('id'),member_id:5,author:'Pe-paw',caption:f.get('caption')||'',created_at:Date.now(),album_id:f.get('album')||'0',mime:f.get('photo').type||'image/jpeg',hidden:0,blob:f.get('photo'),color:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0')};db.photos.push(x);(W.__meUploads||(W.__meUploads=[])).push({id:x.id,caption:x.caption,album:x.album_id,size:f.get('photo').size});return json({id:x.id,saved:true},201);}
  if((mt=p.match(/^\/api\/memories\/photo\/([\w-]+)\/original$/))){const x=db.photos.find(y=>y.id===mt[1]&&!y.hidden);if(!x)return json({error:'Photo not found.'},404);if(m==='POST'){x.original=opts.body;(W.__meOriginals||(W.__meOriginals=[])).push({id:x.id,size:opts.body.size});return json({saved:true},201);}if(!x.original)return json({error:'No full-size copy for this photo.'},404);return new Response(x.original,{headers:{'content-type':'image/jpeg'}});}
- if(p.startsWith('/api/memories/photo/')&&m==='GET')return json({reactions:[],comments:[],allowed_emojis:[],my_reaction:null});
- if(p==='/api/memories/journeys')return json({journeys:[]});
- if(p==='/api/album')return json({album:[]});
+ /* reactions and comments: copies of the real ones (read only) when the test passes them in; changes stay in this test page */
+ if((mt=p.match(/^\/api\/memories\/photo\/([\w-]+)\/(feedback|reaction|comments)$/))){const x=db.photos.find(y=>y.id===mt[1]);if(!x)return json({error:'Photo not found.'},404);
+  const f=x.feedback||(x.feedback={reactions:[],comments:[],my_reaction:null});f.allowed_emojis=ALL_EMOJI;f.can_comment=true;f.reaction_revision=f.reaction_revision||1;
+  if(m==='GET')return json(f);const body=opts.body?JSON.parse(opts.body):{};
+  if(mt[2]==='reaction'){if(f.my_reaction){const r=f.reactions.find(r=>r.emoji===f.my_reaction);if(r)r.count--;}f.my_reaction=body.emoji||null;if(f.my_reaction){let r=f.reactions.find(r=>r.emoji===f.my_reaction);if(!r)f.reactions.push(r={emoji:f.my_reaction,count:0});r.count++;}f.reactions=f.reactions.filter(r=>r.count>0);f.reaction_revision++;return json({saved:true});}
+  if(mt[2]==='comments'){f.comments.push({id:uuid(),author:'Pe-paw',text:body.text,created_at:new Date().toISOString(),can_edit:true,can_delete:true,revision:1});return json({saved:true},201);}}
+ if(p==='/api/memories/journeys')return json({journeys:(W.__meJourneys||[]).map(({blob,...j})=>j)});
+ if((mt=p.match(/^\/api\/memories\/journeys\/([\w-]+)\/image$/))){const j=(W.__meJourneys||[]).find(x=>String(x.puzzle_id)===mt[1]);if(!j?.blob)return json({error:'Not found.'},404);return new Response(j.blob,{headers:{'content-type':j.blob.type||'image/jpeg'}});}
+ if(p==='/api/album')return json({album:W.__meOldAlbum||[]});
  if(p==='/api/prefs')return json({});
  throw Error('Test page: '+m+' '+p+' is not pretend-able');
 }
