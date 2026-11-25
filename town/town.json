@@ -1,75 +1,75 @@
 {
- "version": 11,
+ "version": 12,
  "width": 1440,
  "height": 2579,
  "waldo": false,
  "art": {
-  "night": "town-night-v5.webp",
-  "day": "town-day-v6.webp"
+  "night": "town-night-v6.webp",
+  "day": "town-day-v7.webp"
  },
  "spots": [
   {
    "id": "facebook",
    "label": "Facebook",
-   "shape": "poly",
-   "pts": [
-    1222.5,
-    815.25,
-    1239,
-    815.25,
-    1239.25,
-    836.75,
-    1230.5,
-    843.5,
-    1222,
-    836.25
-   ],
    "go": {
     "place": "extra:FACEBOOK",
     "web": "https://www.facebook.com/profile.php?id=61565368734327"
-   }
+   },
+   "shape": "poly",
+   "pts": [
+    1208,
+    808,
+    1246,
+    808,
+    1246,
+    848,
+    1227.0,
+    858,
+    1208,
+    848
+   ]
   },
   {
    "id": "instagram",
    "label": "Instagram",
-   "shape": "poly",
-   "pts": [
-    1290,
-    815.25,
-    1309.75,
-    815.25,
-    1310,
-    835.5,
-    1299.25,
-    844,
-    1289.25,
-    836.5
-   ],
    "go": {
     "place": "extra:INSTAGRAM",
     "web": "https://www.instagram.com/uniqueridestransportation"
-   }
+   },
+   "shape": "poly",
+   "pts": [
+    1278,
+    808,
+    1322,
+    808,
+    1322,
+    848,
+    1300.0,
+    858,
+    1278,
+    848
+   ]
   },
   {
    "id": "tiktok",
    "label": "TikTok",
-   "shape": "poly",
-   "pts": [
-    1356,
-    815.25,
-    1375.5,
-    815.25,
-    1375.5,
-    836.5,
-    1365.75,
-    844,
-    1356,
-    836.5
-   ],
    "go": {
     "place": "extra:TIKTOK",
     "web": "https://www.tiktok.com/@uniqueridestransport"
-   }
+   },
+   "shape": "poly",
+   "pts": [
+    1353,
+    808,
+    1391,
+    808,
+    1391,
+    848,
+    1372.0,
+    858,
+    1353,
+    848
+   ]
   },
   {
    "id": "emergency",
@@ -200,21 +200,21 @@
   {
    "id": "ohana",
    "label": "Ohana Home",
-   "shape": "poly",
-   "pts": [
-    629,
-    174,
-    815,
-    173,
-    824,
-    221,
-    626,
-    221
-   ],
    "go": {
     "place": "atlas:OHANA_HOME",
     "web": "https://ohanahome.app/"
-   }
+   },
+   "shape": "poly",
+   "pts": [
+    585,
+    158,
+    855,
+    158,
+    860,
+    228,
+    580,
+    228
+   ]
   },
   {
    "id": "seven-brew",
@@ -273,6 +273,38 @@
     "place": "atlas:LIMO_COMMAND",
     "web": "https://limodispatch.app/"
    }
+  },
+  {
+   "id": "phone-settings",
+   "label": "Phone settings",
+   "go": {
+    "app": [
+     "com.android.settings"
+    ]
+   },
+   "shape": "poly",
+   "pts": [
+    683,
+    1838,
+    700,
+    1826,
+    728,
+    1820,
+    752,
+    1818,
+    752,
+    1858,
+    748,
+    1912,
+    722,
+    1918,
+    698,
+    1910,
+    684,
+    1885,
+    681,
+    1860
+   ]
   },
   {
    "id": "limo",
@@ -410,17 +442,17 @@
   {
    "id": "jj-friends",
    "label": "JJ Friends",
-   "shape": "oval",
-   "box": [
-    888,
-    826,
-    946,
-    850
-   ],
    "go": {
     "place": "town:JJ_FRIENDS",
     "web": "https://pinkey-brain.kevin-fudge911.workers.dev/"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    886,
+    826,
+    948,
+    846
+   ]
   },
   {
    "id": "wrbc",
@@ -440,90 +472,90 @@
   {
    "id": "got-jesus",
    "label": "Got Jesus",
-   "shape": "oval",
-   "box": [
-    416,
-    866,
-    510,
-    900
-   ],
    "go": {
     "place": "town:GOT_JESUS",
     "web": "https://gotjesusministry.com/"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    446,
+    868,
+    512,
+    898
+   ]
   },
   {
    "id": "life360",
    "label": "Where's Waldo",
-   "shape": "oval",
-   "box": [
-    540,
-    870,
-    602,
-    912
-   ],
    "go": {
     "web": "https://ohanahome.app/people/room"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    533,
+    894,
+    609,
+    914
+   ]
   },
   {
    "id": "storewell",
    "label": "StoreWell",
-   "shape": "oval",
-   "box": [
-    660,
-    880,
-    742,
-    906
-   ],
    "go": {
     "place": "town:STOREWELL",
     "web": "https://storewell-3d.pages.dev/"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    660,
+    879,
+    744,
+    903
+   ]
   },
   {
    "id": "weather",
    "label": "Weather (duck pen)",
-   "shape": "oval",
-   "box": [
-    55,
-    964,
-    140,
-    998
-   ],
    "go": {
     "place": "town:WEATHER"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    40,
+    1000,
+    180,
+    1045
+   ]
   },
   {
    "id": "unique-market",
    "label": "Unique Market",
-   "shape": "oval",
-   "box": [
-    282,
-    926,
-    342,
-    986
-   ],
    "go": {
     "place": "town:UNIQUE_LOGO",
     "web": "https://unique-market.pages.dev/"
-   }
+   },
+   "shape": "oval",
+   "box": [
+    248,
+    914,
+    344,
+    990
+   ]
   },
   {
    "id": "thrifty",
    "label": "417 Thrifty",
-   "shape": "oval",
-   "box": [
-    366,
-    926,
-    428,
-    988
-   ],
    "go": {
     "place": "town:THRIFTY_LOGO",
     "web": "https://417-thrifty.kevin-fudge911.workers.dev/"
-   }
+   },
+   "shape": "oval",
+   "box": [
+    350,
+    914,
+    446,
+    990
+   ]
   },
   {
    "id": "todo",
@@ -637,17 +669,17 @@
   {
    "id": "live-events",
    "label": "Live Events",
-   "shape": "oval",
-   "box": [
-    232,
-    1402,
-    488,
-    1440
-   ],
    "go": {
     "place": "town:LIVE_EVENTS",
     "web": "https://liveeventsmissouri.com/"
-   }
+   },
+   "shape": "rect",
+   "box": [
+    235,
+    1406,
+    479,
+    1434
+   ]
   },
   {
    "id": "messenger",
@@ -682,7 +714,293 @@
      "com.samsung.android.messaging"
     ]
    }
+  },
+  {
+   "id": "photo-booth",
+   "label": "Photo booth",
+   "go": {
+    "place": "town:CAMERA",
+    "app": [
+     "com.sec.android.app.camera",
+     "com.google.android.GoogleCamera",
+     "com.android.camera2"
+    ]
+   },
+   "shape": "rect",
+   "box": [
+    70,
+    1494,
+    132,
+    1592
+   ]
   }
  ],
- "heart": false
+ "heart": false,
+ "flag": true,
+ "open": [
+  {
+   "id": "ohana-gathering",
+   "label": "Ohana Gathering",
+   "shape": "rect",
+   "box": [
+    86,
+    967,
+    164,
+    997
+   ]
+  },
+  {
+   "id": "pet-kingdom",
+   "label": "Pet Kingdom",
+   "shape": "rect",
+   "box": [
+    197,
+    964,
+    257,
+    994
+   ]
+  },
+  {
+   "id": "suno",
+   "label": "Suno",
+   "shape": "oval",
+   "box": [
+    645,
+    973,
+    680,
+    1004
+   ]
+  },
+  {
+   "id": "rapid-ship",
+   "label": "Rapid Ship Republic",
+   "shape": "rect",
+   "box": [
+    1258,
+    963,
+    1380,
+    1004
+   ]
+  },
+  {
+   "id": "bday-jesus",
+   "label": "Happy Birthday Jesus",
+   "shape": "rect",
+   "box": [
+    22,
+    772,
+    122,
+    842
+   ]
+  },
+  {
+   "id": "merry-christmas",
+   "label": "Merry CHRISTmas",
+   "shape": "rect",
+   "box": [
+    53,
+    875,
+    109,
+    909
+   ]
+  },
+  {
+   "id": "alpha-flag",
+   "label": "Alpha flag",
+   "shape": "rect",
+   "box": [
+    1292,
+    636,
+    1375,
+    690
+   ]
+  },
+  {
+   "id": "balloon",
+   "label": "Hot air balloon",
+   "shape": "oval",
+   "box": [
+    1067,
+    600,
+    1117,
+    656
+   ]
+  },
+  {
+   "id": "star",
+   "label": "Star",
+   "shape": "oval",
+   "box": [
+    645,
+    300,
+    765,
+    570
+   ]
+  },
+  {
+   "id": "daddy-bird",
+   "label": "Daddy",
+   "shape": "oval",
+   "box": [
+    670,
+    30,
+    775,
+    110
+   ]
+  },
+  {
+   "id": "purple-tree",
+   "label": "Purple tree",
+   "shape": "oval",
+   "box": [
+    745,
+    1035,
+    1085,
+    1245
+   ]
+  },
+  {
+   "id": "seven-brew-car",
+   "label": "7 Brew car",
+   "shape": "rect",
+   "box": [
+    378,
+    1230,
+    462,
+    1280
+   ]
+  },
+  {
+   "id": "otter",
+   "label": "Firefighter otter",
+   "shape": "oval",
+   "box": [
+    278,
+    1530,
+    318,
+    1597
+   ]
+  },
+  {
+   "id": "pug",
+   "label": "Pug",
+   "shape": "oval",
+   "box": [
+    362,
+    1530,
+    396,
+    1590
+   ]
+  },
+  {
+   "id": "dj-bear",
+   "label": "DJ bear",
+   "shape": "oval",
+   "box": [
+    488,
+    1518,
+    545,
+    1582
+   ]
+  },
+  {
+   "id": "bank-snowmen",
+   "label": "Snowmen by the bank",
+   "shape": "oval",
+   "box": [
+    1118,
+    858,
+    1166,
+    918
+   ]
+  },
+  {
+   "id": "beach-snowman",
+   "label": "Beach snowman",
+   "shape": "oval",
+   "box": [
+    765,
+    903,
+    797,
+    942
+   ]
+  },
+  {
+   "id": "planter-snowmen",
+   "label": "Snowmen in the planter",
+   "shape": "oval",
+   "box": [
+    1320,
+    2093,
+    1420,
+    2253
+   ]
+  },
+  {
+   "id": "chimes",
+   "label": "Wind chimes",
+   "shape": "rect",
+   "box": [
+    273,
+    2167,
+    327,
+    2340
+   ]
+  },
+  {
+   "id": "heartville-arch",
+   "label": "Ohana Heartville arch",
+   "shape": "poly",
+   "pts": [
+    462,
+    2025,
+    470,
+    1975,
+    520,
+    1935,
+    600,
+    1910,
+    690,
+    1902,
+    780,
+    1910,
+    860,
+    1935,
+    910,
+    1975,
+    920,
+    2025,
+    880,
+    2010,
+    845,
+    1988,
+    560,
+    1988,
+    505,
+    2010
+   ]
+  },
+  {
+   "id": "heart-photo",
+   "label": "Heart photo",
+   "shape": "oval",
+   "box": [
+    547,
+    1993,
+    847,
+    2140
+   ]
+  },
+  {
+   "id": "flag",
+   "label": "US flag",
+   "shape": "rect",
+   "box": [
+    655,
+    1676,
+    692,
+    1990
+   ]
+  }
+ ]
 }
