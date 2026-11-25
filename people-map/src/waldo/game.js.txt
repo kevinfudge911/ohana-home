@@ -72,7 +72,7 @@
   // How tall a grown-up in the painted crowd is at a spot, as a share of the picture's width (people further back are smaller).
   function crowdH(y){ return Math.max(0.7, 0.0456 * y - 0.72); }
   // Picture width (in % of the town's width) for something f times a grown-up's height standing at row y.
-  function sizeAt(f, ar, y){ return +(Math.max(0.55, crowdH(y) * f * LV.k) / ar).toFixed(3); }
+  function sizeAt(f, ar, y){ return +(Math.max(0.7, crowdH(y) * f * LV.k) / ar).toFixed(3); }
   // A little cottage, painted for each saved house ("Ashley's house").
   var COTTAGE = '<svg viewBox="0 0 64 58"><ellipse cx="32" cy="55" rx="28" ry="3" fill="#0003"/><rect x="44" y="6" width="7" height="14" fill="#7a3b2c" stroke="#141414" stroke-width="1.5"/><path d="M4 27 32 6l28 21z" fill="#d7141d" stroke="#141414" stroke-width="2" stroke-linejoin="round"/><path d="M11 22h42M17 17.5h30M23 13h18" stroke="#fff" stroke-width="2.4"/><rect x="9" y="26" width="46" height="27" fill="#fff" stroke="#141414" stroke-width="2"/><rect x="27" y="35" width="10" height="18" rx="1" fill="#141414"/><circle cx="35" cy="44" r="1" fill="#f2c94c"/><g fill="#ffe7a1" stroke="#141414" stroke-width="1.6"><rect x="13" y="32" width="9" height="8"/><rect x="42" y="32" width="9" height="8"/></g><path d="M13 36h9M17.5 32v8M42 36h9M46.5 32v8" stroke="#141414" stroke-width="1"/><path d="M8 53c2-5 5-6 7-6s4 2 5 6zM44 53c2-5 5-6 7-6s4 2 5 6z" fill="#3f8f45"/></svg>';
 
