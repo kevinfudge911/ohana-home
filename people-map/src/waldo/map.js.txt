@@ -93,8 +93,8 @@ window.OhanaMap = (function(){
       stopSpin(); if (!people.length) return map.flyTo({ center: [-93.3, 37.0], zoom: 6, pitch: 45, duration: 3500 });
       if (people.length === 1) return map.flyTo({ center: [people[0].lng, people[0].lat], zoom: 14.5, pitch: 58, bearing: -20, duration: 4500, essential: true });
       var b = new maplibregl.LngLatBounds(); people.forEach(function(p){ b.extend([p.lng, p.lat]); });
-      var cam = map.cameraForBounds(b, { padding: { top: 80, bottom: 130, left: 70, right: 70 }, maxZoom: 13 }); // tilted, the near edge comes closer, so leave more room at the bottom
-      map.flyTo({ center: cam.center, zoom: Math.max(2, cam.zoom - 0.1), pitch: 52, bearing: -18, duration: 4500, essential: true });
+      var cam = map.cameraForBounds(b, { padding: { top: 80, bottom: 100, left: 70, right: 70 }, maxZoom: 13 }); // tilted, the near edge comes closer, so leave more room at the bottom
+      map.flyTo({ center: cam.center, zoom: Math.max(2, cam.zoom - 0.1), pitch: 38, bearing: -10, duration: 4500, essential: true });
     });
   }
   function fly(p){
