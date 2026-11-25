@@ -78,3 +78,4 @@ dialog.me-small input{width:100%}
 #me-cam{padding:7px 10px;font-size:19px}
 .me-status:empty{display:none}
 dialog.me-sheet .me-head,dialog.me-sheet .me-foot{z-index:6}
+.me-tile.off .me-words{opacity:.45}
