@@ -54,6 +54,16 @@ window.OhanaMap = (function(){
       ready = true; var w = waiting; waiting = []; w.forEach(function(f){ f(); });
       ["mousedown", "touchstart", "wheel"].forEach(function(e){ map.on(e, stopSpin); });
       map.on("move", unclash);
+      // Keep the camera's center sitting on the real ground. Without this, in the hills (Reeds Spring is 575 m up)
+      // the camera can end up inside the hill after flying in and the map goes blank.
+      var grounding = false;
+      map.on("moveend", ground); map.on("idle", ground);
+      function ground(){
+        if (grounding || !map.getTerrain()) return;
+        var c = map.getCenter(), e = map.queryTerrainElevation(c);
+        if (e == null || !isFinite(e) || Math.abs(e - (map.transform.elevation || 0)) < 5) return;
+        grounding = true; map.jumpTo({ center: c, elevation: e }); grounding = false;
+      }
     });
   }
   function later(f){ if (ready) f(); else waiting.push(f); }
@@ -103,7 +113,7 @@ window.OhanaMap = (function(){
     });
   }
   function fly(p){
-    later(function(){ stopSpin(); map.flyTo({ center: [p.lng, p.lat], zoom: 16.3, pitch: 62, bearing: map.getBearing() - 30, duration: 3200, essential: true }); want = true; map.once("moveend", function(){ if (want) orbit(); }); });
+    later(function(){ stopSpin(); var o = { center: [p.lng, p.lat], zoom: 16.3, pitch: 62, bearing: map.getBearing() - 30, duration: 3200, essential: true }, e = map.getTerrain() ? map.queryTerrainElevation(o.center) : null; if (e != null && isFinite(e)) o.elevation = e; map.flyTo(o); want = true; map.once("moveend", function(){ if (want) orbit(); }); });
   }
   function resize(){ if (ready) map.resize(); }
   return { init: init, draw: draw, all: all, fly: fly, resize: resize, stop: stopSpin, get: function(){ return map; } };
