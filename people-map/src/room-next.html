@@ -65,6 +65,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 /* Checklist under the picture: a small picture of each thing, its name, a check when found */
 .check{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font:700 clamp(15px,4vw,19px)/1.2 Fredoka,Nunito,sans-serif}
 .check b{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
+.check img.wide{width:46px}
 .check img{width:30px;height:30px;object-fit:contain;flex:none;filter:drop-shadow(0 1px 2px #0009)}
 .check .pl{font:800 12px Nunito,sans-serif;color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 4px #000}
 .room.real .gameonly,.room:not(.real) .realonly{display:none!important}
@@ -137,7 +138,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
 
   // Little red, white and black art, drawn here (no outside pictures).
   var HAT = '<svg viewBox="0 0 40 40"><defs><clipPath id="hc"><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z"/></clipPath></defs><g clip-path="url(#hc)"><rect width="40" height="40" fill="#fff"/><g fill="#d7141d"><rect y="8" width="40" height="5"/><rect y="18" width="40" height="5"/><rect y="28" width="40" height="5"/></g></g><path d="M6 34C8 20 14 9 24 6c4 6 7 16 8 28z" fill="none" stroke="#141414" stroke-width="2"/><rect x="3" y="31" width="32" height="6" rx="3" fill="#d7141d" stroke="#141414" stroke-width="2"/><circle cx="25" cy="6" r="4.5" fill="#fff" stroke="#141414" stroke-width="2"/></svg>';
-  var GLASSES = '<svg viewBox="0 0 48 22"><path d="M3 9 0 5M45 9l3-4" stroke="#3a2a1c" stroke-width="2.4" fill="none" stroke-linecap="round"/><g fill="#bfe3ff99" stroke="#3a2a1c" stroke-width="2.6"><circle cx="12" cy="12" r="8.5"/><circle cx="36" cy="12" r="8.5"/></g><path d="M20.5 10.5q3.5-3 7 0" stroke="#3a2a1c" stroke-width="2.4" fill="none"/><path d="M7 9q2-3 5-3M31 9q2-3 5-3" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".9"/></svg>';
+  var GLASSES = '<svg viewBox="0 0 52 24"><path d="M4.5 10 1 5.5M47.5 10 51 5.5" stroke="#111" stroke-width="2.6" fill="none" stroke-linecap="round"/><g fill="#f2faff" stroke="#111" stroke-width="3.2"><circle cx="14" cy="13" r="9"/><circle cx="38" cy="13" r="9"/></g><path d="M23 11q3-3.5 6 0" stroke="#111" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M9 10.5q1.8-3.3 5.2-3.6M33 10.5q1.8-3.3 5.2-3.6" stroke="#9fd3ff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
   // A little person in a striped hat, for anyone without their own Ohana character yet.
   function buddy(seed){
     var v = seed % 4, skin = ["#f2c29b", "#c98e62", "#8d5a3b", "#f7d7b8"][(seed >> 3) % 4];
@@ -239,12 +240,12 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
       } else if (found[it.id]) mark(it, false);
     });
   }
-  function pic(src){ return '<img src="' + esc(src) + '" alt="">'; }
+  function pic(src, wide){ return '<img' + (wide ? ' class="wide"' : '') + ' src="' + esc(src) + '" alt="">'; }
   function drawLists(){
     var f = $("find"), a = $("also"); f.innerHTML = ""; a.innerHTML = "";
     items.forEach(function(it){
       var b = document.createElement("b"); b.className = found[it.id] ? "r got" : "r";
-      b.innerHTML = pic(it.src) + "<span>" + esc(it.name) + "</span>";
+      b.innerHTML = pic(it.src, it.id === "x-glasses") + "<span>" + esc(it.name) + "</span>";
       b.onclick = function(){ found[it.id] ? tell(it) : hint(it); };
       a.appendChild(b);
     });
