@@ -23,12 +23,10 @@ body.solo .room{padding-top:6px}
 button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:inherit}
 .room{max-width:1120px;margin:0 auto;padding:2px 6px 14px;display:grid;gap:4px}
 /* red words: white halo, black edge */
-.r,.find b,.ctl button,.l360 h4,.l360 .acts button{color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
-/* black words: white halo */
+.r,.find b,.ctl button,/* black words: white halo */
 .k{color:var(--blk);text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 0 8px #fff}
 /* white words: black edge */
-.w,.l360 p,.line{color:#fff;text-shadow:0 0 2px #000,0 0 3px #000,0 1px 6px #000c}
-.title{display:flex;align-items:center;justify-content:center;gap:8px;font:700 clamp(19px,4.6vw,30px)/1.05 Fredoka,Nunito,sans-serif;text-align:center;margin-top:2px}
+.w,.title{display:flex;align-items:center;justify-content:center;gap:8px;font:700 clamp(19px,4.6vw,30px)/1.05 Fredoka,Nunito,sans-serif;text-align:center;margin-top:2px}
 .title svg{flex:none;width:clamp(26px,6vw,40px);height:auto;filter:drop-shadow(0 2px 2px #0007)}
 .find{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:1px 12px;font:600 clamp(14px,3.6vw,18px)/1.25 Fredoka,Nunito,sans-serif}
 .find .lbl{font-weight:700}
@@ -63,6 +61,13 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .bit{position:absolute;width:7px;height:11px;pointer-events:none;border-radius:1px;animation:pop .9s ease-out forwards}
 @keyframes pop{from{transform:translate(-50%,-50%) rotate(0);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rt));opacity:0}}
 /* Checklist under the picture: a small picture of each thing, its name, a check when found */
+.line:empty{display:none}
+.check.pics{gap:2px 6px}
+.check.pics b{position:relative}
+.check.pics img{width:32px;height:32px}
+.check.pics img.wide{width:38px}
+.check.pics b.got img{opacity:.45}
+.check.pics b.got::after{position:absolute;right:-3px;bottom:-4px;margin:0;font:900 20px Fredoka,sans-serif;text-shadow:0 0 2px #fff,0 0 3px #fff}
 .check{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font:700 clamp(15px,4vw,19px)/1.2 Fredoka,Nunito,sans-serif}
 .check b{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
 .check img.wide{width:46px}
@@ -73,8 +78,7 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .line{text-align:center;font:800 13px/1.35 Nunito,sans-serif;min-height:18px}
 .line.hot{font:700 15px/1.45 Fredoka,Nunito,sans-serif;color:var(--red);text-shadow:0 0 1px #fff,0 0 2px #fff,0 0 3px #fff,0 0 5px #fff,0 2px 4px #000a}
 .ctl{display:flex;justify-content:center;gap:4px 20px;flex-wrap:wrap;font:700 16px Fredoka,Nunito,sans-serif}
-.ctl button.go,.l360 .acts button.go{color:#fff!important;text-shadow:0 0 2px var(--red),0 0 3px var(--red),0 0 5px var(--red),0 1px 8px #000a}
-/* the real map, shown when asked, also melts into the world */
+.ctl button.go,/* the real map, shown when asked, also melts into the world */
 .mapw{display:none;position:relative;width:100%;max-width:1000px;margin:0 auto;aspect-ratio:16/10;min-height:280px;
  -webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);-webkit-mask-composite:source-in;
  mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent),linear-gradient(to bottom,transparent,#000 10%,#000 90%,transparent);mask-composite:intersect}
@@ -87,12 +91,6 @@ button{font:inherit;border:0;background:none;padding:2px;cursor:pointer;color:in
 .pm img{display:block;margin:0 auto;object-fit:contain;filter:drop-shadow(0 3px 3px #000a)}
 .pm span{display:block;width:max-content;margin:0 auto;font:700 12px/1.2 Fredoka,Nunito,sans-serif;color:var(--red);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 3px #fff,0 0 4px #fff,0 0 6px #fff,0 1px 8px #0008}
 .leaflet-popup-content{margin:8px 10px;font:700 12px/1.35 Nunito,sans-serif}
-.l360{display:none;max-width:520px;margin:0 auto;text-align:center;font:800 12px/1.4 Nunito,sans-serif}
-.l360.on{display:block}
-.l360 h4{margin:0;font:700 17px Fredoka,Nunito,sans-serif}
-.l360 p{margin:2px 0}
-.l360 input{width:min(100%,360px);margin:5px auto 2px;display:block;padding:6px 10px;border-radius:10px;border:1.5px solid var(--red);background:#fffffff0;font:700 12px Nunito,sans-serif;color:var(--blk)}
-.l360 .acts{display:flex;justify-content:center;gap:18px;font:700 16px Fredoka,Nunito,sans-serif}
 </style>
 <!--SOLO_HEAD-->
 </head>
@@ -107,21 +105,11 @@ if(window.top===window&&!/[?&](demo|solo)=/.test(location.search)){var t="";try{
 if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remove();document.documentElement.classList.add("framed");}
 </script>
 <div class="room">
-  <div class="title"><span id="hatA"></span><span class="r" id="ttl">Can you find them all?</span><span id="glassA"></span></div>
   <div class="scene gameonly" id="scene"><div class="stage" id="stage"><img class="town" src="/people/art/waldo-town-2x.webp" alt="" draggable="false"></div></div>
-  <div class="check gameonly" id="also"></div>
-  <div class="count gameonly" id="count"></div>
+  <div class="check pics gameonly" id="also"></div>
   <div class="mapw realonly" id="mapw"><div id="map"></div></div>
-  <div class="check realonly" id="find"></div>
-  <div class="line w" id="line">Pinch to look closer. Tap a thing when you find it.</div>
-  <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Real Life</button><button id="l360" class="realonly">Life360</button><button id="share" class="realonly">Share: off</button></div>
-  <div class="l360 realonly" id="lp">
-    <h4>Your Life360</h4>
-    <p>It shows your people, and only you see them here. Everyone connects their own.</p>
-        <input id="lk" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Life360 key">
-    <p id="ls"></p>
-    <div class="acts"><button class="go" id="lsave">Connect</button><button id="loff">Turn off</button><button id="lclose">Close</button></div>
-  </div>
+  <div class="line w" id="line"></div>
+  <div class="ctl"><button id="hunt" class="gameonly">New hunt</button><button id="real">Where’s my people?</button><button id="share" class="realonly">Share: off</button></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
@@ -147,7 +135,6 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
     return '<svg viewBox="0 0 40 52"><path d="M7 51c0-11 6-17 13-17s13 6 13 17z" fill="' + shirt + '" stroke="#141414" stroke-width="2"/><path d="M12 40h16M10 46h20" stroke="' + band + '" stroke-width="3"/><circle cx="20" cy="25" r="9" fill="' + skin + '" stroke="#141414" stroke-width="2"/><circle cx="17" cy="25" r="1.3" fill="#141414"/><circle cx="23" cy="25" r="1.3" fill="#141414"/><path d="M17 29q3 2 6 0" stroke="#141414" stroke-width="1.5" fill="none"/><path d="M10 20c1-9 6-14 12-14 3 4 6 9 8 14z" fill="' + hat + '" stroke="#141414" stroke-width="2"/><path d="M12 13h14M11 17h17" stroke="' + hband + '" stroke-width="3"/><circle cx="22" cy="5" r="3.5" fill="' + pom + '" stroke="#141414" stroke-width="1.6"/></svg>';
   }
   var BUDDY = buddy(0);
-  $("hatA").innerHTML = HAT; $("glassA").innerHTML = GLASSES;
   function svgUrl(s){ return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ')); }
 
   // Spots in the painted town, in percent of the picture. Each real kind of place has its own spot.
@@ -174,12 +161,26 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   var OUT = [[58.5, 79], [52, 64], [63, 53], [26, 63], [33, 73], [95, 31]];
   var HOUSE_SLOTS = [[40.5, 87], [27, 88], [57, 89], [62.5, 67], [96, 40], [6.5, 93]];
   var EXTRA = [
-    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 3, spots: [[37, 27], [67, 25], [94, 70], [52, 23]] },
+    { id: "x-honu", name: "Honu", art: "/honu.webp", size: 3, spots: [[37, 27], [34, 19], [94, 70], [52, 23]] },
     { id: "x-kiko", name: "Kiko", art: "/buddy-kiko.webp", size: 2.8, spots: [[80, 40], [49, 57], [20, 50], [66, 70]] },
-    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 2.8, spots: [[44, 30], [79, 72], [62, 35], [97, 58]] },
+    { id: "x-splash", name: "Splash", art: "/buddy-splash.webp", size: 2.8, spots: [[44, 30], [79, 72], [58, 30], [96, 72]] },
     { id: "x-hoot", name: "Hoot", art: "/buddy-hoot.webp", size: 2.8, spots: [[7, 24], [41, 64], [56, 38], [88, 18]] },
-    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.2, spots: [[74, 9], [30, 84], [51, 74], [86, 46]] },
-    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.2, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] }
+    { id: "x-hat", name: "the lost striped hat", svg: HAT, size: 2.2, spots: [[57, 73], [30, 84], [51, 74], [86, 46]] },
+    { id: "x-glasses", name: "the round glasses", svg: GLASSES, size: 2.2, spots: [[18, 74], [69, 57], [47, 44], [83, 93]] },
+    { id: "x-eddie", name: "Eddie the eagle", art: "/buddy-eddie.webp", size: 2.8, spots: [[33.5, 43], [87, 31], [63, 73], [22, 39]] },
+    { id: "x-bandit", name: "Bandit the pug", art: "/buddy-bandit-v1.webp", size: 2.5, spots: [[24, 80], [57, 93], [12, 76], [47, 58]] },
+    { id: "x-pippa", name: "Pippa the puffin", art: "/buddy-pippa.webp", size: 2.3, spots: [[64, 79], [53, 35], [74, 38], [87, 33]] },
+    { id: "x-lulu", name: "Lulu the bunny", art: "/buddy-lulu.webp", size: 2.3, spots: [[37, 52], [27, 64], [55, 84], [18, 95]] },
+    { id: "x-flutter", name: "Flutter the butterfly", art: "/buddy-flutter.webp", size: 2.2, spots: [[8, 92], [61, 97], [15, 73], [92, 88]] },
+    { id: "x-rosie", name: "Rosie the pig", art: "/buddy-rosie.webp", size: 2.6, spots: [[30, 88], [49, 91], [71, 56], [12, 95]] },
+    { id: "x-koa", name: "Koa the puppy", art: "/buddy-koa.webp", size: 2.5, spots: [[55, 50], [24, 93], [66, 62], [86, 56]] },
+    { id: "x-milo", name: "Milo the kitten", art: "/buddy-milo.webp", size: 2.3, spots: [[17, 66], [58, 49], [79, 52], [38, 79]] },
+    { id: "x-bamboo", name: "Bamboo the panda", art: "/buddy-bamboo.webp", size: 2.6, spots: [[70, 63], [45, 47], [91, 53], [29, 79]] },
+    { id: "x-maple", name: "Maple the fox", art: "/buddy-maple-v1.webp", size: 2.6, spots: [[4, 60], [45, 70], [97, 26], [26, 57]] },
+    { id: "x-biscuit", name: "Biscuit the raccoon", art: "/buddy-biscuit-v1.webp", size: 2.6, spots: [[93, 94], [83, 56], [36, 68], [60, 57]] },
+    { id: "x-lemon", name: "Lemon the duck", art: "/buddy-lemon-v1.webp", size: 2.2, spots: [[13, 84], [22, 89], [68, 81], [86, 73]] },
+    { id: "x-daisy", name: "Daisy the cow", art: "/buddy-daisy-v1.webp", size: 3.4, spots: [[46, 87], [55, 80], [40, 94], [62, 78]] },
+    { id: "x-otto", name: "Otto the otter", art: "/buddy-otto.webp", size: 2.4, spots: [[72, 85], [58, 36], [90, 82], [48, 29]] }
   ];
   // A little cottage, painted for each saved house ("Ashley's house").
   var COTTAGE = '<svg viewBox="0 0 64 58"><ellipse cx="32" cy="55" rx="28" ry="3" fill="#0003"/><rect x="44" y="6" width="7" height="14" fill="#7a3b2c" stroke="#141414" stroke-width="1.5"/><path d="M4 27 32 6l28 21z" fill="#d7141d" stroke="#141414" stroke-width="2" stroke-linejoin="round"/><path d="M11 22h42M17 17.5h30M23 13h18" stroke="#fff" stroke-width="2.4"/><rect x="9" y="26" width="46" height="27" fill="#fff" stroke="#141414" stroke-width="2"/><rect x="27" y="35" width="10" height="18" rx="1" fill="#141414"/><circle cx="35" cy="44" r="1" fill="#f2c94c"/><g fill="#ffe7a1" stroke="#141414" stroke-width="1.6"><rect x="13" y="32" width="9" height="8"/><rect x="42" y="32" width="9" height="8"/></g><path d="M13 36h9M17.5 32v8M42 36h9M46.5 32v8" stroke="#141414" stroke-width="1"/><path d="M8 53c2-5 5-6 7-6s4 2 5 6zM44 53c2-5 5-6 7-6s4 2 5 6z" fill="#3f8f45"/></svg>';
@@ -190,7 +191,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   var found = {}; try { found = JSON.parse(localStorage.getItem("waldo_found_" + hunt) || "{}") || {}; } catch (e) { found = {}; }
   function saveFound(){ try { localStorage.setItem("waldo_found_" + hunt, JSON.stringify(found)); } catch (e) {} }
 
-  var people = [], houses = [], items = [], admin = false, sharing = false, watchId = null, lastSent = 0, l360 = { connected: false };
+  var people = [], houses = [], items = [], admin = false, sharing = false, watchId = null, lastSent = 0;
 
   function shortPlace(p){
     if (p.place) return p.place;
@@ -216,8 +217,11 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
       var size = p.kind === "vehicle" && z === "road" ? 6 : showArt ? 4.2 : 2.9;
       out.push({ id: "p-" + p.key, who: p, name: p.name, x: pt[0], y: pt[1], size: size, src: showArt || svgUrl(buddy(hash(p.key + "b"))), person: true, where: shortPlace(p) });
     });
+    var taken = [];
     EXTRA.forEach(function(e){
-      var s = e.spots[hash(e.id + ":" + hunt) % e.spots.length];
+      var k0 = hash(e.id + ":" + hunt), s = null;
+      for (var j = 0; j < e.spots.length && !s; j++) { var c = e.spots[(k0 + j) % e.spots.length]; if (!taken.some(function(t){ return Math.abs(t[0] - c[0]) < 3.5 && Math.abs(t[1] - c[1]) < 5; })) s = c; }
+      if (!s) s = e.spots[k0 % e.spots.length]; taken.push(s);
       out.push({ id: e.id, name: e.name, x: s[0], y: s[1], size: e.size, src: e.svg ? svgUrl(e.svg) : e.art, person: false });
     });
     items = out.filter(function(i){ return !i.person && !i.house; });
@@ -242,23 +246,13 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   }
   function pic(src, wide){ return '<img' + (wide ? ' class="wide"' : '') + ' src="' + esc(src) + '" alt="">'; }
   function drawLists(){
-    var f = $("find"), a = $("also"); f.innerHTML = ""; a.innerHTML = "";
+    var a = $("also"); a.innerHTML = "";
     items.forEach(function(it){
       var b = document.createElement("b"); b.className = found[it.id] ? "r got" : "r";
-      b.innerHTML = pic(it.src, it.id === "x-glasses") + "<span>" + esc(it.name) + "</span>";
+      b.innerHTML = pic(it.src, it.id === "x-glasses"); b.title = it.name; b.setAttribute("aria-label", it.name);
       b.onclick = function(){ found[it.id] ? tell(it) : hint(it); };
       a.appendChild(b);
     });
-    people.forEach(function(p){
-      var it = { person: true, who: p, name: p.name, where: shortPlace(p) };
-      var b = document.createElement("b"); b.className = "r";
-      b.innerHTML = pic(p.art ? artUrl(p.art) : svgUrl(buddy(hash(p.key + "b")))) + "<span>" + esc(p.name) + '<span class="pl">' + esc(it.where) + "</span></span>";
-      b.onclick = function(){ tell(it); if (map) map.flyTo([p.lat, p.lng], Math.max(map.getZoom(), 15)); };
-      f.appendChild(b);
-    });
-    if (!people.length) f.innerHTML = '<span class="w">' + (tok || DEMO ? "Nobody is sharing with you yet." : "Sign in to Ohana Home to see your people.") + "</span>";
-    var n = items.filter(function(i){ return found[i.id]; }).length;
-    $("count").innerHTML = '<span class="k">Found </span><span class="r">' + n + '</span><span class="k"> of ' + items.length + " hidden things</span>";
     tellHeight();
   }
   function midY(it){ return it.y - 0.35 * it.size * (1520 / 848); }
@@ -280,7 +274,7 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
       st.appendChild(b); setTimeout(function(n){ n.remove(); }.bind(null, b), 950);
     }
   }
-  var lineT = null, LINE = "Tap anyone for where they are and directions.";
+  var lineT = null, LINE = "";
   function say(t, hot, html){ var n = $("line"); if (html) n.innerHTML = html; else n.textContent = t; n.className = "line " + (hot ? "hot" : "w"); clearTimeout(lineT); lineT = setTimeout(function(){ n.textContent = LINE; n.className = "line w"; tellHeight(); }, html ? 30000 : 9000); tellHeight(); }
   function tell(it){
     if (!it.person) return say("You found " + it.name + "!", true);
@@ -377,9 +371,8 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
   function setMode(m){
     mode = m; try { localStorage.setItem("waldo_mode", m); } catch (e) {}
     var real = m === "real"; document.querySelector(".room").classList.toggle("real", real);
-    $("ttl").textContent = real ? "Where’s everybody?" : "Can you find them all?";
-    $("real").textContent = real ? "Game" : "Real Life";
-    LINE = real ? "Tap anyone for where they are and directions." : "Pinch to look closer. Tap a thing when you find it.";
+    $("real").textContent = real ? "Game" : "Where’s my people?";
+    LINE = "";
     $("line").textContent = LINE; $("line").className = "line w";
     if (real) { initMap(); setTimeout(function(){ map.invalidateSize(); drawMap(); fitAll(); }, 30); }
     else setTimeout(function(){ if (items.length) drawScene(); }, 30);
@@ -425,38 +418,13 @@ if(window.top!==window){var sh=document.getElementById("soloHead");if(sh)sh.remo
     if (!tok) { show([]); return; }
     var h = { authorization: "Bearer " + tok };
     fetch("/people/api/family", { headers: h, cache: "no-store" }).then(function(r){ return r.ok ? r.json() : null; }).then(function(f){
-      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing); l360 = f.life360 || { connected: false }; }
+      if (f) { sharing = !!(f.me && f.me.sharing); setShare(); watch(sharing);  }
       return fetch("/people/api/where", { headers: h, cache: "no-store" }).then(function(r){
-        if (r.ok) { admin = true; return r.json().then(function(d){ l360 = (d.sources && d.sources.life360) || { connected: false }; return d; }); }
+        if (r.ok) { admin = true; return r.json(); }
         return f ? { people: (f.people || []).concat(f.mine || []), houses: f.houses } : null;
       });
-    }).then(function(d){ show((d && d.people) || [], (d && d.houses) || []); setL360(); }).catch(function(){ say("Can't reach your people right now. Trying again."); });
+    }).then(function(d){ show((d && d.people) || [], (d && d.houses) || []); }).catch(function(){ say("Can't reach your people right now. Trying again."); });
   }
-  function setL360(){
-    var b = $("l360"); b.textContent = l360.connected ? (l360.error ? "Life360 needs a new key" : "Life360 on") : "Life360"; b.classList.toggle("go", !!(l360.connected && !l360.error));
-    $("ls").textContent = l360.connected ? (l360.error ? "Life360 stopped answering. Paste a fresh key." : "Connected. " + (l360.members || 0) + " of your people coming in.") : "Not connected yet.";
-    $("loff").style.display = l360.connected ? "" : "none";
-  }
-  function sendL360(body){
-    if (DEMO) { l360 = body.off ? { connected: false } : { connected: true, members: 4 }; setL360(); return Promise.resolve({ ok: true }); }
-    return fetch(admin ? "/people/api/life360" : "/people/api/family/life360", { method: "POST", headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: JSON.stringify(body) }).then(function(r){ return r.json(); });
-  }
-  $("l360").onclick = function(){ setL360(); $("lp").classList.toggle("on"); tellHeight(); };
-  $("lclose").onclick = function(){ $("lp").classList.remove("on"); tellHeight(); };
-  $("lsave").onclick = function(){
-    var k = $("lk").value.trim(); if (!k) return;
-    if (/%[0-9A-F]{2}/i.test(k)) { try { k = decodeURIComponent(k); } catch (e) {} }
-    // Take whatever got copied: the bare key, "Bearer key", access_token=key, or the whole token reply.
-    var m = k.match(/"access_token"\s*:\s*"([^"]+)"/) || k.match(/(?:access_token|LIFE360_AUTH_TOKEN)\s*[=:]\s*["']?([A-Za-z0-9._~+\/-]+)/i) || k.match(/Bearer\s+([A-Za-z0-9._~+\/-]+)/i);
-    if (m) k = m[1]; k = k.replace(/^["']|["';]$/g, "").trim();
-    sendL360({ key: k }).then(function(d){
-      $("lk").value = "";
-      if (!d.ok) { $("ls").textContent = d.error || "That didn't work."; return; }
-      if (d.status) l360 = d.status; setL360();
-      say(d.status && d.status.error ? "Saved, but Life360 said no. Try a fresh key." : "Life360 connected. Your people are coming to town.", true); load();
-    });
-  };
-  $("loff").onclick = function(){ sendL360({ off: true }).then(function(){ l360 = { connected: false }; setL360(); $("lp").classList.remove("on"); say("Your Life360 is turned off here."); load(); }); };
   $("share").onclick = function(){
     if (DEMO) { sharing = !sharing; setShare(); return say(sharing ? "Your family can find you while Ohana is open." : "Sharing is off. You left town."); }
     if (!tok) return;
