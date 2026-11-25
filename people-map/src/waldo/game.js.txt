@@ -298,7 +298,7 @@
   function hitAt(p){
     var W = SW, H = SH, x = (p.x - Z.x) / Z.s / W * 100, y = (p.y - Z.y) / Z.s / H * 100, best = null, bd = 1e9;
     items.forEach(function(it){
-      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W / (it.ar ? 1.6 : 1), d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Z.s;
+      var cy = midY(it), dx = x - it.x, dy = (y - cy) * H / W / (it.ar ? 1.6 : 1), d = Math.hypot(dx, dy), r = it.size * 0.62 + 1.2 / Math.max(Z.s, 0.75);
       if (d < r && d < bd) { bd = d; best = it; }
     });
     return best;
